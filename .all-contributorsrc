@@ -1,0 +1,24 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "flyover",
+      "name": "Isaac Burns",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/1216696?v=4",
+      "profile": "http://flyovergames.com",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "box2d.ts",
+  "projectOwner": "Lusito",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
