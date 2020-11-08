@@ -2,7 +2,16 @@
   "name": "@box2d/lights",
   "version": "0.7.2",
   "description": "A TypeScript port of Box2DLights",
-  "homepage": "https://github.com/lusito/box2d.ts",
+  "keywords": [
+    "box2d",
+    "libgdx",
+    "lights",
+    "lighting",
+    "shadows",
+    "game",
+    "TypeScript"
+  ],
+  "homepage": "https://lusito.github.io/box2d.ts/",
   "bugs": {
     "url": "https://github.com/lusito/box2d.ts/issues"
   },

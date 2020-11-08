@@ -2,7 +2,14 @@
   "name": "@box2d/controllers",
   "version": "0.7.2",
   "description": "A TypeScript port of LiquidFuns controllers for @box2d/core",
-  "homepage": "https://github.com/lusito/box2d.ts",
+  "keywords": [
+    "box2d",
+    "liquidfun",
+    "controller",
+    "game",
+    "TypeScript"
+  ],
+  "homepage": "https://lusito.github.io/box2d.ts/",
   "bugs": {
     "url": "https://github.com/lusito/box2d.ts/issues"
   },

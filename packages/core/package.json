@@ -2,7 +2,15 @@
   "name": "@box2d/core",
   "version": "0.7.2",
   "description": "A TypeScript port of Box2D",
-  "homepage": "https://github.com/lusito/box2d.ts",
+  "keywords": [
+    "box2d",
+    "physics",
+    "2d",
+    "collision",
+    "game",
+    "TypeScript"
+  ],
+  "homepage": "https://lusito.github.io/box2d.ts/",
   "bugs": {
     "url": "https://github.com/lusito/box2d.ts/issues"
   },

@@ -3,7 +3,7 @@
   "version": "0.7.2",
   "private": true,
   "description": "A Testbed for all @box2d packages",
-  "homepage": "https://github.com/lusito/box2d.ts",
+  "homepage": "https://lusito.github.io/box2d.ts/",
   "bugs": {
     "url": "https://github.com/lusito/box2d.ts/issues"
   },

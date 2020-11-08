@@ -2,7 +2,19 @@
   "name": "@box2d/particles",
   "version": "0.7.2",
   "description": "A TypeScript port of LiquidFuns particles for @box2d/core",
-  "homepage": "https://github.com/lusito/box2d.ts",
+  "keywords": [
+    "box2d",
+    "liquidfun",
+    "particles",
+    "water",
+    "powder",
+    "elastic",
+    "liquids",
+    "fluids",
+    "game",
+    "TypeScript"
+  ],
+  "homepage": "https://lusito.github.io/box2d.ts/",
   "bugs": {
     "url": "https://github.com/lusito/box2d.ts/issues"
   },
