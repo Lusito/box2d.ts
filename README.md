@@ -1,4 +1,7 @@
 # @box2d Monorepository
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Work in Progress of a full Box2D ecosystem for the web.
 This includes [TypeScript](https://github.com/Microsoft/TypeScript) ports of:
@@ -42,3 +45,22 @@ Other packages included in the ecosystem:
 
 We're looking for contributors to make this the best place to start with box2d on the web.
 Check out the project page for more information: https://github.com/Lusito/box2d.ts
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="http://box2d.org"><img src="https://avatars2.githubusercontent.com/u/7284063?v=4" width="100px;" alt=""/><br /><sub><b>Erin Catto</b></sub></a><br /><a href="https://github.com/Lusito/box2d.ts/commits?author=erincatto" title="Code">💻</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-enable -->
+<!-- prettier-ignore-end -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
