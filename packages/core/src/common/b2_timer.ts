@@ -24,13 +24,13 @@
  * Timer for profiling. This has platform specific code and may
  * not work on every platform.
  */
-export class b2Timer {
+export class Timer {
     private m_start = performance.now();
 
     /**
      * Reset the timer.
      */
-    public Reset(): b2Timer {
+    public Reset(): Timer {
         this.m_start = performance.now();
         return this;
     }

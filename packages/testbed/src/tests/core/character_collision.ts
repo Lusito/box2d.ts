@@ -16,17 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import {
-    b2Body,
-    b2EdgeShape,
-    b2Vec2,
-    b2ChainShape,
-    b2PolygonShape,
-    b2BodyType,
-    b2CircleShape,
-    XY,
-    b2MakeArray,
-} from "@box2d/core";
+import { Body, EdgeShape, Vec2, ChainShape, PolygonShape, BodyType, CircleShape, XY, MakeArray } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -36,8 +26,8 @@ import { Settings } from "../../settings";
  * show how you should implement a character in your application.
  * Instead this is used to test smooth collision on edge chains.
  */
-class CharacterCollision extends Test {
-    public m_character: b2Body;
+class CharacterCollisionTest extends Test {
+    public m_character: Body;
 
     public constructor() {
         super();
@@ -46,8 +36,8 @@ class CharacterCollision extends Test {
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-20, 0), new b2Vec2(20, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
             ground.CreateFixture({ shape });
         }
 
@@ -57,12 +47,12 @@ class CharacterCollision extends Test {
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-8, 1), new b2Vec2(-6, 1));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-8, 1), new Vec2(-6, 1));
             ground.CreateFixture({ shape });
-            shape.SetTwoSided(new b2Vec2(-6, 1), new b2Vec2(-4, 1));
+            shape.SetTwoSided(new Vec2(-6, 1), new Vec2(-4, 1));
             ground.CreateFixture({ shape });
-            shape.SetTwoSided(new b2Vec2(-4, 1), new b2Vec2(-2, 1));
+            shape.SetTwoSided(new Vec2(-4, 1), new Vec2(-2, 1));
             ground.CreateFixture({ shape });
         }
 
@@ -72,13 +62,13 @@ class CharacterCollision extends Test {
                 angle: 0.25 * Math.PI,
             });
 
-            const vs = b2MakeArray(4, b2Vec2);
+            const vs = MakeArray(4, Vec2);
             vs[0].Set(5, 7);
             vs[1].Set(8, 7);
             vs[2].Set(7, 8);
             vs[3].Set(6, 8);
 
-            const shape = new b2ChainShape();
+            const shape = new ChainShape();
             shape.CreateLoop(vs, 4);
             ground.CreateFixture({ shape });
         }
@@ -89,12 +79,12 @@ class CharacterCollision extends Test {
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2PolygonShape();
-            shape.SetAsBox(1, 1, new b2Vec2(4, 3), 0);
+            const shape = new PolygonShape();
+            shape.SetAsBox(1, 1, new Vec2(4, 3), 0);
             ground.CreateFixture({ shape });
-            shape.SetAsBox(1, 1, new b2Vec2(6, 3), 0);
+            shape.SetAsBox(1, 1, new Vec2(6, 3), 0);
             ground.CreateFixture({ shape });
-            shape.SetAsBox(1, 1, new b2Vec2(8, 3), 0);
+            shape.SetAsBox(1, 1, new Vec2(8, 3), 0);
             ground.CreateFixture({ shape });
         }
 
@@ -102,13 +92,13 @@ class CharacterCollision extends Test {
         {
             const ground = this.m_world.CreateBody();
 
-            const vs = b2MakeArray(4, b2Vec2);
+            const vs = MakeArray(4, Vec2);
             vs[0].Set(-1, 3);
             vs[1].Set(1, 3);
             vs[2].Set(1, 5);
             vs[3].Set(-1, 5);
 
-            const shape = new b2ChainShape();
+            const shape = new ChainShape();
             shape.CreateLoop(vs, 4);
             ground.CreateFixture({ shape });
         }
@@ -119,7 +109,7 @@ class CharacterCollision extends Test {
                 position: { x: -10, y: 4 },
             });
 
-            const vs = b2MakeArray(10, b2Vec2);
+            const vs = MakeArray(10, Vec2);
             vs[0].Set(0, 0);
             vs[1].Set(6, 0);
             vs[2].Set(6, 2);
@@ -131,7 +121,7 @@ class CharacterCollision extends Test {
             vs[8].Set(-6, 2);
             vs[9].Set(-6, 0);
 
-            const shape = new b2ChainShape();
+            const shape = new ChainShape();
             shape.CreateLoop(vs, 10);
             ground.CreateFixture({ shape });
         }
@@ -140,12 +130,12 @@ class CharacterCollision extends Test {
         {
             const body = this.m_world.CreateBody({
                 position: { x: -3, y: 8 },
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 fixedRotation: true,
                 allowSleep: false,
             });
 
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.5, 0.5);
 
             body.CreateFixture({
@@ -158,12 +148,12 @@ class CharacterCollision extends Test {
         {
             const body = this.m_world.CreateBody({
                 position: { x: -5, y: 5 },
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 fixedRotation: true,
                 allowSleep: false,
             });
 
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.25, 0.25);
 
             body.CreateFixture({
@@ -176,20 +166,20 @@ class CharacterCollision extends Test {
         {
             const body = this.m_world.CreateBody({
                 position: { x: -5, y: 8 },
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 fixedRotation: true,
                 allowSleep: false,
             });
 
             let angle = 0;
             const delta = Math.PI / 3;
-            const vertices = b2MakeArray(6, b2Vec2);
+            const vertices = MakeArray(6, Vec2);
             for (let i = 0; i < 6; ++i) {
                 vertices[i].Set(0.5 * Math.cos(angle), 0.5 * Math.sin(angle));
                 angle += delta;
             }
 
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.Set(vertices, 6);
 
             body.CreateFixture({
@@ -202,12 +192,12 @@ class CharacterCollision extends Test {
         {
             const body = this.m_world.CreateBody({
                 position: { x: 3, y: 5 },
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 fixedRotation: true,
                 allowSleep: false,
             });
 
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_radius = 0.5;
 
             body.CreateFixture({
@@ -220,11 +210,11 @@ class CharacterCollision extends Test {
         {
             this.m_character = this.m_world.CreateBody({
                 position: { x: -7, y: 6 },
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 allowSleep: false,
             });
 
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_radius = 0.25;
 
             this.m_character.CreateFixture({
@@ -260,4 +250,4 @@ class CharacterCollision extends Test {
     }
 }
 
-registerTest("Examples", "Character Collision", CharacterCollision);
+registerTest("Examples", "Character Collision", CharacterCollisionTest);

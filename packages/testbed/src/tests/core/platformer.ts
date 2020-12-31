@@ -17,38 +17,38 @@
  */
 
 import {
-    b2Fixture,
-    b2EdgeShape,
-    b2Vec2,
-    b2PolygonShape,
-    b2BodyType,
-    b2CircleShape,
-    b2Contact,
-    b2Manifold,
-    b2_linearSlop,
+    Fixture,
+    EdgeShape,
+    Vec2,
+    PolygonShape,
+    BodyType,
+    CircleShape,
+    Contact,
+    Manifold,
+    LINEAR_SLOP,
     XY,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
 enum OneSidedPlatform_State {
-    e_unknown = 0,
+    Unknown = 0,
     e_above = 1,
     e_below = 2,
 }
 
-class Platformer extends Test {
+class PlatformerTest extends Test {
     public m_radius = 0;
 
     public m_top = 0;
 
     public m_bottom = 0;
 
-    public m_state = OneSidedPlatform_State.e_unknown;
+    public m_state = OneSidedPlatform_State.Unknown;
 
-    public m_platform: b2Fixture;
+    public m_platform: Fixture;
 
-    public m_character: b2Fixture;
+    public m_character: Fixture;
 
     public constructor() {
         super();
@@ -57,8 +57,8 @@ class Platformer extends Test {
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-20, 0), new b2Vec2(20, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
             ground.CreateFixture({ shape });
         }
 
@@ -68,7 +68,7 @@ class Platformer extends Test {
                 position: { x: 0, y: 10 },
             });
 
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(3, 0.5);
             this.m_platform = body.CreateFixture({ shape });
 
@@ -79,18 +79,18 @@ class Platformer extends Test {
         // Actor
         {
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: 0, y: 12 },
             });
 
             this.m_radius = 0.5;
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_radius = this.m_radius;
             this.m_character = body.CreateFixture({ shape, density: 20 });
 
-            body.SetLinearVelocity(new b2Vec2(0, -50));
+            body.SetLinearVelocity(new Vec2(0, -50));
 
-            this.m_state = OneSidedPlatform_State.e_unknown;
+            this.m_state = OneSidedPlatform_State.Unknown;
         }
     }
 
@@ -105,7 +105,7 @@ class Platformer extends Test {
         };
     }
 
-    public PreSolve(contact: b2Contact, oldManifold: b2Manifold) {
+    public PreSolve(contact: Contact, oldManifold: Manifold) {
         super.PreSolve(contact, oldManifold);
 
         const fixtureA = contact.GetFixtureA();
@@ -121,10 +121,10 @@ class Platformer extends Test {
 
         const position = this.m_character.GetBody().GetPosition();
 
-        if (position.y < this.m_top + this.m_radius - 3 * b2_linearSlop) {
+        if (position.y < this.m_top + this.m_radius - 3 * LINEAR_SLOP) {
             contact.SetEnabled(false);
         }
     }
 }
 
-registerTest("Examples", "Platformer", Platformer);
+registerTest("Examples", "Platformer", PlatformerTest);

@@ -20,31 +20,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { b2_linearSlop, b2_angularSlop, b2_maxAngularCorrection } from "../common/b2_common";
-import { b2Draw, debugColors } from "../common/b2_draw";
-import { b2Clamp, b2Vec2, b2Mat22, b2Rot, XY, b2Transform } from "../common/b2_math";
-import { b2Body } from "./b2_body";
-import { b2Joint, b2JointDef, b2JointType, b2IJointDef } from "./b2_joint";
-import { b2SolverData } from "./b2_time_step";
+import { LINEAR_SLOP, ANGULAR_SLOP, MAX_ANGULAR_CORRECTION } from "../common/b2_common";
+import { Draw, debugColors } from "../common/b2_draw";
+import { Clamp, Vec2, Mat22, Rot, XY, Transform } from "../common/b2_math";
+import { Body } from "./b2_body";
+import { Joint, JointDef, JointType, IJointDef } from "./b2_joint";
+import { SolverData } from "./b2_time_step";
 
 const temp = {
-    qA: new b2Rot(),
-    qB: new b2Rot(),
-    lalcA: new b2Vec2(),
-    lalcB: new b2Vec2(),
-    P: new b2Vec2(),
-    Cdot: new b2Vec2(),
-    C: new b2Vec2(),
-    impulse: new b2Vec2(),
-    p2: new b2Vec2(),
-    r: new b2Vec2(),
-    pA: new b2Vec2(),
-    pB: new b2Vec2(),
-    rlo: new b2Vec2(),
-    rhi: new b2Vec2(),
+    qA: new Rot(),
+    qB: new Rot(),
+    lalcA: new Vec2(),
+    lalcB: new Vec2(),
+    P: new Vec2(),
+    Cdot: new Vec2(),
+    C: new Vec2(),
+    impulse: new Vec2(),
+    p2: new Vec2(),
+    r: new Vec2(),
+    pA: new Vec2(),
+    pB: new Vec2(),
+    rlo: new Vec2(),
+    rhi: new Vec2(),
 };
 
-export interface b2IRevoluteJointDef extends b2IJointDef {
+export interface IRevoluteJointDef extends IJointDef {
     localAnchorA?: XY;
 
     localAnchorB?: XY;
@@ -76,12 +76,12 @@ export interface b2IRevoluteJointDef extends b2IJointDef {
  * 2. if you add/remove shapes from a body and recompute the mass,
  * the joints will be broken.
  */
-export class b2RevoluteJointDef extends b2JointDef implements b2IRevoluteJointDef {
+export class RevoluteJointDef extends JointDef implements IRevoluteJointDef {
     /** The local anchor point relative to bodyA's origin. */
-    public readonly localAnchorA = new b2Vec2();
+    public readonly localAnchorA = new Vec2();
 
     /** The local anchor point relative to bodyB's origin. */
-    public readonly localAnchorB = new b2Vec2();
+    public readonly localAnchorB = new Vec2();
 
     /** The bodyB angle minus bodyA angle in the reference state (radians). */
     public referenceAngle = 0;
@@ -108,10 +108,10 @@ export class b2RevoluteJointDef extends b2JointDef implements b2IRevoluteJointDe
     public maxMotorTorque = 0;
 
     public constructor() {
-        super(b2JointType.e_revoluteJoint);
+        super(JointType.Revolute);
     }
 
-    public Initialize(bA: b2Body, bB: b2Body, anchor: XY): void {
+    public Initialize(bA: Body, bB: Body, anchor: XY): void {
         this.bodyA = bA;
         this.bodyB = bB;
         this.bodyA.GetLocalPoint(anchor, this.localAnchorA);
@@ -128,15 +128,15 @@ export class b2RevoluteJointDef extends b2JointDef implements b2IRevoluteJointDe
  * to drive the relative rotation about the shared point. A maximum motor torque
  * is provided so that infinite forces are not generated.
  */
-export class b2RevoluteJoint extends b2Joint {
+export class RevoluteJoint extends Joint {
     // Solver shared
     /** @internal protected */
-    public readonly m_localAnchorA = new b2Vec2();
+    public readonly m_localAnchorA = new Vec2();
 
     /** @internal protected */
-    public readonly m_localAnchorB = new b2Vec2();
+    public readonly m_localAnchorB = new Vec2();
 
-    protected readonly m_impulse = new b2Vec2();
+    protected readonly m_impulse = new Vec2();
 
     protected m_motorImpulse = 0;
 
@@ -164,13 +164,13 @@ export class b2RevoluteJoint extends b2Joint {
 
     protected m_indexB = 0;
 
-    protected readonly m_rA = new b2Vec2();
+    protected readonly m_rA = new Vec2();
 
-    protected readonly m_rB = new b2Vec2();
+    protected readonly m_rB = new Vec2();
 
-    protected readonly m_localCenterA = new b2Vec2();
+    protected readonly m_localCenterA = new Vec2();
 
-    protected readonly m_localCenterB = new b2Vec2();
+    protected readonly m_localCenterB = new Vec2();
 
     protected m_invMassA = 0;
 
@@ -180,18 +180,18 @@ export class b2RevoluteJoint extends b2Joint {
 
     protected m_invIB = 0;
 
-    protected readonly m_K = new b2Mat22();
+    protected readonly m_K = new Mat22();
 
     protected m_angle = 0;
 
     protected m_axialMass = 0;
 
     /** @internal protected */
-    public constructor(def: b2IRevoluteJointDef) {
+    public constructor(def: IRevoluteJointDef) {
         super(def);
 
-        this.m_localAnchorA.Copy(def.localAnchorA ?? b2Vec2.ZERO);
-        this.m_localAnchorB.Copy(def.localAnchorB ?? b2Vec2.ZERO);
+        this.m_localAnchorA.Copy(def.localAnchorA ?? Vec2.ZERO);
+        this.m_localAnchorB.Copy(def.localAnchorB ?? Vec2.ZERO);
         this.m_referenceAngle = def.referenceAngle ?? 0;
 
         this.m_impulse.SetZero();
@@ -204,7 +204,7 @@ export class b2RevoluteJoint extends b2Joint {
         this.m_enableMotor = def.enableMotor ?? false;
     }
 
-    public InitVelocityConstraints(data: b2SolverData): void {
+    public InitVelocityConstraints(data: SolverData): void {
         this.m_indexA = this.m_bodyA.m_islandIndex;
         this.m_indexB = this.m_bodyB.m_islandIndex;
         this.m_localCenterA.Copy(this.m_bodyA.m_sweep.localCenter);
@@ -226,8 +226,8 @@ export class b2RevoluteJoint extends b2Joint {
         qA.Set(aA);
         qB.Set(aB);
 
-        b2Rot.MultiplyVec2(qA, b2Vec2.Subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), this.m_rA);
-        b2Rot.MultiplyVec2(qB, b2Vec2.Subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
+        Rot.MultiplyVec2(qA, Vec2.Subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), this.m_rA);
+        Rot.MultiplyVec2(qB, Vec2.Subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
 
         // J = [-I -r1_skew I r2_skew]
         // r_skew = [-ry; rx]
@@ -276,10 +276,10 @@ export class b2RevoluteJoint extends b2Joint {
             const P = temp.P.Set(this.m_impulse.x, this.m_impulse.y);
 
             vA.SubtractScaled(mA, P);
-            wA -= iA * (b2Vec2.Cross(this.m_rA, P) + axialImpulse);
+            wA -= iA * (Vec2.Cross(this.m_rA, P) + axialImpulse);
 
             vB.AddScaled(mB, P);
-            wB += iB * (b2Vec2.Cross(this.m_rB, P) + axialImpulse);
+            wB += iB * (Vec2.Cross(this.m_rB, P) + axialImpulse);
         } else {
             this.m_impulse.SetZero();
             this.m_motorImpulse = 0;
@@ -291,7 +291,7 @@ export class b2RevoluteJoint extends b2Joint {
         data.velocities[this.m_indexB].w = wB;
     }
 
-    public SolveVelocityConstraints(data: b2SolverData): void {
+    public SolveVelocityConstraints(data: SolverData): void {
         const vA = data.velocities[this.m_indexA].v;
         let wA = data.velocities[this.m_indexA].w;
         const vB = data.velocities[this.m_indexB].v;
@@ -310,7 +310,7 @@ export class b2RevoluteJoint extends b2Joint {
             let impulse = -this.m_axialMass * Cdot;
             const oldImpulse = this.m_motorImpulse;
             const maxImpulse = data.step.dt * this.m_maxMotorTorque;
-            this.m_motorImpulse = b2Clamp(this.m_motorImpulse + impulse, -maxImpulse, maxImpulse);
+            this.m_motorImpulse = Clamp(this.m_motorImpulse + impulse, -maxImpulse, maxImpulse);
             impulse = this.m_motorImpulse - oldImpulse;
 
             wA -= iA * impulse;
@@ -351,9 +351,9 @@ export class b2RevoluteJoint extends b2Joint {
         // Solve point-to-point constraint
         {
             const { Cdot, impulse } = temp;
-            b2Vec2.Subtract(
-                b2Vec2.AddCrossScalarVec2(vB, wB, this.m_rB, b2Vec2.s_t0),
-                b2Vec2.AddCrossScalarVec2(vA, wA, this.m_rA, b2Vec2.s_t1),
+            Vec2.Subtract(
+                Vec2.AddCrossScalarVec2(vB, wB, this.m_rB, Vec2.s_t0),
+                Vec2.AddCrossScalarVec2(vA, wA, this.m_rA, Vec2.s_t1),
                 Cdot,
             );
             this.m_K.Solve(-Cdot.x, -Cdot.y, impulse);
@@ -362,17 +362,17 @@ export class b2RevoluteJoint extends b2Joint {
             this.m_impulse.y += impulse.y;
 
             vA.SubtractScaled(mA, impulse);
-            wA -= iA * b2Vec2.Cross(this.m_rA, impulse);
+            wA -= iA * Vec2.Cross(this.m_rA, impulse);
 
             vB.AddScaled(mB, impulse);
-            wB += iB * b2Vec2.Cross(this.m_rB, impulse);
+            wB += iB * Vec2.Cross(this.m_rB, impulse);
         }
 
         data.velocities[this.m_indexA].w = wA;
         data.velocities[this.m_indexB].w = wB;
     }
 
-    public SolvePositionConstraints(data: b2SolverData): boolean {
+    public SolvePositionConstraints(data: SolverData): boolean {
         const cA = data.positions[this.m_indexA].c;
         let aA = data.positions[this.m_indexA].a;
         const cB = data.positions[this.m_indexB].c;
@@ -392,15 +392,15 @@ export class b2RevoluteJoint extends b2Joint {
             const angle = aB - aA - this.m_referenceAngle;
             let C = 0;
 
-            if (Math.abs(this.m_upperAngle - this.m_lowerAngle) < 2 * b2_angularSlop) {
+            if (Math.abs(this.m_upperAngle - this.m_lowerAngle) < 2 * ANGULAR_SLOP) {
                 // Prevent large angular corrections
-                C = b2Clamp(angle - this.m_lowerAngle, -b2_maxAngularCorrection, b2_maxAngularCorrection);
+                C = Clamp(angle - this.m_lowerAngle, -MAX_ANGULAR_CORRECTION, MAX_ANGULAR_CORRECTION);
             } else if (angle <= this.m_lowerAngle) {
                 // Prevent large angular corrections and allow some slop.
-                C = b2Clamp(angle - this.m_lowerAngle + b2_angularSlop, -b2_maxAngularCorrection, 0);
+                C = Clamp(angle - this.m_lowerAngle + ANGULAR_SLOP, -MAX_ANGULAR_CORRECTION, 0);
             } else if (angle >= this.m_upperAngle) {
                 // Prevent large angular corrections and allow some slop.
-                C = b2Clamp(angle - this.m_upperAngle - b2_angularSlop, 0, b2_maxAngularCorrection);
+                C = Clamp(angle - this.m_upperAngle - ANGULAR_SLOP, 0, MAX_ANGULAR_CORRECTION);
             }
 
             const limitImpulse = -this.m_axialMass * C;
@@ -413,18 +413,10 @@ export class b2RevoluteJoint extends b2Joint {
         {
             qA.Set(aA);
             qB.Set(aB);
-            const rA = b2Rot.MultiplyVec2(
-                qA,
-                b2Vec2.Subtract(this.m_localAnchorA, this.m_localCenterA, lalcA),
-                this.m_rA,
-            );
-            const rB = b2Rot.MultiplyVec2(
-                qB,
-                b2Vec2.Subtract(this.m_localAnchorB, this.m_localCenterB, lalcB),
-                this.m_rB,
-            );
+            const rA = Rot.MultiplyVec2(qA, Vec2.Subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), this.m_rA);
+            const rB = Rot.MultiplyVec2(qB, Vec2.Subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
 
-            const C = b2Vec2.Add(cB, rB, temp.C).Subtract(cA).Subtract(rA);
+            const C = Vec2.Add(cB, rB, temp.C).Subtract(cA).Subtract(rA);
             positionError = C.Length();
 
             const mA = this.m_invMassA;
@@ -441,16 +433,16 @@ export class b2RevoluteJoint extends b2Joint {
             K.Solve(C.x, C.y, impulse).Negate();
 
             cA.SubtractScaled(mA, impulse);
-            aA -= iA * b2Vec2.Cross(rA, impulse);
+            aA -= iA * Vec2.Cross(rA, impulse);
 
             cB.AddScaled(mB, impulse);
-            aB += iB * b2Vec2.Cross(rB, impulse);
+            aB += iB * Vec2.Cross(rB, impulse);
         }
 
         data.positions[this.m_indexA].a = aA;
         data.positions[this.m_indexB].a = aB;
 
-        return positionError <= b2_linearSlop && angularError <= b2_angularSlop;
+        return positionError <= LINEAR_SLOP && angularError <= ANGULAR_SLOP;
     }
 
     public GetAnchorA<T extends XY>(out: T): T {
@@ -471,11 +463,11 @@ export class b2RevoluteJoint extends b2Joint {
         return inv_dt * (this.m_motorImpulse + this.m_lowerImpulse - this.m_upperImpulse);
     }
 
-    public GetLocalAnchorA(): Readonly<b2Vec2> {
+    public GetLocalAnchorA(): Readonly<Vec2> {
         return this.m_localAnchorA;
     }
 
-    public GetLocalAnchorB(): Readonly<b2Vec2> {
+    public GetLocalAnchorB(): Readonly<Vec2> {
         return this.m_localAnchorB;
     }
 
@@ -567,12 +559,12 @@ export class b2RevoluteJoint extends b2Joint {
         return speed;
     }
 
-    public Draw(draw: b2Draw): void {
+    public Draw(draw: Draw): void {
         const { p2, r, pA, pB } = temp;
         const xfA = this.m_bodyA.GetTransform();
         const xfB = this.m_bodyB.GetTransform();
-        b2Transform.MultiplyVec2(xfA, this.m_localAnchorA, pA);
-        b2Transform.MultiplyVec2(xfB, this.m_localAnchorB, pB);
+        Transform.MultiplyVec2(xfA, this.m_localAnchorA, pA);
+        Transform.MultiplyVec2(xfB, this.m_localAnchorB, pB);
 
         draw.DrawPoint(pA, 5, debugColors.joint4);
         draw.DrawPoint(pB, 5, debugColors.joint5);
@@ -584,15 +576,15 @@ export class b2RevoluteJoint extends b2Joint {
         const L = 0.5;
 
         r.Set(Math.cos(angle), Math.sin(angle)).Scale(L);
-        draw.DrawSegment(pB, b2Vec2.Add(pB, r, p2), debugColors.joint1);
+        draw.DrawSegment(pB, Vec2.Add(pB, r, p2), debugColors.joint1);
         draw.DrawCircle(pB, L, debugColors.joint1);
 
         if (this.m_enableLimit) {
             const { rlo, rhi } = temp;
             rlo.Set(Math.cos(this.m_lowerAngle), Math.sin(this.m_lowerAngle)).Scale(L);
             rhi.Set(Math.cos(this.m_upperAngle), Math.sin(this.m_upperAngle)).Scale(L);
-            draw.DrawSegment(pB, b2Vec2.Add(pB, rlo, p2), debugColors.joint2);
-            draw.DrawSegment(pB, b2Vec2.Add(pB, rhi, p2), debugColors.joint3);
+            draw.DrawSegment(pB, Vec2.Add(pB, rlo, p2), debugColors.joint2);
+            draw.DrawSegment(pB, Vec2.Add(pB, rhi, p2), debugColors.joint3);
         }
 
         draw.DrawSegment(xfA.p, pA, debugColors.joint6);

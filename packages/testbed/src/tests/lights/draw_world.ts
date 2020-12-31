@@ -17,7 +17,7 @@
  */
 
 import { Light, PointLight } from "@box2d/lights";
-import { b2Vec2, b2EdgeShape, b2Body, b2Fixture, XY } from "@box2d/core";
+import { Vec2, EdgeShape, Body, Fixture, XY } from "@box2d/core";
 
 import { g_camera } from "../../utils/camera";
 import { HotKey, hotKeyPress } from "../../utils/hotkeys";
@@ -33,16 +33,16 @@ import { clearGlCanvas } from "../../utils/gl/glUtils";
 const NUM_RAYS = 512; // fixme: make a configurable setting?
 const LIGHT_DISTANCE = 32;
 
-class DrawWorld extends AbstractLightTest {
+class DrawWorldTest extends AbstractLightTest {
     private mouseLight: PointLight;
 
     private lights: PointLight[] = [];
 
-    public currentEdgeFixture: b2Fixture | null = null;
+    public currentEdgeFixture: Fixture | null = null;
 
-    public currentEdgeBody: b2Body | null = null;
+    public currentEdgeBody: Body | null = null;
 
-    public dragStart = new b2Vec2();
+    public dragStart = new Vec2();
 
     public readonly gl: WebGLRenderingContext;
 
@@ -61,7 +61,7 @@ class DrawWorld extends AbstractLightTest {
 
         const heartBody = this.m_world.CreateBody();
         for (const line of heart) {
-            const shape = new b2EdgeShape();
+            const shape = new EdgeShape();
             shape.SetTwoSided({ x: line.x1, y: line.y1 }, { x: line.x2, y: line.y2 });
             heartBody.CreateFixture({
                 shape,
@@ -106,18 +106,18 @@ class DrawWorld extends AbstractLightTest {
         ];
     }
 
-    public MouseDown(p: b2Vec2) {
+    public MouseDown(p: Vec2) {
         super.MouseDown(p);
         this.dragStart.Copy(p);
     }
 
-    public MouseUp(p: b2Vec2) {
+    public MouseUp(p: Vec2) {
         super.MouseUp(p);
         this.currentEdgeFixture = null;
         this.currentEdgeBody = null;
     }
 
-    public MouseMove(p: b2Vec2, leftDrag: boolean) {
+    public MouseMove(p: Vec2, leftDrag: boolean) {
         super.MouseMove(p, leftDrag);
         if (leftDrag) {
             if (!this.currentEdgeBody) {
@@ -127,7 +127,7 @@ class DrawWorld extends AbstractLightTest {
                 });
             }
             if (this.currentEdgeFixture) this.currentEdgeBody.DestroyFixture(this.currentEdgeFixture);
-            const shape = new b2EdgeShape();
+            const shape = new EdgeShape();
             shape.SetTwoSided(this.dragStart, p);
             this.currentEdgeFixture = this.currentEdgeBody.CreateFixture({
                 shape,
@@ -162,4 +162,4 @@ class DrawWorld extends AbstractLightTest {
     }
 }
 
-registerTest("Lights", "Draw World", DrawWorld);
+registerTest("Lights", "Draw World", DrawWorldTest);

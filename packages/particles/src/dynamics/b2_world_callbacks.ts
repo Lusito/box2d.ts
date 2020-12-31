@@ -15,49 +15,49 @@
  * misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  */
-import { b2DestructionListener, b2Fixture, b2ContactFilter, b2ContactListener } from "@box2d/core";
+import { DestructionListener, Fixture, ContactFilter, ContactListener } from "@box2d/core";
 
-import { b2ParticleGroup } from "../particle/b2_particle_group";
-import { b2ParticleSystem, b2ParticleBodyContact, b2ParticleContact } from "../particle/b2_particle_system";
+import { ParticleGroup } from "../particle/b2_particle_group";
+import { ParticleSystem, ParticleBodyContact, ParticleContact } from "../particle/b2_particle_system";
 
 // Declaration merging
 declare module "@box2d/core" {
-    interface b2DestructionListener {
+    interface DestructionListener {
         /**
          * Called when any particle group is about to be destroyed.
          */
-        SayGoodbyeParticleGroup(group: b2ParticleGroup): void;
+        SayGoodbyeParticleGroup(group: ParticleGroup): void;
 
         /**
          * Called when a particle is about to be destroyed.
          * The index can be used in conjunction with
-         * b2ParticleSystem::GetUserDataBuffer() or
-         * b2ParticleSystem::GetParticleHandleFromIndex() to determine which
+         * ParticleSystem::GetUserDataBuffer() or
+         * ParticleSystem::GetParticleHandleFromIndex() to determine which
          * particle has been destroyed.
          */
-        SayGoodbyeParticle(system: b2ParticleSystem, index: number): void;
+        SayGoodbyeParticle(system: ParticleSystem, index: number): void;
     }
 
-    interface b2ContactFilter {
-        ShouldCollideFixtureParticle(fixture: b2Fixture, system: b2ParticleSystem, index: number): boolean;
-        ShouldCollideParticleParticle(system: b2ParticleSystem, indexA: number, indexB: number): boolean;
+    interface ContactFilter {
+        ShouldCollideFixtureParticle(fixture: Fixture, system: ParticleSystem, index: number): boolean;
+        ShouldCollideParticleParticle(system: ParticleSystem, indexA: number, indexB: number): boolean;
     }
 
-    interface b2ContactListener {
-        BeginContactFixtureParticle(system: b2ParticleSystem, contact: b2ParticleBodyContact): void;
-        EndContactFixtureParticle(system: b2ParticleSystem, contact: b2ParticleBodyContact): void;
-        BeginContactParticleParticle(system: b2ParticleSystem, contact: b2ParticleContact): void;
-        EndContactParticleParticle(system: b2ParticleSystem, contact: b2ParticleContact): void;
+    interface ContactListener {
+        BeginContactFixtureParticle(system: ParticleSystem, contact: ParticleBodyContact): void;
+        EndContactFixtureParticle(system: ParticleSystem, contact: ParticleBodyContact): void;
+        BeginContactParticleParticle(system: ParticleSystem, contact: ParticleContact): void;
+        EndContactParticleParticle(system: ParticleSystem, contact: ParticleContact): void;
     }
 }
 
 // Default implementations
-Object.assign(b2DestructionListener.prototype, {
+Object.assign(DestructionListener.prototype, {
     SayGoodbyeParticleGroup() {},
     SayGoodbyeParticle() {},
 });
 
-Object.assign(b2ContactFilter.prototype, {
+Object.assign(ContactFilter.prototype, {
     SayGoodbyeParticleGroup() {
         return true;
     },
@@ -66,7 +66,7 @@ Object.assign(b2ContactFilter.prototype, {
     },
 });
 
-Object.assign(b2ContactListener.prototype, {
+Object.assign(ContactListener.prototype, {
     BeginContactFixtureParticle() {},
     EndContactFixtureParticle() {},
     BeginContactParticleParticle() {},

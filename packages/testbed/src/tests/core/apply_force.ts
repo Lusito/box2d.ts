@@ -17,15 +17,15 @@
  */
 
 import {
-    b2Body,
-    b2Vec2,
-    b2EdgeShape,
-    b2FixtureDef,
-    b2Transform,
-    b2Rot,
-    b2PolygonShape,
-    b2BodyType,
-    b2FrictionJointDef,
+    Body,
+    Vec2,
+    EdgeShape,
+    FixtureDef,
+    Transform,
+    Rot,
+    PolygonShape,
+    BodyType,
+    FrictionJointDef,
     XY,
 } from "@box2d/core";
 
@@ -35,8 +35,8 @@ import { HotKey, hotKeyStep } from "../../utils/hotkeys";
 // This test shows how to apply forces and torques to a body.
 // It also shows how to use the friction joint that can be useful
 // for overhead games.
-class ApplyForce extends Test {
-    public m_body: b2Body;
+class ApplyForceTest extends Test {
+    public m_body: Body;
 
     public positiveForce = false;
 
@@ -47,7 +47,7 @@ class ApplyForce extends Test {
     public ccwTorque = false;
 
     public constructor() {
-        super(b2Vec2.ZERO);
+        super(Vec2.ZERO);
 
         const k_restitution = 0.4;
 
@@ -58,58 +58,58 @@ class ApplyForce extends Test {
             },
         });
         {
-            const shape = new b2EdgeShape();
+            const shape = new EdgeShape();
 
-            const sd: b2FixtureDef = {
+            const sd: FixtureDef = {
                 shape,
                 density: 0,
                 restitution: k_restitution,
             };
 
             // Left vertical
-            shape.SetTwoSided(new b2Vec2(-20, -20), new b2Vec2(-20, 20));
+            shape.SetTwoSided(new Vec2(-20, -20), new Vec2(-20, 20));
             ground.CreateFixture(sd);
 
             // Right vertical
-            shape.SetTwoSided(new b2Vec2(20, -20), new b2Vec2(20, 20));
+            shape.SetTwoSided(new Vec2(20, -20), new Vec2(20, 20));
             ground.CreateFixture(sd);
 
             // Top horizontal
-            shape.SetTwoSided(new b2Vec2(-20, 20), new b2Vec2(20, 20));
+            shape.SetTwoSided(new Vec2(-20, 20), new Vec2(20, 20));
             ground.CreateFixture(sd);
 
             // Bottom horizontal
-            shape.SetTwoSided(new b2Vec2(-20, -20), new b2Vec2(20, -20));
+            shape.SetTwoSided(new Vec2(-20, -20), new Vec2(20, -20));
             ground.CreateFixture(sd);
         }
 
         {
-            const xf1 = new b2Transform();
+            const xf1 = new Transform();
             xf1.q.Set(0.3524 * Math.PI);
             xf1.q.GetXAxis(xf1.p);
 
             const vertices = [];
-            vertices[0] = b2Transform.MultiplyVec2(xf1, new b2Vec2(-1, 0), new b2Vec2());
-            vertices[1] = b2Transform.MultiplyVec2(xf1, new b2Vec2(1, 0), new b2Vec2());
-            vertices[2] = b2Transform.MultiplyVec2(xf1, new b2Vec2(0, 0.5), new b2Vec2());
+            vertices[0] = Transform.MultiplyVec2(xf1, new Vec2(-1, 0), new Vec2());
+            vertices[1] = Transform.MultiplyVec2(xf1, new Vec2(1, 0), new Vec2());
+            vertices[2] = Transform.MultiplyVec2(xf1, new Vec2(0, 0.5), new Vec2());
 
-            const poly1 = new b2PolygonShape();
+            const poly1 = new PolygonShape();
             poly1.Set(vertices, 3);
 
-            const xf2 = new b2Transform();
+            const xf2 = new Transform();
             xf2.q.Set(-0.3524 * Math.PI);
             xf2.q.GetXAxis(xf2.p).Negate();
-            xf2.p.Copy(b2Rot.MultiplyVec2(xf2.q, new b2Vec2(-1, 0), new b2Vec2()));
+            xf2.p.Copy(Rot.MultiplyVec2(xf2.q, new Vec2(-1, 0), new Vec2()));
 
-            vertices[0] = b2Transform.MultiplyVec2(xf2, new b2Vec2(-1, 0), new b2Vec2());
-            vertices[1] = b2Transform.MultiplyVec2(xf2, new b2Vec2(1, 0), new b2Vec2());
-            vertices[2] = b2Transform.MultiplyVec2(xf2, new b2Vec2(0, 0.5), new b2Vec2());
+            vertices[0] = Transform.MultiplyVec2(xf2, new Vec2(-1, 0), new Vec2());
+            vertices[1] = Transform.MultiplyVec2(xf2, new Vec2(1, 0), new Vec2());
+            vertices[2] = Transform.MultiplyVec2(xf2, new Vec2(0, 0.5), new Vec2());
 
-            const poly2 = new b2PolygonShape();
+            const poly2 = new PolygonShape();
             poly2.Set(vertices, 3);
 
             this.m_body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: 0, y: 3 },
                 angle: Math.PI,
                 allowSleep: false,
@@ -132,7 +132,7 @@ class ApplyForce extends Test {
             // For a circle = 0.5 * m * r * r ==> r = sqrt(2 * I / m)
             const radius = Math.sqrt((2 * I) / mass);
 
-            const jd = new b2FrictionJointDef();
+            const jd = new FrictionJointDef();
             jd.bodyA = ground;
             jd.bodyB = this.m_body;
             jd.localAnchorA.SetZero();
@@ -145,10 +145,10 @@ class ApplyForce extends Test {
         }
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.5, 0.5);
 
-            const fd: b2FixtureDef = {
+            const fd: FixtureDef = {
                 shape,
                 density: 1,
                 friction: 0.3,
@@ -156,7 +156,7 @@ class ApplyForce extends Test {
 
             for (let i = 0; i < 10; ++i) {
                 const body = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
 
                     position: {
                         x: 0,
@@ -173,7 +173,7 @@ class ApplyForce extends Test {
                 // For a circle: I = 0.5 * m * r * r ==> r = sqrt(2 * I / m)
                 const radius = Math.sqrt((2 * I) / mass);
 
-                const jd = new b2FrictionJointDef();
+                const jd = new FrictionJointDef();
                 jd.localAnchorA.SetZero();
                 jd.localAnchorB.SetZero();
                 jd.bodyA = ground;
@@ -197,8 +197,8 @@ class ApplyForce extends Test {
     }
 
     private ApplyForce(value: number) {
-        const f = this.m_body.GetWorldVector(new b2Vec2(0, value), new b2Vec2());
-        const p = this.m_body.GetWorldPoint(new b2Vec2(0, 3), new b2Vec2());
+        const f = this.m_body.GetWorldVector(new Vec2(0, value), new Vec2());
+        const p = this.m_body.GetWorldPoint(new Vec2(0, 3), new Vec2());
         this.m_body.ApplyForce(f, p);
     }
 
@@ -210,4 +210,4 @@ class ApplyForce extends Test {
     }
 }
 
-registerTest("Forces", "Apply Force", ApplyForce);
+registerTest("Forces", "Apply Force", ApplyForceTest);

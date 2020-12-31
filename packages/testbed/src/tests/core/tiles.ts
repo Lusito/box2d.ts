@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Timer, b2Vec2, b2PolygonShape, b2BodyType } from "@box2d/core";
+import { Timer, Vec2, PolygonShape, BodyType } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -27,7 +27,7 @@ import { Settings } from "../../settings";
  * not knowing about adjacency.
  */
 
-class Tiles extends Test {
+class TilesTest extends Test {
     public static readonly e_count = 20;
 
     public m_fixtureCount = 0;
@@ -39,7 +39,7 @@ class Tiles extends Test {
 
         this.m_fixtureCount = 0;
 
-        const timer = new b2Timer();
+        const timer = new Timer();
 
         {
             const a = 0.5;
@@ -51,12 +51,12 @@ class Tiles extends Test {
             {
                 const N = 200;
                 const M = 10;
-                const position = new b2Vec2();
+                const position = new Vec2();
                 position.y = 0;
                 for (let j = 0; j < M; ++j) {
                     position.x = -N * a;
                     for (let i = 0; i < N; ++i) {
-                        const shape = new b2PolygonShape();
+                        const shape = new PolygonShape();
                         shape.SetAsBox(a, a, position, 0);
                         ground.CreateFixture({ shape });
                         ++this.m_fixtureCount;
@@ -69,14 +69,14 @@ class Tiles extends Test {
             //    {
             //      /*int32*/ const N = 200;
             //      /*int32*/ const M = 10;
-            //      /*b2Vec2*/ const position = new b2Vec2();
+            //      /*Vec2*/ const position = new Vec2();
             //      position.x = -N * a;
             //      for (/*int32*/ let i = 0; i < N; ++i)
             //      {
             //        position.y = 0;
             //        for (/*int32*/ let j = 0; j < M; ++j)
             //        {
-            //          /*b2PolygonShape*/ const shape = new b2PolygonShape();
+            //          /*PolygonShape*/ const shape = new PolygonShape();
             //          shape.SetAsBox(a, a, position, 0);
             //          ground.CreateFixture({ shape });
             //          position.y -= 2 * a;
@@ -88,20 +88,20 @@ class Tiles extends Test {
 
         {
             const a = 0.5;
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(a, a);
 
-            const x = new b2Vec2(-7, 0.75);
-            const y = new b2Vec2();
-            const deltaX = new b2Vec2(0.5625, 1.25);
-            const deltaY = new b2Vec2(1.125, 0);
+            const x = new Vec2(-7, 0.75);
+            const y = new Vec2();
+            const deltaX = new Vec2(0.5625, 1.25);
+            const deltaY = new Vec2(1.125, 0);
 
-            for (let i = 0; i < Tiles.e_count; ++i) {
+            for (let i = 0; i < TilesTest.e_count; ++i) {
                 y.Copy(x);
 
-                for (let j = i; j < Tiles.e_count; ++j) {
+                for (let j = i; j < TilesTest.e_count; ++j) {
                     const body = this.m_world.CreateBody({
-                        type: b2BodyType.b2_dynamicBody,
+                        type: BodyType.Dynamic,
                         position: y,
                         // allowSleep: i !== 0 || j !== 0,
                     });
@@ -131,7 +131,7 @@ class Tiles extends Test {
         this.addDebug("Create Time", `${this.m_createTime.toFixed(2)} ms`);
         this.addDebug("Fixture Count", this.m_fixtureCount);
 
-        // b2DynamicTree* tree = this.m_world.this.m_contactManager.m_broadPhase.m_tree;
+        // DynamicTree* tree = this.m_world.this.m_contactManager.m_broadPhase.m_tree;
 
         // if (this.m_stepCount === 400)
         // {
@@ -140,4 +140,4 @@ class Tiles extends Test {
     }
 }
 
-registerTest("Benchmark", "Tiles", Tiles);
+registerTest("Benchmark", "Tiles", TilesTest);

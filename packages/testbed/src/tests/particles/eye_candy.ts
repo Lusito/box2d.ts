@@ -1,14 +1,14 @@
-import { b2Body, b2RevoluteJoint, b2BodyType, b2PolygonShape, b2Vec2, b2RevoluteJointDef } from "@box2d/core";
-import { b2ParticleGroupDef, b2ParticleFlag } from "@box2d/particles";
+import { Body, RevoluteJoint, BodyType, PolygonShape, Vec2, RevoluteJointDef } from "@box2d/core";
+import { ParticleGroupDef, ParticleFlag } from "@box2d/particles";
 
 import { registerTest } from "../../test";
 import { Settings } from "../../settings";
 import { AbstractParticleTest } from "./abstract_particle_test";
 
-class EyeCandy extends AbstractParticleTest {
-    public m_mover: b2Body;
+class EyeCandyTest extends AbstractParticleTest {
+    public m_mover: Body;
 
-    public m_joint: b2RevoluteJoint;
+    public m_joint: RevoluteJoint;
 
     public constructor() {
         super();
@@ -21,27 +21,27 @@ class EyeCandy extends AbstractParticleTest {
         const ground = this.m_world.CreateBody();
 
         const body = this.m_world.CreateBody({
-            type: b2BodyType.b2_staticBody, // b2BodyType.b2_dynamicBody
+            type: BodyType.Static, // BodyType.Dynamic
             allowSleep: false,
         });
 
-        const shape = new b2PolygonShape();
-        shape.SetAsBox(0.5, 10, new b2Vec2(20, 0), 0);
+        const shape = new PolygonShape();
+        shape.SetAsBox(0.5, 10, new Vec2(20, 0), 0);
         body.CreateFixture({ shape, density: 5 });
-        shape.SetAsBox(0.5, 10, new b2Vec2(-20, 0), 0);
+        shape.SetAsBox(0.5, 10, new Vec2(-20, 0), 0);
         body.CreateFixture({ shape, density: 5 });
-        shape.SetAsBox(0.5, 20, new b2Vec2(0, 10), Math.PI / 2);
+        shape.SetAsBox(0.5, 20, new Vec2(0, 10), Math.PI / 2);
         body.CreateFixture({ shape, density: 5 });
-        shape.SetAsBox(0.5, 20, new b2Vec2(0, -10), Math.PI / 2);
+        shape.SetAsBox(0.5, 20, new Vec2(0, -10), Math.PI / 2);
         body.CreateFixture({ shape, density: 5 });
 
         this.m_mover = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
         });
-        shape.SetAsBox(1, 5, new b2Vec2(0, 2), 0);
+        shape.SetAsBox(1, 5, new Vec2(0, 2), 0);
         this.m_mover.CreateFixture({ shape, density: 5 });
 
-        const jd = new b2RevoluteJointDef();
+        const jd = new RevoluteJointDef();
         jd.bodyA = ground;
         jd.bodyB = this.m_mover;
         jd.localAnchorA.Set(0, 0);
@@ -52,11 +52,11 @@ class EyeCandy extends AbstractParticleTest {
         jd.enableMotor = true;
         this.m_joint = this.m_world.CreateJoint(jd);
 
-        const pd = new b2ParticleGroupDef();
-        pd.flags = b2ParticleFlag.b2_waterParticle;
+        const pd = new ParticleGroupDef();
+        pd.flags = ParticleFlag.Water;
 
-        const shape2 = new b2PolygonShape();
-        shape2.SetAsBox(9, 9, new b2Vec2(), 0);
+        const shape2 = new PolygonShape();
+        shape2.SetAsBox(9, 9, new Vec2(), 0);
 
         pd.shape = shape2;
         this.m_particleSystem.CreateParticleGroup(pd);
@@ -70,4 +70,4 @@ class EyeCandy extends AbstractParticleTest {
     }
 }
 
-registerTest("Particles", "Eye Candy", EyeCandy);
+registerTest("Particles", "Eye Candy", EyeCandyTest);

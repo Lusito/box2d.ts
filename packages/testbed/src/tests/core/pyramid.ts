@@ -16,11 +16,11 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2EdgeShape, b2Vec2, b2PolygonShape, b2BodyType } from "@box2d/core";
+import { EdgeShape, Vec2, PolygonShape, BodyType } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
-class Pyramid extends Test {
+class PyramidTest extends Test {
     public static readonly e_count = 20;
 
     public constructor() {
@@ -29,27 +29,27 @@ class Pyramid extends Test {
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.CreateFixture({ shape });
         }
 
         {
             const a = 0.5;
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(a, a);
 
-            const x = new b2Vec2(-7, 0.75);
-            const y = new b2Vec2();
-            const deltaX = new b2Vec2(0.5625, 1.25);
-            const deltaY = new b2Vec2(1.125, 0);
+            const x = new Vec2(-7, 0.75);
+            const y = new Vec2();
+            const deltaX = new Vec2(0.5625, 1.25);
+            const deltaY = new Vec2(1.125, 0);
 
-            for (let i = 0; i < Pyramid.e_count; ++i) {
+            for (let i = 0; i < PyramidTest.e_count; ++i) {
                 y.Copy(x);
 
-                for (let j = i; j < Pyramid.e_count; ++j) {
+                for (let j = i; j < PyramidTest.e_count; ++j) {
                     const body = this.m_world.CreateBody({
-                        type: b2BodyType.b2_dynamicBody,
+                        type: BodyType.Dynamic,
                         position: y,
                     });
                     body.CreateFixture({ shape, density: 5 });
@@ -63,4 +63,4 @@ class Pyramid extends Test {
     }
 }
 
-registerTest("Stacking", "Pyramid", Pyramid);
+registerTest("Stacking", "Pyramid", PyramidTest);

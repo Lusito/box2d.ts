@@ -16,19 +16,19 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2EdgeShape, b2Vec2, b2CircleShape, b2BodyType, b2PolygonShape, XY, b2Body } from "@box2d/core";
+import { EdgeShape, Vec2, CircleShape, BodyType, PolygonShape, XY, Body } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 
-class CompoundShapes extends Test {
-    public m_table1: b2Body;
+class CompoundShapesTest extends Test {
+    public m_table1: Body;
 
-    public m_table2: b2Body;
+    public m_table2: Body;
 
-    public m_ship1: b2Body;
+    public m_ship1: Body;
 
-    public m_ship2: b2Body;
+    public m_ship2: Body;
 
     public constructor() {
         super();
@@ -36,8 +36,8 @@ class CompoundShapes extends Test {
         {
             const body = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(50, 0), new b2Vec2(-50, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(50, 0), new Vec2(-50, 0));
 
             body.CreateFixture({ shape });
         }
@@ -45,18 +45,18 @@ class CompoundShapes extends Test {
         // Table 1
         {
             this.m_table1 = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
-                position: new b2Vec2(-15, 1),
+                type: BodyType.Dynamic,
+                position: new Vec2(-15, 1),
             });
 
-            const top = new b2PolygonShape();
-            top.SetAsBox(3, 0.5, new b2Vec2(0, 3.5), 0);
+            const top = new PolygonShape();
+            top.SetAsBox(3, 0.5, new Vec2(0, 3.5), 0);
 
-            const leftLeg = new b2PolygonShape();
-            leftLeg.SetAsBox(0.5, 1.5, new b2Vec2(-2.5, 1.5), 0);
+            const leftLeg = new PolygonShape();
+            leftLeg.SetAsBox(0.5, 1.5, new Vec2(-2.5, 1.5), 0);
 
-            const rightLeg = new b2PolygonShape();
-            rightLeg.SetAsBox(0.5, 1.5, new b2Vec2(2.5, 1.5), 0);
+            const rightLeg = new PolygonShape();
+            rightLeg.SetAsBox(0.5, 1.5, new Vec2(2.5, 1.5), 0);
 
             this.m_table1.CreateFixture({ shape: top, density: 2 });
             this.m_table1.CreateFixture({ shape: leftLeg, density: 2 });
@@ -66,18 +66,18 @@ class CompoundShapes extends Test {
         // Table 2
         {
             this.m_table2 = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
-                position: new b2Vec2(-5, 1),
+                type: BodyType.Dynamic,
+                position: new Vec2(-5, 1),
             });
 
-            const top = new b2PolygonShape();
-            top.SetAsBox(3, 0.5, new b2Vec2(0, 3.5), 0);
+            const top = new PolygonShape();
+            top.SetAsBox(3, 0.5, new Vec2(0, 3.5), 0);
 
-            const leftLeg = new b2PolygonShape();
-            leftLeg.SetAsBox(0.5, 2, new b2Vec2(-2.5, 2), 0);
+            const leftLeg = new PolygonShape();
+            leftLeg.SetAsBox(0.5, 2, new Vec2(-2.5, 2), 0);
 
-            const rightLeg = new b2PolygonShape();
-            rightLeg.SetAsBox(0.5, 2, new b2Vec2(2.5, 2), 0);
+            const rightLeg = new PolygonShape();
+            rightLeg.SetAsBox(0.5, 2, new Vec2(2.5, 2), 0);
 
             this.m_table2.CreateFixture({ shape: top, density: 2 });
             this.m_table2.CreateFixture({ shape: leftLeg, density: 2 });
@@ -87,22 +87,22 @@ class CompoundShapes extends Test {
         // Spaceship 1
         {
             this.m_ship1 = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
-                position: new b2Vec2(5, 1),
+                type: BodyType.Dynamic,
+                position: new Vec2(5, 1),
             });
 
-            const vertices: b2Vec2[] = [];
+            const vertices: Vec2[] = [];
 
-            const left = new b2PolygonShape();
-            vertices[0] = new b2Vec2(-2, 0);
-            vertices[1] = new b2Vec2(0, 4 / 3);
-            vertices[2] = new b2Vec2(0, 4);
+            const left = new PolygonShape();
+            vertices[0] = new Vec2(-2, 0);
+            vertices[1] = new Vec2(0, 4 / 3);
+            vertices[2] = new Vec2(0, 4);
             left.Set(vertices, 3);
 
-            const right = new b2PolygonShape();
-            vertices[0] = new b2Vec2(2, 0);
-            vertices[1] = new b2Vec2(0, 4 / 3);
-            vertices[2] = new b2Vec2(0, 4);
+            const right = new PolygonShape();
+            vertices[0] = new Vec2(2, 0);
+            vertices[1] = new Vec2(0, 4 / 3);
+            vertices[2] = new Vec2(0, 4);
             right.Set(vertices, 3);
 
             this.m_ship1.CreateFixture({ shape: left, density: 2 });
@@ -112,22 +112,22 @@ class CompoundShapes extends Test {
         // Spaceship 2
         {
             this.m_ship2 = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
-                position: new b2Vec2(15, 1),
+                type: BodyType.Dynamic,
+                position: new Vec2(15, 1),
             });
 
-            const vertices: b2Vec2[] = [];
+            const vertices: Vec2[] = [];
 
-            const left = new b2PolygonShape();
-            vertices[0] = new b2Vec2(-2, 0);
-            vertices[1] = new b2Vec2(1, 2);
-            vertices[2] = new b2Vec2(0, 4);
+            const left = new PolygonShape();
+            vertices[0] = new Vec2(-2, 0);
+            vertices[1] = new Vec2(1, 2);
+            vertices[2] = new Vec2(0, 4);
             left.Set(vertices, 3);
 
-            const right = new b2PolygonShape();
-            vertices[0] = new b2Vec2(2, 0);
-            vertices[1] = new b2Vec2(-1, 2);
-            vertices[2] = new b2Vec2(0, 4);
+            const right = new PolygonShape();
+            vertices[0] = new Vec2(2, 0);
+            vertices[1] = new Vec2(-1, 2);
+            vertices[2] = new Vec2(0, 4);
             right.Set(vertices, 3);
 
             this.m_ship2.CreateFixture({ shape: left, density: 2 });
@@ -139,13 +139,13 @@ class CompoundShapes extends Test {
         // Table 1 obstruction
         {
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: this.m_table1.GetPosition(),
                 angle: this.m_table1.GetAngle(),
             });
 
-            const box = new b2PolygonShape();
-            box.SetAsBox(4, 0.1, new b2Vec2(0, 3), 0);
+            const box = new PolygonShape();
+            box.SetAsBox(4, 0.1, new Vec2(0, 3), 0);
 
             body.CreateFixture({ shape: box, density: 2 });
         }
@@ -153,13 +153,13 @@ class CompoundShapes extends Test {
         // Table 2 obstruction
         {
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: this.m_table2.GetPosition(),
                 angle: this.m_table2.GetAngle(),
             });
 
-            const box = new b2PolygonShape();
-            box.SetAsBox(4, 0.1, new b2Vec2(0, 3), 0);
+            const box = new PolygonShape();
+            box.SetAsBox(4, 0.1, new Vec2(0, 3), 0);
 
             body.CreateFixture({ shape: box, density: 2 });
         }
@@ -167,13 +167,13 @@ class CompoundShapes extends Test {
         // Ship 1 obstruction
         {
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: this.m_ship1.GetPosition(),
                 angle: this.m_ship1.GetAngle(),
                 gravityScale: 0,
             });
 
-            const circle = new b2CircleShape(0.5);
+            const circle = new CircleShape(0.5);
             circle.m_p.Set(0, 2);
 
             body.CreateFixture({ shape: circle, density: 2 });
@@ -182,13 +182,13 @@ class CompoundShapes extends Test {
         // Ship 2 obstruction
         {
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: this.m_ship2.GetPosition(),
                 angle: this.m_ship2.GetAngle(),
                 gravityScale: 0,
             });
 
-            const circle = new b2CircleShape(0.5);
+            const circle = new CircleShape(0.5);
             circle.m_p.Set(0, 2);
 
             body.CreateFixture({ shape: circle, density: 2 });
@@ -211,4 +211,4 @@ class CompoundShapes extends Test {
     }
 }
 
-registerTest("Examples", "Compound Shapes", CompoundShapes);
+registerTest("Examples", "Compound Shapes", CompoundShapesTest);

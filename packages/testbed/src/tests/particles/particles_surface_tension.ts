@@ -16,13 +16,13 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2PolygonShape, b2Vec2, b2CircleShape, b2BodyType, XY } from "@box2d/core";
-import { b2ParticleGroupDef, b2ParticleFlag } from "@box2d/particles";
+import { PolygonShape, Vec2, CircleShape, BodyType, XY } from "@box2d/core";
+import { ParticleGroupDef, ParticleFlag } from "@box2d/particles";
 
 import { registerTest } from "../../test";
 import { AbstractParticleTest } from "./abstract_particle_test";
 
-class ParticlesSurfaceTension extends AbstractParticleTest {
+class ParticlesSurfaceTensionTest extends AbstractParticleTest {
     public constructor() {
         super(); // base class constructor
 
@@ -30,22 +30,22 @@ class ParticlesSurfaceTension extends AbstractParticleTest {
             const ground = this.m_world.CreateBody();
 
             {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(-4, -1), new b2Vec2(4, -1), new b2Vec2(4, 0), new b2Vec2(-4, 0)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(-4, -1), new Vec2(4, -1), new Vec2(4, 0), new Vec2(-4, 0)];
                 shape.Set(vertices, 4);
                 ground.CreateFixture({ shape });
             }
 
             {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(-4, -0.1), new b2Vec2(-2, -0.1), new b2Vec2(-2, 2), new b2Vec2(-4, 2)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(-4, -0.1), new Vec2(-2, -0.1), new Vec2(-2, 2), new Vec2(-4, 2)];
                 shape.Set(vertices, 4);
                 ground.CreateFixture({ shape });
             }
 
             {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(2, -0.1), new b2Vec2(4, -0.1), new b2Vec2(4, 2), new b2Vec2(2, 2)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(2, -0.1), new Vec2(4, -0.1), new Vec2(4, 2), new Vec2(2, 2)];
                 shape.Set(vertices, 4);
                 ground.CreateFixture({ shape });
             }
@@ -54,33 +54,33 @@ class ParticlesSurfaceTension extends AbstractParticleTest {
         this.m_particleSystem.SetRadius(0.035 * 2); // HACK: increase particle radius
 
         {
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_p.Set(0, 2);
             shape.m_radius = 0.5;
-            const pd = new b2ParticleGroupDef();
-            pd.flags = b2ParticleFlag.b2_tensileParticle | b2ParticleFlag.b2_colorMixingParticle;
+            const pd = new ParticleGroupDef();
+            pd.flags = ParticleFlag.Tensile | ParticleFlag.ColorMixing;
             pd.shape = shape;
             pd.color.SetRGBA(1, 0, 0, 1);
             this.m_particleSystem.CreateParticleGroup(pd);
         }
 
         {
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_p.Set(-1, 2);
             shape.m_radius = 0.5;
-            const pd = new b2ParticleGroupDef();
-            pd.flags = b2ParticleFlag.b2_tensileParticle | b2ParticleFlag.b2_colorMixingParticle;
+            const pd = new ParticleGroupDef();
+            pd.flags = ParticleFlag.Tensile | ParticleFlag.ColorMixing;
             pd.shape = shape;
             pd.color.SetRGBA(0, 1, 0, 1);
             this.m_particleSystem.CreateParticleGroup(pd);
         }
 
         {
-            const shape = new b2PolygonShape();
-            const vertices = [new b2Vec2(0, 3), new b2Vec2(2, 3), new b2Vec2(2, 3.5), new b2Vec2(0, 3.5)];
+            const shape = new PolygonShape();
+            const vertices = [new Vec2(0, 3), new Vec2(2, 3), new Vec2(2, 3.5), new Vec2(0, 3.5)];
             shape.Set(vertices, 4);
-            const pd = new b2ParticleGroupDef();
-            pd.flags = b2ParticleFlag.b2_tensileParticle | b2ParticleFlag.b2_colorMixingParticle;
+            const pd = new ParticleGroupDef();
+            pd.flags = ParticleFlag.Tensile | ParticleFlag.ColorMixing;
             pd.shape = shape;
             pd.color.SetRGBA(0, 0, 1, 1);
             this.m_particleSystem.CreateParticleGroup(pd);
@@ -88,9 +88,9 @@ class ParticlesSurfaceTension extends AbstractParticleTest {
 
         {
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
             });
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_p.Set(0, 8);
             shape.m_radius = 0.5;
             body.CreateFixture({ shape, density: 0.5 });
@@ -109,4 +109,4 @@ class ParticlesSurfaceTension extends AbstractParticleTest {
     }
 }
 
-registerTest("Particles", "Surface Tension", ParticlesSurfaceTension);
+registerTest("Particles", "Surface Tension", ParticlesSurfaceTensionTest);

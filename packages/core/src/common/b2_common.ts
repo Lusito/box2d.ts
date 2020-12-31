@@ -20,20 +20,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { b2_lengthUnitsPerMeter } from "./b2_settings";
+import { LENGTH_UNITS_PER_METER } from "./b2_settings";
 
-export function b2Assert(condition: boolean, message?: string): asserts condition {
+export function Assert(condition: boolean, message?: string): asserts condition {
     if (!condition) throw new Error(message);
 }
 
-export function b2Verify<T>(value: T | null): T {
+export function Verify<T>(value: T | null): T {
     if (value === null) throw new Error();
     return value;
 }
 
-export const b2_maxFloat = 1e37; // FLT_MAX instead of Number.MAX_VALUE;
-export const b2_epsilon = 1e-5; // FLT_EPSILON instead of Number.MIN_VALUE;
-export const b2_epsilon_sq = b2_epsilon * b2_epsilon;
+export const MAX_FLOAT = 1e37; // FLT_MAX instead of Number.MAX_VALUE;
+export const EPSILON = 1e-5; // FLT_ EPSILON instead of Number.MIN_VALUE;
+export const EPSILON_SQUARED = EPSILON * EPSILON;
 
 // Global tuning constants based on meters-kilograms-seconds (MKS) units.
 
@@ -43,111 +43,101 @@ export const b2_epsilon_sq = b2_epsilon * b2_epsilon;
  * The maximum number of contact points between two convex shapes. Do
  * not change this value.
  */
-export const b2_maxManifoldPoints = 2;
+export const MAX_MANIFOLD_POINTS = 2;
 
 /**
  * This is used to fatten AABBs in the dynamic tree. This allows proxies
  * to move by a small amount without triggering a tree adjustment.
  * This is in meters.
  */
-export const b2_aabbExtension = 0.1 * b2_lengthUnitsPerMeter;
+export const AABB_EXTENSION = 0.1 * LENGTH_UNITS_PER_METER;
 
 /**
  * This is used to fatten AABBs in the dynamic tree. This is used to predict
  * the future position based on the current displacement.
  * This is a dimensionless multiplier.
  */
-export const b2_aabbMultiplier = 4;
+export const AABB_MULTIPLIER = 4;
 
 /**
  * A small length used as a collision and constraint tolerance. Usually it is
  * chosen to be numerically significant, but visually insignificant. In meters.
  */
-export const b2_linearSlop = 0.005 * b2_lengthUnitsPerMeter;
+export const LINEAR_SLOP = 0.005 * LENGTH_UNITS_PER_METER;
 
 /**
  * A small angle used as a collision and constraint tolerance. Usually it is
  * chosen to be numerically significant, but visually insignificant.
  */
-export const b2_angularSlop = (2 / 180) * Math.PI;
+export const ANGULAR_SLOP = (2 / 180) * Math.PI;
 
 /**
  * The radius of the polygon/edge shape skin. This should not be modified. Making
  * this smaller means polygons will have an insufficient buffer for continuous collision.
  * Making it larger may create artifacts for vertex collision.
  */
-export const b2_polygonRadius = 2 * b2_linearSlop;
+export const POLYGON_RADIUS = 2 * LINEAR_SLOP;
 
 /** Maximum number of sub-steps per contact in continuous physics simulation. */
-export const b2_maxSubSteps = 8;
+export const MAX_SUB_STEPS = 8;
 
 // Dynamics
 
 /** Maximum number of contacts to be handled to solve a TOI impact. */
-export const b2_maxTOIContacts = 32;
+export const MAX_TOI_CONTACTS = 32;
 
 /**
  * The maximum linear position correction used when solving constraints. This helps to
  * prevent overshoot. Meters.
  */
-export const b2_maxLinearCorrection = 0.2 * b2_lengthUnitsPerMeter;
+export const MAX_LINEAR_CORRECTION = 0.2 * LENGTH_UNITS_PER_METER;
 
 /**
  * The maximum angular position correction used when solving constraints. This helps to
  * prevent overshoot.
  */
-export const b2_maxAngularCorrection = (8 / 180) * Math.PI;
+export const MAX_ANGULAR_CORRECTION = (8 / 180) * Math.PI;
 
 /**
  * The maximum linear translation of a body per step. This limit is very large and is used
  * to prevent numerical problems. You shouldn't need to adjust this. Meters.
  */
-export const b2_maxTranslation = 2 * b2_lengthUnitsPerMeter;
-export const b2_maxTranslationSquared = b2_maxTranslation * b2_maxTranslation;
+export const MAX_TRANSLATION = 2 * LENGTH_UNITS_PER_METER;
+export const MAX_TRANSLATION_SQUARED = MAX_TRANSLATION * MAX_TRANSLATION;
 
 /**
  * The maximum angular velocity of a body. This limit is very large and is used
  * to prevent numerical problems. You shouldn't need to adjust this.
  */
-export const b2_maxRotation = 0.5 * Math.PI;
-export const b2_maxRotationSquared = b2_maxRotation * b2_maxRotation;
+export const MAX_ROTATION = 0.5 * Math.PI;
+export const MAX_ROTATION_SQUARED = MAX_ROTATION * MAX_ROTATION;
 
 /**
  * This scale factor controls how fast overlap is resolved. Ideally this would be 1 so
  * that overlap is removed in one time step. However using values close to 1 often lead
  * to overshoot.
  */
-export const b2_baumgarte = 0.2;
-export const b2_toiBaumgarte = 0.75;
+export const BAUMGARTE = 0.2;
+export const TOI_BAUMGARTE = 0.75;
 
 // Sleep
 
 /** The time that a body must be still before it will go to sleep. */
-export const b2_timeToSleep = 0.5;
+export const TIME_TO_SLEEP = 0.5;
 
 /** A body cannot sleep if its linear velocity is above this tolerance. */
-export const b2_linearSleepTolerance = 0.01 * b2_lengthUnitsPerMeter;
+export const LINEAR_SLEEP_TOLERANCE = 0.01 * LENGTH_UNITS_PER_METER;
 
 /** A body cannot sleep if its angular velocity is above this tolerance. */
-export const b2_angularSleepTolerance = (2 / 180) * Math.PI;
+export const ANGULAR_SLEEP_TOLERANCE = (2 / 180) * Math.PI;
 
-/**
- * Current version.
- * @see http://en.wikipedia.org/wiki/Software_versioning
- */
-export const b2_version = {
-    major: 2,
-    minor: 4,
-    patch: 0,
-};
-
-export function b2MakeNumberArray(length: number, init = 0): number[] {
+export function MakeNumberArray(length: number, init = 0): number[] {
     const result = new Array<number>(length);
     for (let i = 0; i < length; i++) result[i] = init;
     return result;
 }
 
-export function b2MakeBooleanArray(length: number, init = false): boolean[] {
+export function MakeBooleanArray(length: number, init = false): boolean[] {
     const result = new Array<boolean>(length);
     for (let i = 0; i < length; i++) result[i] = init;
     return result;
@@ -157,7 +147,7 @@ export interface NoArgsConstructor<T> {
     new (): T;
 }
 
-export function b2MakeArray<T>(length: number, Class: NoArgsConstructor<T>): T[] {
+export function MakeArray<T>(length: number, Class: NoArgsConstructor<T>): T[] {
     const result = new Array<T>(length);
     for (let i = 0; i < length; i++) result[i] = new Class();
     return result;

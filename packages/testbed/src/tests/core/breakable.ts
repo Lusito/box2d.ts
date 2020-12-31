@@ -16,36 +16,27 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import {
-    b2Body,
-    b2Vec2,
-    b2PolygonShape,
-    b2Fixture,
-    b2EdgeShape,
-    b2BodyType,
-    b2Contact,
-    b2ContactImpulse,
-} from "@box2d/core";
+import { Body, Vec2, PolygonShape, Fixture, EdgeShape, BodyType, Contact, ContactImpulse } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
 
-class Breakable extends Test {
+class BreakableTest extends Test {
     public static readonly e_count = 7;
 
-    public readonly m_body1: b2Body;
+    public readonly m_body1: Body;
 
-    public readonly m_velocity = new b2Vec2();
+    public readonly m_velocity = new Vec2();
 
     public m_angularVelocity = 0;
 
-    public readonly m_shape1 = new b2PolygonShape();
+    public readonly m_shape1 = new PolygonShape();
 
-    public readonly m_shape2 = new b2PolygonShape();
+    public readonly m_shape2 = new PolygonShape();
 
-    public m_piece1: b2Fixture;
+    public m_piece1: Fixture;
 
-    public m_piece2: b2Fixture;
+    public m_piece2: Fixture;
 
     public m_broke = false;
 
@@ -58,14 +49,14 @@ class Breakable extends Test {
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.CreateFixture({ shape });
         }
 
         // Breakable dynamic body
         this.m_body1 = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
             position: {
                 x: 0,
                 y: 40,
@@ -73,16 +64,16 @@ class Breakable extends Test {
             angle: 0.25 * Math.PI,
         });
 
-        this.m_shape1 = new b2PolygonShape();
-        this.m_shape1.SetAsBox(0.5, 0.5, new b2Vec2(-0.5, 0), 0);
+        this.m_shape1 = new PolygonShape();
+        this.m_shape1.SetAsBox(0.5, 0.5, new Vec2(-0.5, 0), 0);
         this.m_piece1 = this.m_body1.CreateFixture({ shape: this.m_shape1, density: 1 });
 
-        this.m_shape2 = new b2PolygonShape();
-        this.m_shape2.SetAsBox(0.5, 0.5, new b2Vec2(0.5, 0), 0);
+        this.m_shape2 = new PolygonShape();
+        this.m_shape2.SetAsBox(0.5, 0.5, new Vec2(0.5, 0), 0);
         this.m_piece2 = this.m_body1.CreateFixture({ shape: this.m_shape2, density: 1 });
     }
 
-    public PostSolve(contact: b2Contact, impulse: b2ContactImpulse) {
+    public PostSolve(contact: Contact, impulse: ContactImpulse) {
         if (this.m_broke) {
             // The body already broke.
             return;
@@ -110,7 +101,7 @@ class Breakable extends Test {
         body1.DestroyFixture(this.m_piece2);
 
         const body2 = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
             position: body1.GetPosition(),
             angle: body1.GetAngle(),
         });
@@ -121,18 +112,18 @@ class Breakable extends Test {
         const center1 = body1.GetWorldCenter();
         const center2 = body2.GetWorldCenter();
 
-        const velocity1 = b2Vec2.AddCrossScalarVec2(
+        const velocity1 = Vec2.AddCrossScalarVec2(
             this.m_velocity,
             this.m_angularVelocity,
-            b2Vec2.Subtract(center1, center, b2Vec2.s_t0),
-            new b2Vec2(),
+            Vec2.Subtract(center1, center, Vec2.s_t0),
+            new Vec2(),
         );
 
-        const velocity2 = b2Vec2.AddCrossScalarVec2(
+        const velocity2 = Vec2.AddCrossScalarVec2(
             this.m_velocity,
             this.m_angularVelocity,
-            b2Vec2.Subtract(center2, center, b2Vec2.s_t0),
-            new b2Vec2(),
+            Vec2.Subtract(center2, center, Vec2.s_t0),
+            new Vec2(),
         );
 
         body1.SetAngularVelocity(this.m_angularVelocity);
@@ -159,4 +150,4 @@ class Breakable extends Test {
     }
 }
 
-registerTest("Examples", "Breakable", Breakable);
+registerTest("Examples", "Breakable", BreakableTest);

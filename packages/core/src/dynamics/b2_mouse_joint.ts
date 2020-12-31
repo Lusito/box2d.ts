@@ -20,23 +20,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { b2Assert, b2_epsilon } from "../common/b2_common";
-import { b2Draw, debugColors } from "../common/b2_draw";
-import { b2Vec2, b2Mat22, b2Rot, b2Transform, XY } from "../common/b2_math";
-import { b2Joint, b2JointDef, b2JointType, b2IJointDef } from "./b2_joint";
-import { b2SolverData } from "./b2_time_step";
+// DEBUG: import { Assert, EPSILON } from "../common/b2_common";
+import { Draw, debugColors } from "../common/b2_draw";
+import { Vec2, Mat22, Rot, Transform, XY } from "../common/b2_math";
+import { Joint, JointDef, JointType, IJointDef } from "./b2_joint";
+import { SolverData } from "./b2_time_step";
 
 const temp = {
-    qB: new b2Rot(),
-    lalcB: new b2Vec2(),
-    Cdot: new b2Vec2(),
-    impulse: new b2Vec2(),
-    oldImpulse: new b2Vec2(),
-    pA: new b2Vec2(),
-    pB: new b2Vec2(),
+    qB: new Rot(),
+    lalcB: new Vec2(),
+    Cdot: new Vec2(),
+    impulse: new Vec2(),
+    oldImpulse: new Vec2(),
+    pA: new Vec2(),
+    pB: new Vec2(),
 };
 
-export interface b2IMouseJointDef extends b2IJointDef {
+export interface IMouseJointDef extends IJointDef {
     target?: XY;
 
     maxForce?: number;
@@ -50,12 +50,12 @@ export interface b2IMouseJointDef extends b2IJointDef {
  * Mouse joint definition. This requires a world target point,
  * tuning parameters, and the time step.
  */
-export class b2MouseJointDef extends b2JointDef implements b2IMouseJointDef {
+export class MouseJointDef extends JointDef implements IMouseJointDef {
     /**
      * The initial world target point. This is assumed
      * to coincide with the body anchor initially.
      */
-    public readonly target = new b2Vec2();
+    public readonly target = new Vec2();
 
     /**
      * The maximum constraint force that can be exerted
@@ -71,7 +71,7 @@ export class b2MouseJointDef extends b2JointDef implements b2IMouseJointDef {
     public damping = 0;
 
     public constructor() {
-        super(b2JointType.e_mouseJoint);
+        super(JointType.Mouse);
     }
 }
 
@@ -84,10 +84,10 @@ export class b2MouseJointDef extends b2JointDef implements b2IMouseJointDef {
  * developed to be used in the testbed. If you want to learn how to
  * use the mouse joint, look at the testbed.
  */
-export class b2MouseJoint extends b2Joint {
-    protected readonly m_localAnchorB = new b2Vec2();
+export class MouseJoint extends Joint {
+    protected readonly m_localAnchorB = new Vec2();
 
-    protected readonly m_targetA = new b2Vec2();
+    protected readonly m_targetA = new Vec2();
 
     protected m_stiffness = 0;
 
@@ -96,7 +96,7 @@ export class b2MouseJoint extends b2Joint {
     protected m_beta = 0;
 
     // Solver shared
-    protected readonly m_impulse = new b2Vec2();
+    protected readonly m_impulse = new Vec2();
 
     protected m_maxForce = 0;
 
@@ -105,24 +105,24 @@ export class b2MouseJoint extends b2Joint {
     // Solver temp
     protected m_indexB = 0;
 
-    protected readonly m_rB = new b2Vec2();
+    protected readonly m_rB = new Vec2();
 
-    protected readonly m_localCenterB = new b2Vec2();
+    protected readonly m_localCenterB = new Vec2();
 
     protected m_invMassB = 0;
 
     protected m_invIB = 0;
 
-    protected readonly m_mass = new b2Mat22();
+    protected readonly m_mass = new Mat22();
 
-    protected readonly m_C = new b2Vec2();
+    protected readonly m_C = new Vec2();
 
     /** @internal protected */
-    public constructor(def: b2IMouseJointDef) {
+    public constructor(def: IMouseJointDef) {
         super(def);
 
-        this.m_targetA.Copy(def.target ?? b2Vec2.ZERO);
-        b2Transform.TransposeMultiplyVec2(this.m_bodyB.GetTransform(), this.m_targetA, this.m_localAnchorB);
+        this.m_targetA.Copy(def.target ?? Vec2.ZERO);
+        Transform.TransposeMultiplyVec2(this.m_bodyB.GetTransform(), this.m_targetA, this.m_localAnchorB);
         this.m_maxForce = def.maxForce ?? 0;
         this.m_stiffness = def.stiffness ?? 0;
         this.m_damping = def.damping ?? 0;
@@ -132,7 +132,7 @@ export class b2MouseJoint extends b2Joint {
     }
 
     public SetTarget(target: XY): void {
-        if (!b2Vec2.Equals(target, this.m_targetA)) {
+        if (!Vec2.Equals(target, this.m_targetA)) {
             this.m_bodyB.SetAwake(true);
             this.m_targetA.Copy(target);
         }
@@ -167,7 +167,7 @@ export class b2MouseJoint extends b2Joint {
     }
 
     /** @internal protected */
-    public InitVelocityConstraints(data: b2SolverData): void {
+    public InitVelocityConstraints(data: SolverData): void {
         this.m_indexB = this.m_bodyB.m_islandIndex;
         this.m_localCenterB.Copy(this.m_bodyB.m_sweep.localCenter);
         this.m_invMassB = this.m_bodyB.m_invMass;
@@ -196,7 +196,7 @@ export class b2MouseJoint extends b2Joint {
         this.m_beta = h * k * this.m_gamma;
 
         // Compute the effective mass matrix.
-        b2Rot.MultiplyVec2(qB, b2Vec2.Subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
+        Rot.MultiplyVec2(qB, Vec2.Subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
 
         // K    = [(1/m1 + 1/m2) * eye(2) - skew(r1) * invI1 * skew(r1) - skew(r2) * invI2 * skew(r2)]
         //      = [1/m1+1/m2     0    ] + invI1 * [r1.y*r1.y -r1.x*r1.y] + invI2 * [r1.y*r1.y -r1.x*r1.y]
@@ -209,7 +209,7 @@ export class b2MouseJoint extends b2Joint {
 
         K.Inverse();
 
-        b2Vec2.Add(cB, this.m_rB, this.m_C).Subtract(this.m_targetA);
+        Vec2.Add(cB, this.m_rB, this.m_C).Subtract(this.m_targetA);
         this.m_C.Scale(this.m_beta);
 
         // Cheat with some damping
@@ -218,7 +218,7 @@ export class b2MouseJoint extends b2Joint {
         if (data.step.warmStarting) {
             this.m_impulse.Scale(data.step.dtRatio);
             vB.AddScaled(this.m_invMassB, this.m_impulse);
-            wB += this.m_invIB * b2Vec2.Cross(this.m_rB, this.m_impulse);
+            wB += this.m_invIB * Vec2.Cross(this.m_rB, this.m_impulse);
         } else {
             this.m_impulse.SetZero();
         }
@@ -226,16 +226,16 @@ export class b2MouseJoint extends b2Joint {
     }
 
     /** @internal protected */
-    public SolveVelocityConstraints(data: b2SolverData): void {
+    public SolveVelocityConstraints(data: SolverData): void {
         const vB = data.velocities[this.m_indexB].v;
         let wB = data.velocities[this.m_indexB].w;
 
         // Cdot = v + cross(w, r)
         const { Cdot, impulse, oldImpulse } = temp;
-        b2Vec2.AddCrossScalarVec2(vB, wB, this.m_rB, Cdot);
-        b2Mat22.MultiplyVec2(
+        Vec2.AddCrossScalarVec2(vB, wB, this.m_rB, Cdot);
+        Mat22.MultiplyVec2(
             this.m_mass,
-            b2Vec2.Add(Cdot, this.m_C, impulse).AddScaled(this.m_gamma, this.m_impulse).Negate(),
+            Vec2.Add(Cdot, this.m_C, impulse).AddScaled(this.m_gamma, this.m_impulse).Negate(),
             impulse,
         );
 
@@ -245,16 +245,16 @@ export class b2MouseJoint extends b2Joint {
         if (this.m_impulse.LengthSquared() > maxImpulse * maxImpulse) {
             this.m_impulse.Scale(maxImpulse / this.m_impulse.Length());
         }
-        b2Vec2.Subtract(this.m_impulse, oldImpulse, impulse);
+        Vec2.Subtract(this.m_impulse, oldImpulse, impulse);
 
         vB.AddScaled(this.m_invMassB, impulse);
-        wB += this.m_invIB * b2Vec2.Cross(this.m_rB, impulse);
+        wB += this.m_invIB * Vec2.Cross(this.m_rB, impulse);
 
         data.velocities[this.m_indexB].w = wB;
     }
 
     /** @internal protected */
-    public SolvePositionConstraints(_data: b2SolverData): boolean {
+    public SolvePositionConstraints(_data: SolverData): boolean {
         return true;
     }
 
@@ -269,7 +269,7 @@ export class b2MouseJoint extends b2Joint {
     }
 
     public GetReactionForce<T extends XY>(inv_dt: number, out: T): T {
-        return b2Vec2.Scale(inv_dt, this.m_impulse, out);
+        return Vec2.Scale(inv_dt, this.m_impulse, out);
     }
 
     public GetReactionTorque(_inv_dt: number): number {
@@ -280,7 +280,7 @@ export class b2MouseJoint extends b2Joint {
         this.m_targetA.Subtract(newOrigin);
     }
 
-    public Draw(draw: b2Draw): void {
+    public Draw(draw: Draw): void {
         const p1 = this.GetAnchorA(temp.pA);
         const p2 = this.GetAnchorB(temp.pB);
         draw.DrawPoint(p1, 4, debugColors.joint7);

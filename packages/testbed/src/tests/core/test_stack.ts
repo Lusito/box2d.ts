@@ -16,40 +16,31 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import {
-    b2BodyDef,
-    b2Vec2,
-    b2ChainShape,
-    b2FixtureDef,
-    b2BodyType,
-    b2PolygonShape,
-    b2CircleShape,
-    XY,
-} from "@box2d/core";
+import { BodyDef, Vec2, ChainShape, FixtureDef, BodyType, PolygonShape, CircleShape, XY } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
-class TestStack extends Test {
+class TestStackTest extends Test {
     public constructor() {
         super();
 
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2ChainShape();
-            shape.CreateLoop([new b2Vec2(-30, 0), new b2Vec2(-30, 40), new b2Vec2(30, 40), new b2Vec2(30, 0)]);
+            const shape = new ChainShape();
+            shape.CreateLoop([new Vec2(-30, 0), new Vec2(-30, 40), new Vec2(30, 40), new Vec2(30, 0)]);
             ground.CreateFixture({ shape });
         }
 
         // Add bodies
-        const position = new b2Vec2();
-        const bd: b2BodyDef = {
-            type: b2BodyType.b2_dynamicBody,
+        const position = new Vec2();
+        const bd: BodyDef = {
+            type: BodyType.Dynamic,
             position,
             // isBullet: true,
         };
-        const polygon = new b2PolygonShape();
-        const fd: b2FixtureDef = {
+        const polygon = new PolygonShape();
+        const fd: FixtureDef = {
             shape: polygon,
             density: 1,
             friction: 0.5,
@@ -70,17 +61,17 @@ class TestStack extends Test {
             this.m_world.CreateBody(bd).CreateFixture(fd);
         }
         // Create ramp
-        bd.type = b2BodyType.b2_staticBody;
+        bd.type = BodyType.Static;
         position.Set(0, 0);
-        const vxs = [new b2Vec2(-30, 0), new b2Vec2(-10, 0), new b2Vec2(-30, 10)];
+        const vxs = [new Vec2(-30, 0), new Vec2(-10, 0), new Vec2(-30, 10)];
         polygon.Set(vxs, vxs.length);
         fd.density = 0;
         this.m_world.CreateBody(bd).CreateFixture(fd);
 
         // Create ball
-        bd.type = b2BodyType.b2_dynamicBody;
+        bd.type = BodyType.Dynamic;
         position.Set(-25, 20);
-        fd.shape = new b2CircleShape(4);
+        fd.shape = new CircleShape(4);
         fd.density = 2;
         fd.restitution = 0.2;
         fd.friction = 0.5;
@@ -99,4 +90,4 @@ class TestStack extends Test {
     }
 }
 
-registerTest("Stacking", "Stacked Boxes", TestStack);
+registerTest("Stacking", "Stacked Boxes", TestStackTest);

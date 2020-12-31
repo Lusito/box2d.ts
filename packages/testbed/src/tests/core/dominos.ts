@@ -17,35 +17,35 @@
  */
 
 import {
-    b2EdgeShape,
-    b2Vec2,
-    b2PolygonShape,
-    b2FixtureDef,
-    b2BodyType,
-    b2RevoluteJointDef,
-    b2DistanceJointDef,
-    b2CircleShape,
+    EdgeShape,
+    Vec2,
+    PolygonShape,
+    FixtureDef,
+    BodyType,
+    RevoluteJointDef,
+    DistanceJointDef,
+    CircleShape,
     XY,
-    b2LinearStiffness,
+    LinearStiffness,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
-class Dominos extends Test {
+class DominosTest extends Test {
     public constructor() {
         super();
 
         let b1 = null;
         {
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
 
             b1 = this.m_world.CreateBody();
             b1.CreateFixture({ shape });
         }
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(6, 0.25);
 
             const ground = this.m_world.CreateBody({
@@ -55,10 +55,10 @@ class Dominos extends Test {
         }
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.1, 1);
 
-            const fd: b2FixtureDef = {
+            const fd: FixtureDef = {
                 shape,
                 density: 20,
                 friction: 0.1,
@@ -66,7 +66,7 @@ class Dominos extends Test {
 
             for (let i = 0; i < 10; ++i) {
                 const body = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
                     position: { x: -6 + 1 * i, y: 11.25 },
                 });
                 body.CreateFixture(fd);
@@ -74,8 +74,8 @@ class Dominos extends Test {
         }
 
         {
-            const shape = new b2PolygonShape();
-            shape.SetAsBox(7, 0.25, b2Vec2.ZERO, 0.3);
+            const shape = new PolygonShape();
+            shape.SetAsBox(7, 0.25, Vec2.ZERO, 0.3);
 
             const ground = this.m_world.CreateBody({
                 position: { x: 1, y: 6 },
@@ -85,7 +85,7 @@ class Dominos extends Test {
 
         let b2 = null;
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.25, 1.5);
 
             b2 = this.m_world.CreateBody({
@@ -96,19 +96,19 @@ class Dominos extends Test {
 
         let b3 = null;
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(6, 0.125);
 
             b3 = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 angle: -0.15,
                 position: { x: -0.9, y: 1 },
             });
             b3.CreateFixture({ shape, density: 10 });
         }
 
-        const jd = new b2RevoluteJointDef();
-        const anchor = new b2Vec2();
+        const jd = new RevoluteJointDef();
+        const anchor = new Vec2();
 
         anchor.Set(-2, 1);
         jd.Initialize(b1, b3, anchor);
@@ -117,11 +117,11 @@ class Dominos extends Test {
 
         let b4 = null;
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.25, 0.25);
 
             b4 = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: -10, y: 15 },
             });
             b4.CreateFixture({ shape, density: 10 });
@@ -134,24 +134,24 @@ class Dominos extends Test {
         let b5 = null;
         {
             b5 = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: 6.5, y: 3 },
             });
 
-            const shape = new b2PolygonShape();
-            const fd: b2FixtureDef = {
+            const shape = new PolygonShape();
+            const fd: FixtureDef = {
                 shape,
                 density: 10,
                 friction: 0.1,
             };
 
-            shape.SetAsBox(1, 0.1, new b2Vec2(0, -0.9), 0);
+            shape.SetAsBox(1, 0.1, new Vec2(0, -0.9), 0);
             b5.CreateFixture(fd);
 
-            shape.SetAsBox(0.1, 1, new b2Vec2(-0.9, 0), 0);
+            shape.SetAsBox(0.1, 1, new Vec2(-0.9, 0), 0);
             b5.CreateFixture(fd);
 
-            shape.SetAsBox(0.1, 1, new b2Vec2(0.9, 0), 0);
+            shape.SetAsBox(0.1, 1, new Vec2(0.9, 0), 0);
             b5.CreateFixture(fd);
         }
 
@@ -161,11 +161,11 @@ class Dominos extends Test {
 
         let b6 = null;
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(1, 0.1);
 
             b6 = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: 6.5, y: 4.1 },
             });
             b6.CreateFixture({ shape, density: 30 });
@@ -177,39 +177,39 @@ class Dominos extends Test {
 
         let b7 = null;
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.1, 1);
 
             b7 = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: 7.4, y: 1 },
             });
             b7.CreateFixture({ shape, density: 10 });
         }
 
-        const djd = new b2DistanceJointDef();
+        const djd = new DistanceJointDef();
         djd.bodyA = b3;
         djd.bodyB = b7;
         djd.localAnchorA.Set(6, 0);
         djd.localAnchorB.Set(0, -1);
-        const d = b2Vec2.Subtract(
-            djd.bodyB.GetWorldPoint(djd.localAnchorB, new b2Vec2()),
-            djd.bodyA.GetWorldPoint(djd.localAnchorA, new b2Vec2()),
-            new b2Vec2(),
+        const d = Vec2.Subtract(
+            djd.bodyB.GetWorldPoint(djd.localAnchorB, new Vec2()),
+            djd.bodyA.GetWorldPoint(djd.localAnchorA, new Vec2()),
+            new Vec2(),
         );
         djd.length = d.Length();
-        b2LinearStiffness(djd, 1, 1, djd.bodyA, djd.bodyB);
+        LinearStiffness(djd, 1, 1, djd.bodyA, djd.bodyB);
         this.m_world.CreateJoint(djd);
 
         {
             const radius = 0.2;
 
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_radius = radius;
 
             for (let i = 0; i < 4; ++i) {
                 const body = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
                     position: { x: 5.9 + 2 * radius * i, y: 2.4 },
                 });
                 body.CreateFixture({ shape, density: 10 });
@@ -229,4 +229,4 @@ class Dominos extends Test {
     }
 }
 
-registerTest("Examples", "Dominos", Dominos);
+registerTest("Examples", "Dominos", DominosTest);

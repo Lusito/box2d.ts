@@ -16,24 +16,24 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Vec2, b2TimeStep, b2_epsilon } from "@box2d/core";
+import { Vec2, TimeStep, EPSILON } from "@box2d/core";
 
-import { b2Controller, b2ControllerEdge } from "./b2_controller";
-import { b2SubmergedAreaForShape } from "./b2_submerged_area";
+import { Controller, ControllerEdge } from "./b2_controller";
+import { SubmergedAreaForShape } from "./b2_submerged_area";
 
 const temp = {
-    buoyancyForce: new b2Vec2(),
+    buoyancyForce: new Vec2(),
 };
 
 /**
  * Calculates buoyancy forces for fluids in the form of a half
  * plane.
  */
-export class b2BuoyancyController extends b2Controller {
+export class BuoyancyController extends Controller {
     /**
      * The outer surface normal
      */
-    public readonly normal = new b2Vec2(0, 1);
+    public readonly normal = new Vec2(0, 1);
 
     /**
      * The height of the fluid surface along the normal
@@ -48,7 +48,7 @@ export class b2BuoyancyController extends b2Controller {
     /**
      * Fluid velocity, for drag calculations
      */
-    public readonly velocity = new b2Vec2();
+    public readonly velocity = new Vec2();
 
     /**
      * Linear drag co-efficient
@@ -74,9 +74,9 @@ export class b2BuoyancyController extends b2Controller {
     /**
      * Gravity vector, if the world's gravity is not used
      */
-    public readonly gravity = new b2Vec2();
+    public readonly gravity = new Vec2();
 
-    public Step(_step: b2TimeStep) {
+    public Step(_step: TimeStep) {
         if (!this.m_bodyList) {
             return;
         }
@@ -84,20 +84,20 @@ export class b2BuoyancyController extends b2Controller {
             this.gravity.Copy(this.m_bodyList.body.GetWorld().GetGravity());
         }
         const { buoyancyForce } = temp;
-        for (let i: b2ControllerEdge | null = this.m_bodyList; i; i = i.nextBody) {
+        for (let i: ControllerEdge | null = this.m_bodyList; i; i = i.nextBody) {
             const { body } = i;
             if (!body.IsAwake()) {
                 // Buoyancy force is just a function of position,
                 // so unlike most forces, it is safe to ignore sleeping bodes
                 continue;
             }
-            const areac = new b2Vec2();
-            const massc = new b2Vec2();
+            const areac = new Vec2();
+            const massc = new Vec2();
             let area = 0;
             let mass = 0;
             for (let fixture = body.GetFixtureList(); fixture; fixture = fixture.GetNext()) {
-                const sc = new b2Vec2();
-                const sarea = b2SubmergedAreaForShape(
+                const sc = new Vec2();
+                const sarea = SubmergedAreaForShape(
                     fixture.GetShape(),
                     this.normal,
                     this.offset,
@@ -120,18 +120,18 @@ export class b2BuoyancyController extends b2Controller {
             }
             areac.x /= area;
             areac.y /= area;
-            //    b2Vec2 localCentroid = b2MulT(body->GetXForm(),areac);
+            //    Vec2 localCentroid = MulT(body->GetXForm(),areac);
             massc.x /= mass;
             massc.y /= mass;
-            if (area < b2_epsilon) {
+            if (area < EPSILON) {
                 continue;
             }
             // Buoyancy
-            b2Vec2.Negate(this.gravity, buoyancyForce);
+            Vec2.Negate(this.gravity, buoyancyForce);
             buoyancyForce.Scale(this.density * area);
             body.ApplyForce(buoyancyForce, massc);
             // Linear drag
-            const dragForce = body.GetLinearVelocityFromWorldPoint(areac, new b2Vec2());
+            const dragForce = body.GetLinearVelocityFromWorldPoint(areac, new Vec2());
             dragForce.Subtract(this.velocity);
             dragForce.Scale(-this.linearDrag * area);
             body.ApplyForce(dragForce, areac);

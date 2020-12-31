@@ -16,33 +16,33 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2EdgeShape, b2Vec2, b2BodyType, b2CircleShape } from "@box2d/core";
+import { EdgeShape, Vec2, BodyType, CircleShape } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
-class Heavy1 extends Test {
+class Heavy1Test extends Test {
     public constructor() {
         super();
 
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.CreateFixture({ shape });
         }
 
         let body = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
             position: { x: 0, y: 0.5 },
         });
 
-        const shape = new b2CircleShape();
+        const shape = new CircleShape();
         shape.m_radius = 0.5;
         body.CreateFixture({ shape, density: 10 });
 
         body = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
             position: { x: 0, y: 6 },
         });
         shape.m_radius = 5;
@@ -50,4 +50,4 @@ class Heavy1 extends Test {
     }
 }
 
-registerTest("Solver", "Heavy 1", Heavy1);
+registerTest("Solver", "Heavy 1", Heavy1Test);

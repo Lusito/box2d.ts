@@ -16,8 +16,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2PolygonShape, b2Transform, b2Vec2, XY } from "@box2d/core";
-import { b2ParticleFlag, b2ParticleDef } from "@box2d/particles";
+import { PolygonShape, Transform, Vec2, XY } from "@box2d/core";
+import { ParticleFlag, ParticleDef } from "@box2d/particles";
 
 import { registerTest, TestContext } from "../../test";
 import { Settings } from "../../settings";
@@ -29,10 +29,10 @@ import { baseParticleTypes } from "../../utils/particles/particle_parameter";
  * contact fixture junction.
  */
 
-class Pointy extends AbstractParticleTestWithControls {
-    public m_killfieldShape = new b2PolygonShape();
+class PointyTest extends AbstractParticleTestWithControls {
+    public m_killfieldShape = new PolygonShape();
 
-    public m_killfieldTransform = new b2Transform();
+    public m_killfieldTransform = new Transform();
 
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter);
@@ -47,8 +47,8 @@ class Pointy extends AbstractParticleTestWithControls {
 
             const xstep = 1;
             for (let x = -10; x < 10; x += xstep) {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(x, -10), new b2Vec2(x + xstep, -10), new b2Vec2(0, 25)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(x, -10), new Vec2(x + xstep, -10), new Vec2(0, 25)];
                 shape.Set(vertices, 3);
                 ground.CreateFixture({ shape });
             }
@@ -56,17 +56,17 @@ class Pointy extends AbstractParticleTestWithControls {
 
         this.m_particleSystem.SetRadius(0.25 * 2); // HACK: increase particle radius
         const particleType = particleParameter.GetValue();
-        if (particleType === b2ParticleFlag.b2_waterParticle) {
+        if (particleType === ParticleFlag.Water) {
             this.m_particleSystem.SetDamping(0.2);
         }
 
         // Create killfield shape and transform
-        this.m_killfieldShape = new b2PolygonShape();
+        this.m_killfieldShape = new PolygonShape();
         this.m_killfieldShape.SetAsBox(50, 1);
 
         // Put this at the bottom of the world
-        this.m_killfieldTransform = new b2Transform();
-        const loc = new b2Vec2(-25, 1);
+        this.m_killfieldTransform = new Transform();
+        const loc = new Vec2(-25, 1);
         this.m_killfieldTransform.SetPositionAngle(loc, 0);
     }
 
@@ -74,16 +74,16 @@ class Pointy extends AbstractParticleTestWithControls {
         super.Step(settings, timeStep);
 
         const flags = this.particleParameter.GetValue();
-        const pd = new b2ParticleDef();
+        const pd = new ParticleDef();
 
         pd.position.Set(0, 33);
         pd.velocity.Set(0, -1);
         pd.flags = flags;
 
-        if (flags & (b2ParticleFlag.b2_springParticle | b2ParticleFlag.b2_elasticParticle)) {
+        if (flags & (ParticleFlag.Spring | ParticleFlag.Elastic)) {
             const count = this.m_particleSystem.GetParticleCount();
             pd.velocity.Set(count & 1 ? -1 : 1, -5);
-            pd.flags |= b2ParticleFlag.b2_reactiveParticle;
+            pd.flags |= ParticleFlag.Reactive;
         }
 
         this.m_particleSystem.CreateParticle(pd);
@@ -100,4 +100,4 @@ class Pointy extends AbstractParticleTestWithControls {
     }
 }
 
-registerTest("Particles", "Pointy", Pointy);
+registerTest("Particles", "Pointy", PointyTest);

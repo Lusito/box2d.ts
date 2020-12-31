@@ -44,8 +44,8 @@ export * from "./collision/b2_edge_shape";
 export * from "./collision/b2_chain_shape";
 
 export * from "./dynamics/b2_fixture";
-export { b2Body, b2BodyType, b2BodyDef } from "./dynamics/b2_body";
-export { b2World } from "./dynamics/b2_world";
+export { Body, BodyType, BodyDef } from "./dynamics/b2_body";
+export { World } from "./dynamics/b2_world";
 export * from "./dynamics/b2_world_callbacks";
 export * from "./dynamics/b2_island";
 export * from "./dynamics/b2_time_step";
@@ -53,7 +53,7 @@ export * from "./dynamics/b2_contact_manager";
 
 export * from "./dynamics/b2_contact";
 export * from "./dynamics/b2_contact_factory";
-export { b2SetBlockSolve, b2GetBlockSolve } from "./dynamics/b2_contact_solver";
+export { SetBlockSolve, GetBlockSolve } from "./dynamics/b2_contact_solver";
 
 export * from "./dynamics/b2_joint";
 export * from "./dynamics/b2_area_joint";

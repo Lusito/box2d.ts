@@ -16,17 +16,17 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Body, b2Joint, b2CircleShape, b2BodyType, b2Transform, b2PrismaticJointDef, b2Vec2 } from "@box2d/core";
+import { Body, Joint, CircleShape, BodyType, Transform, PrismaticJointDef, Vec2 } from "@box2d/core";
 
-import { Soup } from "./soup";
+import { SoupTest } from "./soup";
 import { Settings } from "../../settings";
 import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 import { registerTest, TestContext } from "../../test";
 
-class SoupStirrer extends Soup {
-    public m_stirrer: b2Body;
+class SoupStirrerTest extends SoupTest {
+    public m_stirrer: Body;
 
-    public m_joint: b2Joint | null = null;
+    public m_joint: Joint | null = null;
 
     public m_oscillationOffset = 0;
 
@@ -36,18 +36,18 @@ class SoupStirrer extends Soup {
         this.m_particleSystem.SetDamping(1);
 
         // Shape of the stirrer.
-        const shape = new b2CircleShape();
+        const shape = new CircleShape();
         shape.m_p.Set(0, 0.7);
         shape.m_radius = 0.4;
 
         // Create the stirrer.
         this.m_stirrer = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
         });
         this.m_stirrer.CreateFixture({ shape, density: 1 });
 
         // Destroy all particles under the stirrer.
-        const xf = new b2Transform();
+        const xf = new Transform();
         xf.SetIdentity();
         this.m_particleSystem.DestroyParticlesInShape(shape, xf);
 
@@ -56,11 +56,11 @@ class SoupStirrer extends Soup {
     }
 
     public CreateJoint() {
-        // DEBUG: b2Assert(!this.m_joint);
+        // DEBUG: Assert(!this.m_joint);
         // Create a prismatic joint and connect to the ground, and have it
         // slide along the x axis.
         // Disconnect the body from this joint to have more fun.
-        const prismaticJointDef = new b2PrismaticJointDef();
+        const prismaticJointDef = new PrismaticJointDef();
         prismaticJointDef.bodyA = this.m_groundBody;
         prismaticJointDef.bodyB = this.m_stirrer;
         prismaticJointDef.collideConnected = true;
@@ -90,7 +90,7 @@ class SoupStirrer extends Soup {
      * Click the soup to toggle between enabling / disabling the
      * joint.
      */
-    public MouseUp(p: b2Vec2) {
+    public MouseUp(p: Vec2) {
         super.MouseUp(p);
         if (this.InSoup(p)) {
             this.ToggleJoint();
@@ -100,7 +100,7 @@ class SoupStirrer extends Soup {
     /**
      * Determine whether a point is in the soup.
      */
-    public InSoup(pos: b2Vec2) {
+    public InSoup(pos: Vec2) {
         // The soup dimensions are from the container initialization in the
         // Soup test.
         return pos.y > -1 && pos.y < 2 && pos.x > -3 && pos.x < 3;
@@ -125,7 +125,7 @@ class SoupStirrer extends Soup {
 
         // Calculate the force vector.
         const forceAngle = this.m_oscillationOffset * k_forceOscillationPerSecond * 2 * Math.PI;
-        const forceVector = new b2Vec2(Math.sin(forceAngle), Math.cos(forceAngle)).Scale(k_forceMagnitude);
+        const forceVector = new Vec2(Math.sin(forceAngle), Math.cos(forceAngle)).Scale(k_forceMagnitude);
 
         // Only apply force to the body when it's within the soup.
         if (this.InSoup(this.m_stirrer.GetPosition()) && this.m_stirrer.GetLinearVelocity().Length() < k_maxSpeed) {
@@ -135,4 +135,4 @@ class SoupStirrer extends Soup {
     }
 }
 
-registerTest("Particles", "Soup Stirrer", SoupStirrer);
+registerTest("Particles", "Soup Stirrer", SoupStirrerTest);

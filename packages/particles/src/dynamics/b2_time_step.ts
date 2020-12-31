@@ -16,15 +16,15 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2TimeStep, b2_augment } from "@box2d/core";
+import { TimeStep, b2_augment } from "@box2d/core";
 
 declare module "@box2d/core" {
-    interface b2StepConfig {
+    interface StepConfig {
         particleIterations: number;
     }
 }
 
-b2_augment(b2TimeStep, {
+b2_augment(TimeStep, {
     Create(original) {
         const step = original();
         step.config.particleIterations = 0;

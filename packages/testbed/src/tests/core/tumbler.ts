@@ -16,15 +16,15 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2RevoluteJoint, b2BodyType, b2PolygonShape, b2Vec2, b2RevoluteJointDef, XY } from "@box2d/core";
+import { RevoluteJoint, BodyType, PolygonShape, Vec2, RevoluteJointDef, XY } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
 
-class Tumbler extends Test {
+class TumblerTest extends Test {
     public static readonly e_count = 800;
 
-    public m_joint: b2RevoluteJoint;
+    public m_joint: RevoluteJoint;
 
     public m_count = 0;
 
@@ -35,22 +35,22 @@ class Tumbler extends Test {
 
         {
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 allowSleep: false,
                 position: { x: 0, y: 10 },
             });
 
-            const shape = new b2PolygonShape();
-            shape.SetAsBox(0.5, 10, new b2Vec2(10, 0), 0);
+            const shape = new PolygonShape();
+            shape.SetAsBox(0.5, 10, new Vec2(10, 0), 0);
             body.CreateFixture({ shape, density: 5 });
-            shape.SetAsBox(0.5, 10, new b2Vec2(-10, 0), 0);
+            shape.SetAsBox(0.5, 10, new Vec2(-10, 0), 0);
             body.CreateFixture({ shape, density: 5 });
-            shape.SetAsBox(10, 0.5, new b2Vec2(0, 10), 0);
+            shape.SetAsBox(10, 0.5, new Vec2(0, 10), 0);
             body.CreateFixture({ shape, density: 5 });
-            shape.SetAsBox(10, 0.5, new b2Vec2(0, -10), 0);
+            shape.SetAsBox(10, 0.5, new Vec2(0, -10), 0);
             body.CreateFixture({ shape, density: 5 });
 
-            const jd = new b2RevoluteJointDef();
+            const jd = new RevoluteJointDef();
             jd.bodyA = ground;
             jd.bodyB = body;
             jd.localAnchorA.Set(0, 10);
@@ -75,13 +75,13 @@ class Tumbler extends Test {
     public Step(settings: Settings, timeStep: number): void {
         super.Step(settings, timeStep);
 
-        if (this.m_count < Tumbler.e_count) {
+        if (this.m_count < TumblerTest.e_count) {
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: 0, y: 10 },
             });
 
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.125, 0.125);
             body.CreateFixture({ shape, density: 1 });
 
@@ -90,4 +90,4 @@ class Tumbler extends Test {
     }
 }
 
-registerTest("Benchmark", "Tumbler", Tumbler);
+registerTest("Benchmark", "Tumbler", TumblerTest);

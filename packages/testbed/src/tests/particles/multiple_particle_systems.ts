@@ -16,16 +16,16 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Vec2, b2Color, b2PolygonShape, b2BodyType, b2MassData, XY } from "@box2d/core";
-import { b2ParticleSystem, b2ParticleSystemDef } from "@box2d/particles";
+import { Vec2, Color, PolygonShape, BodyType, MassData, XY } from "@box2d/core";
+import { ParticleSystem, ParticleSystemDef } from "@box2d/particles";
 
 import { registerTest } from "../../test";
 import { Settings } from "../../settings";
 import { RadialEmitter } from "../../utils/particles/particle_emitter";
 import { AbstractParticleTest } from "./abstract_particle_test";
 
-class MultipleParticleSystems extends AbstractParticleTest {
-    public m_particleSystem2: b2ParticleSystem;
+class MultipleParticleSystemsTest extends AbstractParticleTest {
+    public m_particleSystem2: ParticleSystem;
 
     public m_emitters: RadialEmitter[];
 
@@ -33,7 +33,7 @@ class MultipleParticleSystems extends AbstractParticleTest {
     public static readonly k_maxParticleCount = 500;
 
     /** Size of the box which is pushed around by particles. */
-    public static readonly k_dynamicBoxSize = new b2Vec2(0.5, 0.5);
+    public static readonly k_dynamicBoxSize = new Vec2(0.5, 0.5);
 
     /** Mass of the box. */
     public static readonly k_boxMass = 1;
@@ -45,23 +45,23 @@ class MultipleParticleSystems extends AbstractParticleTest {
      * Location of the left emitter (the position of the right one
      * is mirrored along the y-axis).
      */
-    public static readonly k_emitterPosition = new b2Vec2(-5, 4);
+    public static readonly k_emitterPosition = new Vec2(-5, 4);
 
     /**
      * Starting velocity of particles from the left emitter (the
      * velocity of particles from the right emitter are mirrored
      * along the y-axis).
      */
-    public static readonly k_emitterVelocity = new b2Vec2(7, -4);
+    public static readonly k_emitterVelocity = new Vec2(7, -4);
 
     /** Size of particle emitters. */
-    public static readonly k_emitterSize = new b2Vec2(1, 1);
+    public static readonly k_emitterSize = new Vec2(1, 1);
 
     /** Color of the left emitter's particles. */
-    public static readonly k_leftEmitterColor = new b2Color().SetByteRGBA(0x22, 0x33, 0xff, 0xff);
+    public static readonly k_leftEmitterColor = new Color().SetByteRGBA(0x22, 0x33, 0xff, 0xff);
 
     /** Color of the right emitter's particles. */
-    public static readonly k_rightEmitterColor = new b2Color().SetByteRGBA(0xff, 0x22, 0x11, 0xff);
+    public static readonly k_rightEmitterColor = new Color().SetByteRGBA(0xff, 0x22, 0x11, 0xff);
 
     public constructor() {
         super();
@@ -70,20 +70,20 @@ class MultipleParticleSystems extends AbstractParticleTest {
 
         // Configure the default particle system's parameters.
         this.m_particleSystem.SetRadius(0.05);
-        this.m_particleSystem.SetMaxParticleCount(MultipleParticleSystems.k_maxParticleCount);
+        this.m_particleSystem.SetMaxParticleCount(MultipleParticleSystemsTest.k_maxParticleCount);
         this.m_particleSystem.SetDestructionByAge(true);
 
         // Create a secondary particle system.
-        const particleSystemDef = new b2ParticleSystemDef();
+        const particleSystemDef = new ParticleSystemDef();
         particleSystemDef.radius = this.m_particleSystem.GetRadius();
         particleSystemDef.destroyByAge = true;
         this.m_particleSystem2 = this.m_world.CreateParticleSystem(particleSystemDef);
-        this.m_particleSystem2.SetMaxParticleCount(MultipleParticleSystems.k_maxParticleCount);
+        this.m_particleSystem2.SetMaxParticleCount(MultipleParticleSystemsTest.k_maxParticleCount);
 
         // Create the ground.
         {
             const ground = this.m_world.CreateBody();
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(5, 0.1);
             ground.CreateFixture({ shape });
         }
@@ -91,19 +91,19 @@ class MultipleParticleSystems extends AbstractParticleTest {
         // Create a dynamic body to push around.
         {
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
             });
-            const shape = new b2PolygonShape();
-            const center = new b2Vec2(0, 1.2);
+            const shape = new PolygonShape();
+            const center = new Vec2(0, 1.2);
             shape.SetAsBox(
-                MultipleParticleSystems.k_dynamicBoxSize.x,
-                MultipleParticleSystems.k_dynamicBoxSize.y,
+                MultipleParticleSystemsTest.k_dynamicBoxSize.x,
+                MultipleParticleSystemsTest.k_dynamicBoxSize.y,
                 center,
                 0,
             );
             body.CreateFixture({ shape });
-            const massData = new b2MassData();
-            massData.mass = MultipleParticleSystems.k_boxMass;
+            const massData = new MassData();
+            massData.mass = MultipleParticleSystemsTest.k_boxMass;
             massData.center.Copy(center);
             massData.I = 0;
             body.SetMassData(massData);
@@ -114,21 +114,23 @@ class MultipleParticleSystems extends AbstractParticleTest {
             const mirrorAlongY = i & 1 ? -1 : 1;
             const emitter = this.m_emitters[i];
             emitter.SetPosition(
-                new b2Vec2(
-                    MultipleParticleSystems.k_emitterPosition.x * mirrorAlongY,
-                    MultipleParticleSystems.k_emitterPosition.y,
+                new Vec2(
+                    MultipleParticleSystemsTest.k_emitterPosition.x * mirrorAlongY,
+                    MultipleParticleSystemsTest.k_emitterPosition.y,
                 ),
             );
-            emitter.SetSize(MultipleParticleSystems.k_emitterSize);
+            emitter.SetSize(MultipleParticleSystemsTest.k_emitterSize);
             emitter.SetVelocity(
-                new b2Vec2(
-                    MultipleParticleSystems.k_emitterVelocity.x * mirrorAlongY,
-                    MultipleParticleSystems.k_emitterVelocity.y,
+                new Vec2(
+                    MultipleParticleSystemsTest.k_emitterVelocity.x * mirrorAlongY,
+                    MultipleParticleSystemsTest.k_emitterVelocity.y,
                 ),
             );
-            emitter.SetEmitRate(MultipleParticleSystems.k_emitRate);
+            emitter.SetEmitRate(MultipleParticleSystemsTest.k_emitRate);
             emitter.SetColor(
-                i & 1 ? MultipleParticleSystems.k_rightEmitterColor : MultipleParticleSystems.k_leftEmitterColor,
+                i & 1
+                    ? MultipleParticleSystemsTest.k_rightEmitterColor
+                    : MultipleParticleSystemsTest.k_leftEmitterColor,
             );
             emitter.SetParticleSystem(i & 1 ? this.m_particleSystem2 : this.m_particleSystem);
         }
@@ -161,4 +163,4 @@ class MultipleParticleSystems extends AbstractParticleTest {
     }
 }
 
-registerTest("Particles", "Multiple Systems", MultipleParticleSystems);
+registerTest("Particles", "Multiple Systems", MultipleParticleSystemsTest);

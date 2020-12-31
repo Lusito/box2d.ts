@@ -16,8 +16,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2PolygonShape, b2Vec2, b2Color, XY } from "@box2d/core";
-import { b2ParticleSystem, b2ParticleFlag } from "@box2d/particles";
+import { PolygonShape, Vec2, Color, XY } from "@box2d/core";
+import { ParticleSystem, ParticleFlag } from "@box2d/particles";
 
 import { registerTest, TestContext } from "../../test";
 import { Settings } from "../../settings";
@@ -31,7 +31,7 @@ import { baseParticleTypes } from "../../utils/particles/particle_parameter";
  */
 const particleTypes = {
     ...baseParticleTypes,
-    "color mixing": b2ParticleFlag.b2_colorMixingParticle,
+    "color mixing": ParticleFlag.ColorMixing,
 };
 
 class ParticleLifetimeRandomizer extends EmittedParticleCallback {
@@ -48,7 +48,7 @@ class ParticleLifetimeRandomizer extends EmittedParticleCallback {
     /**
      * Called for each created particle.
      */
-    public ParticleCreated(system: b2ParticleSystem, particleIndex: number): void {
+    public ParticleCreated(system: ParticleSystem, particleIndex: number): void {
         system.SetParticleLifetime(
             particleIndex,
             Math.random() * (this.m_maxLifetime - this.m_minLifetime) + this.m_minLifetime,
@@ -57,11 +57,11 @@ class ParticleLifetimeRandomizer extends EmittedParticleCallback {
 }
 
 /**
- * Faucet test creates a container from boxes and continually
+ * FaucetTest test creates a container from boxes and continually
  * spawning particles with finite lifetimes that pour into the
  * box.
  */
-class Faucet extends AbstractParticleTestWithControls {
+class FaucetTest extends AbstractParticleTestWithControls {
     /** Used to cycle through particle colors. */
     public m_particleColorOffset = 0;
 
@@ -130,39 +130,39 @@ class Faucet extends AbstractParticleTestWithControls {
 
         this.m_emitter = new RadialEmitter();
         this.m_lifetimeRandomizer = new ParticleLifetimeRandomizer(
-            Faucet.k_particleLifetimeMin,
-            Faucet.k_particleLifetimeMax,
+            FaucetTest.k_particleLifetimeMin,
+            FaucetTest.k_particleLifetimeMax,
         );
 
         // Configure particle system parameters.
         this.m_particleSystem.SetRadius(0.035);
-        this.m_particleSystem.SetMaxParticleCount(Faucet.k_maxParticleCount);
+        this.m_particleSystem.SetMaxParticleCount(FaucetTest.k_maxParticleCount);
         this.m_particleSystem.SetDestructionByAge(true);
 
         const ground = this.m_world.CreateBody();
 
         // Create the container / trough style sink.
         {
-            const shape = new b2PolygonShape();
-            const height = Faucet.k_containerHeight + Faucet.k_containerThickness;
+            const shape = new PolygonShape();
+            const height = FaucetTest.k_containerHeight + FaucetTest.k_containerThickness;
             shape.SetAsBox(
-                Faucet.k_containerWidth - Faucet.k_containerThickness,
-                Faucet.k_containerThickness,
-                new b2Vec2(),
+                FaucetTest.k_containerWidth - FaucetTest.k_containerThickness,
+                FaucetTest.k_containerThickness,
+                new Vec2(),
                 0,
             );
             ground.CreateFixture({ shape });
             shape.SetAsBox(
-                Faucet.k_containerThickness,
+                FaucetTest.k_containerThickness,
                 height,
-                new b2Vec2(-Faucet.k_containerWidth, Faucet.k_containerHeight),
+                new Vec2(-FaucetTest.k_containerWidth, FaucetTest.k_containerHeight),
                 0,
             );
             ground.CreateFixture({ shape });
             shape.SetAsBox(
-                Faucet.k_containerThickness,
+                FaucetTest.k_containerThickness,
                 height,
-                new b2Vec2(Faucet.k_containerWidth, Faucet.k_containerHeight),
+                new Vec2(FaucetTest.k_containerWidth, FaucetTest.k_containerHeight),
                 0,
             );
             ground.CreateFixture({ shape });
@@ -170,11 +170,11 @@ class Faucet extends AbstractParticleTestWithControls {
 
         // Create ground under the container to catch overflow.
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(
-                Faucet.k_containerWidth * 5,
-                Faucet.k_containerThickness,
-                new b2Vec2(0, Faucet.k_containerThickness * -2),
+                FaucetTest.k_containerWidth * 5,
+                FaucetTest.k_containerThickness,
+                new Vec2(0, FaucetTest.k_containerThickness * -2),
                 0,
             );
             ground.CreateFixture({ shape });
@@ -182,23 +182,23 @@ class Faucet extends AbstractParticleTestWithControls {
 
         // Create the faucet spout.
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             const particleDiameter = this.m_particleSystem.GetRadius() * 2;
-            const faucetLength = Faucet.k_faucetLength * particleDiameter;
+            const faucetLength = FaucetTest.k_faucetLength * particleDiameter;
             // Dimensions of the faucet in world units.
-            const length = faucetLength * Faucet.k_spoutLength;
-            const width = Faucet.k_containerWidth * Faucet.k_faucetWidth * Faucet.k_spoutWidth;
+            const length = faucetLength * FaucetTest.k_spoutLength;
+            const width = FaucetTest.k_containerWidth * FaucetTest.k_faucetWidth * FaucetTest.k_spoutWidth;
             // Height from the bottom of the container.
-            const height = Faucet.k_containerHeight * Faucet.k_faucetHeight + length * 0.5;
+            const height = FaucetTest.k_containerHeight * FaucetTest.k_faucetHeight + length * 0.5;
 
-            shape.SetAsBox(particleDiameter, length, new b2Vec2(-width, height), 0);
+            shape.SetAsBox(particleDiameter, length, new Vec2(-width, height), 0);
             ground.CreateFixture({ shape });
-            shape.SetAsBox(particleDiameter, length, new b2Vec2(width, height), 0);
+            shape.SetAsBox(particleDiameter, length, new Vec2(width, height), 0);
             ground.CreateFixture({ shape });
             shape.SetAsBox(
                 width - particleDiameter,
                 particleDiameter,
-                new b2Vec2(0, height + length - particleDiameter),
+                new Vec2(0, height + length - particleDiameter),
                 0,
             );
             ground.CreateFixture({ shape });
@@ -206,18 +206,18 @@ class Faucet extends AbstractParticleTestWithControls {
 
         // Initialize the particle emitter.
         {
-            const faucetLength = this.m_particleSystem.GetRadius() * 2 * Faucet.k_faucetLength;
+            const faucetLength = this.m_particleSystem.GetRadius() * 2 * FaucetTest.k_faucetLength;
             this.m_emitter.SetParticleSystem(this.m_particleSystem);
             this.m_emitter.SetCallback(this.m_lifetimeRandomizer);
             this.m_emitter.SetPosition(
-                new b2Vec2(
-                    Faucet.k_containerWidth * Faucet.k_faucetWidth,
-                    Faucet.k_containerHeight * Faucet.k_faucetHeight + faucetLength * 0.5,
+                new Vec2(
+                    FaucetTest.k_containerWidth * FaucetTest.k_faucetWidth,
+                    FaucetTest.k_containerHeight * FaucetTest.k_faucetHeight + faucetLength * 0.5,
                 ),
             );
-            this.m_emitter.SetVelocity(new b2Vec2());
-            this.m_emitter.SetSize(new b2Vec2(0, faucetLength));
-            this.m_emitter.SetColor(new b2Color(1, 1, 1, 1));
+            this.m_emitter.SetVelocity(new Vec2());
+            this.m_emitter.SetSize(new Vec2(0, faucetLength));
+            this.m_emitter.SetColor(new Color(1, 1, 1, 1));
             this.m_emitter.SetEmitRate(120);
             this.m_emitter.SetParticleFlags(particleParameter.GetValue());
         }
@@ -246,11 +246,11 @@ class Faucet extends AbstractParticleTestWithControls {
         this.m_emitter.SetParticleFlags(this.particleParameter.GetValue());
 
         // If this is a color mixing particle, add some color.
-        if (this.m_emitter.GetParticleFlags() & b2ParticleFlag.b2_colorMixingParticle) {
+        if (this.m_emitter.GetParticleFlags() & ParticleFlag.ColorMixing) {
             // Each second, select a different color.
             this.m_emitter.SetColor(particleColors[Math.floor(this.m_particleColorOffset) % particleColors.length]);
         } else {
-            this.m_emitter.SetColor(new b2Color(1, 1, 1, 1));
+            this.m_emitter.SetColor(new Color(1, 1, 1, 1));
         }
 
         // Create the particles.
@@ -261,12 +261,18 @@ class Faucet extends AbstractParticleTestWithControls {
         return [
             hotKeyPress("m", "Increase Flow", () =>
                 this.m_emitter.SetEmitRate(
-                    Math.max(Faucet.k_emitRateMin, this.m_emitter.GetEmitRate() * Faucet.k_emitRateChangeFactor),
+                    Math.max(
+                        FaucetTest.k_emitRateMin,
+                        this.m_emitter.GetEmitRate() * FaucetTest.k_emitRateChangeFactor,
+                    ),
                 ),
             ),
             hotKeyPress("n", "Decrease Flow", () =>
                 this.m_emitter.SetEmitRate(
-                    Math.min(Faucet.k_emitRateMax, this.m_emitter.GetEmitRate() / Faucet.k_emitRateChangeFactor),
+                    Math.min(
+                        FaucetTest.k_emitRateMax,
+                        this.m_emitter.GetEmitRate() / FaucetTest.k_emitRateChangeFactor,
+                    ),
                 ),
             ),
         ];
@@ -284,4 +290,4 @@ class Faucet extends AbstractParticleTestWithControls {
     }
 }
 
-registerTest("Particles", "Faucet", Faucet);
+registerTest("Particles", "Faucet", FaucetTest);

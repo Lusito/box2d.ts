@@ -20,47 +20,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { b2Assert, b2MakeArray, b2MakeNumberArray } from "../common/b2_common";
-import { b2Color, b2Draw, debugColors } from "../common/b2_draw";
-import { b2Vec2, XY } from "../common/b2_math";
+import { Assert, MakeArray, MakeNumberArray } from "../common/b2_common";
+import { Color, Draw, debugColors } from "../common/b2_draw";
+import { Vec2, XY } from "../common/b2_math";
 
 const temp = {
-    J1: new b2Vec2(),
-    J2: new b2Vec2(),
-    J3: new b2Vec2(),
-    r: new b2Vec2(),
-    e1: new b2Vec2(),
-    e2: new b2Vec2(),
-    Jd1: new b2Vec2(),
-    Jd2: new b2Vec2(),
-    d: new b2Vec2(),
-    u: new b2Vec2(),
-    dp1: new b2Vec2(),
-    dp2: new b2Vec2(),
-    dp3: new b2Vec2(),
-    d1: new b2Vec2(),
-    d2: new b2Vec2(),
-    dHat: new b2Vec2(),
+    J1: new Vec2(),
+    J2: new Vec2(),
+    J3: new Vec2(),
+    r: new Vec2(),
+    e1: new Vec2(),
+    e2: new Vec2(),
+    Jd1: new Vec2(),
+    Jd2: new Vec2(),
+    d: new Vec2(),
+    u: new Vec2(),
+    dp1: new Vec2(),
+    dp2: new Vec2(),
+    dp3: new Vec2(),
+    d1: new Vec2(),
+    d2: new Vec2(),
+    dHat: new Vec2(),
 };
 
-export enum b2StretchingModel {
-    b2_pbdStretchingModel,
-    b2_xpbdStretchingModel,
+export enum StretchingModel {
+    Pbd,
+    Xpbd,
 }
 
-export enum b2BendingModel {
-    b2_springAngleBendingModel = 0,
-    b2_pbdAngleBendingModel,
-    b2_xpbdAngleBendingModel,
-    b2_pbdDistanceBendingModel,
-    b2_pbdHeightBendingModel,
-    b2_pbdTriangleBendingModel,
+export enum BendingModel {
+    SpringAngle = 0,
+    PbdAngle,
+    XpbdAngle,
+    PbdDistance,
+    PbdHeight,
+    PbdTriangle,
 }
 
-export class b2RopeTuning {
-    public stretchingModel = b2StretchingModel.b2_pbdStretchingModel;
+export class RopeTuning {
+    public stretchingModel = StretchingModel.Pbd;
 
-    public bendingModel = b2BendingModel.b2_pbdAngleBendingModel;
+    public bendingModel = BendingModel.PbdAngle;
 
     public damping = 0;
 
@@ -82,7 +82,7 @@ export class b2RopeTuning {
 
     public warmStart = false;
 
-    public Copy(other: Readonly<b2RopeTuning>) {
+    public Copy(other: Readonly<RopeTuning>) {
         this.stretchingModel = other.stretchingModel;
         this.bendingModel = other.bendingModel;
         this.damping = other.damping;
@@ -99,7 +99,7 @@ export class b2RopeTuning {
     }
 }
 
-export interface b2RopeDef {
+export interface RopeDef {
     position: XY;
 
     vertices: XY[];
@@ -108,10 +108,10 @@ export interface b2RopeDef {
 
     gravity: XY;
 
-    tuning: b2RopeTuning;
+    tuning: RopeTuning;
 }
 
-class b2RopeStretch {
+class RopeStretch {
     public i1 = 0;
 
     public i2 = 0;
@@ -129,7 +129,7 @@ class b2RopeStretch {
     public damper = 0;
 }
 
-class b2RopeBend {
+class RopeBend {
     public i1 = 0;
 
     public i2 = 0;
@@ -159,8 +159,8 @@ class b2RopeBend {
     public damper = 0;
 }
 
-export class b2Rope {
-    private readonly m_position = new b2Vec2();
+export class Rope {
+    private readonly m_position = new Vec2();
 
     private m_count = 0;
 
@@ -168,38 +168,38 @@ export class b2Rope {
 
     private m_bendCount = 0;
 
-    private readonly m_stretchConstraints: b2RopeStretch[];
+    private readonly m_stretchConstraints: RopeStretch[];
 
-    private readonly m_bendConstraints: b2RopeBend[];
+    private readonly m_bendConstraints: RopeBend[];
 
-    private readonly m_bindPositions: b2Vec2[];
+    private readonly m_bindPositions: Vec2[];
 
-    private readonly m_ps: b2Vec2[];
+    private readonly m_ps: Vec2[];
 
-    private readonly m_p0s: b2Vec2[];
+    private readonly m_p0s: Vec2[];
 
-    private readonly m_vs: b2Vec2[];
+    private readonly m_vs: Vec2[];
 
     private readonly m_invMasses: number[];
 
-    private readonly m_gravity = new b2Vec2();
+    private readonly m_gravity = new Vec2();
 
-    private readonly m_tuning = new b2RopeTuning();
+    private readonly m_tuning = new RopeTuning();
 
-    public constructor(def: b2RopeDef) {
-        b2Assert(def.vertices.length >= 3);
+    public constructor(def: RopeDef) {
+        Assert(def.vertices.length >= 3);
         this.m_position.Copy(def.position);
         this.m_count = def.vertices.length;
-        this.m_bindPositions = b2MakeArray(this.m_count, b2Vec2);
-        this.m_ps = b2MakeArray(this.m_count, b2Vec2);
-        this.m_p0s = b2MakeArray(this.m_count, b2Vec2);
-        this.m_vs = b2MakeArray(this.m_count, b2Vec2);
-        this.m_invMasses = b2MakeNumberArray(this.m_count);
+        this.m_bindPositions = MakeArray(this.m_count, Vec2);
+        this.m_ps = MakeArray(this.m_count, Vec2);
+        this.m_p0s = MakeArray(this.m_count, Vec2);
+        this.m_vs = MakeArray(this.m_count, Vec2);
+        this.m_invMasses = MakeNumberArray(this.m_count);
 
         for (let i = 0; i < this.m_count; ++i) {
             this.m_bindPositions[i].Copy(def.vertices[i]);
-            b2Vec2.Add(def.vertices[i], this.m_position, this.m_ps[i]);
-            b2Vec2.Add(def.vertices[i], this.m_position, this.m_p0s[i]);
+            Vec2.Add(def.vertices[i], this.m_position, this.m_ps[i]);
+            Vec2.Add(def.vertices[i], this.m_position, this.m_p0s[i]);
             this.m_vs[i].SetZero();
 
             const m = def.masses[i];
@@ -213,10 +213,10 @@ export class b2Rope {
         this.m_stretchCount = this.m_count - 1;
         this.m_bendCount = this.m_count - 2;
 
-        this.m_stretchConstraints = new Array<b2RopeStretch>(this.m_stretchCount);
-        for (let i = 0; i < this.m_stretchCount; i++) this.m_stretchConstraints[i] = new b2RopeStretch();
-        this.m_bendConstraints = new Array<b2RopeBend>(this.m_bendCount);
-        for (let i = 0; i < this.m_bendCount; i++) this.m_bendConstraints[i] = new b2RopeBend();
+        this.m_stretchConstraints = new Array<RopeStretch>(this.m_stretchCount);
+        for (let i = 0; i < this.m_stretchCount; i++) this.m_stretchConstraints[i] = new RopeStretch();
+        this.m_bendConstraints = new Array<RopeBend>(this.m_bendCount);
+        for (let i = 0; i < this.m_bendCount; i++) this.m_bendConstraints[i] = new RopeBend();
 
         for (let i = 0; i < this.m_stretchCount; ++i) {
             const c = this.m_stretchConstraints[i];
@@ -226,7 +226,7 @@ export class b2Rope {
 
             c.i1 = i;
             c.i2 = i + 1;
-            c.L = b2Vec2.Distance(p1, p2);
+            c.L = Vec2.Distance(p1, p2);
             c.invMass1 = this.m_invMasses[i];
             c.invMass2 = this.m_invMasses[i + 1];
             c.lambda = 0;
@@ -249,13 +249,13 @@ export class b2Rope {
             c.invMass2 = this.m_invMasses[i + 1];
             c.invMass3 = this.m_invMasses[i + 2];
             c.invEffectiveMass = 0;
-            c.L1 = b2Vec2.Distance(p1, p2);
-            c.L2 = b2Vec2.Distance(p2, p3);
+            c.L1 = Vec2.Distance(p1, p2);
+            c.L2 = Vec2.Distance(p2, p3);
             c.lambda = 0;
 
             // Pre-compute effective mass (TODO use flattened config)
-            b2Vec2.Subtract(p2, p1, e1);
-            b2Vec2.Subtract(p3, p2, e2);
+            Vec2.Subtract(p2, p1, e1);
+            Vec2.Subtract(p3, p2, e2);
             const L1sqr = e1.LengthSquared();
             const L2sqr = e2.LengthSquared();
 
@@ -263,17 +263,17 @@ export class b2Rope {
                 continue;
             }
 
-            b2Vec2.Skew(e1, Jd1).Scale(-1 / L1sqr);
-            b2Vec2.Skew(e2, Jd2).Scale(1 / L2sqr);
+            Vec2.Skew(e1, Jd1).Scale(-1 / L1sqr);
+            Vec2.Skew(e2, Jd2).Scale(1 / L2sqr);
 
-            b2Vec2.Negate(Jd1, J1);
-            b2Vec2.Subtract(Jd1, Jd2, J2);
+            Vec2.Negate(Jd1, J1);
+            Vec2.Subtract(Jd1, Jd2, J2);
             const J3 = Jd2;
 
             c.invEffectiveMass =
-                c.invMass1 * b2Vec2.Dot(J1, J1) + c.invMass2 * b2Vec2.Dot(J2, J2) + c.invMass3 * b2Vec2.Dot(J3, J3);
+                c.invMass1 * Vec2.Dot(J1, J1) + c.invMass2 * Vec2.Dot(J2, J2) + c.invMass3 * Vec2.Dot(J3, J3);
 
-            b2Vec2.Subtract(p3, p1, r);
+            Vec2.Subtract(p3, p1, r);
 
             const rr = r.LengthSquared();
             if (rr === 0) {
@@ -282,8 +282,8 @@ export class b2Rope {
 
             // a1 = h2 / (h1 + h2)
             // a2 = h1 / (h1 + h2)
-            c.alpha1 = b2Vec2.Dot(e2, r) / rr;
-            c.alpha2 = b2Vec2.Dot(e1, r) / rr;
+            c.alpha1 = Vec2.Dot(e2, r) / rr;
+            c.alpha2 = Vec2.Dot(e1, r) / rr;
         }
 
         this.m_gravity.Copy(def.gravity);
@@ -291,7 +291,7 @@ export class b2Rope {
         this.SetTuning(def.tuning);
     }
 
-    public SetTuning(tuning: b2RopeTuning): void {
+    public SetTuning(tuning: RopeTuning): void {
         this.m_tuning.Copy(tuning);
 
         // Pre-compute spring and damper values based on tuning
@@ -342,7 +342,7 @@ export class b2Rope {
         }
     }
 
-    public Step(dt: number, iterations: number, position: Readonly<b2Vec2>): void {
+    public Step(dt: number, iterations: number, position: Readonly<Vec2>): void {
         if (dt === 0) {
             return;
         }
@@ -362,7 +362,7 @@ export class b2Rope {
         }
 
         // Apply bending spring
-        if (this.m_tuning.bendingModel === b2BendingModel.b2_springAngleBendingModel) {
+        if (this.m_tuning.bendingModel === BendingModel.SpringAngle) {
             this.ApplyBendForces(dt);
         }
 
@@ -381,21 +381,21 @@ export class b2Rope {
 
         // Solve constraints
         for (let i = 0; i < iterations; ++i) {
-            if (this.m_tuning.bendingModel === b2BendingModel.b2_pbdAngleBendingModel) {
+            if (this.m_tuning.bendingModel === BendingModel.PbdAngle) {
                 this.SolveBend_PBD_Angle();
-            } else if (this.m_tuning.bendingModel === b2BendingModel.b2_xpbdAngleBendingModel) {
+            } else if (this.m_tuning.bendingModel === BendingModel.XpbdAngle) {
                 this.SolveBend_XPBD_Angle(dt);
-            } else if (this.m_tuning.bendingModel === b2BendingModel.b2_pbdDistanceBendingModel) {
+            } else if (this.m_tuning.bendingModel === BendingModel.PbdDistance) {
                 this.SolveBend_PBD_Distance();
-            } else if (this.m_tuning.bendingModel === b2BendingModel.b2_pbdHeightBendingModel) {
+            } else if (this.m_tuning.bendingModel === BendingModel.PbdHeight) {
                 this.SolveBend_PBD_Height();
-            } else if (this.m_tuning.bendingModel === b2BendingModel.b2_pbdTriangleBendingModel) {
+            } else if (this.m_tuning.bendingModel === BendingModel.PbdTriangle) {
                 this.SolveBend_PBD_Triangle();
             }
 
-            if (this.m_tuning.stretchingModel === b2StretchingModel.b2_pbdStretchingModel) {
+            if (this.m_tuning.stretchingModel === StretchingModel.Pbd) {
                 this.SolveStretch_PBD();
-            } else if (this.m_tuning.stretchingModel === b2StretchingModel.b2_xpbdStretchingModel) {
+            } else if (this.m_tuning.stretchingModel === StretchingModel.Xpbd) {
                 this.SolveStretch_XPBD(dt);
             }
         }
@@ -408,11 +408,11 @@ export class b2Rope {
         }
     }
 
-    public Reset(position: Readonly<b2Vec2>): void {
+    public Reset(position: Readonly<Vec2>): void {
         this.m_position.Copy(position);
 
         for (let i = 0; i < this.m_count; ++i) {
-            b2Vec2.Add(this.m_bindPositions[i], this.m_position, this.m_ps[i]);
+            Vec2.Add(this.m_bindPositions[i], this.m_position, this.m_ps[i]);
             this.m_p0s[i].Copy(this.m_ps[i]);
             this.m_vs[i].SetZero();
         }
@@ -436,7 +436,7 @@ export class b2Rope {
             const p1 = this.m_ps[c.i1];
             const p2 = this.m_ps[c.i2];
 
-            b2Vec2.Subtract(p2, p1, d);
+            Vec2.Subtract(p2, p1, d);
             const L = d.Normalize();
 
             const sum = c.invMass1 + c.invMass2;
@@ -453,7 +453,7 @@ export class b2Rope {
     }
 
     private SolveStretch_XPBD(dt: number): void {
-        // 	b2Assert(dt > 0);
+        // 	Assert(dt > 0);
 
         const { dp1, dp2, u, J1 } = temp;
         for (let i = 0; i < this.m_stretchCount; ++i) {
@@ -462,13 +462,13 @@ export class b2Rope {
             const p1 = this.m_ps[c.i1];
             const p2 = this.m_ps[c.i2];
 
-            b2Vec2.Subtract(p1, this.m_p0s[c.i1], dp1);
-            b2Vec2.Subtract(p2, this.m_p0s[c.i2], dp2);
+            Vec2.Subtract(p1, this.m_p0s[c.i1], dp1);
+            Vec2.Subtract(p2, this.m_p0s[c.i2], dp2);
 
-            b2Vec2.Subtract(p2, p1, u);
+            Vec2.Subtract(p2, p1, u);
             const L = u.Normalize();
 
-            b2Vec2.Negate(u, J1);
+            Vec2.Negate(u, J1);
             const J2 = u;
 
             const sum = c.invMass1 + c.invMass2;
@@ -482,7 +482,7 @@ export class b2Rope {
             const C = L - c.L;
 
             // This is using the initial velocities
-            const Cdot = b2Vec2.Dot(J1, dp1) + b2Vec2.Dot(J2, dp2);
+            const Cdot = Vec2.Dot(J1, dp1) + Vec2.Dot(J2, dp2);
 
             const B = C + alpha * c.lambda + sigma * Cdot;
             const sum2 = (1 + sigma) * sum + alpha;
@@ -507,10 +507,10 @@ export class b2Rope {
             const p2 = this.m_ps[c.i2];
             const p3 = this.m_ps[c.i3];
 
-            b2Vec2.Subtract(p2, p1, d1);
-            b2Vec2.Subtract(p3, p2, d2);
-            const a = b2Vec2.Cross(d1, d2);
-            const b = b2Vec2.Dot(d1, d2);
+            Vec2.Subtract(p2, p1, d1);
+            Vec2.Subtract(p3, p2, d2);
+            const a = Vec2.Cross(d1, d2);
+            const b = Vec2.Dot(d1, d2);
 
             const angle = Math.atan2(a, b);
 
@@ -529,19 +529,18 @@ export class b2Rope {
                 continue;
             }
 
-            b2Vec2.Skew(d1, Jd1).Scale(-1 / L1sqr);
-            b2Vec2.Skew(d2, Jd2).Scale(1 / L2sqr);
+            Vec2.Skew(d1, Jd1).Scale(-1 / L1sqr);
+            Vec2.Skew(d2, Jd2).Scale(1 / L2sqr);
 
-            b2Vec2.Negate(Jd1, J1);
-            b2Vec2.Subtract(Jd1, Jd2, J2);
+            Vec2.Negate(Jd1, J1);
+            Vec2.Subtract(Jd1, Jd2, J2);
             const J3 = Jd2;
 
             let sum: number;
             if (this.m_tuning.fixedEffectiveMass) {
                 sum = c.invEffectiveMass;
             } else {
-                sum =
-                    c.invMass1 * b2Vec2.Dot(J1, J1) + c.invMass2 * b2Vec2.Dot(J2, J2) + c.invMass3 * b2Vec2.Dot(J3, J3);
+                sum = c.invMass1 * Vec2.Dot(J1, J1) + c.invMass2 * Vec2.Dot(J2, J2) + c.invMass3 * Vec2.Dot(J3, J3);
             }
 
             if (sum === 0) {
@@ -557,7 +556,7 @@ export class b2Rope {
     }
 
     private SolveBend_XPBD_Angle(dt: number): void {
-        // b2Assert(dt > 0);
+        // Assert(dt > 0);
 
         const { dp1, dp2, dp3, d1, d2, Jd1, Jd2, J1, J2 } = temp;
         for (let i = 0; i < this.m_bendCount; ++i) {
@@ -567,12 +566,12 @@ export class b2Rope {
             const p2 = this.m_ps[c.i2];
             const p3 = this.m_ps[c.i3];
 
-            b2Vec2.Subtract(p1, this.m_p0s[c.i1], dp1);
-            b2Vec2.Subtract(p2, this.m_p0s[c.i2], dp2);
-            b2Vec2.Subtract(p3, this.m_p0s[c.i3], dp3);
+            Vec2.Subtract(p1, this.m_p0s[c.i1], dp1);
+            Vec2.Subtract(p2, this.m_p0s[c.i2], dp2);
+            Vec2.Subtract(p3, this.m_p0s[c.i3], dp3);
 
-            b2Vec2.Subtract(p2, p1, d1);
-            b2Vec2.Subtract(p3, p2, d2);
+            Vec2.Subtract(p2, p1, d1);
+            Vec2.Subtract(p3, p2, d2);
 
             let L1sqr: number;
             let L2sqr: number;
@@ -589,24 +588,23 @@ export class b2Rope {
                 continue;
             }
 
-            const a = b2Vec2.Cross(d1, d2);
-            const b = b2Vec2.Dot(d1, d2);
+            const a = Vec2.Cross(d1, d2);
+            const b = Vec2.Dot(d1, d2);
 
             const angle = Math.atan2(a, b);
 
-            b2Vec2.Skew(d1, Jd1).Scale(-1 / L1sqr);
-            b2Vec2.Skew(d2, Jd2).Scale(1 / L2sqr);
+            Vec2.Skew(d1, Jd1).Scale(-1 / L1sqr);
+            Vec2.Skew(d2, Jd2).Scale(1 / L2sqr);
 
-            b2Vec2.Negate(Jd1, J1);
-            b2Vec2.Subtract(Jd1, Jd2, J2);
+            Vec2.Negate(Jd1, J1);
+            Vec2.Subtract(Jd1, Jd2, J2);
             const J3 = Jd2;
 
             let sum: number;
             if (this.m_tuning.fixedEffectiveMass) {
                 sum = c.invEffectiveMass;
             } else {
-                sum =
-                    c.invMass1 * b2Vec2.Dot(J1, J1) + c.invMass2 * b2Vec2.Dot(J2, J2) + c.invMass3 * b2Vec2.Dot(J3, J3);
+                sum = c.invMass1 * Vec2.Dot(J1, J1) + c.invMass2 * Vec2.Dot(J2, J2) + c.invMass3 * Vec2.Dot(J3, J3);
             }
 
             if (sum === 0) {
@@ -619,7 +617,7 @@ export class b2Rope {
             const C = angle;
 
             // This is using the initial velocities
-            const Cdot = b2Vec2.Dot(J1, dp1) + b2Vec2.Dot(J2, dp2) + b2Vec2.Dot(J3, dp3);
+            const Cdot = Vec2.Dot(J1, dp1) + Vec2.Dot(J2, dp2) + Vec2.Dot(J3, dp3);
 
             const B = C + alpha * c.lambda + sigma * Cdot;
             const sum2 = (1 + sigma) * sum + alpha;
@@ -647,7 +645,7 @@ export class b2Rope {
             const p1 = this.m_ps[i1];
             const p2 = this.m_ps[i2];
 
-            b2Vec2.Subtract(p2, p1, d);
+            Vec2.Subtract(p2, p1, d);
             const L = d.Normalize();
 
             const sum = c.invMass1 + c.invMass3;
@@ -683,11 +681,11 @@ export class b2Rope {
                 continue;
             }
 
-            b2Vec2.Scale(1 / dLen, d, dHat);
+            Vec2.Scale(1 / dLen, d, dHat);
 
-            b2Vec2.Scale(c.alpha1, dHat, J1);
-            b2Vec2.Negate(dHat, J2);
-            b2Vec2.Scale(c.alpha2, dHat, J3);
+            Vec2.Scale(c.alpha1, dHat, J1);
+            Vec2.Negate(dHat, J2);
+            Vec2.Scale(c.alpha2, dHat, J3);
 
             const sum = c.invMass1 * c.alpha1 * c.alpha1 + c.invMass2 + c.invMass3 * c.alpha2 * c.alpha2;
 
@@ -748,8 +746,8 @@ export class b2Rope {
             const v2 = this.m_vs[c.i2];
             const v3 = this.m_vs[c.i3];
 
-            b2Vec2.Subtract(p2, p1, d1);
-            b2Vec2.Subtract(p3, p2, d2);
+            Vec2.Subtract(p2, p1, d1);
+            Vec2.Subtract(p3, p2, d2);
 
             let L1sqr: number;
             let L2sqr: number;
@@ -766,24 +764,23 @@ export class b2Rope {
                 continue;
             }
 
-            const a = b2Vec2.Cross(d1, d2);
-            const b = b2Vec2.Dot(d1, d2);
+            const a = Vec2.Cross(d1, d2);
+            const b = Vec2.Dot(d1, d2);
 
             const angle = Math.atan2(a, b);
 
-            b2Vec2.Skew(d1, Jd1).Scale(-1 / L1sqr);
-            b2Vec2.Skew(d2, Jd2).Scale(1 / L2sqr);
+            Vec2.Skew(d1, Jd1).Scale(-1 / L1sqr);
+            Vec2.Skew(d2, Jd2).Scale(1 / L2sqr);
 
-            b2Vec2.Negate(Jd1, J1);
-            b2Vec2.Subtract(Jd1, Jd2, J2);
+            Vec2.Negate(Jd1, J1);
+            Vec2.Subtract(Jd1, Jd2, J2);
             const J3 = Jd2;
 
             let sum: number;
             if (this.m_tuning.fixedEffectiveMass) {
                 sum = c.invEffectiveMass;
             } else {
-                sum =
-                    c.invMass1 * b2Vec2.Dot(J1, J1) + c.invMass2 * b2Vec2.Dot(J2, J2) + c.invMass3 * b2Vec2.Dot(J3, J3);
+                sum = c.invMass1 * Vec2.Dot(J1, J1) + c.invMass2 * Vec2.Dot(J2, J2) + c.invMass3 * Vec2.Dot(J3, J3);
             }
 
             if (sum === 0) {
@@ -796,7 +793,7 @@ export class b2Rope {
             const damper = 2 * mass * this.m_tuning.bendDamping * omega;
 
             const C = angle;
-            const Cdot = b2Vec2.Dot(J1, v1) + b2Vec2.Dot(J2, v2) + b2Vec2.Dot(J3, v3);
+            const Cdot = Vec2.Dot(J1, v1) + Vec2.Dot(J2, v2) + Vec2.Dot(J3, v3);
 
             const impulse = -dt * (spring * C + damper * Cdot);
 
@@ -806,15 +803,15 @@ export class b2Rope {
         }
     }
 
-    public Draw(draw: b2Draw): void {
+    public Draw(draw: Draw): void {
         for (let i = 0; i < this.m_count - 1; ++i) {
             draw.DrawSegment(this.m_ps[i], this.m_ps[i + 1], debugColors.rope);
 
-            const pc: Readonly<b2Color> = this.m_invMasses[i] > 0 ? debugColors.ropePointD : debugColors.ropePointG;
+            const pc: Readonly<Color> = this.m_invMasses[i] > 0 ? debugColors.ropePointD : debugColors.ropePointG;
             draw.DrawPoint(this.m_ps[i], 5, pc);
         }
 
-        const pc: Readonly<b2Color> =
+        const pc: Readonly<Color> =
             this.m_invMasses[this.m_count - 1] > 0 ? debugColors.ropePointD : debugColors.ropePointG;
         draw.DrawPoint(this.m_ps[this.m_count - 1], 5, pc);
     }

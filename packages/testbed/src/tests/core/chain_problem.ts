@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { b2EdgeShape, b2Vec2, b2BodyType, b2PolygonShape, b2Body, b2MakeArray } from "@box2d/core";
+import { EdgeShape, Vec2, BodyType, PolygonShape, Body, MakeArray } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
@@ -34,23 +34,23 @@ import { registerTest, Test } from "../../test";
  * This test also shows how to use contact filtering. Filtering is configured
  * so that the payload does not collide with the chain.
  */
-class ChainProblem extends Test {
+class ChainProblemTest extends Test {
     public constructor() {
         super();
 
-        const g = new b2Vec2(0, -10);
+        const g = new Vec2(0, -10);
         this.m_world.SetGravity(g);
-        const bodies: b2Body[] = [];
+        const bodies: Body[] = [];
         bodies[0] = this.m_world.CreateBody({
-            type: b2BodyType.b2_staticBody,
+            type: BodyType.Static,
         });
 
         {
-            const v1 = new b2Vec2(0, 1);
-            const v2 = new b2Vec2(0, 0);
-            const v3 = new b2Vec2(4, 0);
+            const v1 = new Vec2(0, 1);
+            const v2 = new Vec2(0, 0);
+            const v3 = new Vec2(4, 0);
 
-            const shape = new b2EdgeShape();
+            const shape = new EdgeShape();
             shape.SetTwoSided(v1, v2);
             bodies[0].CreateFixture({ shape });
 
@@ -58,14 +58,14 @@ class ChainProblem extends Test {
             bodies[0].CreateFixture({ shape });
         }
         bodies[1] = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
-            // position: new b2Vec2(6.033980250358582e-01f, 3.028350114822388e+00f);
-            position: new b2Vec2(1, 3),
+            type: BodyType.Dynamic,
+            // position: new Vec2(6.033980250358582e-01f, 3.028350114822388e+00f);
+            position: new Vec2(1, 3),
         });
 
         {
-            const shape = new b2PolygonShape();
-            const vs = b2MakeArray(8, b2Vec2);
+            const shape = new PolygonShape();
+            const vs = MakeArray(8, Vec2);
             vs[0].Set(0.5, -3);
             vs[1].Set(0.5, 3);
             vs[2].Set(-0.5, 3);
@@ -81,4 +81,4 @@ class ChainProblem extends Test {
     }
 }
 
-registerTest("Bugs", "Chain Problem", ChainProblem);
+registerTest("Bugs", "Chain Problem", ChainProblemTest);

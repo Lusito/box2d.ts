@@ -16,12 +16,12 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Fixture, b2EdgeShape, b2Vec2, b2PolygonShape, b2BodyType, b2Contact, b2Manifold } from "@box2d/core";
+import { Fixture, EdgeShape, Vec2, PolygonShape, BodyType, Contact, Manifold } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
-class ConveyorBelt extends Test {
-    public m_platform: b2Fixture;
+class ConveyorBeltTest extends Test {
+    public m_platform: Fixture;
 
     public constructor() {
         super();
@@ -30,8 +30,8 @@ class ConveyorBelt extends Test {
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-20, 0), new b2Vec2(20, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
             ground.CreateFixture({ shape });
         }
 
@@ -41,7 +41,7 @@ class ConveyorBelt extends Test {
                 position: { x: -5, y: 5 },
             });
 
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(10, 0.5);
 
             this.m_platform = body.CreateFixture({
@@ -53,11 +53,11 @@ class ConveyorBelt extends Test {
         // Boxes
         for (let i = 0; i < 5; ++i) {
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: -10 + 2 * i, y: 7 },
             });
 
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.5, 0.5);
             body.CreateFixture({ shape, density: 20 });
         }
@@ -67,7 +67,7 @@ class ConveyorBelt extends Test {
         return 40;
     }
 
-    public PreSolve(contact: b2Contact, oldManifold: b2Manifold) {
+    public PreSolve(contact: Contact, oldManifold: Manifold) {
         super.PreSolve(contact, oldManifold);
 
         const fixtureA = contact.GetFixtureA();
@@ -84,4 +84,4 @@ class ConveyorBelt extends Test {
     }
 }
 
-registerTest("Examples", "Conveyor Belt", ConveyorBelt);
+registerTest("Examples", "Conveyor Belt", ConveyorBeltTest);

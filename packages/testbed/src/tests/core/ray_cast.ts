@@ -16,17 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import {
-    b2Vec2,
-    b2Body,
-    b2PolygonShape,
-    b2CircleShape,
-    b2EdgeShape,
-    b2RandomFloat,
-    b2Color,
-    b2DegToRad,
-    b2MakeArray,
-} from "@box2d/core";
+import { Vec2, Body, PolygonShape, CircleShape, EdgeShape, RandomFloat, Color, DegToRad, MakeArray } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -40,18 +30,18 @@ type RayCastMode = "Any" | "Closest" | "Multiple";
 // This test demonstrates how to use the world ray-cast feature.
 // NOTE: we are intentionally filtering one of the polygons, therefore
 // the ray will always miss one type of polygon.
-class RayCast extends Test {
+class RayCastTest extends Test {
     private static e_maxBodies = 256;
 
     private m_bodyIndex = 0;
 
-    private m_bodies: Array<b2Body | null> = [];
+    private m_bodies: Array<Body | null> = [];
 
-    private m_polygons: b2PolygonShape[] = b2MakeArray(4, b2PolygonShape);
+    private m_polygons: PolygonShape[] = MakeArray(4, PolygonShape);
 
-    private m_circle = new b2CircleShape();
+    private m_circle = new CircleShape();
 
-    private m_edge = new b2EdgeShape();
+    private m_edge = new EdgeShape();
 
     private m_degrees = 0;
 
@@ -64,13 +54,13 @@ class RayCast extends Test {
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.CreateFixture({ shape });
         }
 
         {
-            const vertices: b2Vec2[] = b2MakeArray(3, b2Vec2);
+            const vertices: Vec2[] = MakeArray(3, Vec2);
             vertices[0].Set(-0.5, 0);
             vertices[1].Set(0.5, 0);
             vertices[2].Set(0, 1.5);
@@ -78,7 +68,7 @@ class RayCast extends Test {
         }
 
         {
-            const vertices: b2Vec2[] = b2MakeArray(3, b2Vec2);
+            const vertices: Vec2[] = MakeArray(3, Vec2);
             vertices[0].Set(-0.1, 0);
             vertices[1].Set(0.1, 0);
             vertices[2].Set(0, 1.5);
@@ -90,7 +80,7 @@ class RayCast extends Test {
             const b = w / (2 + Math.sqrt(2));
             const s = Math.sqrt(2) * b;
 
-            const vertices: b2Vec2[] = b2MakeArray(8, b2Vec2);
+            const vertices: Vec2[] = MakeArray(8, Vec2);
             vertices[0].Set(0.5 * s, 0);
             vertices[1].Set(0.5 * w, b);
             vertices[2].Set(0.5 * w, b + s);
@@ -105,10 +95,10 @@ class RayCast extends Test {
 
         this.m_polygons[3].SetAsBox(0.5, 0.5);
         this.m_circle.m_radius = 0.5;
-        this.m_edge.SetTwoSided(new b2Vec2(-1, 0), new b2Vec2(1, 0));
+        this.m_edge.SetTwoSided(new Vec2(-1, 0), new Vec2(1, 0));
 
         this.m_bodyIndex = 0;
-        for (let i = 0; i < RayCast.e_maxBodies; ++i) {
+        for (let i = 0; i < RayCastTest.e_maxBodies; ++i) {
             this.m_bodies[i] = null;
         }
     }
@@ -132,8 +122,8 @@ class RayCast extends Test {
         }
 
         const new_body = (this.m_bodies[this.m_bodyIndex] = this.m_world.CreateBody({
-            position: { x: b2RandomFloat(-10, 10), y: b2RandomFloat(0, 20) },
-            angle: b2RandomFloat(-Math.PI, Math.PI),
+            position: { x: RandomFloat(-10, 10), y: RandomFloat(0, 20) },
+            angle: RandomFloat(-Math.PI, Math.PI),
             angularDamping: index === 4 ? 0.02 : 0,
         }));
 
@@ -157,11 +147,11 @@ class RayCast extends Test {
             });
         }
 
-        this.m_bodyIndex = (this.m_bodyIndex + 1) % RayCast.e_maxBodies;
+        this.m_bodyIndex = (this.m_bodyIndex + 1) % RayCastTest.e_maxBodies;
     }
 
     public DestroyBody(): void {
-        for (let i = 0; i < RayCast.e_maxBodies; ++i) {
+        for (let i = 0; i < RayCastTest.e_maxBodies; ++i) {
             const body = this.m_bodies[i];
             if (body !== null) {
                 this.m_world.DestroyBody(body);
@@ -186,11 +176,11 @@ class RayCast extends Test {
     public Step(settings: Settings, timeStep: number): void {
         super.Step(settings, timeStep);
 
-        const angle = b2DegToRad(this.m_degrees);
+        const angle = DegToRad(this.m_degrees);
         const L = 11;
-        const point1 = new b2Vec2(0, 10);
-        const d = new b2Vec2(L * Math.cos(angle), L * Math.sin(angle));
-        const point2 = b2Vec2.Add(point1, d, new b2Vec2());
+        const point1 = new Vec2(0, 10);
+        const d = new Vec2(L * Math.cos(angle), L * Math.sin(angle));
+        const point2 = Vec2.Add(point1, d, new Vec2());
 
         this.addText("Shape 1 is intentionally ignored by the ray");
         switch (this.m_mode) {
@@ -214,36 +204,36 @@ class RayCast extends Test {
     #if 0
       // This case was failing.
       {
-        b2Vec2 vertices[4];
+        Vec2 vertices[4];
         //vertices[0].Set(-22.875, -3  );
         //vertices[1].Set(22.875, -3  );
         //vertices[2].Set(22.875, 3  );
         //vertices[3].Set(-22.875, 3  );
 
-        b2PolygonShape shape;
+        PolygonShape shape;
         //shape.Set(vertices, 4);
         shape.SetAsBox(22.875, 3  );
 
-        b2RayCastInput input;
+        RayCastInput input;
         input.p1.Set(10.2725,1.71372 );
         input.p2.Set(10.2353,2.21807 );
         //input.maxFraction = 0.567623 ;
         input.maxFraction = 0.56762173 ;
 
-        b2Transform xf;
+        Transform xf;
         xf.SetIdentity();
         xf.p.Set(23, 5  );
 
-        b2RayCastOutput output;
+        RayCastOutput output;
         bool hit;
-        hit = shape.RayCast(&output, input, xf);
+        hit = shape.RayCastTest(&output, input, xf);
         hit = false;
 
-        b2Color color(1, 1, 1  );
-        b2Vec2 vs[4];
+        Color color(1, 1, 1  );
+        Vec2 vs[4];
         for (int32 i = 0; i < 4; ++i)
         {
-          vs[i] = b2Mul(xf, shape.m_vertices[i]);
+          vs[i] = Mul(xf, shape.m_vertices[i]);
         }
 
         g_debugDraw.DrawPolygon(vs, 4, color);
@@ -254,10 +244,10 @@ class RayCast extends Test {
     }
 
     // This callback finds the closest hit. Polygon 0 is filtered.
-    private rayCastClosest(point1: b2Vec2, point2: b2Vec2) {
+    private rayCastClosest(point1: Vec2, point2: Vec2) {
         let hit = false;
-        const resultPoint = new b2Vec2();
-        const resultNormal = new b2Vec2();
+        const resultPoint = new Vec2();
+        const resultNormal = new Vec2();
         this.m_world.RayCast(point1, point2, (fixture, point, normal, fraction) => {
             const userData = fixture.GetUserData();
             if (userData?.index === 0) {
@@ -277,21 +267,21 @@ class RayCast extends Test {
         });
 
         if (hit) {
-            g_debugDraw.DrawPoint(resultPoint, 5, new b2Color(0.4, 0.9, 0.4));
-            g_debugDraw.DrawSegment(point1, resultPoint, new b2Color(0.8, 0.8, 0.8));
-            const head = b2Vec2.Add(resultPoint, b2Vec2.Scale(0.5, resultNormal, b2Vec2.s_t0), new b2Vec2());
-            g_debugDraw.DrawSegment(resultPoint, head, new b2Color(0.9, 0.9, 0.4));
+            g_debugDraw.DrawPoint(resultPoint, 5, new Color(0.4, 0.9, 0.4));
+            g_debugDraw.DrawSegment(point1, resultPoint, new Color(0.8, 0.8, 0.8));
+            const head = Vec2.Add(resultPoint, Vec2.Scale(0.5, resultNormal, Vec2.s_t0), new Vec2());
+            g_debugDraw.DrawSegment(resultPoint, head, new Color(0.9, 0.9, 0.4));
         } else {
-            g_debugDraw.DrawSegment(point1, point2, new b2Color(0.8, 0.8, 0.8));
+            g_debugDraw.DrawSegment(point1, point2, new Color(0.8, 0.8, 0.8));
         }
     }
 
     // This callback finds any hit. Polygon 0 is filtered. For this type of query we are usually
     // just checking for obstruction, so the actual fixture and hit point are irrelevant.
-    private rayCastAny(point1: b2Vec2, point2: b2Vec2) {
+    private rayCastAny(point1: Vec2, point2: Vec2) {
         let hit = false;
-        const resultPoint = new b2Vec2();
-        const resultNormal = new b2Vec2();
+        const resultPoint = new Vec2();
+        const resultNormal = new Vec2();
         this.m_world.RayCast(point1, point2, (fixture, point, normal, _fraction) => {
             const userData = fixture.GetUserData();
             if (userData?.index === 0) {
@@ -310,22 +300,22 @@ class RayCast extends Test {
         });
 
         if (hit) {
-            g_debugDraw.DrawPoint(resultPoint, 5, new b2Color(0.4, 0.9, 0.4));
-            g_debugDraw.DrawSegment(point1, resultPoint, new b2Color(0.8, 0.8, 0.8));
-            const head = b2Vec2.Add(resultPoint, b2Vec2.Scale(0.5, resultNormal, b2Vec2.s_t0), new b2Vec2());
-            g_debugDraw.DrawSegment(resultPoint, head, new b2Color(0.9, 0.9, 0.4));
+            g_debugDraw.DrawPoint(resultPoint, 5, new Color(0.4, 0.9, 0.4));
+            g_debugDraw.DrawSegment(point1, resultPoint, new Color(0.8, 0.8, 0.8));
+            const head = Vec2.Add(resultPoint, Vec2.Scale(0.5, resultNormal, Vec2.s_t0), new Vec2());
+            g_debugDraw.DrawSegment(resultPoint, head, new Color(0.9, 0.9, 0.4));
         } else {
-            g_debugDraw.DrawSegment(point1, point2, new b2Color(0.8, 0.8, 0.8));
+            g_debugDraw.DrawSegment(point1, point2, new Color(0.8, 0.8, 0.8));
         }
     }
 
     // This ray cast collects multiple hits along the ray. Polygon 0 is filtered.
     // The fixtures are not necessary reported in order, so we might not capture
     // the closest fixture.
-    private rayCastMultiple(point1: b2Vec2, point2: b2Vec2) {
+    private rayCastMultiple(point1: Vec2, point2: Vec2) {
         const e_maxCount = 3;
-        const resultPoints = b2MakeArray(e_maxCount, b2Vec2);
-        const resultNormals = b2MakeArray(e_maxCount, b2Vec2);
+        const resultPoints = MakeArray(e_maxCount, Vec2);
+        const resultNormals = MakeArray(e_maxCount, Vec2);
 
         let count = 0;
         this.m_world.RayCast(point1, point2, (fixture, point, normal) => {
@@ -336,7 +326,7 @@ class RayCast extends Test {
                 return -1;
             }
 
-            // DEBUG: b2Assert(this.m_count < RayCastMultipleCallback.e_maxCount);
+            // DEBUG: Assert(this.m_count < RayCastMultipleCallback.e_maxCount);
             resultPoints[count].Copy(point);
             resultNormals[count].Copy(normal);
             ++count;
@@ -350,17 +340,17 @@ class RayCast extends Test {
             // By returning 1, we instruct the caller to continue without clipping the ray.
             return 1;
         });
-        g_debugDraw.DrawSegment(point1, point2, new b2Color(0.8, 0.8, 0.8));
+        g_debugDraw.DrawSegment(point1, point2, new Color(0.8, 0.8, 0.8));
 
         for (let i = 0; i < count; ++i) {
             const p = resultPoints[i];
             const n = resultNormals[i];
-            g_debugDraw.DrawPoint(p, 5, new b2Color(0.4, 0.9, 0.4));
-            g_debugDraw.DrawSegment(point1, p, new b2Color(0.8, 0.8, 0.8));
-            const head = b2Vec2.Add(p, b2Vec2.Scale(0.5, n, b2Vec2.s_t0), new b2Vec2());
-            g_debugDraw.DrawSegment(p, head, new b2Color(0.9, 0.9, 0.4));
+            g_debugDraw.DrawPoint(p, 5, new Color(0.4, 0.9, 0.4));
+            g_debugDraw.DrawSegment(point1, p, new Color(0.8, 0.8, 0.8));
+            const head = Vec2.Add(p, Vec2.Scale(0.5, n, Vec2.s_t0), new Vec2());
+            g_debugDraw.DrawSegment(p, head, new Color(0.9, 0.9, 0.4));
         }
     }
 }
 
-registerTest("Collision", "Ray Cast", RayCast);
+registerTest("Collision", "Ray Cast", RayCastTest);

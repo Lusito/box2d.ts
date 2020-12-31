@@ -21,16 +21,16 @@
 // SOFTWARE.
 
 import {
-    b2EdgeShape,
-    b2Vec2,
-    b2BodyType,
-    b2CircleShape,
-    b2DistanceJointDef,
-    b2Joint,
-    b2PolygonShape,
-    b2RevoluteJointDef,
-    b2FixtureDef,
-    b2BodyDef,
+    EdgeShape,
+    Vec2,
+    BodyType,
+    CircleShape,
+    DistanceJointDef,
+    Joint,
+    PolygonShape,
+    RevoluteJointDef,
+    FixtureDef,
+    BodyDef,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
@@ -47,10 +47,10 @@ import { checkboxDef } from "../../ui/controls/Checkbox";
  * This test also shows how to use contact filtering. Filtering is configured
  * so that the payload does not collide with the chain.
  */
-class WreckingBall extends Test {
-    public m_distanceJointDef = new b2DistanceJointDef();
+class WreckingBallTest extends Test {
+    public m_distanceJointDef = new DistanceJointDef();
 
-    public m_distanceJoint: b2Joint | null;
+    public m_distanceJoint: Joint | null;
 
     public m_stabilize = false;
 
@@ -59,16 +59,16 @@ class WreckingBall extends Test {
 
         const ground = this.m_world.CreateBody();
         {
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.CreateFixture({ shape, density: 0 });
         }
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.5, 0.125);
 
-            const fd: b2FixtureDef = {
+            const fd: FixtureDef = {
                 shape,
                 density: 20,
                 friction: 0.2,
@@ -78,7 +78,7 @@ class WreckingBall extends Test {
                 },
             };
 
-            const jd = new b2RevoluteJointDef();
+            const jd = new RevoluteJointDef();
             jd.collideConnected = false;
 
             const N = 10;
@@ -87,9 +87,9 @@ class WreckingBall extends Test {
 
             let prevBody = ground;
             for (let i = 0; i < N; ++i) {
-                const position = new b2Vec2(0.5 + 1 * i, y);
-                const bd: b2BodyDef = {
-                    type: b2BodyType.b2_dynamicBody,
+                const position = new Vec2(0.5 + 1 * i, y);
+                const bd: BodyDef = {
+                    type: BodyType.Dynamic,
                     position,
                 };
                 if (i === N - 1) {
@@ -100,7 +100,7 @@ class WreckingBall extends Test {
                 const body = this.m_world.CreateBody(bd);
 
                 if (i === N - 1) {
-                    const circleShape = new b2CircleShape(1.5);
+                    const circleShape = new CircleShape(1.5);
                     body.CreateFixture({
                         shape: circleShape,
                         density: 100,
@@ -112,7 +112,7 @@ class WreckingBall extends Test {
                     body.CreateFixture(fd);
                 }
 
-                const anchor = new b2Vec2(i, y);
+                const anchor = new Vec2(i, y);
                 jd.Initialize(prevBody, body, anchor);
                 this.m_world.CreateJoint(jd);
 
@@ -153,4 +153,4 @@ class WreckingBall extends Test {
     }
 }
 
-registerTest("Examples", "Wrecking Ball", WreckingBall);
+registerTest("Examples", "Wrecking Ball", WreckingBallTest);

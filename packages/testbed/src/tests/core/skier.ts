@@ -2,17 +2,17 @@
 Test case for collision/jerking issue.
 */
 
-import { b2Body, b2Vec2, b2ChainShape, b2BodyType, b2PolygonShape, b2MakeArray } from "@box2d/core";
+import { Body, Vec2, ChainShape, BodyType, PolygonShape, MakeArray } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
 import { g_camera } from "../../utils/camera";
 import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 
-class Skier extends Test {
+class SkierTest extends Test {
     public m_platform_width: number;
 
-    public m_skier: b2Body;
+    public m_skier: Body;
 
     public m_fixed_camera: boolean;
 
@@ -48,18 +48,15 @@ class Skier extends Test {
         this.m_platform_width = PlatformWidth;
 
         // Horizontal platform
-        const v1 = new b2Vec2(-PlatformWidth, 0);
-        const v2 = new b2Vec2();
-        const v3 = new b2Vec2(SlopeLength * Math.cos(Slope1Incline), -SlopeLength * Math.sin(Slope1Incline));
-        const v4 = new b2Vec2(
-            v3.x + SlopeLength * Math.cos(Slope2Incline),
-            v3.y - SlopeLength * Math.sin(Slope2Incline),
-        );
-        const v5 = new b2Vec2(v4.x, v4.y - 1);
+        const v1 = new Vec2(-PlatformWidth, 0);
+        const v2 = new Vec2();
+        const v3 = new Vec2(SlopeLength * Math.cos(Slope1Incline), -SlopeLength * Math.sin(Slope1Incline));
+        const v4 = new Vec2(v3.x + SlopeLength * Math.cos(Slope2Incline), v3.y - SlopeLength * Math.sin(Slope2Incline));
+        const v5 = new Vec2(v4.x, v4.y - 1);
 
         const vertices = [v5, v4, v3, v2, v1];
 
-        const shape = new b2ChainShape();
+        const shape = new ChainShape();
         shape.CreateLoop(vertices);
         ground.CreateFixture({
             shape,
@@ -82,12 +79,12 @@ class Skier extends Test {
 
             const initial_y = BodyHeight / 2 + SkiThickness;
             const skier = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: -this.m_platform_width / 2, y: initial_y },
             });
 
-            const ski = new b2PolygonShape();
-            const verts = b2MakeArray(4, b2Vec2);
+            const ski = new PolygonShape();
+            const verts = MakeArray(4, Vec2);
             verts[0].Set(-SkiLength / 2 - SkiThickness, -BodyHeight / 2);
             verts[1].Set(-SkiLength / 2, -BodyHeight / 2 - SkiThickness);
             verts[2].Set(SkiLength / 2, -BodyHeight / 2 - SkiThickness);
@@ -101,7 +98,7 @@ class Skier extends Test {
                 shape: ski,
             });
 
-            skier.SetLinearVelocity(new b2Vec2(0.5, 0));
+            skier.SetLinearVelocity(new Vec2(0.5, 0));
 
             this.m_skier = skier;
         }
@@ -134,4 +131,4 @@ class Skier extends Test {
     }
 }
 
-registerTest("Bugs", "Skier", Skier);
+registerTest("Bugs", "Skier", SkierTest);

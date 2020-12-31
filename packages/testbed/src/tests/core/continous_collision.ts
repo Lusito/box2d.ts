@@ -16,19 +16,19 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Vec2, b2ChainShape, b2FixtureDef, b2BodyType, b2PolygonShape, b2CircleShape, XY } from "@box2d/core";
+import { Vec2, ChainShape, FixtureDef, BodyType, PolygonShape, CircleShape, XY } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
-class ContinousCollision extends Test {
+class ContinousCollisionTest extends Test {
     public constructor() {
         super();
 
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2ChainShape();
-            shape.CreateLoop([new b2Vec2(-30, 0), new b2Vec2(-30, 40), new b2Vec2(30, 40), new b2Vec2(30, 0)]);
+            const shape = new ChainShape();
+            shape.CreateLoop([new Vec2(-30, 0), new Vec2(-30, 40), new Vec2(30, 40), new Vec2(30, 0)]);
             ground.CreateFixture({ shape });
         }
 
@@ -38,15 +38,15 @@ class ContinousCollision extends Test {
         // Create 'basket'
         {
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 bullet: true,
                 position: { x: 15, y: 5 },
             });
 
-            const sd_bottom = new b2PolygonShape();
+            const sd_bottom = new PolygonShape();
             sd_bottom.SetAsBox(4.5, 0.45);
             // These values are used for all the parts of the 'basket'
-            const fd: b2FixtureDef = {
+            const fd: FixtureDef = {
                 density: 4,
                 restitution: 1.4,
                 shape: sd_bottom,
@@ -54,22 +54,22 @@ class ContinousCollision extends Test {
 
             body.CreateFixture(fd);
 
-            const sd_left = new b2PolygonShape();
-            sd_left.SetAsBox(0.45, 8.1, new b2Vec2(-4.35, 7.05), 0.2);
+            const sd_left = new PolygonShape();
+            sd_left.SetAsBox(0.45, 8.1, new Vec2(-4.35, 7.05), 0.2);
             fd.shape = sd_left;
             body.CreateFixture(fd);
 
-            const sd_right = new b2PolygonShape();
-            sd_right.SetAsBox(0.45, 8.1, new b2Vec2(4.35, 7.05), -0.2);
+            const sd_right = new PolygonShape();
+            sd_right.SetAsBox(0.45, 8.1, new Vec2(4.35, 7.05), -0.2);
             fd.shape = sd_right;
             body.CreateFixture(fd);
         }
 
         // add some small circles for effect
         for (let i = 0; i < 5; i++) {
-            const cd = new b2CircleShape(Math.random() * 1 + 0.5);
+            const cd = new CircleShape(Math.random() * 1 + 0.5);
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 bullet: true,
                 position: {
                     x: Math.random() * 30 - 25,
@@ -97,4 +97,4 @@ class ContinousCollision extends Test {
     }
 }
 
-registerTest("Continuous", "Continuous Collision", ContinousCollision);
+registerTest("Continuous", "Continuous Collision", ContinousCollisionTest);

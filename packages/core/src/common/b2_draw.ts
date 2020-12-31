@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { b2Transform, XY } from "./b2_math";
+import { Transform, XY } from "./b2_math";
 
 export interface RGB {
     r: number;
@@ -35,18 +35,18 @@ export interface RGBA extends RGB {
 /**
  * Color for debug drawing. Each value has the range [0,1].
  */
-export class b2Color implements RGBA {
-    public static readonly ZERO: Readonly<RGBA> = new b2Color(0, 0, 0, 0);
+export class Color implements RGBA {
+    public static readonly ZERO: Readonly<RGBA> = new Color(0, 0, 0, 0);
 
-    public static readonly RED: Readonly<RGBA> = new b2Color(1, 0, 0);
+    public static readonly RED: Readonly<RGBA> = new Color(1, 0, 0);
 
-    public static readonly GREEN: Readonly<RGBA> = new b2Color(0, 1, 0);
+    public static readonly GREEN: Readonly<RGBA> = new Color(0, 1, 0);
 
-    public static readonly BLUE: Readonly<RGBA> = new b2Color(0, 0, 1);
+    public static readonly BLUE: Readonly<RGBA> = new Color(0, 0, 1);
 
-    public static readonly WHITE: Readonly<RGBA> = new b2Color(1, 1, 1);
+    public static readonly WHITE: Readonly<RGBA> = new Color(1, 1, 1);
 
-    public static readonly BLACK: Readonly<RGBA> = new b2Color(0, 0, 0);
+    public static readonly BLACK: Readonly<RGBA> = new Color(0, 0, 0);
 
     public r: number;
 
@@ -63,8 +63,8 @@ export class b2Color implements RGBA {
         this.a = a;
     }
 
-    public Clone(): b2Color {
-        return new b2Color(this.r, this.g, this.b, this.a);
+    public Clone(): Color {
+        return new Color(this.r, this.g, this.b, this.a);
     }
 
     public Copy(other: RGBA) {
@@ -138,7 +138,7 @@ export class b2Color implements RGBA {
     }
 
     public Mix(mixColor: RGBA, strength: number): void {
-        b2Color.MixColors(this, mixColor, strength);
+        Color.MixColors(this, mixColor, strength);
     }
 
     public static Add<T extends RGBA>(colorA: RGBA, colorB: RGBA, out: T): T {
@@ -182,13 +182,13 @@ export class b2Color implements RGBA {
 }
 
 /**
- * Implement and register this class with a b2World to provide debug drawing of physics
+ * Implement and register this class with a World to provide debug drawing of physics
  * entities in your game.
  */
-export interface b2Draw {
-    PushTransform(xf: b2Transform): void;
+export interface Draw {
+    PushTransform(xf: Transform): void;
 
-    PopTransform(xf: b2Transform): void;
+    PopTransform(xf: Transform): void;
 
     DrawPolygon(vertices: XY[], vertexCount: number, color: RGBA): void;
 
@@ -200,31 +200,31 @@ export interface b2Draw {
 
     DrawSegment(p1: XY, p2: XY, color: RGBA): void;
 
-    DrawTransform(xf: b2Transform): void;
+    DrawTransform(xf: Transform): void;
 
     DrawPoint(p: XY, size: number, color: RGBA): void;
 }
 
 export const debugColors = {
-    badBody: new b2Color(1, 0, 0),
-    disabledBody: new b2Color(0.5, 0.5, 0.3),
-    staticBody: new b2Color(0.5, 0.9, 0.5),
-    kinematicBody: new b2Color(0.5, 0.5, 0.9),
-    sleepingBody: new b2Color(0.6, 0.6, 0.6),
-    body: new b2Color(0.9, 0.7, 0.7),
-    pair: new b2Color(0.3, 0.9, 0.9),
-    aabb: new b2Color(0.9, 0.3, 0.9),
+    badBody: new Color(1, 0, 0),
+    disabledBody: new Color(0.5, 0.5, 0.3),
+    staticBody: new Color(0.5, 0.9, 0.5),
+    kinematicBody: new Color(0.5, 0.5, 0.9),
+    sleepingBody: new Color(0.6, 0.6, 0.6),
+    body: new Color(0.9, 0.7, 0.7),
+    pair: new Color(0.3, 0.9, 0.9),
+    aabb: new Color(0.9, 0.3, 0.9),
 
-    joint1: new b2Color(0.7, 0.7, 0.7),
-    joint2: new b2Color(0.3, 0.9, 0.3),
-    joint3: new b2Color(0.9, 0.3, 0.3),
-    joint4: new b2Color(0.3, 0.3, 0.9),
-    joint5: new b2Color(0.4, 0.4, 0.4),
-    joint6: new b2Color(0.5, 0.8, 0.8),
-    joint7: new b2Color(0, 1, 0),
-    joint8: new b2Color(0.8, 0.8, 0.8),
+    joint1: new Color(0.7, 0.7, 0.7),
+    joint2: new Color(0.3, 0.9, 0.3),
+    joint3: new Color(0.9, 0.3, 0.3),
+    joint4: new Color(0.3, 0.3, 0.9),
+    joint5: new Color(0.4, 0.4, 0.4),
+    joint6: new Color(0.5, 0.8, 0.8),
+    joint7: new Color(0, 1, 0),
+    joint8: new Color(0.8, 0.8, 0.8),
 
-    rope: new b2Color(0.4, 0.5, 0.7),
-    ropePointG: new b2Color(0.1, 0.8, 0.1),
-    ropePointD: new b2Color(0.7, 0.2, 0.4),
+    rope: new Color(0.4, 0.5, 0.7),
+    ropePointG: new Color(0.1, 0.8, 0.1),
+    ropePointD: new Color(0.7, 0.2, 0.4),
 };

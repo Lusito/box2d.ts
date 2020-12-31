@@ -19,17 +19,17 @@
  */
 
 import {
-    b2Body,
-    b2World,
-    b2BodyType,
-    b2PolygonShape,
-    b2Vec2,
-    b2RevoluteJoint,
-    b2RevoluteJointDef,
-    b2Clamp,
-    b2Fixture,
-    b2FixtureDef,
-    b2Contact,
+    Body,
+    World,
+    BodyType,
+    PolygonShape,
+    Vec2,
+    RevoluteJoint,
+    RevoluteJointDef,
+    Clamp,
+    Fixture,
+    FixtureDef,
+    Contact,
 } from "@box2d/core";
 
 import { Test, registerTest } from "../../test";
@@ -39,7 +39,7 @@ import { HotKey, hotKeyState } from "../../utils/hotkeys";
 const DEGTORAD = 0.0174532925199432957;
 // const RADTODEG = 57.295779513082320876;
 
-type ControlState = TopdownCar["m_controlState"];
+type ControlState = TopdownCarTest["m_controlState"];
 
 //  types of fixture user data
 const FUD_CAR_TIRE = 0;
@@ -87,7 +87,7 @@ class GroundAreaFUD extends FixtureUserData {
 class TDTire {
     public m_groundAreas: GroundAreaFUD[] = [];
 
-    public m_body: b2Body;
+    public m_body: Body;
 
     public m_currentTraction = 1;
 
@@ -99,12 +99,12 @@ class TDTire {
 
     public m_maxLateralImpulse = 0;
 
-    public constructor(world: b2World) {
+    public constructor(world: World) {
         this.m_body = world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
         });
 
-        const polygonShape = new b2PolygonShape();
+        const polygonShape = new PolygonShape();
         polygonShape.SetAsBox(0.5, 1.25);
         const fixture = this.m_body.CreateFixture({ shape: polygonShape, density: 1 }); // shape, density
         fixture.SetUserData(new CarTireFUD());
@@ -148,14 +148,14 @@ class TDTire {
         }
     }
 
-    public getLateralVelocity(): b2Vec2 {
-        const currentRightNormal = this.m_body.GetWorldVector(new b2Vec2(1, 0), new b2Vec2());
-        return currentRightNormal.Scale(b2Vec2.Dot(currentRightNormal, this.m_body.GetLinearVelocity()));
+    public getLateralVelocity(): Vec2 {
+        const currentRightNormal = this.m_body.GetWorldVector(new Vec2(1, 0), new Vec2());
+        return currentRightNormal.Scale(Vec2.Dot(currentRightNormal, this.m_body.GetLinearVelocity()));
     }
 
-    public getForwardVelocity(): b2Vec2 {
-        const currentForwardNormal = this.m_body.GetWorldVector(new b2Vec2(0, 1), new b2Vec2());
-        return currentForwardNormal.Scale(b2Vec2.Dot(currentForwardNormal, this.m_body.GetLinearVelocity()));
+    public getForwardVelocity(): Vec2 {
+        const currentForwardNormal = this.m_body.GetWorldVector(new Vec2(0, 1), new Vec2());
+        return currentForwardNormal.Scale(Vec2.Dot(currentForwardNormal, this.m_body.GetLinearVelocity()));
     }
 
     public updateFriction(): void {
@@ -190,8 +190,8 @@ class TDTire {
         else if (controlState.down) desiredSpeed = this.m_maxBackwardSpeed;
 
         // find current speed in forward direction
-        const currentForwardNormal = this.m_body.GetWorldVector(new b2Vec2(0, 1), new b2Vec2());
-        const currentSpeed = b2Vec2.Dot(this.getForwardVelocity(), currentForwardNormal);
+        const currentForwardNormal = this.m_body.GetWorldVector(new Vec2(0, 1), new Vec2());
+        const currentSpeed = Vec2.Dot(this.getForwardVelocity(), currentForwardNormal);
 
         // apply necessary force
         let force = 0;
@@ -219,36 +219,36 @@ class TDTire {
 class TDCar {
     public m_tires: TDTire[];
 
-    public m_body: b2Body;
+    public m_body: Body;
 
-    public flJoint: b2RevoluteJoint;
+    public flJoint: RevoluteJoint;
 
-    public frJoint: b2RevoluteJoint;
+    public frJoint: RevoluteJoint;
 
-    public constructor(world: b2World) {
+    public constructor(world: World) {
         this.m_tires = [];
 
         // create car body
         this.m_body = world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
         });
         this.m_body.SetAngularDamping(3);
 
         const vertices = [];
-        vertices[0] = new b2Vec2(1.5, 0);
-        vertices[1] = new b2Vec2(3, 2.5);
-        vertices[2] = new b2Vec2(2.8, 5.5);
-        vertices[3] = new b2Vec2(1, 10);
-        vertices[4] = new b2Vec2(-1, 10);
-        vertices[5] = new b2Vec2(-2.8, 5.5);
-        vertices[6] = new b2Vec2(-3, 2.5);
-        vertices[7] = new b2Vec2(-1.5, 0);
-        const polygonShape = new b2PolygonShape();
+        vertices[0] = new Vec2(1.5, 0);
+        vertices[1] = new Vec2(3, 2.5);
+        vertices[2] = new Vec2(2.8, 5.5);
+        vertices[3] = new Vec2(1, 10);
+        vertices[4] = new Vec2(-1, 10);
+        vertices[5] = new Vec2(-2.8, 5.5);
+        vertices[6] = new Vec2(-3, 2.5);
+        vertices[7] = new Vec2(-1.5, 0);
+        const polygonShape = new PolygonShape();
         polygonShape.Set(vertices, 8);
         this.m_body.CreateFixture({ shape: polygonShape, density: 0.1 }); // shape, density
 
         // prepare common joint parameters
-        const jointDef = new b2RevoluteJointDef();
+        const jointDef = new RevoluteJointDef();
         jointDef.bodyA = this.m_body;
         jointDef.enableLimit = true;
         jointDef.lowerAngle = 0;
@@ -312,14 +312,14 @@ class TDCar {
         if (controlState.right) desiredAngle -= lockAngle;
         const angleNow = this.flJoint.GetJointAngle();
         let angleToTurn = desiredAngle - angleNow;
-        angleToTurn = b2Clamp(angleToTurn, -turnPerTimeStep, turnPerTimeStep);
+        angleToTurn = Clamp(angleToTurn, -turnPerTimeStep, turnPerTimeStep);
         const newAngle = angleNow + angleToTurn;
         this.flJoint.SetLimits(newAngle, newAngle);
         this.frJoint.SetLimits(newAngle, newAngle);
     }
 }
 
-class TopdownCar extends Test {
+class TopdownCarTest extends Test {
     public m_car: TDCar;
 
     public m_controlState = {
@@ -330,23 +330,23 @@ class TopdownCar extends Test {
     };
 
     public constructor() {
-        super(b2Vec2.ZERO);
+        super(Vec2.ZERO);
 
         // set up ground areas
         {
             this.m_groundBody = this.m_world.CreateBody();
 
-            const polygonShape = new b2PolygonShape();
-            const fixtureDef: b2FixtureDef = {
+            const polygonShape = new PolygonShape();
+            const fixtureDef: FixtureDef = {
                 shape: polygonShape,
                 isSensor: true,
             };
 
-            polygonShape.SetAsBox(9, 7, new b2Vec2(-10, 15), 20 * DEGTORAD);
+            polygonShape.SetAsBox(9, 7, new Vec2(-10, 15), 20 * DEGTORAD);
             let groundAreaFixture = this.m_groundBody.CreateFixture(fixtureDef);
             groundAreaFixture.SetUserData(new GroundAreaFUD(0.5, false));
 
-            polygonShape.SetAsBox(9, 5, new b2Vec2(5, 20), -40 * DEGTORAD);
+            polygonShape.SetAsBox(9, 5, new Vec2(5, 20), -40 * DEGTORAD);
             groundAreaFixture = this.m_groundBody.CreateFixture(fixtureDef);
             groundAreaFixture.SetUserData(new GroundAreaFUD(0.2, false));
         }
@@ -366,7 +366,7 @@ class TopdownCar extends Test {
         ];
     }
 
-    public static handleContact(contact: b2Contact, began: boolean): void {
+    public static handleContact(contact: Contact, began: boolean): void {
         const a = contact.GetFixtureA();
         const b = contact.GetFixtureB();
         const fudA: GroundAreaFUD = a.GetUserData();
@@ -377,21 +377,21 @@ class TopdownCar extends Test {
         }
 
         if (fudA.getType() === FUD_CAR_TIRE || fudB.getType() === FUD_GROUND_AREA) {
-            TopdownCar.tire_vs_groundArea(a, b, began);
+            TopdownCarTest.tire_vs_groundArea(a, b, began);
         } else if (fudA.getType() === FUD_GROUND_AREA || fudB.getType() === FUD_CAR_TIRE) {
-            TopdownCar.tire_vs_groundArea(b, a, began);
+            TopdownCarTest.tire_vs_groundArea(b, a, began);
         }
     }
 
-    public BeginContact(contact: b2Contact): void {
-        TopdownCar.handleContact(contact, true);
+    public BeginContact(contact: Contact): void {
+        TopdownCarTest.handleContact(contact, true);
     }
 
-    public EndContact(contact: b2Contact): void {
-        TopdownCar.handleContact(contact, false);
+    public EndContact(contact: Contact): void {
+        TopdownCarTest.handleContact(contact, false);
     }
 
-    public static tire_vs_groundArea(tireFixture: b2Fixture, groundAreaFixture: b2Fixture, began: boolean): void {
+    public static tire_vs_groundArea(tireFixture: Fixture, groundAreaFixture: Fixture, began: boolean): void {
         const tire: TDTire = tireFixture.GetBody().GetUserData();
         const gaFud: GroundAreaFUD = groundAreaFixture.GetUserData();
         if (began) {
@@ -412,4 +412,4 @@ class TopdownCar extends Test {
     }
 }
 
-registerTest("Examples", "TopDown Car", TopdownCar);
+registerTest("Examples", "TopDown Car", TopdownCarTest);

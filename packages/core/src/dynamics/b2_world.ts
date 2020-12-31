@@ -20,37 +20,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { b2Assert } from "../common/b2_common";
-import { b2Assert, b2Verify, b2_epsilon, b2_maxSubSteps, b2_maxTOIContacts } from "../common/b2_common";
-import { b2Vec2, b2Transform, b2Sweep, XY } from "../common/b2_math";
-import { b2Timer } from "../common/b2_timer";
-import { b2AABB, b2RayCastInput, b2RayCastOutput, b2TestOverlap } from "../collision/b2_collision";
-import { b2TimeOfImpact, b2TOIInput, b2TOIOutput, b2TOIOutputState } from "../collision/b2_time_of_impact";
-import { b2Shape } from "../collision/b2_shape";
-import { b2Contact } from "./b2_contact";
-import { b2Joint, b2IJointDef, b2JointType } from "./b2_joint";
-import { b2AreaJoint, b2IAreaJointDef } from "./b2_area_joint";
-import { b2DistanceJoint, b2IDistanceJointDef } from "./b2_distance_joint";
-import { b2FrictionJoint, b2IFrictionJointDef } from "./b2_friction_joint";
-import { b2GearJoint, b2IGearJointDef } from "./b2_gear_joint";
-import { b2MotorJoint, b2IMotorJointDef } from "./b2_motor_joint";
-import { b2MouseJoint, b2IMouseJointDef } from "./b2_mouse_joint";
-import { b2PrismaticJoint, b2IPrismaticJointDef } from "./b2_prismatic_joint";
-import { b2PulleyJoint, b2IPulleyJointDef } from "./b2_pulley_joint";
-import { b2RevoluteJoint, b2IRevoluteJointDef } from "./b2_revolute_joint";
-import { b2WeldJoint, b2IWeldJointDef } from "./b2_weld_joint";
-import { b2WheelJoint, b2IWheelJointDef } from "./b2_wheel_joint";
-import { b2Body, b2BodyDef, b2BodyType } from "./b2_body";
-import { b2ContactManager } from "./b2_contact_manager";
-import { b2Fixture } from "./b2_fixture";
-import { b2Island } from "./b2_island";
-import { b2Profile, b2TimeStep, b2StepConfig } from "./b2_time_step";
+// DEBUG: import { Assert } from "../common/b2_common";
+import { Assert, Verify, EPSILON, MAX_SUB_STEPS, MAX_TOI_CONTACTS } from "../common/b2_common";
+import { Vec2, Transform, Sweep, XY } from "../common/b2_math";
+import { Timer } from "../common/b2_timer";
+import { AABB, RayCastInput, RayCastOutput, TestOverlap } from "../collision/b2_collision";
+import { TimeOfImpact, TOIInput, TOIOutput, TOIOutputState } from "../collision/b2_time_of_impact";
+import { Shape } from "../collision/b2_shape";
+import { Contact } from "./b2_contact";
+import { Joint, IJointDef, JointType } from "./b2_joint";
+import { AreaJoint, IAreaJointDef } from "./b2_area_joint";
+import { DistanceJoint, IDistanceJointDef } from "./b2_distance_joint";
+import { FrictionJoint, IFrictionJointDef } from "./b2_friction_joint";
+import { GearJoint, IGearJointDef } from "./b2_gear_joint";
+import { MotorJoint, IMotorJointDef } from "./b2_motor_joint";
+import { MouseJoint, IMouseJointDef } from "./b2_mouse_joint";
+import { PrismaticJoint, IPrismaticJointDef } from "./b2_prismatic_joint";
+import { PulleyJoint, IPulleyJointDef } from "./b2_pulley_joint";
+import { RevoluteJoint, IRevoluteJointDef } from "./b2_revolute_joint";
+import { WeldJoint, IWeldJointDef } from "./b2_weld_joint";
+import { WheelJoint, IWheelJointDef } from "./b2_wheel_joint";
+import { Body, BodyDef, BodyType } from "./b2_body";
+import { ContactManager } from "./b2_contact_manager";
+import { Fixture } from "./b2_fixture";
+import { Island } from "./b2_island";
+import { Profile, TimeStep, StepConfig } from "./b2_time_step";
 import {
-    b2ContactFilter,
-    b2ContactListener,
-    b2DestructionListener,
-    b2QueryCallback,
-    b2RayCastCallback,
+    ContactFilter,
+    ContactListener,
+    DestructionListener,
+    QueryCallback,
+    RayCastCallback,
 } from "./b2_world_callbacks";
 
 /**
@@ -58,23 +58,23 @@ import {
  * and asynchronous queries. The world also contains efficient memory
  * management facilities.
  */
-export class b2World {
+export class World {
     /** @internal */
-    public readonly m_contactManager = new b2ContactManager();
+    public readonly m_contactManager = new ContactManager();
 
-    private m_bodyList: b2Body | null = null;
+    private m_bodyList: Body | null = null;
 
-    private m_jointList: b2Joint | null = null;
+    private m_jointList: Joint | null = null;
 
     private m_bodyCount = 0;
 
     private m_jointCount = 0;
 
-    private readonly m_gravity = new b2Vec2();
+    private readonly m_gravity = new Vec2();
 
     private m_allowSleep = true;
 
-    private m_destructionListener: b2DestructionListener | null = null;
+    private m_destructionListener: DestructionListener | null = null;
 
     /**
      * This is used to compute the time step ratio to
@@ -98,16 +98,16 @@ export class b2World {
 
     private m_stepComplete = true;
 
-    private readonly m_profile = new b2Profile();
+    private readonly m_profile = new Profile();
 
-    private readonly m_island = new b2Island(
-        2 * b2_maxTOIContacts,
-        b2_maxTOIContacts,
+    private readonly m_island = new Island(
+        2 * MAX_TOI_CONTACTS,
+        MAX_TOI_CONTACTS,
         0,
         this.m_contactManager.m_contactListener,
     );
 
-    private readonly s_stack: Array<b2Body | null> = [];
+    private readonly s_stack: Array<Body | null> = [];
 
     private constructor(gravity: XY) {
         this.m_gravity.Copy(gravity);
@@ -119,14 +119,14 @@ export class b2World {
      * @param gravity The world gravity vector.
      */
     public static Create(gravity: XY) {
-        return new b2World(gravity);
+        return new World(gravity);
     }
 
     /**
      * Register a destruction listener. The listener is owned by you and must
      * remain in scope.
      */
-    public SetDestructionListener(listener: b2DestructionListener | null): void {
+    public SetDestructionListener(listener: DestructionListener | null): void {
         this.m_destructionListener = listener;
     }
 
@@ -142,7 +142,7 @@ export class b2World {
      * Otherwise the default filter is used (b2_defaultFilter). The listener is
      * owned by you and must remain in scope.
      */
-    public SetContactFilter(filter: b2ContactFilter): void {
+    public SetContactFilter(filter: ContactFilter): void {
         this.m_contactManager.m_contactFilter = filter;
     }
 
@@ -150,7 +150,7 @@ export class b2World {
      * Register a contact event listener. The listener is owned by you and must
      * remain in scope.
      */
-    public SetContactListener(listener: b2ContactListener): void {
+    public SetContactListener(listener: ContactListener): void {
         this.m_contactManager.m_contactListener = listener;
         this.m_island.m_listener = listener;
     }
@@ -161,10 +161,10 @@ export class b2World {
      *
      * @warning This function is locked during callbacks.
      */
-    public CreateBody(def: b2BodyDef = {}): b2Body {
-        b2Assert(!this.IsLocked());
+    public CreateBody(def: BodyDef = {}): Body {
+        Assert(!this.IsLocked());
 
-        const b = new b2Body(def, this);
+        const b = new Body(def, this);
 
         // Add to world doubly linked list.
         b.m_prev = null;
@@ -185,9 +185,9 @@ export class b2World {
      * @warning This automatically deletes all associated shapes and joints.
      * @warning This function is locked during callbacks.
      */
-    public DestroyBody(b: b2Body): void {
-        // DEBUG: b2Assert(this.m_bodyCount > 0);
-        b2Assert(!this.IsLocked());
+    public DestroyBody(b: Body): void {
+        // DEBUG: Assert(this.m_bodyCount > 0);
+        Assert(!this.IsLocked());
 
         // Delete the attached joints.
         let je = b.m_jointList;
@@ -245,30 +245,30 @@ export class b2World {
         --this.m_bodyCount;
     }
 
-    private static Joint_Create(def: b2IJointDef): b2Joint {
+    private static Joint_Create(def: IJointDef): Joint {
         switch (def.type) {
-            case b2JointType.e_distanceJoint:
-                return new b2DistanceJoint(def as b2IDistanceJointDef);
-            case b2JointType.e_mouseJoint:
-                return new b2MouseJoint(def as b2IMouseJointDef);
-            case b2JointType.e_prismaticJoint:
-                return new b2PrismaticJoint(def as b2IPrismaticJointDef);
-            case b2JointType.e_revoluteJoint:
-                return new b2RevoluteJoint(def as b2IRevoluteJointDef);
-            case b2JointType.e_pulleyJoint:
-                return new b2PulleyJoint(def as b2IPulleyJointDef);
-            case b2JointType.e_gearJoint:
-                return new b2GearJoint(def as b2IGearJointDef);
-            case b2JointType.e_wheelJoint:
-                return new b2WheelJoint(def as b2IWheelJointDef);
-            case b2JointType.e_weldJoint:
-                return new b2WeldJoint(def as b2IWeldJointDef);
-            case b2JointType.e_frictionJoint:
-                return new b2FrictionJoint(def as b2IFrictionJointDef);
-            case b2JointType.e_motorJoint:
-                return new b2MotorJoint(def as b2IMotorJointDef);
-            case b2JointType.e_areaJoint:
-                return new b2AreaJoint(def as b2IAreaJointDef);
+            case JointType.Distance:
+                return new DistanceJoint(def as IDistanceJointDef);
+            case JointType.Mouse:
+                return new MouseJoint(def as IMouseJointDef);
+            case JointType.Prismatic:
+                return new PrismaticJoint(def as IPrismaticJointDef);
+            case JointType.Revolute:
+                return new RevoluteJoint(def as IRevoluteJointDef);
+            case JointType.Pulley:
+                return new PulleyJoint(def as IPulleyJointDef);
+            case JointType.Gear:
+                return new GearJoint(def as IGearJointDef);
+            case JointType.Wheel:
+                return new WheelJoint(def as IWheelJointDef);
+            case JointType.Weld:
+                return new WeldJoint(def as IWeldJointDef);
+            case JointType.Friction:
+                return new FrictionJoint(def as IFrictionJointDef);
+            case JointType.Motor:
+                return new MotorJoint(def as IMotorJointDef);
+            case JointType.Area:
+                return new AreaJoint(def as IAreaJointDef);
         }
         throw new Error();
     }
@@ -279,32 +279,32 @@ export class b2World {
      *
      * @warning This function is locked during callbacks.
      */
-    public CreateJoint(def: b2IAreaJointDef): b2AreaJoint;
+    public CreateJoint(def: IAreaJointDef): AreaJoint;
 
-    public CreateJoint(def: b2IDistanceJointDef): b2DistanceJoint;
+    public CreateJoint(def: IDistanceJointDef): DistanceJoint;
 
-    public CreateJoint(def: b2IFrictionJointDef): b2FrictionJoint;
+    public CreateJoint(def: IFrictionJointDef): FrictionJoint;
 
-    public CreateJoint(def: b2IGearJointDef): b2GearJoint;
+    public CreateJoint(def: IGearJointDef): GearJoint;
 
-    public CreateJoint(def: b2IMotorJointDef): b2MotorJoint;
+    public CreateJoint(def: IMotorJointDef): MotorJoint;
 
-    public CreateJoint(def: b2IMouseJointDef): b2MouseJoint;
+    public CreateJoint(def: IMouseJointDef): MouseJoint;
 
-    public CreateJoint(def: b2IPrismaticJointDef): b2PrismaticJoint;
+    public CreateJoint(def: IPrismaticJointDef): PrismaticJoint;
 
-    public CreateJoint(def: b2IPulleyJointDef): b2PulleyJoint;
+    public CreateJoint(def: IPulleyJointDef): PulleyJoint;
 
-    public CreateJoint(def: b2IRevoluteJointDef): b2RevoluteJoint;
+    public CreateJoint(def: IRevoluteJointDef): RevoluteJoint;
 
-    public CreateJoint(def: b2IWeldJointDef): b2WeldJoint;
+    public CreateJoint(def: IWeldJointDef): WeldJoint;
 
-    public CreateJoint(def: b2IWheelJointDef): b2WheelJoint;
+    public CreateJoint(def: IWheelJointDef): WheelJoint;
 
-    public CreateJoint(def: b2IJointDef): b2Joint {
-        b2Assert(!this.IsLocked());
+    public CreateJoint(def: IJointDef): Joint {
+        Assert(!this.IsLocked());
 
-        const j = b2World.Joint_Create(def);
+        const j = World.Joint_Create(def);
 
         // Connect to the world list.
         j.m_prev = null;
@@ -353,8 +353,8 @@ export class b2World {
      *
      * @warning This function is locked during callbacks.
      */
-    public DestroyJoint(j: b2Joint): void {
-        b2Assert(!this.IsLocked());
+    public DestroyJoint(j: Joint): void {
+        Assert(!this.IsLocked());
 
         // Remove from the doubly linked list.
         if (j.m_prev) {
@@ -410,7 +410,7 @@ export class b2World {
         j.m_edgeB.prev = null;
         j.m_edgeB.next = null;
 
-        // DEBUG: b2Assert(this.m_jointCount > 0);
+        // DEBUG: Assert(this.m_jointCount > 0);
         --this.m_jointCount;
 
         // If the joint prevents collisions, then flag any contacts for filtering.
@@ -436,14 +436,14 @@ export class b2World {
      * @param velocityIterations For the velocity constraint solver.
      * @param positionIterations For the position constraint solver.
      */
-    private static Step_s_step = b2TimeStep.Create();
+    private static Step_s_step = TimeStep.Create();
 
-    private static Step_s_stepTimer = new b2Timer();
+    private static Step_s_stepTimer = new Timer();
 
-    private static Step_s_timer = new b2Timer();
+    private static Step_s_timer = new Timer();
 
-    public Step(dt: number, iterations: b2StepConfig): void {
-        const stepTimer = b2World.Step_s_stepTimer.Reset();
+    public Step(dt: number, iterations: StepConfig): void {
+        const stepTimer = World.Step_s_stepTimer.Reset();
 
         // If new fixtures were added, we need to find the new contacts.
         if (this.m_newContacts) {
@@ -453,7 +453,7 @@ export class b2World {
 
         this.m_locked = true;
 
-        const step = b2World.Step_s_step;
+        const step = World.Step_s_step;
         step.dt = dt;
         step.config = {
             ...iterations,
@@ -470,21 +470,21 @@ export class b2World {
 
         // Update contacts. This is where some contacts are destroyed.
         {
-            const timer = b2World.Step_s_timer.Reset();
+            const timer = World.Step_s_timer.Reset();
             this.m_contactManager.Collide();
             this.m_profile.collide = timer.GetMilliseconds();
         }
 
         // Integrate velocities, solve velocity constraints, and integrate positions.
         if (this.m_stepComplete && step.dt > 0) {
-            const timer = b2World.Step_s_timer.Reset();
+            const timer = World.Step_s_timer.Reset();
             this.Solve(step);
             this.m_profile.solve = timer.GetMilliseconds();
         }
 
         // Handle TOI events.
         if (this.m_continuousPhysics && step.dt > 0) {
-            const timer = b2World.Step_s_timer.Reset();
+            const timer = World.Step_s_timer.Reset();
             this.SolveTOI(step);
             this.m_profile.solveTOI = timer.GetMilliseconds();
         }
@@ -526,15 +526,15 @@ export class b2World {
      * @param aabb The query box.
      * @param callback A user implemented callback class or function.
      */
-    public QueryAABB(aabb: b2AABB, callback: b2QueryCallback): void {
+    public QueryAABB(aabb: AABB, callback: QueryCallback): void {
         this.m_contactManager.m_broadPhase.Query(aabb, (proxy) => {
-            const fixture_proxy = b2Verify(proxy.userData);
-            // DEBUG: b2Assert(fixture_proxy instanceof b2FixtureProxy);
+            const fixture_proxy = Verify(proxy.userData);
+            // DEBUG: Assert(fixture_proxy instanceof FixtureProxy);
             return callback(fixture_proxy.fixture);
         });
     }
 
-    public QueryAllAABB(aabb: b2AABB, out: b2Fixture[] = []): b2Fixture[] {
+    public QueryAllAABB(aabb: AABB, out: Fixture[] = []): Fixture[] {
         this.QueryAABB(aabb, (fixture) => {
             out.push(fixture);
             return true;
@@ -549,15 +549,15 @@ export class b2World {
      * @param point The query point.
      * @param callback A user implemented callback class or function.
      */
-    public QueryPointAABB(point: XY, callback: b2QueryCallback): void {
+    public QueryPointAABB(point: XY, callback: QueryCallback): void {
         this.m_contactManager.m_broadPhase.QueryPoint(point, (proxy) => {
-            const fixture_proxy = b2Verify(proxy.userData);
-            // DEBUG: b2Assert(fixture_proxy instanceof b2FixtureProxy);
+            const fixture_proxy = Verify(proxy.userData);
+            // DEBUG: Assert(fixture_proxy instanceof FixtureProxy);
             return callback(fixture_proxy.fixture);
         });
     }
 
-    public QueryAllPointAABB(point: XY, out: b2Fixture[] = []): b2Fixture[] {
+    public QueryAllPointAABB(point: XY, out: Fixture[] = []): Fixture[] {
         this.QueryPointAABB(point, (fixture) => {
             out.push(fixture);
             return true;
@@ -565,16 +565,16 @@ export class b2World {
         return out;
     }
 
-    private static QueryFixtureShape_s_aabb = new b2AABB();
+    private static QueryFixtureShape_s_aabb = new AABB();
 
-    public QueryFixtureShape(shape: b2Shape, index: number, transform: b2Transform, callback: b2QueryCallback): void {
-        const aabb = b2World.QueryFixtureShape_s_aabb;
+    public QueryFixtureShape(shape: Shape, index: number, transform: Transform, callback: QueryCallback): void {
+        const aabb = World.QueryFixtureShape_s_aabb;
         shape.ComputeAABB(aabb, transform, index);
         this.m_contactManager.m_broadPhase.Query(aabb, (proxy) => {
-            const fixture_proxy = b2Verify(proxy.userData);
-            // DEBUG: b2Assert(fixture_proxy instanceof b2FixtureProxy);
+            const fixture_proxy = Verify(proxy.userData);
+            // DEBUG: Assert(fixture_proxy instanceof FixtureProxy);
             const { fixture } = fixture_proxy;
-            const overlap = b2TestOverlap(
+            const overlap = TestOverlap(
                 shape,
                 index,
                 fixture.GetShape(),
@@ -586,12 +586,7 @@ export class b2World {
         });
     }
 
-    public QueryAllFixtureShape(
-        shape: b2Shape,
-        index: number,
-        transform: b2Transform,
-        out: b2Fixture[] = [],
-    ): b2Fixture[] {
+    public QueryAllFixtureShape(shape: Shape, index: number, transform: Transform, out: Fixture[] = []): Fixture[] {
         this.QueryFixtureShape(shape, index, transform, (fixture) => {
             out.push(fixture);
             return true;
@@ -599,17 +594,17 @@ export class b2World {
         return out;
     }
 
-    public QueryFixturePoint(point: XY, callback: b2QueryCallback): void {
+    public QueryFixturePoint(point: XY, callback: QueryCallback): void {
         this.m_contactManager.m_broadPhase.QueryPoint(point, (proxy) => {
-            const fixture_proxy = b2Verify(proxy.userData);
-            // DEBUG: b2Assert(fixture_proxy instanceof b2FixtureProxy);
+            const fixture_proxy = Verify(proxy.userData);
+            // DEBUG: Assert(fixture_proxy instanceof FixtureProxy);
             const { fixture } = fixture_proxy;
             const overlap = fixture.TestPoint(point);
             return !overlap || callback(fixture);
         });
     }
 
-    public QueryAllFixturePoint(point: XY, out: b2Fixture[] = []): b2Fixture[] {
+    public QueryAllFixturePoint(point: XY, out: Fixture[] = []): Fixture[] {
         this.QueryFixturePoint(point, (fixture) => {
             out.push(fixture);
             return true;
@@ -617,11 +612,11 @@ export class b2World {
         return out;
     }
 
-    private static RayCast_s_input = new b2RayCastInput();
+    private static RayCast_s_input = new RayCastInput();
 
-    private static RayCast_s_output = new b2RayCastOutput();
+    private static RayCast_s_output = new RayCastOutput();
 
-    private static RayCast_s_point = new b2Vec2();
+    private static RayCast_s_point = new Vec2();
 
     /**
      * Ray-cast the world for all fixtures in the path of the ray. Your callback
@@ -632,21 +627,21 @@ export class b2World {
      * @param point2 The ray ending point
      * @param callback A user implemented callback class or function.
      */
-    public RayCast(point1: XY, point2: XY, callback: b2RayCastCallback): void {
-        const input = b2World.RayCast_s_input;
+    public RayCast(point1: XY, point2: XY, callback: RayCastCallback): void {
+        const input = World.RayCast_s_input;
         input.maxFraction = 1;
         input.p1.Copy(point1);
         input.p2.Copy(point2);
         this.m_contactManager.m_broadPhase.RayCast(input, (input2, proxy) => {
-            const fixture_proxy = b2Verify(proxy.userData);
-            // DEBUG: b2Assert(fixture_proxy instanceof b2FixtureProxy);
+            const fixture_proxy = Verify(proxy.userData);
+            // DEBUG: Assert(fixture_proxy instanceof FixtureProxy);
             const { fixture } = fixture_proxy;
             const index = fixture_proxy.childIndex;
-            const output = b2World.RayCast_s_output;
+            const output = World.RayCast_s_output;
             const hit = fixture.RayCast(output, input2, index);
             if (hit) {
                 const { fraction } = output;
-                const point = b2World.RayCast_s_point;
+                const point = World.RayCast_s_point;
                 point.Set(
                     (1 - fraction) * point1.x + fraction * point2.x,
                     (1 - fraction) * point1.y + fraction * point2.y,
@@ -657,8 +652,8 @@ export class b2World {
         });
     }
 
-    public RayCastOne(point1: XY, point2: XY): b2Fixture | null {
-        let result: b2Fixture | null = null;
+    public RayCastOne(point1: XY, point2: XY): Fixture | null {
+        let result: Fixture | null = null;
         let min_fraction = 1;
         this.RayCast(point1, point2, (fixture, _point, _normal, fraction) => {
             if (fraction < min_fraction) {
@@ -670,7 +665,7 @@ export class b2World {
         return result;
     }
 
-    public RayCastAll(point1: XY, point2: XY, out: b2Fixture[] = []): b2Fixture[] {
+    public RayCastAll(point1: XY, point2: XY, out: Fixture[] = []): Fixture[] {
         this.RayCast(point1, point2, (fixture) => {
             out.push(fixture);
             return 1;
@@ -679,34 +674,34 @@ export class b2World {
     }
 
     /**
-     * Get the world body list. With the returned body, use b2Body::GetNext to get
+     * Get the world body list. With the returned body, use Body::GetNext to get
      * the next body in the world list. A NULL body indicates the end of the list.
      *
      * @returns The head of the world body list.
      */
-    public GetBodyList(): b2Body | null {
+    public GetBodyList(): Body | null {
         return this.m_bodyList;
     }
 
     /**
-     * Get the world joint list. With the returned joint, use b2Joint::GetNext to get
+     * Get the world joint list. With the returned joint, use Joint::GetNext to get
      * the next joint in the world list. A NULL joint indicates the end of the list.
      *
      * @returns The head of the world joint list.
      */
-    public GetJointList(): b2Joint | null {
+    public GetJointList(): Joint | null {
         return this.m_jointList;
     }
 
     /**
-     * Get the world contact list. With the returned contact, use b2Contact::GetNext to get
+     * Get the world contact list. With the returned contact, use Contact::GetNext to get
      * the next contact in the world list. A NULL contact indicates the end of the list.
      *
      * @returns The head of the world contact list.
      * @warning contacts are created and destroyed in the middle of a time step.
-     * Use b2ContactListener to avoid missing contacts.
+     * Use ContactListener to avoid missing contacts.
      */
-    public GetContactList(): b2Contact | null {
+    public GetContactList(): Contact | null {
         return this.m_contactManager.m_contactList;
     }
 
@@ -823,7 +818,7 @@ export class b2World {
     /**
      * Get the global gravity vector.
      */
-    public GetGravity(): Readonly<b2Vec2> {
+    public GetGravity(): Readonly<Vec2> {
         return this.m_gravity;
     }
 
@@ -855,7 +850,7 @@ export class b2World {
      * @param newOrigin The new origin with respect to the old origin
      */
     public ShiftOrigin(newOrigin: XY): void {
-        b2Assert(!this.IsLocked());
+        Assert(!this.IsLocked());
 
         for (let b = this.m_bodyList; b; b = b.m_next) {
             b.m_xf.p.Subtract(newOrigin);
@@ -873,18 +868,18 @@ export class b2World {
     /**
      * Get the contact manager for testing.
      */
-    public GetContactManager(): b2ContactManager {
+    public GetContactManager(): ContactManager {
         return this.m_contactManager;
     }
 
     /**
      * Get the current profile.
      */
-    public GetProfile(): b2Profile {
+    public GetProfile(): Profile {
         return this.m_profile;
     }
 
-    private Solve(step: b2TimeStep): void {
+    private Solve(step: TimeStep): void {
         this.m_profile.solveInit = 0;
         this.m_profile.solveVelocity = 0;
         this.m_profile.solvePosition = 0;
@@ -918,7 +913,7 @@ export class b2World {
             }
 
             // The seed can be dynamic or kinematic.
-            if (seed.GetType() === b2BodyType.b2_staticBody) {
+            if (seed.GetType() === BodyType.Static) {
                 continue;
             }
 
@@ -932,13 +927,13 @@ export class b2World {
             while (stackCount > 0) {
                 // Grab the next body off the stack and add it to the island.
                 const b = stack[--stackCount];
-                b2Assert(b !== null);
-                // DEBUG: b2Assert(b.IsEnabled());
+                Assert(b !== null);
+                // DEBUG: Assert(b.IsEnabled());
                 island.AddBody(b);
 
                 // To keep islands as small as possible, we don't
                 // propagate islands across static bodies.
-                if (b.GetType() === b2BodyType.b2_staticBody) {
+                if (b.GetType() === BodyType.Static) {
                     continue;
                 }
 
@@ -976,7 +971,7 @@ export class b2World {
                         continue;
                     }
 
-                    // DEBUG: b2Assert(stackCount < stackSize);
+                    // DEBUG: Assert(stackCount < stackSize);
                     stack[stackCount++] = other;
                     other.m_islandFlag = true;
                 }
@@ -1001,13 +996,13 @@ export class b2World {
                         continue;
                     }
 
-                    // DEBUG: b2Assert(stackCount < stackSize);
+                    // DEBUG: Assert(stackCount < stackSize);
                     stack[stackCount++] = other;
                     other.m_islandFlag = true;
                 }
             }
 
-            const profile = new b2Profile();
+            const profile = new Profile();
             island.Solve(profile, step, this.m_gravity, this.m_allowSleep);
             this.m_profile.solveInit += profile.solveInit;
             this.m_profile.solveVelocity += profile.solveVelocity;
@@ -1017,7 +1012,7 @@ export class b2World {
             for (let i = 0; i < island.m_bodyCount; ++i) {
                 // Allow static bodies to participate in other islands.
                 const b = island.m_bodies[i];
-                if (b.GetType() === b2BodyType.b2_staticBody) {
+                if (b.GetType() === BodyType.Static) {
                     b.m_islandFlag = false;
                 }
             }
@@ -1030,7 +1025,7 @@ export class b2World {
             stack[i] = null;
         }
 
-        const timer = new b2Timer();
+        const timer = new Timer();
 
         // Synchronize fixtures, check for out of range bodies.
         for (let b = this.m_bodyList; b; b = b.m_next) {
@@ -1039,7 +1034,7 @@ export class b2World {
                 continue;
             }
 
-            if (b.GetType() === b2BodyType.b2_staticBody) {
+            if (b.GetType() === BodyType.Static) {
                 continue;
             }
 
@@ -1052,20 +1047,20 @@ export class b2World {
         this.m_profile.broadphase = timer.GetMilliseconds();
     }
 
-    private static SolveTOI_s_subStep = b2TimeStep.Create();
+    private static SolveTOI_s_subStep = TimeStep.Create();
 
-    private static SolveTOI_s_backup = new b2Sweep();
+    private static SolveTOI_s_backup = new Sweep();
 
-    private static SolveTOI_s_backup1 = new b2Sweep();
+    private static SolveTOI_s_backup1 = new Sweep();
 
-    private static SolveTOI_s_backup2 = new b2Sweep();
+    private static SolveTOI_s_backup2 = new Sweep();
 
-    private static SolveTOI_s_toi_input = new b2TOIInput();
+    private static SolveTOI_s_toi_input = new TOIInput();
 
-    private static SolveTOI_s_toi_output = new b2TOIOutput();
+    private static SolveTOI_s_toi_output = new TOIOutput();
 
     /** @internal */
-    public SolveTOI(step: b2TimeStep): void {
+    public SolveTOI(step: TimeStep): void {
         const island = this.m_island;
         island.Clear();
 
@@ -1097,7 +1092,7 @@ export class b2World {
                 }
 
                 // Prevent excessive sub-stepping.
-                if (c.m_toiCount > b2_maxSubSteps) {
+                if (c.m_toiCount > MAX_SUB_STEPS) {
                     continue;
                 }
 
@@ -1119,18 +1114,18 @@ export class b2World {
 
                     const typeA = bA.m_type;
                     const typeB = bB.m_type;
-                    // DEBUG: b2Assert(typeA === b2BodyType.b2_dynamicBody || typeB === b2BodyType.b2_dynamicBody);
+                    // DEBUG: Assert(typeA === BodyType.Dynamic || typeB === BodyType.Dynamic);
 
-                    const activeA = bA.IsAwake() && typeA !== b2BodyType.b2_staticBody;
-                    const activeB = bB.IsAwake() && typeB !== b2BodyType.b2_staticBody;
+                    const activeA = bA.IsAwake() && typeA !== BodyType.Static;
+                    const activeB = bB.IsAwake() && typeB !== BodyType.Static;
 
                     // Is at least one body active (awake and dynamic or kinematic)?
                     if (!activeA && !activeB) {
                         continue;
                     }
 
-                    const collideA = bA.IsBullet() || typeA !== b2BodyType.b2_dynamicBody;
-                    const collideB = bB.IsBullet() || typeB !== b2BodyType.b2_dynamicBody;
+                    const collideA = bA.IsBullet() || typeA !== BodyType.Dynamic;
+                    const collideB = bB.IsBullet() || typeB !== BodyType.Dynamic;
 
                     // Are these two non-bullet dynamic bodies?
                     if (!collideA && !collideB) {
@@ -1149,25 +1144,25 @@ export class b2World {
                         bB.m_sweep.Advance(alpha0);
                     }
 
-                    // DEBUG: b2Assert(alpha0 < 1);
+                    // DEBUG: Assert(alpha0 < 1);
 
                     const indexA = c.GetChildIndexA();
                     const indexB = c.GetChildIndexB();
 
                     // Compute the time of impact in interval [0, minTOI]
-                    const input = b2World.SolveTOI_s_toi_input;
+                    const input = World.SolveTOI_s_toi_input;
                     input.proxyA.SetShape(fA.GetShape(), indexA);
                     input.proxyB.SetShape(fB.GetShape(), indexB);
                     input.sweepA.Copy(bA.m_sweep);
                     input.sweepB.Copy(bB.m_sweep);
                     input.tMax = 1;
 
-                    const output = b2World.SolveTOI_s_toi_output;
-                    b2TimeOfImpact(output, input);
+                    const output = World.SolveTOI_s_toi_output;
+                    TimeOfImpact(output, input);
 
                     // Beta is the fraction of the remaining portion of the .
                     const beta = output.t;
-                    if (output.state === b2TOIOutputState.e_touching) {
+                    if (output.state === TOIOutputState.Touching) {
                         alpha = Math.min(alpha0 + (1 - alpha0) * beta, 1);
                     } else {
                         alpha = 1;
@@ -1184,7 +1179,7 @@ export class b2World {
                 }
             }
 
-            if (minContact === null || 1 - 10 * b2_epsilon < minAlpha) {
+            if (minContact === null || 1 - 10 * EPSILON < minAlpha) {
                 // No more TOI events. Done!
                 this.m_stepComplete = true;
                 break;
@@ -1196,8 +1191,8 @@ export class b2World {
             const bA = fA.GetBody();
             const bB = fB.GetBody();
 
-            const backup1 = b2World.SolveTOI_s_backup1.Copy(bA.m_sweep);
-            const backup2 = b2World.SolveTOI_s_backup2.Copy(bB.m_sweep);
+            const backup1 = World.SolveTOI_s_backup1.Copy(bA.m_sweep);
+            const backup2 = World.SolveTOI_s_backup2.Copy(bB.m_sweep);
 
             bA.Advance(minAlpha);
             bB.Advance(minAlpha);
@@ -1234,13 +1229,13 @@ export class b2World {
             // Get contacts on bodyA and bodyB.
             for (let i = 0; i < 2; ++i) {
                 const body = i === 0 ? bA : bB;
-                if (body.m_type === b2BodyType.b2_dynamicBody) {
+                if (body.m_type === BodyType.Dynamic) {
                     for (let ce = body.m_contactList; ce; ce = ce.next) {
                         if (island.m_bodyCount === island.m_bodyCapacity) {
                             break;
                         }
 
-                        if (island.m_contactCount === b2_maxTOIContacts) {
+                        if (island.m_contactCount === MAX_TOI_CONTACTS) {
                             break;
                         }
 
@@ -1253,7 +1248,7 @@ export class b2World {
 
                         // Only add static, kinematic, or bullet bodies.
                         const { other } = ce;
-                        if (other.m_type === b2BodyType.b2_dynamicBody && !body.IsBullet() && !other.IsBullet()) {
+                        if (other.m_type === BodyType.Dynamic && !body.IsBullet() && !other.IsBullet()) {
                             continue;
                         }
 
@@ -1265,7 +1260,7 @@ export class b2World {
                         }
 
                         // Tentatively advance the body to the TOI.
-                        const backup = b2World.SolveTOI_s_backup.Copy(other.m_sweep);
+                        const backup = World.SolveTOI_s_backup.Copy(other.m_sweep);
                         if (!other.m_islandFlag) {
                             other.Advance(minAlpha);
                         }
@@ -1299,7 +1294,7 @@ export class b2World {
                         // Add the other body to the island.
                         other.m_islandFlag = true;
 
-                        if (other.m_type !== b2BodyType.b2_staticBody) {
+                        if (other.m_type !== BodyType.Static) {
                             other.SetAwake(true);
                         }
 
@@ -1308,7 +1303,7 @@ export class b2World {
                 }
             }
 
-            const subStep = b2World.SolveTOI_s_subStep;
+            const subStep = World.SolveTOI_s_subStep;
             subStep.dt = (1 - minAlpha) * step.dt;
             subStep.inv_dt = 1 / subStep.dt;
             subStep.dtRatio = 1;
@@ -1324,7 +1319,7 @@ export class b2World {
                 const body = island.m_bodies[i];
                 body.m_islandFlag = false;
 
-                if (body.m_type !== b2BodyType.b2_dynamicBody) {
+                if (body.m_type !== BodyType.Dynamic) {
                     continue;
                 }
 

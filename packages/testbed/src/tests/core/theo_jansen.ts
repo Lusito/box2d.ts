@@ -17,16 +17,16 @@
  */
 
 import {
-    b2Vec2,
-    b2Body,
-    b2RevoluteJoint,
-    b2PolygonShape,
-    b2BodyType,
-    b2DistanceJointDef,
-    b2LinearStiffness,
-    b2RevoluteJointDef,
-    b2EdgeShape,
-    b2CircleShape,
+    Vec2,
+    Body,
+    RevoluteJoint,
+    PolygonShape,
+    BodyType,
+    DistanceJointDef,
+    LinearStiffness,
+    RevoluteJointDef,
+    EdgeShape,
+    CircleShape,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
@@ -35,14 +35,14 @@ import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 // Inspired by a contribution by roman_m
 // Dimensions scooped from APE (http://www.cove.org/ape/index.htm)
 
-class TheoJansen extends Test {
-    public m_offset = new b2Vec2();
+class TheoJansenTest extends Test {
+    public m_offset = new Vec2();
 
-    public m_chassis!: b2Body;
+    public m_chassis!: Body;
 
-    public m_wheel!: b2Body;
+    public m_wheel!: Body;
 
-    public m_motorJoint!: b2RevoluteJoint;
+    public m_motorJoint!: RevoluteJoint;
 
     public m_motorOn = true;
 
@@ -52,30 +52,30 @@ class TheoJansen extends Test {
         super();
 
         this.m_offset.Set(0, 8);
-        const pivot = new b2Vec2(0, 0.8);
+        const pivot = new Vec2(0, 0.8);
 
         // Ground
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-50, 0), new b2Vec2(50, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-50, 0), new Vec2(50, 0));
             ground.CreateFixture({ shape });
 
-            shape.SetTwoSided(new b2Vec2(-50, 0), new b2Vec2(-50, 10));
+            shape.SetTwoSided(new Vec2(-50, 0), new Vec2(-50, 10));
             ground.CreateFixture({ shape });
 
-            shape.SetTwoSided(new b2Vec2(50, 0), new b2Vec2(50, 10));
+            shape.SetTwoSided(new Vec2(50, 0), new Vec2(50, 10));
             ground.CreateFixture({ shape });
         }
 
         // Balls
         for (let i = 0; i < 40; ++i) {
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_radius = 0.25;
 
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: -40 + 2 * i, y: 0.5 },
             });
             body.CreateFixture({ shape, density: 1 });
@@ -83,11 +83,11 @@ class TheoJansen extends Test {
 
         // Chassis
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(2.5, 1);
 
             this.m_chassis = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: {
                     x: pivot.x + this.m_offset.x,
                     y: pivot.y + this.m_offset.y,
@@ -103,11 +103,11 @@ class TheoJansen extends Test {
         }
 
         {
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_radius = 1.6;
 
             this.m_wheel = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: {
                     x: pivot.x + this.m_offset.x,
                     y: pivot.y + this.m_offset.y,
@@ -123,8 +123,8 @@ class TheoJansen extends Test {
         }
 
         {
-            const jd = new b2RevoluteJointDef();
-            jd.Initialize(this.m_wheel, this.m_chassis, b2Vec2.Add(pivot, this.m_offset, new b2Vec2()));
+            const jd = new RevoluteJointDef();
+            jd.Initialize(this.m_wheel, this.m_chassis, Vec2.Add(pivot, this.m_offset, new Vec2()));
             jd.collideConnected = false;
             jd.motorSpeed = this.m_motorSpeed;
             jd.maxMotorTorque = 400;
@@ -132,7 +132,7 @@ class TheoJansen extends Test {
             this.m_motorJoint = this.m_world.CreateJoint(jd);
         }
 
-        const wheelAnchor = b2Vec2.Add(pivot, new b2Vec2(0, -0.8), new b2Vec2());
+        const wheelAnchor = Vec2.Add(pivot, new Vec2(0, -0.8), new Vec2());
 
         this.CreateLeg(-1, wheelAnchor);
         this.CreateLeg(1, wheelAnchor);
@@ -146,16 +146,16 @@ class TheoJansen extends Test {
         this.CreateLeg(1, wheelAnchor);
     }
 
-    public CreateLeg(s: number, wheelAnchor: b2Vec2) {
-        const p1 = new b2Vec2(5.4 * s, -6.1);
-        const p2 = new b2Vec2(7.2 * s, -1.2);
-        const p3 = new b2Vec2(4.3 * s, -1.9);
-        const p4 = new b2Vec2(3.1 * s, 0.8);
-        const p5 = new b2Vec2(6 * s, 1.5);
-        const p6 = new b2Vec2(2.5 * s, 3.7);
+    public CreateLeg(s: number, wheelAnchor: Vec2) {
+        const p1 = new Vec2(5.4 * s, -6.1);
+        const p2 = new Vec2(7.2 * s, -1.2);
+        const p3 = new Vec2(4.3 * s, -1.9);
+        const p4 = new Vec2(3.1 * s, 0.8);
+        const p5 = new Vec2(6 * s, 1.5);
+        const p6 = new Vec2(2.5 * s, 3.7);
 
-        const poly1 = new b2PolygonShape();
-        const poly2 = new b2PolygonShape();
+        const poly1 = new PolygonShape();
+        const poly2 = new PolygonShape();
 
         if (s > 0) {
             const vertices = [];
@@ -165,9 +165,9 @@ class TheoJansen extends Test {
             vertices[2] = p3;
             poly1.Set(vertices);
 
-            vertices[0] = b2Vec2.ZERO;
-            vertices[1] = b2Vec2.Subtract(p5, p4, new b2Vec2());
-            vertices[2] = b2Vec2.Subtract(p6, p4, new b2Vec2());
+            vertices[0] = Vec2.ZERO;
+            vertices[1] = Vec2.Subtract(p5, p4, new Vec2());
+            vertices[2] = Vec2.Subtract(p6, p4, new Vec2());
             poly2.Set(vertices);
         } else {
             const vertices = [];
@@ -177,20 +177,20 @@ class TheoJansen extends Test {
             vertices[2] = p2;
             poly1.Set(vertices);
 
-            vertices[0] = b2Vec2.ZERO;
-            vertices[1] = b2Vec2.Subtract(p6, p4, new b2Vec2());
-            vertices[2] = b2Vec2.Subtract(p5, p4, new b2Vec2());
+            vertices[0] = Vec2.ZERO;
+            vertices[1] = Vec2.Subtract(p6, p4, new Vec2());
+            vertices[2] = Vec2.Subtract(p5, p4, new Vec2());
             poly2.Set(vertices);
         }
 
         const body1 = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
             position: this.m_offset,
             angularDamping: 10,
         });
         const body2 = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
-            position: b2Vec2.Add(p4, this.m_offset, new b2Vec2()),
+            type: BodyType.Dynamic,
+            position: Vec2.Add(p4, this.m_offset, new Vec2()),
             angularDamping: 10,
         });
 
@@ -206,7 +206,7 @@ class TheoJansen extends Test {
         });
 
         {
-            const jd = new b2DistanceJointDef();
+            const jd = new DistanceJointDef();
 
             // Using a soft distance constraint can reduce some jitter.
             // It also makes the structure seem a bit more fluid by
@@ -217,44 +217,44 @@ class TheoJansen extends Test {
             jd.Initialize(
                 body1,
                 body2,
-                b2Vec2.Add(p2, this.m_offset, new b2Vec2()),
-                b2Vec2.Add(p5, this.m_offset, new b2Vec2()),
+                Vec2.Add(p2, this.m_offset, new Vec2()),
+                Vec2.Add(p5, this.m_offset, new Vec2()),
             );
-            b2LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
             this.m_world.CreateJoint(jd);
 
             jd.Initialize(
                 body1,
                 body2,
-                b2Vec2.Add(p3, this.m_offset, new b2Vec2()),
-                b2Vec2.Add(p4, this.m_offset, new b2Vec2()),
+                Vec2.Add(p3, this.m_offset, new Vec2()),
+                Vec2.Add(p4, this.m_offset, new Vec2()),
             );
-            b2LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
             this.m_world.CreateJoint(jd);
 
             jd.Initialize(
                 body1,
                 this.m_wheel,
-                b2Vec2.Add(p3, this.m_offset, new b2Vec2()),
-                b2Vec2.Add(wheelAnchor, this.m_offset, new b2Vec2()),
+                Vec2.Add(p3, this.m_offset, new Vec2()),
+                Vec2.Add(wheelAnchor, this.m_offset, new Vec2()),
             );
-            b2LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
             this.m_world.CreateJoint(jd);
 
             jd.Initialize(
                 body2,
                 this.m_wheel,
-                b2Vec2.Add(p6, this.m_offset, new b2Vec2()),
-                b2Vec2.Add(wheelAnchor, this.m_offset, new b2Vec2()),
+                Vec2.Add(p6, this.m_offset, new Vec2()),
+                Vec2.Add(wheelAnchor, this.m_offset, new Vec2()),
             );
-            b2LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
             this.m_world.CreateJoint(jd);
         }
 
         {
-            const jd = new b2RevoluteJointDef();
+            const jd = new RevoluteJointDef();
 
-            jd.Initialize(body2, this.m_chassis, b2Vec2.Add(p4, this.m_offset, new b2Vec2()));
+            jd.Initialize(body2, this.m_chassis, Vec2.Add(p4, this.m_offset, new Vec2()));
             this.m_world.CreateJoint(jd);
         }
     }
@@ -271,4 +271,4 @@ class TheoJansen extends Test {
     }
 }
 
-registerTest("Examples", "Theo Jansen's Walker", TheoJansen);
+registerTest("Examples", "Theo Jansen's Walker", TheoJansenTest);

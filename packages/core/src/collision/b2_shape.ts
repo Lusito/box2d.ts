@@ -20,50 +20,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { b2Assert } from "../common/b2_common";
-import { b2Color, b2Draw } from "../common/b2_draw";
-import { b2Vec2, b2Transform, XY } from "../common/b2_math";
-import { b2AABB, b2RayCastInput, b2RayCastOutput } from "./b2_collision";
-import { b2DistanceProxy } from "./b2_distance";
+// DEBUG: import { Assert } from "../common/b2_common";
+import { Color, Draw } from "../common/b2_draw";
+import { Vec2, Transform, XY } from "../common/b2_math";
+import { AABB, RayCastInput, RayCastOutput } from "./b2_collision";
+import { DistanceProxy } from "./b2_distance";
 
 /**
  * This holds the mass data computed for a shape.
  */
-export class b2MassData {
+export class MassData {
     /** The mass of the shape, usually in kilograms. */
     public mass = 0;
 
     /** The position of the shape's centroid relative to the shape's origin. */
-    public readonly center = new b2Vec2();
+    public readonly center = new Vec2();
 
     /** The rotational inertia of the shape about the local origin. */
     public I = 0;
 }
 
-export enum b2ShapeType {
-    e_unknown = -1,
-    e_circle = 0,
-    e_edge = 1,
-    e_polygon = 2,
-    e_chain = 3,
-    e_typeCount = 4,
+export enum ShapeType {
+    Unknown = -1,
+    Circle = 0,
+    Edge = 1,
+    Polygon = 2,
+    Chain = 3,
+    TypeCount = 4,
 }
 
 /**
  * A shape is used for collision detection. You can create a shape however you like.
- * Shapes used for simulation in b2World are created automatically when a b2Fixture
+ * Shapes used for simulation in World are created automatically when a Fixture
  * is created. Shapes may encapsulate a one or more child shapes.
  */
-export abstract class b2Shape {
-    public readonly m_type: b2ShapeType;
+export abstract class Shape {
+    public readonly m_type: ShapeType;
 
     /**
-     * Radius of a shape. For polygonal shapes this must be b2_polygonRadius. There is no support for
+     * Radius of a shape. For polygonal shapes this must be POLYGON_RADIUS. There is no support for
      * making rounded polygons.
      */
     public m_radius = 0;
 
-    public constructor(type: b2ShapeType, radius: number) {
+    public constructor(type: ShapeType, radius: number) {
         this.m_type = type;
         this.m_radius = radius;
     }
@@ -71,10 +71,10 @@ export abstract class b2Shape {
     /**
      * Clone the concrete shape.
      */
-    public abstract Clone(): b2Shape;
+    public abstract Clone(): Shape;
 
-    public Copy(other: b2Shape): b2Shape {
-        // DEBUG: b2Assert(this.m_type === other.m_type);
+    public Copy(other: Shape): Shape {
+        // DEBUG: Assert(this.m_type === other.m_type);
         this.m_radius = other.m_radius;
         return this;
     }
@@ -84,7 +84,7 @@ export abstract class b2Shape {
      *
      * @returns The shape type.
      */
-    public GetType(): b2ShapeType {
+    public GetType(): ShapeType {
         return this.m_type;
     }
 
@@ -99,7 +99,7 @@ export abstract class b2Shape {
      * @param xf The shape world transform.
      * @param p A point in world coordinates.
      */
-    public abstract TestPoint(xf: b2Transform, p: XY): boolean;
+    public abstract TestPoint(xf: Transform, p: XY): boolean;
 
     /**
      * Cast a ray against a child shape.
@@ -110,9 +110,9 @@ export abstract class b2Shape {
      * @param childIndex The child shape index
      */
     public abstract RayCast(
-        output: b2RayCastOutput,
-        input: b2RayCastInput,
-        transform: b2Transform,
+        output: RayCastOutput,
+        input: RayCastInput,
+        transform: Transform,
         childIndex: number,
     ): boolean;
 
@@ -123,7 +123,7 @@ export abstract class b2Shape {
      * @param xf The world transform of the shape.
      * @param childIndex The child shape
      */
-    public abstract ComputeAABB(aabb: b2AABB, xf: b2Transform, childIndex: number): void;
+    public abstract ComputeAABB(aabb: AABB, xf: Transform, childIndex: number): void;
 
     /**
      * Compute the mass properties of this shape using its dimensions and density.
@@ -132,10 +132,10 @@ export abstract class b2Shape {
      * @param massData Returns the mass data for this shape.
      * @param density The density in kilograms per meter squared.
      */
-    public abstract ComputeMass(massData: b2MassData, density: number): void;
+    public abstract ComputeMass(massData: MassData, density: number): void;
 
     // Fixme: check the logic of the implementations. Seems strange
-    public abstract SetupDistanceProxy(proxy: b2DistanceProxy, index: number): void;
+    public abstract SetupDistanceProxy(proxy: DistanceProxy, index: number): void;
 
-    public abstract Draw(draw: b2Draw, color: b2Color): void;
+    public abstract Draw(draw: Draw, color: Color): void;
 }

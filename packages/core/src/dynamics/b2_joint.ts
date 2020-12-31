@@ -20,30 +20,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { b2Assert } from "../common/b2_common";
-import { b2Draw, debugColors } from "../common/b2_draw";
-import { b2Vec2, XY } from "../common/b2_math";
-import type { b2Body } from "./b2_body";
-import { b2SolverData } from "./b2_time_step";
+// DEBUG: import { Assert } from "../common/b2_common";
+import { Draw, debugColors } from "../common/b2_draw";
+import { Vec2, XY } from "../common/b2_math";
+import type { Body } from "./b2_body";
+import { SolverData } from "./b2_time_step";
 
 const temp = {
-    pA: new b2Vec2(),
-    pB: new b2Vec2(),
+    pA: new Vec2(),
+    pB: new Vec2(),
 };
 
-export enum b2JointType {
-    e_unknownJoint,
-    e_revoluteJoint,
-    e_prismaticJoint,
-    e_distanceJoint,
-    e_pulleyJoint,
-    e_mouseJoint,
-    e_gearJoint,
-    e_wheelJoint,
-    e_weldJoint,
-    e_frictionJoint,
-    e_motorJoint,
-    e_areaJoint,
+export enum JointType {
+    Unknown,
+    Revolute,
+    Prismatic,
+    Distance,
+    Pulley,
+    Mouse,
+    Gear,
+    Wheel,
+    Weld,
+    Friction,
+    Motor,
+    Area,
 }
 
 /**
@@ -53,20 +53,20 @@ export enum b2JointType {
  * maintained in each attached body. Each joint has two joint
  * nodes, one for each attached body.
  */
-export class b2JointEdge {
+export class JointEdge {
     /** Provides quick access to the other body attached. */
-    public readonly other: b2Body;
+    public readonly other: Body;
 
     /** The joint */
-    public readonly joint: b2Joint;
+    public readonly joint: Joint;
 
     /** The previous joint edge in the body's joint list */
-    public prev: b2JointEdge | null = null;
+    public prev: JointEdge | null = null;
 
     /** The next joint edge in the body's joint list */
-    public next: b2JointEdge | null = null;
+    public next: JointEdge | null = null;
 
-    public constructor(joint: b2Joint, other: b2Body) {
+    public constructor(joint: Joint, other: Body) {
         this.joint = joint;
         this.other = other;
     }
@@ -75,18 +75,18 @@ export class b2JointEdge {
 /**
  * Joint definitions are used to construct joints.
  */
-export interface b2IJointDef {
+export interface IJointDef {
     /** The joint type is set automatically for concrete joint types. */
-    type: b2JointType;
+    type: JointType;
 
     /** Use this to attach application specific data to your joints. */
     userData?: any;
 
     /** The first attached body. */
-    bodyA: b2Body;
+    bodyA: Body;
 
     /** The second attached body. */
-    bodyB: b2Body;
+    bodyB: Body;
 
     /** Set this flag to true if the attached bodies should collide. */
     collideConnected?: boolean;
@@ -95,23 +95,23 @@ export interface b2IJointDef {
 /**
  * Joint definitions are used to construct joints.
  */
-export abstract class b2JointDef implements b2IJointDef {
+export abstract class JointDef implements IJointDef {
     /** The joint type is set automatically for concrete joint types. */
-    public readonly type: b2JointType;
+    public readonly type: JointType;
 
     /** Use this to attach application specific data to your joints. */
     public userData: any = null;
 
     /** The first attached body. */
-    public bodyA!: b2Body;
+    public bodyA!: Body;
 
     /** The second attached body. */
-    public bodyB!: b2Body;
+    public bodyB!: Body;
 
     /** Set this flag to true if the attached bodies should collide. */
     public collideConnected = false;
 
-    public constructor(type: b2JointType) {
+    public constructor(type: JointType) {
         this.type = type;
     }
 }
@@ -119,12 +119,12 @@ export abstract class b2JointDef implements b2IJointDef {
 /**
  * Utility to compute linear stiffness values from frequency and damping ratio
  */
-export function b2LinearStiffness(
+export function LinearStiffness(
     def: { stiffness: number; damping: number },
     frequencyHertz: number,
     dampingRatio: number,
-    bodyA: b2Body,
-    bodyB: b2Body,
+    bodyA: Body,
+    bodyB: Body,
 ): void {
     const massA = bodyA.GetMass();
     const massB = bodyB.GetMass();
@@ -145,12 +145,12 @@ export function b2LinearStiffness(
 /**
  * Utility to compute rotational stiffness values frequency and damping ratio
  */
-export function b2AngularStiffness(
+export function AngularStiffness(
     def: { stiffness: number; damping: number },
     frequencyHertz: number,
     dampingRatio: number,
-    bodyA: b2Body,
-    bodyB: b2Body,
+    bodyA: Body,
+    bodyB: Body,
 ): void {
     const IA = bodyA.GetInertia();
     const IB = bodyB.GetInertia();
@@ -172,26 +172,26 @@ export function b2AngularStiffness(
  * The base joint class. Joints are used to constraint two bodies together in
  * various fashions. Some joints also feature limits and motors.
  */
-export abstract class b2Joint {
-    protected readonly m_type: b2JointType = b2JointType.e_unknownJoint;
+export abstract class Joint {
+    protected readonly m_type: JointType = JointType.Unknown;
 
     /** @internal protected */
-    public m_prev: b2Joint | null = null;
+    public m_prev: Joint | null = null;
 
     /** @internal protected */
-    public m_next: b2Joint | null = null;
+    public m_next: Joint | null = null;
 
     /** @internal protected */
-    public readonly m_edgeA: b2JointEdge;
+    public readonly m_edgeA: JointEdge;
 
     /** @internal protected */
-    public readonly m_edgeB: b2JointEdge;
+    public readonly m_edgeB: JointEdge;
 
     /** @internal protected */
-    public m_bodyA: b2Body;
+    public m_bodyA: Body;
 
     /** @internal protected */
-    public m_bodyB: b2Body;
+    public m_bodyB: Body;
 
     /** @internal protected */
     public m_islandFlag = false;
@@ -201,12 +201,12 @@ export abstract class b2Joint {
 
     protected m_userData: any = null;
 
-    protected constructor(def: b2IJointDef) {
-        // DEBUG: b2Assert(def.bodyA !== def.bodyB);
+    protected constructor(def: IJointDef) {
+        // DEBUG: Assert(def.bodyA !== def.bodyB);
 
         this.m_type = def.type;
-        this.m_edgeA = new b2JointEdge(this, def.bodyB);
-        this.m_edgeB = new b2JointEdge(this, def.bodyA);
+        this.m_edgeA = new JointEdge(this, def.bodyB);
+        this.m_edgeB = new JointEdge(this, def.bodyA);
         this.m_bodyA = def.bodyA;
         this.m_bodyB = def.bodyB;
 
@@ -218,21 +218,21 @@ export abstract class b2Joint {
     /**
      * Get the type of the concrete joint.
      */
-    public GetType(): b2JointType {
+    public GetType(): JointType {
         return this.m_type;
     }
 
     /**
      * Get the first body attached to this joint.
      */
-    public GetBodyA(): b2Body {
+    public GetBodyA(): Body {
         return this.m_bodyA;
     }
 
     /**
      * Get the second body attached to this joint.
      */
-    public GetBodyB(): b2Body {
+    public GetBodyB(): Body {
         return this.m_bodyB;
     }
 
@@ -259,7 +259,7 @@ export abstract class b2Joint {
     /**
      * Get the next joint the world joint list.
      */
-    public GetNext(): b2Joint | null {
+    public GetNext(): Joint | null {
         return this.m_next;
     }
 
@@ -299,19 +299,19 @@ export abstract class b2Joint {
     public ShiftOrigin(_newOrigin: XY): void {}
 
     /** @internal protected */
-    public abstract InitVelocityConstraints(data: b2SolverData): void;
+    public abstract InitVelocityConstraints(data: SolverData): void;
 
     /** @internal protected */
-    public abstract SolveVelocityConstraints(data: b2SolverData): void;
+    public abstract SolveVelocityConstraints(data: SolverData): void;
 
     /**
      * This returns true if the position errors are within tolerance.
      *
      * @internal protected
      */
-    public abstract SolvePositionConstraints(data: b2SolverData): boolean;
+    public abstract SolvePositionConstraints(data: SolverData): boolean;
 
-    public Draw(draw: b2Draw): void {
+    public Draw(draw: Draw): void {
         const x1 = this.m_bodyA.GetTransform().p;
         const x2 = this.m_bodyB.GetTransform().p;
         const p1 = this.GetAnchorA(temp.pA);

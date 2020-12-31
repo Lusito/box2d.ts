@@ -27,10 +27,10 @@
  * You can use this to change the length scale used by your game.
  * For example for inches you could use 39.4.
  */
-export const b2_lengthUnitsPerMeter = 1;
+export const LENGTH_UNITS_PER_METER = 1;
 
 /**
  * The maximum number of vertices on a convex polygon. You cannot increase
- * this too much because b2BlockAllocator has a maximum object size.
+ * this too much because BlockAllocator has a maximum object size.
  */
-export const b2_maxPolygonVertices = 8;
+export const MAX_POLYGON_VERTICES = 8;

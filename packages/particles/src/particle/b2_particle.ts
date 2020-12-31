@@ -16,134 +16,134 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { XY, RGBA, b2Vec2, b2Clamp, b2Color } from "@box2d/core";
+import { XY, RGBA, Vec2, Clamp, Color } from "@box2d/core";
 
 import { b2_invalidParticleIndex } from "./b2_settings";
-import type { b2ParticleGroup } from "./b2_particle_group";
+import type { ParticleGroup } from "./b2_particle_group";
 
 /**
  * The particle type. Can be combined with the | operator.
  */
-export enum b2ParticleFlag {
+export enum ParticleFlag {
     /**
      * Water particle.
      */
-    b2_waterParticle = 0,
+    Water = 0,
     /**
      * Removed after next simulation step.
      */
-    b2_zombieParticle = 1 << 1,
+    Zombie = 1 << 1,
     /**
      * Zero velocity.
      */
-    b2_wallParticle = 1 << 2,
+    Wall = 1 << 2,
     /**
      * With restitution from stretching.
      */
-    b2_springParticle = 1 << 3,
+    Spring = 1 << 3,
     /**
      * With restitution from deformation.
      */
-    b2_elasticParticle = 1 << 4,
+    Elastic = 1 << 4,
     /**
      * With viscosity.
      */
-    b2_viscousParticle = 1 << 5,
+    Viscous = 1 << 5,
     /**
      * Without isotropic pressure.
      */
-    b2_powderParticle = 1 << 6,
+    Powder = 1 << 6,
     /**
      * With surface tension.
      */
-    b2_tensileParticle = 1 << 7,
+    Tensile = 1 << 7,
     /**
      * Mix color between contacting particles.
      */
-    b2_colorMixingParticle = 1 << 8,
+    ColorMixing = 1 << 8,
     /**
-     * Call b2DestructionListener on destruction.
+     * Call DestructionListener on destruction.
      */
-    b2_destructionListenerParticle = 1 << 9,
+    DestructionListener = 1 << 9,
     /**
      * Prevents other particles from leaking.
      */
-    b2_barrierParticle = 1 << 10,
+    Barrier = 1 << 10,
     /**
      * Less compressibility.
      */
-    b2_staticPressureParticle = 1 << 11,
+    StaticPressure = 1 << 11,
     /**
      * Makes pairs or triads with other particles.
      */
-    b2_reactiveParticle = 1 << 12,
+    Reactive = 1 << 12,
     /**
      * With high repulsive force.
      */
-    b2_repulsiveParticle = 1 << 13,
+    Repulsive = 1 << 13,
     /**
-     * Call b2ContactListener when this particle is about to interact with
+     * Call ContactListener when this particle is about to interact with
      * a rigid body or stops interacting with a rigid body.
      * This results in an expensive operation compared to using
-     * b2_fixtureContactFilterParticle to detect collisions between
+     * FixtureContactFilter to detect collisions between
      * particles.
      */
-    b2_fixtureContactListenerParticle = 1 << 14,
+    FixtureContactListener = 1 << 14,
     /**
-     * Call b2ContactListener when this particle is about to interact with
+     * Call ContactListener when this particle is about to interact with
      * another particle or stops interacting with another particle.
      * This results in an expensive operation compared to using
-     * b2_particleContactFilterParticle to detect collisions between
+     * ParticleContactFilter to detect collisions between
      * particles.
      */
-    b2_particleContactListenerParticle = 1 << 15,
+    ParticleContactListener = 1 << 15,
     /**
-     * Call b2ContactFilter when this particle interacts with rigid bodies.
+     * Call ContactFilter when this particle interacts with rigid bodies.
      */
-    b2_fixtureContactFilterParticle = 1 << 16,
+    FixtureContactFilter = 1 << 16,
     /**
-     * Call b2ContactFilter when this particle interacts with other
+     * Call ContactFilter when this particle interacts with other
      * particles.
      */
-    b2_particleContactFilterParticle = 1 << 17,
+    ParticleContactFilter = 1 << 17,
 }
 
-export interface b2IParticleDef {
-    flags?: b2ParticleFlag;
+export interface IParticleDef {
+    flags?: ParticleFlag;
     position?: XY;
     velocity?: XY;
     color?: RGBA;
     lifetime?: number;
     userData?: any;
-    group?: b2ParticleGroup | null;
+    group?: ParticleGroup | null;
 }
 
-export class b2ParticleDef implements b2IParticleDef {
-    public flags: b2ParticleFlag = 0;
+export class ParticleDef implements IParticleDef {
+    public flags: ParticleFlag = 0;
 
-    public readonly position = new b2Vec2();
+    public readonly position = new Vec2();
 
-    public readonly velocity = new b2Vec2();
+    public readonly velocity = new Vec2();
 
-    public readonly color = new b2Color(0, 0, 0, 0);
+    public readonly color = new Color(0, 0, 0, 0);
 
     public lifetime = 0;
 
     public userData: any = null;
 
-    public group: b2ParticleGroup | null = null;
+    public group: ParticleGroup | null = null;
 }
 
-export function b2CalculateParticleIterations(gravity: number, radius: number, timeStep: number): number {
+export function CalculateParticleIterations(gravity: number, radius: number, timeStep: number): number {
     // In some situations you may want more particle iterations than this,
     // but to avoid excessive cycle cost, don't recommend more than this.
     const B2_MAX_RECOMMENDED_PARTICLE_ITERATIONS = 8;
     const B2_RADIUS_THRESHOLD = 0.01;
     const iterations = Math.ceil(Math.sqrt(gravity / (B2_RADIUS_THRESHOLD * radius)) * timeStep);
-    return b2Clamp(iterations, 1, B2_MAX_RECOMMENDED_PARTICLE_ITERATIONS);
+    return Clamp(iterations, 1, B2_MAX_RECOMMENDED_PARTICLE_ITERATIONS);
 }
 
-export class b2ParticleHandle {
+export class ParticleHandle {
     public m_index = b2_invalidParticleIndex;
 
     public GetIndex(): number {

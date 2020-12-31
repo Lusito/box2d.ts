@@ -16,13 +16,13 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2EdgeShape, b2Vec2, b2PolygonShape, b2FixtureDef, b2RevoluteJointDef, b2BodyType } from "@box2d/core";
+import { EdgeShape, Vec2, PolygonShape, FixtureDef, RevoluteJointDef, BodyType } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
 const TEST_BAD_BODY = false;
 
-class Chain extends Test {
+class ChainTest extends Test {
     public constructor() {
         super();
 
@@ -31,29 +31,29 @@ class Chain extends Test {
         {
             ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.CreateFixture({ shape });
         }
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.6, 0.125);
 
-            const fd: b2FixtureDef = {
+            const fd: FixtureDef = {
                 shape,
                 density: 20,
                 friction: 0.2,
             };
 
-            const jd = new b2RevoluteJointDef();
+            const jd = new RevoluteJointDef();
             jd.collideConnected = false;
 
             const y = 25;
             let prevBody = ground;
             for (let i = 0; i < 30; ++i) {
                 const body = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
                     position: { x: 0.5 + i, y },
                 });
 
@@ -68,7 +68,7 @@ class Chain extends Test {
 
                 body.CreateFixture(fd);
 
-                const anchor = new b2Vec2(i, y);
+                const anchor = new Vec2(i, y);
                 jd.Initialize(prevBody, body, anchor);
                 this.m_world.CreateJoint(jd);
 
@@ -78,4 +78,4 @@ class Chain extends Test {
     }
 }
 
-registerTest("Joints", "Chain", Chain);
+registerTest("Joints", "Chain", ChainTest);

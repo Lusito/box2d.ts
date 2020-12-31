@@ -20,17 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { b2Assert } from "../common/b2_common";
-import { b2_epsilon, b2_epsilon_sq, b2_polygonRadius, b2_linearSlop, b2MakeArray } from "../common/b2_common";
-import { b2Vec2, b2Rot, b2Transform } from "../common/b2_math";
-import type { b2Shape } from "./b2_shape";
+// DEBUG: import { Assert } from "../common/b2_common";
+import { EPSILON, EPSILON_SQUARED, POLYGON_RADIUS, LINEAR_SLOP, MakeArray } from "../common/b2_common";
+import { Vec2, Rot, Transform } from "../common/b2_math";
+import type { Shape } from "./b2_shape";
 
 /**
  * A distance proxy is used by the GJK algorithm.
  * It encapsulates any shape.
  */
-export class b2DistanceProxy {
-    public readonly m_buffer = b2MakeArray(2, b2Vec2);
+export class DistanceProxy {
+    public readonly m_buffer = MakeArray(2, Vec2);
 
     public m_vertices = this.m_buffer;
 
@@ -38,7 +38,7 @@ export class b2DistanceProxy {
 
     public m_radius = 0;
 
-    public Copy(other: Readonly<b2DistanceProxy>) {
+    public Copy(other: Readonly<DistanceProxy>) {
         if (other.m_vertices === other.m_buffer) {
             this.m_vertices = this.m_buffer;
             this.m_buffer[0].Copy(other.m_buffer[0]);
@@ -51,28 +51,28 @@ export class b2DistanceProxy {
         return this;
     }
 
-    public Reset(): b2DistanceProxy {
+    public Reset(): DistanceProxy {
         this.m_vertices = this.m_buffer;
         this.m_count = 0;
         this.m_radius = 0;
         return this;
     }
 
-    public SetShape(shape: b2Shape, index: number): void {
+    public SetShape(shape: Shape, index: number): void {
         shape.SetupDistanceProxy(this, index);
     }
 
-    public SetVerticesRadius(vertices: b2Vec2[], count: number, radius: number): void {
+    public SetVerticesRadius(vertices: Vec2[], count: number, radius: number): void {
         this.m_vertices = vertices;
         this.m_count = count;
         this.m_radius = radius;
     }
 
-    public GetSupport(d: b2Vec2): number {
+    public GetSupport(d: Vec2): number {
         let bestIndex = 0;
-        let bestValue = b2Vec2.Dot(this.m_vertices[0], d);
+        let bestValue = Vec2.Dot(this.m_vertices[0], d);
         for (let i = 1; i < this.m_count; ++i) {
-            const value = b2Vec2.Dot(this.m_vertices[i], d);
+            const value = Vec2.Dot(this.m_vertices[i], d);
             if (value > bestValue) {
                 bestIndex = i;
                 bestValue = value;
@@ -82,11 +82,11 @@ export class b2DistanceProxy {
         return bestIndex;
     }
 
-    public GetSupportVertex(d: b2Vec2): b2Vec2 {
+    public GetSupportVertex(d: Vec2): Vec2 {
         let bestIndex = 0;
-        let bestValue = b2Vec2.Dot(this.m_vertices[0], d);
+        let bestValue = Vec2.Dot(this.m_vertices[0], d);
         for (let i = 1; i < this.m_count; ++i) {
-            const value = b2Vec2.Dot(this.m_vertices[i], d);
+            const value = Vec2.Dot(this.m_vertices[i], d);
             if (value > bestValue) {
                 bestIndex = i;
                 bestValue = value;
@@ -100,17 +100,17 @@ export class b2DistanceProxy {
         return this.m_count;
     }
 
-    public GetVertex(index: number): b2Vec2 {
-        // DEBUG: b2Assert(0 <= index && index < this.m_count);
+    public GetVertex(index: number): Vec2 {
+        // DEBUG: Assert(0 <= index && index < this.m_count);
         return this.m_vertices[index];
     }
 }
 
 /**
- * Used to warm start b2Distance.
+ * Used to warm start Distance.
  * Set count to zero on first call.
  */
-export class b2SimplexCache {
+export class SimplexCache {
     /** Length or area */
     public metric = 0;
 
@@ -122,7 +122,7 @@ export class b2SimplexCache {
     /** Vertices on shape B */
     public readonly indexB: [number, number, number] = [0, 0, 0];
 
-    public Reset(): b2SimplexCache {
+    public Reset(): SimplexCache {
         this.metric = 0;
         this.count = 0;
         return this;
@@ -130,22 +130,22 @@ export class b2SimplexCache {
 }
 
 /**
- * Input for b2Distance.
+ * Input for Distance.
  * You have to option to use the shape radii
  * in the computation. Even
  */
-export class b2DistanceInput {
-    public readonly proxyA = new b2DistanceProxy();
+export class DistanceInput {
+    public readonly proxyA = new DistanceProxy();
 
-    public readonly proxyB = new b2DistanceProxy();
+    public readonly proxyB = new DistanceProxy();
 
-    public readonly transformA = new b2Transform();
+    public readonly transformA = new Transform();
 
-    public readonly transformB = new b2Transform();
+    public readonly transformB = new Transform();
 
     public useRadii = false;
 
-    public Reset(): b2DistanceInput {
+    public Reset(): DistanceInput {
         this.proxyA.Reset();
         this.proxyB.Reset();
         this.transformA.SetIdentity();
@@ -156,21 +156,21 @@ export class b2DistanceInput {
 }
 
 /**
- * Output for b2Distance.
+ * Output for Distance.
  */
-export class b2DistanceOutput {
+export class DistanceOutput {
     /** Closest point on shapeA */
-    public readonly pointA = new b2Vec2();
+    public readonly pointA = new Vec2();
 
     /** Closest point on shapeB */
-    public readonly pointB = new b2Vec2();
+    public readonly pointB = new Vec2();
 
     public distance = 0;
 
     /** Number of GJK iterations used */
     public iterations = 0;
 
-    public Reset(): b2DistanceOutput {
+    public Reset(): DistanceOutput {
         this.pointA.SetZero();
         this.pointB.SetZero();
         this.distance = 0;
@@ -180,34 +180,34 @@ export class b2DistanceOutput {
 }
 
 /**
- * Input parameters for b2ShapeCast
+ * Input parameters for ShapeCast
  */
-export class b2ShapeCastInput {
-    public readonly proxyA = new b2DistanceProxy();
+export class ShapeCastInput {
+    public readonly proxyA = new DistanceProxy();
 
-    public readonly proxyB = new b2DistanceProxy();
+    public readonly proxyB = new DistanceProxy();
 
-    public readonly transformA = new b2Transform();
+    public readonly transformA = new Transform();
 
-    public readonly transformB = new b2Transform();
+    public readonly transformB = new Transform();
 
-    public readonly translationB = new b2Vec2();
+    public readonly translationB = new Vec2();
 }
 
 /**
- * Output results for b2ShapeCast
+ * Output results for ShapeCast
  */
-export class b2ShapeCastOutput {
-    public readonly point = new b2Vec2();
+export class ShapeCastOutput {
+    public readonly point = new Vec2();
 
-    public readonly normal = new b2Vec2();
+    public readonly normal = new Vec2();
 
     public lambda = 0;
 
     public iterations = 0;
 }
 
-export const b2Gjk = {
+export const Gjk = {
     calls: 0,
     iters: 0,
     maxIters: 0,
@@ -218,12 +218,12 @@ export const b2Gjk = {
     },
 };
 
-class b2SimplexVertex {
-    public readonly wA = new b2Vec2(); // support point in proxyA
+class SimplexVertex {
+    public readonly wA = new Vec2(); // support point in proxyA
 
-    public readonly wB = new b2Vec2(); // support point in proxyB
+    public readonly wB = new Vec2(); // support point in proxyB
 
-    public readonly w = new b2Vec2(); // wB - wA
+    public readonly w = new Vec2(); // wB - wA
 
     public a = 0; // barycentric coordinate for closest point
 
@@ -231,7 +231,7 @@ class b2SimplexVertex {
 
     public indexB = 0; // wB index
 
-    public Copy(other: b2SimplexVertex): b2SimplexVertex {
+    public Copy(other: SimplexVertex): SimplexVertex {
         this.wA.Copy(other.wA); // support point in proxyA
         this.wB.Copy(other.wB); // support point in proxyB
         this.w.Copy(other.w); // wB - wA
@@ -242,14 +242,14 @@ class b2SimplexVertex {
     }
 }
 
-class b2Simplex {
-    public readonly m_v1 = new b2SimplexVertex();
+class Simplex {
+    public readonly m_v1 = new SimplexVertex();
 
-    public readonly m_v2 = new b2SimplexVertex();
+    public readonly m_v2 = new SimplexVertex();
 
-    public readonly m_v3 = new b2SimplexVertex();
+    public readonly m_v3 = new SimplexVertex();
 
-    public readonly m_vertices: [b2SimplexVertex, b2SimplexVertex, b2SimplexVertex];
+    public readonly m_vertices: [SimplexVertex, SimplexVertex, SimplexVertex];
 
     public m_count = 0;
 
@@ -258,13 +258,13 @@ class b2Simplex {
     }
 
     public ReadCache(
-        cache: b2SimplexCache,
-        proxyA: b2DistanceProxy,
-        transformA: b2Transform,
-        proxyB: b2DistanceProxy,
-        transformB: b2Transform,
+        cache: SimplexCache,
+        proxyA: DistanceProxy,
+        transformA: Transform,
+        proxyB: DistanceProxy,
+        transformB: Transform,
     ): void {
-        // DEBUG: b2Assert(cache.count <= 3);
+        // DEBUG: Assert(cache.count <= 3);
 
         // Copy data from cache.
         this.m_count = cache.count;
@@ -275,9 +275,9 @@ class b2Simplex {
             v.indexB = cache.indexB[i];
             const wALocal = proxyA.GetVertex(v.indexA);
             const wBLocal = proxyB.GetVertex(v.indexB);
-            b2Transform.MultiplyVec2(transformA, wALocal, v.wA);
-            b2Transform.MultiplyVec2(transformB, wBLocal, v.wB);
-            b2Vec2.Subtract(v.wB, v.wA, v.w);
+            Transform.MultiplyVec2(transformA, wALocal, v.wA);
+            Transform.MultiplyVec2(transformB, wBLocal, v.wB);
+            Vec2.Subtract(v.wB, v.wA, v.w);
             v.a = 0;
         }
 
@@ -286,7 +286,7 @@ class b2Simplex {
         if (this.m_count > 1) {
             const metric1 = cache.metric;
             const metric2 = this.GetMetric();
-            if (metric2 < 0.5 * metric1 || 2 * metric1 < metric2 || metric2 < b2_epsilon) {
+            if (metric2 < 0.5 * metric1 || 2 * metric1 < metric2 || metric2 < EPSILON) {
                 // Reset the simplex.
                 this.m_count = 0;
             }
@@ -299,15 +299,15 @@ class b2Simplex {
             v.indexB = 0;
             const wALocal = proxyA.GetVertex(0);
             const wBLocal = proxyB.GetVertex(0);
-            b2Transform.MultiplyVec2(transformA, wALocal, v.wA);
-            b2Transform.MultiplyVec2(transformB, wBLocal, v.wB);
-            b2Vec2.Subtract(v.wB, v.wA, v.w);
+            Transform.MultiplyVec2(transformA, wALocal, v.wA);
+            Transform.MultiplyVec2(transformB, wBLocal, v.wB);
+            Vec2.Subtract(v.wB, v.wA, v.w);
             v.a = 1;
             this.m_count = 1;
         }
     }
 
-    public WriteCache(cache: b2SimplexCache): void {
+    public WriteCache(cache: SimplexCache): void {
         cache.metric = this.GetMetric();
         cache.count = this.m_count;
         const vertices = this.m_vertices;
@@ -317,32 +317,32 @@ class b2Simplex {
         }
     }
 
-    public GetSearchDirection(out: b2Vec2): b2Vec2 {
+    public GetSearchDirection(out: Vec2): Vec2 {
         switch (this.m_count) {
             case 1:
-                return b2Vec2.Negate(this.m_v1.w, out);
+                return Vec2.Negate(this.m_v1.w, out);
 
             case 2: {
-                const e12 = b2Vec2.Subtract(this.m_v2.w, this.m_v1.w, out);
-                const sgn = b2Vec2.Cross(e12, b2Vec2.Negate(this.m_v1.w, b2Vec2.s_t0));
+                const e12 = Vec2.Subtract(this.m_v2.w, this.m_v1.w, out);
+                const sgn = Vec2.Cross(e12, Vec2.Negate(this.m_v1.w, Vec2.s_t0));
                 if (sgn > 0) {
                     // Origin is left of e12.
-                    return b2Vec2.CrossOneVec2(e12, out);
+                    return Vec2.CrossOneVec2(e12, out);
                 }
                 // Origin is right of e12.
-                return b2Vec2.CrossVec2One(e12, out);
+                return Vec2.CrossVec2One(e12, out);
             }
 
             default:
-                // DEBUG: b2Assert(false);
+                // DEBUG: Assert(false);
                 return out.SetZero();
         }
     }
 
-    public GetClosestPoint(out: b2Vec2): b2Vec2 {
+    public GetClosestPoint(out: Vec2): Vec2 {
         switch (this.m_count) {
             case 0:
-                // DEBUG: b2Assert(false);
+                // DEBUG: Assert(false);
                 return out.SetZero();
 
             case 1:
@@ -358,15 +358,15 @@ class b2Simplex {
                 return out.SetZero();
 
             default:
-                // DEBUG: b2Assert(false);
+                // DEBUG: Assert(false);
                 return out.SetZero();
         }
     }
 
-    public GetWitnessPoints(pA: b2Vec2, pB: b2Vec2): void {
+    public GetWitnessPoints(pA: Vec2, pB: Vec2): void {
         switch (this.m_count) {
             case 0:
-                // DEBUG: b2Assert(false);
+                // DEBUG: Assert(false);
                 break;
 
             case 1:
@@ -389,7 +389,7 @@ class b2Simplex {
                 break;
 
             default:
-                // DEBUG: b2Assert(false);
+                // DEBUG: Assert(false);
                 break;
         }
     }
@@ -397,23 +397,23 @@ class b2Simplex {
     public GetMetric(): number {
         switch (this.m_count) {
             case 0:
-                // DEBUG: b2Assert(false);
+                // DEBUG: Assert(false);
                 return 0;
 
             case 1:
                 return 0;
 
             case 2:
-                return b2Vec2.Distance(this.m_v1.w, this.m_v2.w);
+                return Vec2.Distance(this.m_v1.w, this.m_v2.w);
 
             case 3:
-                return b2Vec2.Cross(
-                    b2Vec2.Subtract(this.m_v2.w, this.m_v1.w, b2Vec2.s_t0),
-                    b2Vec2.Subtract(this.m_v3.w, this.m_v1.w, b2Vec2.s_t1),
+                return Vec2.Cross(
+                    Vec2.Subtract(this.m_v2.w, this.m_v1.w, Vec2.s_t0),
+                    Vec2.Subtract(this.m_v3.w, this.m_v1.w, Vec2.s_t1),
                 );
 
             default:
-                // DEBUG: b2Assert(false);
+                // DEBUG: Assert(false);
                 return 0;
         }
     }
@@ -421,10 +421,10 @@ class b2Simplex {
     public Solve2(): void {
         const w1 = this.m_v1.w;
         const w2 = this.m_v2.w;
-        const e12 = b2Vec2.Subtract(w2, w1, b2Simplex.s_e12);
+        const e12 = Vec2.Subtract(w2, w1, Simplex.s_e12);
 
         // w1 region
-        const d12_2 = -b2Vec2.Dot(w1, e12);
+        const d12_2 = -Vec2.Dot(w1, e12);
         if (d12_2 <= 0) {
             // a2 <= 0, so we clamp it to 0
             this.m_v1.a = 1;
@@ -433,7 +433,7 @@ class b2Simplex {
         }
 
         // w2 region
-        const d12_1 = b2Vec2.Dot(w2, e12);
+        const d12_1 = Vec2.Dot(w2, e12);
         if (d12_1 <= 0) {
             // a1 <= 0, so we clamp it to 0
             this.m_v2.a = 1;
@@ -458,9 +458,9 @@ class b2Simplex {
         // [1      1     ][a1] = [1]
         // [w1.e12 w2.e12][a2] = [0]
         // a3 = 0
-        const e12 = b2Vec2.Subtract(w2, w1, b2Simplex.s_e12);
-        const w1e12 = b2Vec2.Dot(w1, e12);
-        const w2e12 = b2Vec2.Dot(w2, e12);
+        const e12 = Vec2.Subtract(w2, w1, Simplex.s_e12);
+        const w1e12 = Vec2.Dot(w1, e12);
+        const w2e12 = Vec2.Dot(w2, e12);
         const d12_1 = w2e12;
         const d12_2 = -w1e12;
 
@@ -468,9 +468,9 @@ class b2Simplex {
         // [1      1     ][a1] = [1]
         // [w1.e13 w3.e13][a3] = [0]
         // a2 = 0
-        const e13 = b2Vec2.Subtract(w3, w1, b2Simplex.s_e13);
-        const w1e13 = b2Vec2.Dot(w1, e13);
-        const w3e13 = b2Vec2.Dot(w3, e13);
+        const e13 = Vec2.Subtract(w3, w1, Simplex.s_e13);
+        const w1e13 = Vec2.Dot(w1, e13);
+        const w3e13 = Vec2.Dot(w3, e13);
         const d13_1 = w3e13;
         const d13_2 = -w1e13;
 
@@ -478,18 +478,18 @@ class b2Simplex {
         // [1      1     ][a2] = [1]
         // [w2.e23 w3.e23][a3] = [0]
         // a1 = 0
-        const e23 = b2Vec2.Subtract(w3, w2, b2Simplex.s_e23);
-        const w2e23 = b2Vec2.Dot(w2, e23);
-        const w3e23 = b2Vec2.Dot(w3, e23);
+        const e23 = Vec2.Subtract(w3, w2, Simplex.s_e23);
+        const w2e23 = Vec2.Dot(w2, e23);
+        const w3e23 = Vec2.Dot(w3, e23);
         const d23_1 = w3e23;
         const d23_2 = -w2e23;
 
         // Triangle123
-        const n123 = b2Vec2.Cross(e12, e13);
+        const n123 = Vec2.Cross(e12, e13);
 
-        const d123_1 = n123 * b2Vec2.Cross(w2, w3);
-        const d123_2 = n123 * b2Vec2.Cross(w3, w1);
-        const d123_3 = n123 * b2Vec2.Cross(w1, w2);
+        const d123_1 = n123 * Vec2.Cross(w2, w3);
+        const d123_2 = n123 * Vec2.Cross(w3, w1);
+        const d123_3 = n123 * Vec2.Cross(w1, w2);
 
         // w1 region
         if (d12_2 <= 0 && d13_2 <= 0) {
@@ -551,28 +551,28 @@ class b2Simplex {
         this.m_count = 3;
     }
 
-    private static s_e12 = new b2Vec2();
+    private static s_e12 = new Vec2();
 
-    private static s_e13 = new b2Vec2();
+    private static s_e13 = new Vec2();
 
-    private static s_e23 = new b2Vec2();
+    private static s_e23 = new Vec2();
 }
 
-const b2Distance_s_simplex = new b2Simplex();
-const b2Distance_s_saveA: [number, number, number] = [0, 0, 0];
-const b2Distance_s_saveB: [number, number, number] = [0, 0, 0];
-const b2Distance_s_p = new b2Vec2();
-const b2Distance_s_d = new b2Vec2();
-const b2Distance_s_normal = new b2Vec2();
-const b2Distance_s_supportA = new b2Vec2();
-const b2Distance_s_supportB = new b2Vec2();
-export function b2Distance(output: b2DistanceOutput, cache: b2SimplexCache, input: b2DistanceInput): void {
-    ++b2Gjk.calls;
+const Distance_s_simplex = new Simplex();
+const Distance_s_saveA: [number, number, number] = [0, 0, 0];
+const Distance_s_saveB: [number, number, number] = [0, 0, 0];
+const Distance_s_p = new Vec2();
+const Distance_s_d = new Vec2();
+const Distance_s_normal = new Vec2();
+const Distance_s_supportA = new Vec2();
+const Distance_s_supportB = new Vec2();
+export function Distance(output: DistanceOutput, cache: SimplexCache, input: DistanceInput): void {
+    ++Gjk.calls;
 
     const { proxyA, proxyB, transformA, transformB } = input;
 
     // Initialize the simplex.
-    const simplex = b2Distance_s_simplex;
+    const simplex = Distance_s_simplex;
     simplex.ReadCache(cache, proxyA, transformA, proxyB, transformB);
 
     // Get simplex vertices as an array.
@@ -581,8 +581,8 @@ export function b2Distance(output: b2DistanceOutput, cache: b2SimplexCache, inpu
 
     // These store the vertices of the last simplex so that we
     // can check for duplicates and prevent cycling.
-    const saveA = b2Distance_s_saveA;
-    const saveB = b2Distance_s_saveB;
+    const saveA = Distance_s_saveA;
+    const saveB = Distance_s_saveB;
     let saveCount = 0;
 
     // Main iteration loop.
@@ -608,7 +608,7 @@ export function b2Distance(output: b2DistanceOutput, cache: b2SimplexCache, inpu
                 break;
 
             // DEBUG: default:
-            // DEBUG: b2Assert(false);
+            // DEBUG: Assert(false);
         }
 
         // If we have 3 points, then the origin is in the corresponding triangle.
@@ -617,10 +617,10 @@ export function b2Distance(output: b2DistanceOutput, cache: b2SimplexCache, inpu
         }
 
         // Get search direction.
-        const d = simplex.GetSearchDirection(b2Distance_s_d);
+        const d = simplex.GetSearchDirection(Distance_s_d);
 
         // Ensure the search direction is numerically fit.
-        if (d.LengthSquared() < b2_epsilon_sq) {
+        if (d.LengthSquared() < EPSILON_SQUARED) {
             // The origin is probably contained by a line segment
             // or triangle. Thus the shapes are overlapped.
 
@@ -633,16 +633,16 @@ export function b2Distance(output: b2DistanceOutput, cache: b2SimplexCache, inpu
         // Compute a tentative new simplex vertex using support points.
         const vertex = vertices[simplex.m_count];
         vertex.indexA = proxyA.GetSupport(
-            b2Rot.TransposeMultiplyVec2(transformA.q, b2Vec2.Negate(d, b2Vec2.s_t0), b2Distance_s_supportA),
+            Rot.TransposeMultiplyVec2(transformA.q, Vec2.Negate(d, Vec2.s_t0), Distance_s_supportA),
         );
-        b2Transform.MultiplyVec2(transformA, proxyA.GetVertex(vertex.indexA), vertex.wA);
-        vertex.indexB = proxyB.GetSupport(b2Rot.TransposeMultiplyVec2(transformB.q, d, b2Distance_s_supportB));
-        b2Transform.MultiplyVec2(transformB, proxyB.GetVertex(vertex.indexB), vertex.wB);
-        b2Vec2.Subtract(vertex.wB, vertex.wA, vertex.w);
+        Transform.MultiplyVec2(transformA, proxyA.GetVertex(vertex.indexA), vertex.wA);
+        vertex.indexB = proxyB.GetSupport(Rot.TransposeMultiplyVec2(transformB.q, d, Distance_s_supportB));
+        Transform.MultiplyVec2(transformB, proxyB.GetVertex(vertex.indexB), vertex.wB);
+        Vec2.Subtract(vertex.wB, vertex.wA, vertex.w);
 
         // Iteration count is equated to the number of support point calls.
         ++iter;
-        ++b2Gjk.iters;
+        ++Gjk.iters;
 
         // Check for duplicate support points. This is the main termination criteria.
         let duplicate = false;
@@ -662,11 +662,11 @@ export function b2Distance(output: b2DistanceOutput, cache: b2SimplexCache, inpu
         ++simplex.m_count;
     }
 
-    b2Gjk.maxIters = Math.max(b2Gjk.maxIters, iter);
+    Gjk.maxIters = Math.max(Gjk.maxIters, iter);
 
     // Prepare output.
     simplex.GetWitnessPoints(output.pointA, output.pointB);
-    output.distance = b2Vec2.Distance(output.pointA, output.pointB);
+    output.distance = Vec2.Distance(output.pointA, output.pointB);
     output.iterations = iter;
 
     // Cache the simplex.
@@ -677,18 +677,18 @@ export function b2Distance(output: b2DistanceOutput, cache: b2SimplexCache, inpu
         const rA = proxyA.m_radius;
         const rB = proxyB.m_radius;
 
-        if (output.distance > rA + rB && output.distance > b2_epsilon) {
+        if (output.distance > rA + rB && output.distance > EPSILON) {
             // Shapes are still no overlapped.
             // Move the witness points to the outer surface.
             output.distance -= rA + rB;
-            const normal = b2Vec2.Subtract(output.pointB, output.pointA, b2Distance_s_normal);
+            const normal = Vec2.Subtract(output.pointB, output.pointA, Distance_s_normal);
             normal.Normalize();
             output.pointA.AddScaled(rA, normal);
             output.pointB.SubtractScaled(rB, normal);
         } else {
             // Shapes are overlapped when radii are considered.
             // Move the witness points to the middle.
-            const p = b2Vec2.Mid(output.pointA, output.pointB, b2Distance_s_p);
+            const p = Vec2.Mid(output.pointA, output.pointB, Distance_s_p);
             output.pointA.Copy(p);
             output.pointB.Copy(p);
             output.distance = 0;
@@ -696,14 +696,14 @@ export function b2Distance(output: b2DistanceOutput, cache: b2SimplexCache, inpu
     }
 }
 
-const b2ShapeCast_s_n = new b2Vec2();
-const b2ShapeCast_s_simplex = new b2Simplex();
-const b2ShapeCast_s_wA = new b2Vec2();
-const b2ShapeCast_s_wB = new b2Vec2();
-const b2ShapeCast_s_v = new b2Vec2();
-const b2ShapeCast_s_p = new b2Vec2();
-const b2ShapeCast_s_pointA = new b2Vec2();
-const b2ShapeCast_s_pointB = new b2Vec2();
+const ShapeCast_s_n = new Vec2();
+const ShapeCast_s_simplex = new Simplex();
+const ShapeCast_s_wA = new Vec2();
+const ShapeCast_s_wB = new Vec2();
+const ShapeCast_s_v = new Vec2();
+const ShapeCast_s_p = new Vec2();
+const ShapeCast_s_pointA = new Vec2();
+const ShapeCast_s_pointB = new Vec2();
 
 /**
  * Perform a linear shape cast of shape B moving and shape A fixed. Determines the hit point, normal, and translation fraction.
@@ -711,7 +711,7 @@ const b2ShapeCast_s_pointB = new b2Vec2();
  * Algorithm by Gino van den Bergen.
  * "Smooth Mesh Contacts with GJK" in Game Physics Pearls. 2010
  */
-export function b2ShapeCast(output: b2ShapeCastOutput, input: b2ShapeCastInput): boolean {
+export function ShapeCast(output: ShapeCastOutput, input: ShapeCastInput): boolean {
     output.iterations = 0;
     output.lambda = 1;
     output.normal.SetZero();
@@ -719,57 +719,57 @@ export function b2ShapeCast(output: b2ShapeCastOutput, input: b2ShapeCastInput):
 
     const { proxyA, proxyB } = input;
 
-    const radiusA = Math.max(proxyA.m_radius, b2_polygonRadius);
-    const radiusB = Math.max(proxyB.m_radius, b2_polygonRadius);
+    const radiusA = Math.max(proxyA.m_radius, POLYGON_RADIUS);
+    const radiusB = Math.max(proxyB.m_radius, POLYGON_RADIUS);
     const radius = radiusA + radiusB;
 
     const xfA = input.transformA;
     const xfB = input.transformB;
 
     const r = input.translationB;
-    const n = b2ShapeCast_s_n.SetZero();
+    const n = ShapeCast_s_n.SetZero();
     let lambda = 0;
 
     // Initial simplex
-    const simplex = b2ShapeCast_s_simplex;
+    const simplex = ShapeCast_s_simplex;
     simplex.m_count = 0;
 
     // Get simplex vertices as an array.
-    // b2SimplexVertex* vertices = &simplex.m_v1;
+    // SimplexVertex* vertices = &simplex.m_v1;
     const vertices = simplex.m_vertices;
 
     // Get support point in -r direction
-    let indexA = proxyA.GetSupport(b2Rot.TransposeMultiplyVec2(xfA.q, b2Vec2.Negate(r, b2Vec2.s_t1), b2Vec2.s_t0));
-    let wA = b2Transform.MultiplyVec2(xfA, proxyA.GetVertex(indexA), b2ShapeCast_s_wA);
-    let indexB = proxyB.GetSupport(b2Rot.TransposeMultiplyVec2(xfB.q, r, b2Vec2.s_t0));
-    let wB = b2Transform.MultiplyVec2(xfB, proxyB.GetVertex(indexB), b2ShapeCast_s_wB);
-    const v = b2Vec2.Subtract(wA, wB, b2ShapeCast_s_v);
+    let indexA = proxyA.GetSupport(Rot.TransposeMultiplyVec2(xfA.q, Vec2.Negate(r, Vec2.s_t1), Vec2.s_t0));
+    let wA = Transform.MultiplyVec2(xfA, proxyA.GetVertex(indexA), ShapeCast_s_wA);
+    let indexB = proxyB.GetSupport(Rot.TransposeMultiplyVec2(xfB.q, r, Vec2.s_t0));
+    let wB = Transform.MultiplyVec2(xfB, proxyB.GetVertex(indexB), ShapeCast_s_wB);
+    const v = Vec2.Subtract(wA, wB, ShapeCast_s_v);
 
     // Sigma is the target distance between polygons
-    const sigma = Math.max(b2_polygonRadius, radius - b2_polygonRadius);
-    const tolerance = 0.5 * b2_linearSlop;
+    const sigma = Math.max(POLYGON_RADIUS, radius - POLYGON_RADIUS);
+    const tolerance = 0.5 * LINEAR_SLOP;
 
     // Main iteration loop.
     const k_maxIters = 20;
     let iter = 0;
     while (iter < k_maxIters && v.Length() - sigma > tolerance) {
-        // DEBUG: b2Assert(simplex.m_count < 3);
+        // DEBUG: Assert(simplex.m_count < 3);
 
         output.iterations += 1;
 
         // Support in direction -v (A - B)
-        indexA = proxyA.GetSupport(b2Rot.TransposeMultiplyVec2(xfA.q, b2Vec2.Negate(v, b2Vec2.s_t1), b2Vec2.s_t0));
-        wA = b2Transform.MultiplyVec2(xfA, proxyA.GetVertex(indexA), b2ShapeCast_s_wA);
-        indexB = proxyB.GetSupport(b2Rot.TransposeMultiplyVec2(xfB.q, v, b2Vec2.s_t0));
-        wB = b2Transform.MultiplyVec2(xfB, proxyB.GetVertex(indexB), b2ShapeCast_s_wB);
-        const p = b2Vec2.Subtract(wA, wB, b2ShapeCast_s_p);
+        indexA = proxyA.GetSupport(Rot.TransposeMultiplyVec2(xfA.q, Vec2.Negate(v, Vec2.s_t1), Vec2.s_t0));
+        wA = Transform.MultiplyVec2(xfA, proxyA.GetVertex(indexA), ShapeCast_s_wA);
+        indexB = proxyB.GetSupport(Rot.TransposeMultiplyVec2(xfB.q, v, Vec2.s_t0));
+        wB = Transform.MultiplyVec2(xfB, proxyB.GetVertex(indexB), ShapeCast_s_wB);
+        const p = Vec2.Subtract(wA, wB, ShapeCast_s_p);
 
         // -v is a normal at p
         v.Normalize();
 
         // Intersect ray with plane
-        const vp = b2Vec2.Dot(v, p);
-        const vr = b2Vec2.Dot(v, r);
+        const vp = Vec2.Dot(v, p);
+        const vr = Vec2.Dot(v, r);
         if (vp - sigma > lambda * vr) {
             if (vr <= 0) {
                 return false;
@@ -780,7 +780,7 @@ export function b2ShapeCast(output: b2ShapeCastOutput, input: b2ShapeCastInput):
                 return false;
             }
 
-            b2Vec2.Negate(v, n);
+            Vec2.Negate(v, n);
             simplex.m_count = 0;
         }
 
@@ -790,10 +790,10 @@ export function b2ShapeCast(output: b2ShapeCastOutput, input: b2ShapeCastInput):
         // to be formed in unshifted space.
         const vertex = vertices[simplex.m_count];
         vertex.indexA = indexB;
-        b2Vec2.AddScaled(wB, lambda, r, vertex.wA);
+        Vec2.AddScaled(wB, lambda, r, vertex.wA);
         vertex.indexB = indexA;
         vertex.wB.Copy(wA);
-        b2Vec2.Subtract(vertex.wB, vertex.wA, vertex.w);
+        Vec2.Subtract(vertex.wB, vertex.wA, vertex.w);
         vertex.a = 1;
         simplex.m_count += 1;
 
@@ -810,7 +810,7 @@ export function b2ShapeCast(output: b2ShapeCastOutput, input: b2ShapeCastInput):
                 break;
 
             // DEBUG: default:
-            // DEBUG: b2Assert(false);
+            // DEBUG: Assert(false);
         }
 
         // If we have 3 points, then the origin is in the corresponding triangle.
@@ -832,16 +832,16 @@ export function b2ShapeCast(output: b2ShapeCastOutput, input: b2ShapeCastInput):
     }
 
     // Prepare output.
-    const pointA = b2ShapeCast_s_pointA;
-    const pointB = b2ShapeCast_s_pointB;
+    const pointA = ShapeCast_s_pointA;
+    const pointB = ShapeCast_s_pointB;
     simplex.GetWitnessPoints(pointA, pointB);
 
     if (v.LengthSquared() > 0) {
-        b2Vec2.Negate(v, n);
+        Vec2.Negate(v, n);
         n.Normalize();
     }
 
-    b2Vec2.AddScaled(pointA, radiusA, n, output.point);
+    Vec2.AddScaled(pointA, radiusA, n, output.point);
     output.normal.Copy(n);
     output.lambda = lambda;
     output.iterations = iter;

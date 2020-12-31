@@ -16,20 +16,20 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2World, b2_augment } from "@box2d/core";
+import { World, b2_augment } from "@box2d/core";
 
-import { b2ControllerEdge, b2Controller } from "../controller/b2_controller";
+import { ControllerEdge, Controller } from "../controller/b2_controller";
 
 declare module "@box2d/core" {
-    interface b2World {
-        m_controllerList: b2Controller | null;
+    interface World {
+        m_controllerList: Controller | null;
         m_controllerCount: number;
-        AddController(controller: b2Controller): b2Controller;
-        RemoveController(controller: b2Controller): b2Controller;
+        AddController(controller: Controller): Controller;
+        RemoveController(controller: Controller): Controller;
     }
 }
 
-b2_augment(b2World, {
+b2_augment(World, {
     Create(original, gravity) {
         const world = original(gravity);
         world.m_controllerList = null;
@@ -38,9 +38,9 @@ b2_augment(b2World, {
     },
 });
 
-Object.assign(b2World.prototype, {
-    AddController(this: b2World, controller: b2Controller): b2Controller {
-        // b2Assert(controller.m_world === null, "Controller can only be a member of one world");
+Object.assign(World.prototype, {
+    AddController(this: World, controller: Controller): Controller {
+        // Assert(controller.m_world === null, "Controller can only be a member of one world");
         // controller.m_world = this;
         controller.m_next = this.m_controllerList;
         controller.m_prev = null;
@@ -52,8 +52,8 @@ Object.assign(b2World.prototype, {
         return controller;
     },
 
-    RemoveController(this: b2World, controller: b2Controller): b2Controller {
-        // b2Assert(controller.m_world === this, "Controller is not a member of this world");
+    RemoveController(this: World, controller: Controller): Controller {
+        // Assert(controller.m_world === this, "Controller is not a member of this world");
         if (controller.m_prev) {
             controller.m_prev.m_next = controller.m_next;
         }
@@ -71,15 +71,15 @@ Object.assign(b2World.prototype, {
     },
 });
 
-b2_augment(b2World.prototype, {
-    CreateBody(this: b2World, original, def = {}) {
+b2_augment(World.prototype, {
+    CreateBody(this: World, original, def = {}) {
         const body = original(def);
         body.m_controllerList = null;
         body.m_controllerCount = 0;
         return body;
     },
-    DestroyBody(this: b2World, original, body) {
-        let coe: b2ControllerEdge | null = body.m_controllerList;
+    DestroyBody(this: World, original, body) {
+        let coe: ControllerEdge | null = body.m_controllerList;
         while (coe) {
             const coe0 = coe;
             coe = coe.nextController;
@@ -89,7 +89,7 @@ b2_augment(b2World.prototype, {
     },
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    Solve(this: b2World, original: (step: b2TimeStep) => void, step: b2TimeStep) {
+    Solve(this: World, original: (step: TimeStep) => void, step: TimeStep) {
         for (let controller = this.m_controllerList; controller; controller = controller.m_next) {
             controller.Step(step);
         }

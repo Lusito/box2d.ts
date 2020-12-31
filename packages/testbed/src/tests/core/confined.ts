@@ -16,57 +16,57 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2EdgeShape, b2Vec2, b2CircleShape, b2FixtureDef, b2BodyType, b2Random, XY } from "@box2d/core";
+import { EdgeShape, Vec2, CircleShape, FixtureDef, BodyType, Random, XY } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
 import { hotKeyPress, HotKey } from "../../utils/hotkeys";
 
-class Confined extends Test {
+class ConfinedTest extends Test {
     public static readonly e_columnCount = 0;
 
     public static readonly e_rowCount = 0;
 
     public constructor() {
-        super(b2Vec2.ZERO);
+        super(Vec2.ZERO);
 
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
+            const shape = new EdgeShape();
 
             // Floor
-            shape.SetTwoSided(new b2Vec2(-10, 0), new b2Vec2(10, 0));
+            shape.SetTwoSided(new Vec2(-10, 0), new Vec2(10, 0));
             ground.CreateFixture({ shape });
 
             // Left wall
-            shape.SetTwoSided(new b2Vec2(-10, 0), new b2Vec2(-10, 20));
+            shape.SetTwoSided(new Vec2(-10, 0), new Vec2(-10, 20));
             ground.CreateFixture({ shape });
 
             // Right wall
-            shape.SetTwoSided(new b2Vec2(10, 0), new b2Vec2(10, 20));
+            shape.SetTwoSided(new Vec2(10, 0), new Vec2(10, 20));
             ground.CreateFixture({ shape });
 
             // Roof
-            shape.SetTwoSided(new b2Vec2(-10, 20), new b2Vec2(10, 20));
+            shape.SetTwoSided(new Vec2(-10, 20), new Vec2(10, 20));
             ground.CreateFixture({ shape });
         }
 
         const radius = 0.5;
-        const shape = new b2CircleShape();
+        const shape = new CircleShape();
         shape.m_p.SetZero();
         shape.m_radius = radius;
 
-        const fd: b2FixtureDef = {
+        const fd: FixtureDef = {
             shape,
             density: 1,
             friction: 0.1,
         };
 
-        for (let j = 0; j < Confined.e_columnCount; ++j) {
-            for (let i = 0; i < Confined.e_rowCount; ++i) {
+        for (let j = 0; j < ConfinedTest.e_columnCount; ++j) {
+            for (let i = 0; i < ConfinedTest.e_rowCount; ++i) {
                 const body = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
                     position: { x: -10 + (2.1 * j + 1 + 0.01 * i) * radius, y: (2 * i + 1) * radius },
                 });
 
@@ -88,16 +88,16 @@ class Confined extends Test {
 
     public CreateCircle() {
         const radius = 2;
-        const shape = new b2CircleShape();
+        const shape = new CircleShape();
         shape.m_p.SetZero();
         shape.m_radius = radius;
 
         // bd.allowSleep = false;
         const body = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
             position: {
-                x: b2Random(),
-                y: 3 + b2Random(),
+                x: Random(),
+                y: 3 + Random(),
             },
         });
 
@@ -115,7 +115,7 @@ class Confined extends Test {
     public Step(settings: Settings, timeStep: number): void {
         // let sleeping = true;
         for (let b = this.m_world.GetBodyList(); b; b = b.GetNext()) {
-            if (b.GetType() !== b2BodyType.b2_dynamicBody) {
+            if (b.GetType() !== BodyType.Dynamic) {
                 continue;
             }
 
@@ -135,7 +135,7 @@ class Confined extends Test {
         super.Step(settings, timeStep);
 
         for (let b = this.m_world.GetBodyList(); b; b = b.GetNext()) {
-            if (b.GetType() !== b2BodyType.b2_dynamicBody) {
+            if (b.GetType() !== BodyType.Dynamic) {
                 continue;
             }
 
@@ -147,4 +147,4 @@ class Confined extends Test {
     }
 }
 
-registerTest("Solver", "Confined", Confined);
+registerTest("Solver", "Confined", ConfinedTest);

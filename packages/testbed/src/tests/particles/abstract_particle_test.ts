@@ -16,8 +16,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2AABB, b2CircleShape, b2Color, b2Transform, XY } from "@box2d/core";
-import { b2ParticleSystem, b2ParticleSystemDef, b2ParticleGroup } from "@box2d/particles";
+import { AABB, CircleShape, Color, Transform, XY } from "@box2d/core";
+import { ParticleSystem, ParticleSystemDef, ParticleGroup } from "@box2d/particles";
 
 import { Test } from "../../test";
 import { Settings } from "../../settings";
@@ -25,25 +25,25 @@ import { ParticleParameter } from "../../utils/particles/particle_parameter";
 import { checkboxDef } from "../../ui/controls/Checkbox";
 
 export const particleColors = [
-    new b2Color().SetByteRGBA(0xff, 0x00, 0x00, 0xff), // red
-    new b2Color().SetByteRGBA(0x00, 0xff, 0x00, 0xff), // green
-    new b2Color().SetByteRGBA(0x00, 0x00, 0xff, 0xff), // blue
-    new b2Color().SetByteRGBA(0xff, 0x8c, 0x00, 0xff), // orange
-    new b2Color().SetByteRGBA(0x00, 0xce, 0xd1, 0xff), // turquoise
-    new b2Color().SetByteRGBA(0xff, 0x00, 0xff, 0xff), // magenta
-    new b2Color().SetByteRGBA(0xff, 0xd7, 0x00, 0xff), // gold
-    new b2Color().SetByteRGBA(0x00, 0xff, 0xff, 0xff), // cyan
+    new Color().SetByteRGBA(0xff, 0x00, 0x00, 0xff), // red
+    new Color().SetByteRGBA(0x00, 0xff, 0x00, 0xff), // green
+    new Color().SetByteRGBA(0x00, 0x00, 0xff, 0xff), // blue
+    new Color().SetByteRGBA(0xff, 0x8c, 0x00, 0xff), // orange
+    new Color().SetByteRGBA(0x00, 0xce, 0xd1, 0xff), // turquoise
+    new Color().SetByteRGBA(0xff, 0x00, 0xff, 0xff), // magenta
+    new Color().SetByteRGBA(0xff, 0xd7, 0x00, 0xff), // gold
+    new Color().SetByteRGBA(0x00, 0xff, 0xff, 0xff), // cyan
 ];
 
 export class AbstractParticleTest extends Test {
-    public m_particleSystem: b2ParticleSystem;
+    public m_particleSystem: ParticleSystem;
 
     protected static m_strictContacts = false;
 
     public constructor(gravity: XY = { x: 0, y: -10 }) {
         super(gravity);
 
-        const particleSystemDef = new b2ParticleSystemDef();
+        const particleSystemDef = new ParticleSystemDef();
 
         this.m_particleSystem = this.m_world.CreateParticleSystem(particleSystemDef);
 
@@ -74,16 +74,16 @@ export class AbstractParticleTest extends Test {
         }
 
         if (this.m_mouseTracing && !this.m_mouseJoint) {
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_p.Copy(this.m_mouseTracerPosition);
             shape.m_radius = this.getParticleSelectionRadius();
-            const aabb = new b2AABB();
-            const xf = new b2Transform();
+            const aabb = new AABB();
+            const xf = new Transform();
             xf.SetIdentity();
             shape.ComputeAABB(aabb, xf, 0);
             this.m_particleSystem.QueryAABB(aabb, (index) => {
                 const p = this.m_particleSystem.GetPositionBuffer()[index];
-                if (shape.TestPoint(b2Transform.IDENTITY, p)) {
+                if (shape.TestPoint(Transform.IDENTITY, p)) {
                     const v = this.m_particleSystem.GetVelocityBuffer()[index];
                     v.Copy(this.m_mouseTracerVelocity);
                 }
@@ -102,8 +102,8 @@ export class AbstractParticleTest extends Test {
      * divided into particleColors.length equal sets of colored
      * particles.
      */
-    public ColorParticleGroup(group: b2ParticleGroup, particlesPerColor: number) {
-        // DEBUG: b2Assert(group !== null);
+    public ColorParticleGroup(group: ParticleGroup, particlesPerColor: number) {
+        // DEBUG: Assert(group !== null);
         const colorBuffer = this.m_particleSystem.GetColorBuffer();
         const particleCount = group.GetParticleCount();
         const groupStart = group.GetBufferIndex();

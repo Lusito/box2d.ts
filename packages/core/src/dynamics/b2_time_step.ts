@@ -20,12 +20,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { b2Vec2 } from "../common/b2_math";
+import { Vec2 } from "../common/b2_math";
 
 /**
  * Profiling data. Times are in milliseconds.
  */
-export class b2Profile {
+export class Profile {
     public step = 0;
 
     public collide = 0;
@@ -55,7 +55,7 @@ export class b2Profile {
     }
 }
 
-export interface b2StepConfig {
+export interface StepConfig {
     velocityIterations: number;
     positionIterations: number;
 }
@@ -63,14 +63,14 @@ export interface b2StepConfig {
 /**
  * This is an internal structure.
  */
-export class b2TimeStep {
+export class TimeStep {
     public dt = 0; // time step
 
     public inv_dt = 0; // inverse time step (0 if dt == 0).
 
     public dtRatio = 0; // dt * inv_dt0
 
-    public config: b2StepConfig = {
+    public config: StepConfig = {
         velocityIterations: 0,
         positionIterations: 0,
     };
@@ -80,10 +80,10 @@ export class b2TimeStep {
     private constructor() {}
 
     public static Create() {
-        return new b2TimeStep();
+        return new TimeStep();
     }
 
-    public Copy(step: b2TimeStep): b2TimeStep {
+    public Copy(step: TimeStep): TimeStep {
         this.dt = step.dt;
         this.inv_dt = step.inv_dt;
         this.dtRatio = step.dtRatio;
@@ -98,8 +98,8 @@ export class b2TimeStep {
 /**
  * This is an internal structure.
  */
-export class b2Position {
-    public readonly c = new b2Vec2();
+export class Position {
+    public readonly c = new Vec2();
 
     public a = 0;
 }
@@ -107,8 +107,8 @@ export class b2Position {
 /**
  * This is an internal structure.
  */
-export class b2Velocity {
-    public readonly v = new b2Vec2();
+export class Velocity {
+    public readonly v = new Vec2();
 
     public w = 0;
 }
@@ -116,10 +116,10 @@ export class b2Velocity {
 /**
  * Solver Data
  */
-export class b2SolverData {
-    public readonly step = b2TimeStep.Create();
+export class SolverData {
+    public readonly step = TimeStep.Create();
 
-    public positions!: b2Position[];
+    public positions!: Position[];
 
-    public velocities!: b2Velocity[];
+    public velocities!: Velocity[];
 }

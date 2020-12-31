@@ -20,32 +20,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { b2Assert } from "../common/b2_common";
-import { b2BroadPhase } from "../collision/b2_broad_phase";
-import { b2Contact, b2ContactEdge } from "./b2_contact";
-import { b2ContactFactory } from "./b2_contact_factory";
-import { b2BodyType } from "./b2_body";
-import { b2FixtureProxy } from "./b2_fixture";
-import { b2ContactFilter, b2ContactListener } from "./b2_world_callbacks";
+// DEBUG: import { Assert } from "../common/b2_common";
+import { BroadPhase } from "../collision/b2_broad_phase";
+import { Contact, ContactEdge } from "./b2_contact";
+import { ContactFactory } from "./b2_contact_factory";
+import { BodyType } from "./b2_body";
+import { FixtureProxy } from "./b2_fixture";
+import { ContactFilter, ContactListener } from "./b2_world_callbacks";
 
-/** Delegate of b2World. */
-export class b2ContactManager {
-    public readonly m_broadPhase = new b2BroadPhase<b2FixtureProxy>();
+/** Delegate of World. */
+export class ContactManager {
+    public readonly m_broadPhase = new BroadPhase<FixtureProxy>();
 
-    public m_contactList: b2Contact | null = null;
+    public m_contactList: Contact | null = null;
 
     public m_contactCount = 0;
 
-    public m_contactFilter = b2ContactFilter.b2_defaultFilter;
+    public m_contactFilter = ContactFilter.defaultFilter;
 
-    public m_contactListener = b2ContactListener.b2_defaultListener;
+    public m_contactListener = ContactListener.defaultListener;
 
-    public readonly m_contactFactory = new b2ContactFactory();
+    public readonly m_contactFactory = new ContactFactory();
 
     /** Broad-phase callback. */
-    public AddPair = (proxyA: b2FixtureProxy, proxyB: b2FixtureProxy): void => {
-        // DEBUG: b2Assert(proxyA instanceof b2FixtureProxy);
-        // DEBUG: b2Assert(proxyB instanceof b2FixtureProxy);
+    public AddPair = (proxyA: FixtureProxy, proxyB: FixtureProxy): void => {
+        // DEBUG: Assert(proxyA instanceof FixtureProxy);
+        // DEBUG: Assert(proxyB instanceof FixtureProxy);
 
         let fixtureA = proxyA.fixture;
         let fixtureB = proxyB.fixture;
@@ -64,7 +64,7 @@ export class b2ContactManager {
         // TODO_ERIN use a hash table to remove a potential bottleneck when both
         // bodies have a lot of contacts.
         // Does a contact already exist?
-        let edge: b2ContactEdge | null = bodyB.GetContactList();
+        let edge: ContactEdge | null = bodyB.GetContactList();
         while (edge) {
             if (edge.other === bodyA) {
                 const fA = edge.contact.GetFixtureA();
@@ -97,7 +97,7 @@ export class b2ContactManager {
         }
 
         // Call the factory.
-        const c: b2Contact | null = this.m_contactFactory.Create(fixtureA, indexA, fixtureB, indexB);
+        const c: Contact | null = this.m_contactFactory.Create(fixtureA, indexA, fixtureB, indexB);
         if (c === null) {
             return;
         }
@@ -147,7 +147,7 @@ export class b2ContactManager {
         this.m_broadPhase.UpdatePairs(this.AddPair);
     }
 
-    public Destroy(c: b2Contact): void {
+    public Destroy(c: Contact): void {
         const fixtureA = c.GetFixtureA();
         const fixtureB = c.GetFixtureB();
         const bodyA = fixtureA.GetBody();
@@ -196,7 +196,7 @@ export class b2ContactManager {
             bodyB.m_contactList = c.m_nodeB.next;
         }
 
-        // moved this from b2ContactFactory:Destroy
+        // moved this from ContactFactory:Destroy
         if (c.m_manifold.pointCount > 0 && !fixtureA.IsSensor() && !fixtureB.IsSensor()) {
             fixtureA.GetBody().SetAwake(true);
             fixtureB.GetBody().SetAwake(true);
@@ -214,7 +214,7 @@ export class b2ContactManager {
      */
     public Collide(): void {
         // Update awake contacts.
-        let c: b2Contact | null = this.m_contactList;
+        let c: Contact | null = this.m_contactList;
         while (c) {
             const fixtureA = c.GetFixtureA();
             const fixtureB = c.GetFixtureB();
@@ -241,8 +241,8 @@ export class b2ContactManager {
                 c.m_filterFlag = false;
             }
 
-            const activeA = bodyA.IsAwake() && bodyA.m_type !== b2BodyType.b2_staticBody;
-            const activeB = bodyB.IsAwake() && bodyB.m_type !== b2BodyType.b2_staticBody;
+            const activeA = bodyA.IsAwake() && bodyA.m_type !== BodyType.Static;
+            const activeB = bodyB.IsAwake() && bodyB.m_type !== BodyType.Static;
 
             // At least one body must be awake and it must be dynamic or kinematic.
             if (!activeA && !activeB) {

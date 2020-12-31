@@ -16,31 +16,23 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import {
-    b2PolygonShape,
-    b2Transform,
-    b2Vec2,
-    b2Manifold,
-    b2CollidePolygons,
-    b2WorldManifold,
-    b2Color,
-} from "@box2d/core";
+import { PolygonShape, Transform, Vec2, Manifold, CollidePolygons, WorldManifold, Color } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
 import { g_debugDraw } from "../../utils/draw";
 import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 
-class PolygonCollision extends Test {
-    public m_polygonA = new b2PolygonShape();
+class PolygonCollisionTest extends Test {
+    public m_polygonA = new PolygonShape();
 
-    public m_polygonB = new b2PolygonShape();
+    public m_polygonB = new PolygonShape();
 
-    public m_transformA = new b2Transform();
+    public m_transformA = new Transform();
 
-    public m_transformB = new b2Transform();
+    public m_transformB = new Transform();
 
-    public m_positionB = new b2Vec2();
+    public m_positionB = new Vec2();
 
     public m_angleB = 0;
 
@@ -48,7 +40,7 @@ class PolygonCollision extends Test {
         super();
 
         this.m_polygonA.SetAsBox(0.2, 0.4);
-        this.m_transformA.SetPositionAngle(new b2Vec2(), 0);
+        this.m_transformA.SetPositionAngle(new Vec2(), 0);
         this.m_polygonB.SetAsBox(0.5, 0.5);
         this.m_positionB.Set(1, 1);
         this.m_angleB = 1.9160721;
@@ -79,10 +71,10 @@ class PolygonCollision extends Test {
 
     public Step(settings: Settings, timeStep: number): void {
         super.Step(settings, timeStep);
-        const manifold = new b2Manifold();
-        b2CollidePolygons(manifold, this.m_polygonA, this.m_transformA, this.m_polygonB, this.m_transformB);
+        const manifold = new Manifold();
+        CollidePolygons(manifold, this.m_polygonA, this.m_transformA, this.m_polygonB, this.m_transformB);
 
-        const worldManifold = new b2WorldManifold();
+        const worldManifold = new WorldManifold();
         worldManifold.Initialize(
             manifold,
             this.m_transformA,
@@ -94,23 +86,23 @@ class PolygonCollision extends Test {
         this.addDebug("Point Count", manifold.pointCount);
 
         {
-            const color = new b2Color(0.9, 0.9, 0.9);
+            const color = new Color(0.9, 0.9, 0.9);
             const v = [];
             for (let i = 0; i < this.m_polygonA.m_count; ++i) {
-                v[i] = b2Transform.MultiplyVec2(this.m_transformA, this.m_polygonA.m_vertices[i], new b2Vec2());
+                v[i] = Transform.MultiplyVec2(this.m_transformA, this.m_polygonA.m_vertices[i], new Vec2());
             }
             g_debugDraw.DrawPolygon(v, this.m_polygonA.m_count, color);
 
             for (let i = 0; i < this.m_polygonB.m_count; ++i) {
-                v[i] = b2Transform.MultiplyVec2(this.m_transformB, this.m_polygonB.m_vertices[i], new b2Vec2());
+                v[i] = Transform.MultiplyVec2(this.m_transformB, this.m_polygonB.m_vertices[i], new Vec2());
             }
             g_debugDraw.DrawPolygon(v, this.m_polygonB.m_count, color);
         }
 
         for (let i = 0; i < manifold.pointCount; ++i) {
-            g_debugDraw.DrawPoint(worldManifold.points[i], 4, new b2Color(0.9, 0.3, 0.3));
+            g_debugDraw.DrawPoint(worldManifold.points[i], 4, new Color(0.9, 0.3, 0.3));
         }
     }
 }
 
-registerTest("Geometry", "Polygon Collision", PolygonCollision);
+registerTest("Geometry", "Polygon Collision", PolygonCollisionTest);

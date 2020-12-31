@@ -16,13 +16,13 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Body, b2EdgeShape, b2Vec2, b2BodyType, b2CircleShape } from "@box2d/core";
+import { Body, EdgeShape, Vec2, BodyType, CircleShape } from "@box2d/core";
 
 import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 import { registerTest, Test } from "../../test";
 
-class Heavy2 extends Test {
-    public m_heavy: b2Body | null = null;
+class Heavy2Test extends Test {
+    public m_heavy: Body | null = null;
 
     public constructor() {
         super();
@@ -30,22 +30,22 @@ class Heavy2 extends Test {
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.CreateFixture({ shape });
         }
 
         let body = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
             position: { x: 0, y: 2.5 },
         });
 
-        const shape = new b2CircleShape();
+        const shape = new CircleShape();
         shape.m_radius = 0.5;
         body.CreateFixture({ shape, density: 10 });
 
         body = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
             position: { x: 0, y: 3.5 },
         });
         body.CreateFixture({ shape, density: 10 });
@@ -57,11 +57,11 @@ class Heavy2 extends Test {
             this.m_heavy = null;
         } else {
             this.m_heavy = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: 0, y: 9 },
             });
 
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_radius = 5;
             this.m_heavy.CreateFixture({ shape, density: 10 });
         }
@@ -72,4 +72,4 @@ class Heavy2 extends Test {
     }
 }
 
-registerTest("Solver", "Heavy 2", Heavy2);
+registerTest("Solver", "Heavy 2", Heavy2Test);

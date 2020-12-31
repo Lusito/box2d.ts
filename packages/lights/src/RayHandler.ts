@@ -89,7 +89,7 @@ export abstract class RayHandler {
      * Class constructor specifying the physics world from where collision
      * geometry is taken, and size of FBO used for intermediate rendering.
      *
-     * @see #RayHandler(b2World)
+     * @see #RayHandler(World)
      */
     public constructor(
         gl: WebGLRenderingContext,

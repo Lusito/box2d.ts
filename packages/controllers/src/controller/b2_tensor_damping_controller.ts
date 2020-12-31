@@ -16,20 +16,20 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2TimeStep, b2_epsilon, b2Vec2, b2Mat22 } from "@box2d/core";
+import { TimeStep, EPSILON, Vec2, Mat22 } from "@box2d/core";
 
-import { b2Controller } from "./b2_controller";
+import { Controller } from "./b2_controller";
 
-const tempDamping = new b2Vec2();
+const tempDamping = new Vec2();
 
 /**
  * Applies top down linear damping to the controlled bodies
  * The damping is calculated by multiplying velocity by a matrix
  * in local co-ordinates.
  */
-export class b2TensorDampingController extends b2Controller {
+export class TensorDampingController extends Controller {
     /** Tensor to use in damping model */
-    public readonly T = new b2Mat22();
+    public readonly T = new Mat22();
     /* Some examples (matrixes in format (row1; row2))
     (-a 0; 0 -a)    Standard isotropic damping with strength a
     ( 0 a; -a 0)    Electron in fixed field - a force at right angles to velocity with proportional magnitude
@@ -42,11 +42,11 @@ export class b2TensorDampingController extends b2Controller {
     // Typically one wants maxTimestep to be 1/(max eigenvalue of T), so that damping will never cause something to reverse direction
 
     /**
-     * @see b2Controller::Step
+     * @see Controller::Step
      */
-    public Step(step: b2TimeStep) {
+    public Step(step: TimeStep) {
         let timestep = step.dt;
-        if (timestep <= b2_epsilon) {
+        if (timestep <= EPSILON) {
             return;
         }
         if (timestep > this.maxTimestep && this.maxTimestep > 0) {
@@ -58,12 +58,12 @@ export class b2TensorDampingController extends b2Controller {
                 continue;
             }
             body.GetWorldVector(
-                b2Mat22.MultiplyVec2(this.T, body.GetLocalVector(body.GetLinearVelocity(), b2Vec2.s_t0), b2Vec2.s_t1),
+                Mat22.MultiplyVec2(this.T, body.GetLocalVector(body.GetLinearVelocity(), Vec2.s_t0), Vec2.s_t1),
                 tempDamping,
             );
             //    body->SetLinearVelocity(body->GetLinearVelocity() + timestep * damping);
             body.SetLinearVelocity(
-                b2Vec2.Add(body.GetLinearVelocity(), b2Vec2.Scale(timestep, tempDamping, b2Vec2.s_t0), b2Vec2.s_t1),
+                Vec2.Add(body.GetLinearVelocity(), Vec2.Scale(timestep, tempDamping, Vec2.s_t0), Vec2.s_t1),
             );
         }
     }

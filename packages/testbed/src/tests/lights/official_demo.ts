@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Vec2, b2ChainShape, b2FixtureDef, b2BodyType, b2CircleShape, b2Body, b2RadToDeg, XY } from "@box2d/core";
+import { Vec2, ChainShape, FixtureDef, BodyType, CircleShape, Body, RadToDeg, XY } from "@box2d/core";
 import { ChainLight, ConeLight, DirectionalLight, Light, PointLight } from "@box2d/lights";
 
 import { HotKey, hotKeyPress } from "../../utils/hotkeys";
@@ -53,7 +53,7 @@ const viewportHeight = 33;
 class Marble {
     public light!: Light;
 
-    public constructor(public readonly sprite: Sprite, public readonly body: b2Body) {}
+    public constructor(public readonly sprite: Sprite, public readonly body: Body) {}
 
     public render() {
         const pos = this.body.GetPosition();
@@ -62,7 +62,7 @@ class Marble {
             pos.y - RADIUS,
             SIZE,
             SIZE,
-            b2RadToDeg(this.body.GetAngle()),
+            RadToDeg(this.body.GetAngle()),
             RADIUS,
             RADIUS,
         );
@@ -76,12 +76,12 @@ function random(from: number, to: number) {
     return from + Math.random() * (to - from);
 }
 
-class OfficialDemo extends AbstractLightTest {
+class OfficialDemoTest extends AbstractLightTest {
     private readonly bg: Sprite;
 
     private readonly marbles: Marble[];
 
-    private groundBody!: b2Body;
+    private groundBody!: Body;
 
     private sunDirection = -90;
 
@@ -104,8 +104,8 @@ class OfficialDemo extends AbstractLightTest {
 
         this.createBoundary();
 
-        const ballShape = new b2CircleShape(RADIUS);
-        const def: b2FixtureDef = {
+        const ballShape = new CircleShape(RADIUS);
+        const def: FixtureDef = {
             restitution: 0.9,
             friction: 0.01,
             shape: ballShape,
@@ -116,7 +116,7 @@ class OfficialDemo extends AbstractLightTest {
             // Create the BodyDef, set a random position above the
             // ground and create a new body
             const boxBody = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: {
                     x: 4 + Math.random() * 40,
                     y: 4 + Math.random() * 25,
@@ -231,15 +231,15 @@ class OfficialDemo extends AbstractLightTest {
     }
 
     private createBoundary() {
-        const chainShape = new b2ChainShape();
+        const chainShape = new ChainShape();
         chainShape.CreateLoop([
-            new b2Vec2(),
-            new b2Vec2(0, viewportHeight),
-            new b2Vec2(viewportWidth, viewportHeight),
-            new b2Vec2(viewportWidth, 0),
+            new Vec2(),
+            new Vec2(0, viewportHeight),
+            new Vec2(viewportWidth, viewportHeight),
+            new Vec2(viewportWidth, 0),
         ]);
         this.groundBody = this.m_world.CreateBody({
-            type: b2BodyType.b2_staticBody,
+            type: BodyType.Static,
         });
         const fixture = this.groundBody.CreateFixture({ shape: chainShape, density: 0 });
         fixture.SetFilterData({
@@ -323,4 +323,4 @@ class OfficialDemo extends AbstractLightTest {
     }
 }
 
-registerTest("Lights", "Official Demo", OfficialDemo);
+registerTest("Lights", "Official Demo", OfficialDemoTest);

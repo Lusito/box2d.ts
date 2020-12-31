@@ -16,27 +16,27 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2ParticleFlag } from "@box2d/particles";
+import { ParticleFlag } from "@box2d/particles";
 
 import type { TestManager } from "../../manager";
 import { TestControl } from "../../testControls";
 import { selectDef } from "../../ui/controls/Select";
 
 export const baseParticleTypes = {
-    water: b2ParticleFlag.b2_waterParticle,
-    viscous: b2ParticleFlag.b2_viscousParticle,
-    powder: b2ParticleFlag.b2_powderParticle,
-    tensile: b2ParticleFlag.b2_tensileParticle,
-    "static pressure": b2ParticleFlag.b2_staticPressureParticle,
+    water: ParticleFlag.Water,
+    viscous: ParticleFlag.Viscous,
+    powder: ParticleFlag.Powder,
+    tensile: ParticleFlag.Tensile,
+    "static pressure": ParticleFlag.StaticPressure,
 };
 
 export const defaultParticleTypes = {
     ...baseParticleTypes,
-    spring: b2ParticleFlag.b2_springParticle,
-    elastic: b2ParticleFlag.b2_elasticParticle,
-    "color mixing": b2ParticleFlag.b2_colorMixingParticle,
-    wall: b2ParticleFlag.b2_wallParticle,
-    barrier: b2ParticleFlag.b2_barrierParticle | b2ParticleFlag.b2_wallParticle,
+    spring: ParticleFlag.Spring,
+    elastic: ParticleFlag.Elastic,
+    "color mixing": ParticleFlag.ColorMixing,
+    wall: ParticleFlag.Wall,
+    barrier: ParticleFlag.Barrier | ParticleFlag.Wall,
 };
 
 export class ParticleParameter {

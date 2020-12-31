@@ -17,18 +17,18 @@
  */
 
 import {
-    b2DynamicTree,
-    b2AABB,
-    b2RayCastInput,
-    b2RayCastOutput,
-    b2Color,
-    b2Vec2,
-    b2RandomFloat,
-    b2RandomInt,
-    b2TreeNode,
+    DynamicTree,
+    AABB,
+    RayCastInput,
+    RayCastOutput,
+    Color,
+    Vec2,
+    RandomFloat,
+    RandomInt,
+    TreeNode,
     XY,
-    b2Verify,
-    b2Assert,
+    Verify,
+    Assert,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
@@ -37,40 +37,40 @@ import { g_debugDraw } from "../../utils/draw";
 import { hotKeyPress, HotKey } from "../../utils/hotkeys";
 
 const temp = {
-    aabb0: new b2AABB(),
-    c0: new b2Vec2(),
-    c1: new b2Vec2(),
+    aabb0: new AABB(),
+    c0: new Vec2(),
+    c1: new Vec2(),
 };
 
 class DynamicTreeActor {
-    public aabb = new b2AABB();
+    public aabb = new AABB();
 
     public fraction = 0;
 
     public overlap = false;
 
-    public proxyId: b2TreeNode<DynamicTreeActor> | null = null;
+    public proxyId: TreeNode<DynamicTreeActor> | null = null;
 }
 
-class DynamicTree extends Test {
+class DynamicTreeTest extends Test {
     public static readonly e_actorCount = 128;
 
     public m_worldExtent = 0;
 
     public m_proxyExtent = 0;
 
-    public m_tree = new b2DynamicTree<DynamicTreeActor>();
+    public m_tree = new DynamicTree<DynamicTreeActor>();
 
-    public m_queryAABB = new b2AABB();
+    public m_queryAABB = new AABB();
 
-    public m_rayCastInput = new b2RayCastInput();
+    public m_rayCastInput = new RayCastInput();
 
-    public m_rayCastOutput = new b2RayCastOutput();
+    public m_rayCastOutput = new RayCastOutput();
 
     public m_rayActor: DynamicTreeActor | null = null;
 
     public m_actors: DynamicTreeActor[] = Array.from(
-        { length: DynamicTree.e_actorCount },
+        { length: DynamicTreeTest.e_actorCount },
         () => new DynamicTreeActor(),
     );
 
@@ -86,7 +86,7 @@ class DynamicTree extends Test {
 
         // srand(888);
 
-        for (let i = 0; i < DynamicTree.e_actorCount; ++i) {
+        for (let i = 0; i < DynamicTreeTest.e_actorCount; ++i) {
             const actor = this.m_actors[i];
             this.GetRandomAABB(actor.aabb);
             actor.proxyId = this.m_tree.CreateProxy(actor.aabb, actor);
@@ -120,7 +120,7 @@ class DynamicTree extends Test {
         this.Reset();
 
         if (this.m_automated) {
-            const actionCount = Math.max(1, DynamicTree.e_actorCount >> 2);
+            const actionCount = Math.max(1, DynamicTreeTest.e_actorCount >> 2);
 
             for (let i = 0; i < actionCount; ++i) {
                 this.Action();
@@ -130,13 +130,13 @@ class DynamicTree extends Test {
         this.Query();
         this.RayCast();
 
-        for (let i = 0; i < DynamicTree.e_actorCount; ++i) {
+        for (let i = 0; i < DynamicTreeTest.e_actorCount; ++i) {
             const actor = this.m_actors[i];
             if (actor.proxyId === null) {
                 continue;
             }
 
-            const c = new b2Color(0.9, 0.9, 0.9);
+            const c = new Color(0.9, 0.9, 0.9);
             if (actor === this.m_rayActor && actor.overlap) {
                 c.SetRGB(0.9, 0.6, 0.6);
             } else if (actor === this.m_rayActor) {
@@ -147,26 +147,26 @@ class DynamicTree extends Test {
             g_debugDraw.DrawAABB(actor.aabb, c);
         }
 
-        const c = new b2Color(0.7, 0.7, 0.7);
+        const c = new Color(0.7, 0.7, 0.7);
         g_debugDraw.DrawAABB(this.m_queryAABB, c);
 
         g_debugDraw.DrawSegment(this.m_rayCastInput.p1, this.m_rayCastInput.p2, c);
 
-        const c1 = new b2Color(0.2, 0.9, 0.2);
-        const c2 = new b2Color(0.9, 0.2, 0.2);
+        const c1 = new Color(0.2, 0.9, 0.2);
+        const c2 = new Color(0.9, 0.2, 0.2);
         g_debugDraw.DrawPoint(this.m_rayCastInput.p1, 6, c1);
         g_debugDraw.DrawPoint(this.m_rayCastInput.p2, 6, c2);
 
         if (this.m_rayActor) {
-            const cr = new b2Color(0.2, 0.2, 0.9);
-            const p = b2Vec2.Add(
+            const cr = new Color(0.2, 0.2, 0.9);
+            const p = Vec2.Add(
                 this.m_rayCastInput.p1,
-                b2Vec2.Scale(
+                Vec2.Scale(
                     this.m_rayActor.fraction,
-                    b2Vec2.Subtract(this.m_rayCastInput.p2, this.m_rayCastInput.p1, new b2Vec2()),
-                    new b2Vec2(),
+                    Vec2.Subtract(this.m_rayCastInput.p2, this.m_rayCastInput.p1, new Vec2()),
+                    new Vec2(),
                 ),
-                new b2Vec2(),
+                new Vec2(),
             );
             g_debugDraw.DrawPoint(p, 6, cr);
         }
@@ -187,38 +187,38 @@ class DynamicTree extends Test {
         ];
     }
 
-    public GetRandomAABB(aabb: b2AABB): void {
-        const w = new b2Vec2();
+    public GetRandomAABB(aabb: AABB): void {
+        const w = new Vec2();
         w.Set(2 * this.m_proxyExtent, 2 * this.m_proxyExtent);
         // aabb.lowerBound.x = -this.m_proxyExtent;
         // aabb.lowerBound.y = -this.m_proxyExtent + this.m_worldExtent;
-        aabb.lowerBound.x = b2RandomFloat(-this.m_worldExtent, this.m_worldExtent);
-        aabb.lowerBound.y = b2RandomFloat(0, 2 * this.m_worldExtent);
+        aabb.lowerBound.x = RandomFloat(-this.m_worldExtent, this.m_worldExtent);
+        aabb.lowerBound.y = RandomFloat(0, 2 * this.m_worldExtent);
         aabb.upperBound.Copy(aabb.lowerBound);
         aabb.upperBound.Add(w);
     }
 
-    public MoveAABB(aabb: b2AABB): void {
-        const d = new b2Vec2();
-        d.x = b2RandomFloat(-0.5, 0.5);
-        d.y = b2RandomFloat(-0.5, 0.5);
+    public MoveAABB(aabb: AABB): void {
+        const d = new Vec2();
+        d.x = RandomFloat(-0.5, 0.5);
+        d.y = RandomFloat(-0.5, 0.5);
         // d.x = 2;
         // d.y = 0;
         aabb.lowerBound.Add(d);
         aabb.upperBound.Add(d);
 
-        const c0 = b2Vec2.Mid(aabb.lowerBound, aabb.upperBound, new b2Vec2());
-        const min = new b2Vec2(-this.m_worldExtent, 0);
-        const max = new b2Vec2(this.m_worldExtent, 2 * this.m_worldExtent);
-        const c = b2Vec2.Clamp(c0, min, max, new b2Vec2());
+        const c0 = Vec2.Mid(aabb.lowerBound, aabb.upperBound, new Vec2());
+        const min = new Vec2(-this.m_worldExtent, 0);
+        const max = new Vec2(this.m_worldExtent, 2 * this.m_worldExtent);
+        const c = Vec2.Clamp(c0, min, max, new Vec2());
 
-        aabb.lowerBound.Add(b2Vec2.Subtract(c, c0, new b2Vec2()));
-        aabb.upperBound.Add(b2Vec2.Subtract(c, c0, new b2Vec2()));
+        aabb.lowerBound.Add(Vec2.Subtract(c, c0, new Vec2()));
+        aabb.upperBound.Add(Vec2.Subtract(c, c0, new Vec2()));
     }
 
     public CreateProxy(): void {
-        for (let i = 0; i < DynamicTree.e_actorCount; ++i) {
-            const j = b2RandomInt(0, DynamicTree.e_actorCount - 1);
+        for (let i = 0; i < DynamicTreeTest.e_actorCount; ++i) {
+            const j = RandomInt(0, DynamicTreeTest.e_actorCount - 1);
             const actor = this.m_actors[j];
             if (actor.proxyId === null) {
                 this.GetRandomAABB(actor.aabb);
@@ -229,8 +229,8 @@ class DynamicTree extends Test {
     }
 
     public DestroyProxy(): void {
-        for (let i = 0; i < DynamicTree.e_actorCount; ++i) {
-            const j = b2RandomInt(0, DynamicTree.e_actorCount - 1);
+        for (let i = 0; i < DynamicTreeTest.e_actorCount; ++i) {
+            const j = RandomInt(0, DynamicTreeTest.e_actorCount - 1);
             const actor = this.m_actors[j];
             if (actor.proxyId !== null) {
                 this.m_tree.DestroyProxy(actor.proxyId);
@@ -243,8 +243,8 @@ class DynamicTree extends Test {
     public MoveProxy(): void {
         const { aabb0, c0, c1 } = temp;
 
-        for (let i = 0; i < DynamicTree.e_actorCount; ++i) {
-            const j = b2RandomInt(0, DynamicTree.e_actorCount - 1);
+        for (let i = 0; i < DynamicTreeTest.e_actorCount; ++i) {
+            const j = RandomInt(0, DynamicTreeTest.e_actorCount - 1);
             const actor = this.m_actors[j];
             if (actor.proxyId === null) {
                 continue;
@@ -252,7 +252,7 @@ class DynamicTree extends Test {
 
             aabb0.Copy(actor.aabb);
             this.MoveAABB(actor.aabb);
-            const displacement = b2Vec2.Subtract(actor.aabb.GetCenter(c1), aabb0.GetCenter(c0), new b2Vec2());
+            const displacement = Vec2.Subtract(actor.aabb.GetCenter(c1), aabb0.GetCenter(c0), new Vec2());
             this.m_tree.MoveProxy(actor.proxyId, actor.aabb, displacement);
             return;
         }
@@ -260,14 +260,14 @@ class DynamicTree extends Test {
 
     public Reset(): void {
         this.m_rayActor = null;
-        for (let i = 0; i < DynamicTree.e_actorCount; ++i) {
+        for (let i = 0; i < DynamicTreeTest.e_actorCount; ++i) {
             this.m_actors[i].fraction = 1;
             this.m_actors[i].overlap = false;
         }
     }
 
     public Action(): void {
-        const choice = Math.floor(b2RandomFloat(0, 19));
+        const choice = Math.floor(RandomFloat(0, 19));
 
         switch (choice) {
             case 0:
@@ -285,15 +285,15 @@ class DynamicTree extends Test {
 
     public Query(): void {
         this.m_tree.Query(this.m_queryAABB, (proxyId) => {
-            const actor = b2Verify(proxyId.userData);
+            const actor = Verify(proxyId.userData);
             actor.overlap = this.m_queryAABB.TestOverlap(actor.aabb);
             return true;
         });
 
-        for (let i = 0; i < DynamicTree.e_actorCount; ++i) {
+        for (let i = 0; i < DynamicTreeTest.e_actorCount; ++i) {
             if (this.m_actors[i].proxyId !== null) {
                 const overlap = this.m_queryAABB.TestOverlap(this.m_actors[i].aabb);
-                b2Assert(overlap === this.m_actors[i].overlap);
+                Assert(overlap === this.m_actors[i].overlap);
             }
         }
     }
@@ -301,13 +301,13 @@ class DynamicTree extends Test {
     public RayCast(): void {
         this.m_rayActor = null;
 
-        const input = new b2RayCastInput().Copy(this.m_rayCastInput);
+        const input = new RayCastInput().Copy(this.m_rayCastInput);
 
         // Ray cast against the dynamic tree.
         this.m_tree.RayCast(input, (input2, proxyId) => {
-            const actor = b2Verify(proxyId.userData);
+            const actor = Verify(proxyId.userData);
 
-            const output = new b2RayCastOutput();
+            const output = new RayCastOutput();
             const hit = actor.aabb.RayCast(output, input2);
 
             if (hit) {
@@ -322,13 +322,13 @@ class DynamicTree extends Test {
 
         // Brute force ray cast.
         let bruteActor = null;
-        const bruteOutput = new b2RayCastOutput();
-        for (let i = 0; i < DynamicTree.e_actorCount; ++i) {
+        const bruteOutput = new RayCastOutput();
+        for (let i = 0; i < DynamicTreeTest.e_actorCount; ++i) {
             if (this.m_actors[i].proxyId === null) {
                 continue;
             }
 
-            const output = new b2RayCastOutput();
+            const output = new RayCastOutput();
             const hit = this.m_actors[i].aabb.RayCast(output, input);
             if (hit) {
                 bruteActor = this.m_actors[i];
@@ -338,9 +338,9 @@ class DynamicTree extends Test {
         }
 
         if (bruteActor !== null) {
-            // DEBUG: b2Assert(bruteOutput.fraction === this.m_rayCastOutput.fraction);
+            // DEBUG: Assert(bruteOutput.fraction === this.m_rayCastOutput.fraction);
         }
     }
 }
 
-registerTest("Collision", "Dynamic Tree", DynamicTree);
+registerTest("Collision", "Dynamic Tree", DynamicTreeTest);

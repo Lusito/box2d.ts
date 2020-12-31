@@ -16,16 +16,16 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2TimeStep, b2_epsilon, b2Vec2 } from "@box2d/core";
+import { TimeStep, EPSILON, Vec2 } from "@box2d/core";
 
-import { b2Controller } from "./b2_controller";
+import { Controller } from "./b2_controller";
 
-const tempF = new b2Vec2();
+const tempF = new Vec2();
 
 /**
  * Applies simplified gravity between every pair of bodies
  */
-export class b2GravityController extends b2Controller {
+export class GravityController extends Controller {
     /**
      * Specifies the strength of the gravitiation force
      */
@@ -37,9 +37,9 @@ export class b2GravityController extends b2Controller {
     public invSqr = true;
 
     /**
-     * @see b2Controller::Step
+     * @see Controller::Step
      */
-    public Step(_step: b2TimeStep) {
+    public Step(_step: TimeStep) {
         if (this.invSqr) {
             for (let i = this.m_bodyList; i; i = i.nextBody) {
                 const body1 = i.body;
@@ -52,7 +52,7 @@ export class b2GravityController extends b2Controller {
                     const dx = p2.x - p1.x;
                     const dy = p2.y - p1.y;
                     const r2 = dx * dx + dy * dy;
-                    if (r2 < b2_epsilon) {
+                    if (r2 < EPSILON) {
                         continue;
                     }
                     tempF.Set(dx, dy).Scale((this.G / r2 / Math.sqrt(r2)) * mass1 * mass2);
@@ -76,7 +76,7 @@ export class b2GravityController extends b2Controller {
                     const dx = p2.x - p1.x;
                     const dy = p2.y - p1.y;
                     const r2 = dx * dx + dy * dy;
-                    if (r2 < b2_epsilon) {
+                    if (r2 < EPSILON) {
                         continue;
                     }
                     tempF.Set(dx, dy).Scale((this.G / r2) * mass1 * mass2);

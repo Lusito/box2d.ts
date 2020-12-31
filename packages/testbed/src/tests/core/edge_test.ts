@@ -16,35 +16,35 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Vec2, b2Body, b2EdgeShape, b2BodyType, b2PolygonShape, b2CircleShape } from "@box2d/core";
+import { Vec2, Body, EdgeShape, BodyType, PolygonShape, CircleShape } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { HotKey, hotKeyStep } from "../../utils/hotkeys";
 import { radioDef } from "../../ui/controls/Radio";
 
 class EdgeTest extends Test {
-    public readonly m_offset1 = new b2Vec2();
+    public readonly m_offset1 = new Vec2();
 
-    public readonly m_offset2 = new b2Vec2();
+    public readonly m_offset2 = new Vec2();
 
-    public m_body1: b2Body | null = null;
+    public m_body1: Body | null = null;
 
-    public m_body2: b2Body | null = null;
+    public m_body2: Body | null = null;
 
     public constructor() {
         super();
 
-        const vertices: b2Vec2[] = [
-            new b2Vec2(10, -4),
-            new b2Vec2(10, 0),
-            new b2Vec2(6, 0),
-            new b2Vec2(4, 2),
-            new b2Vec2(2, 0),
-            new b2Vec2(-2, 0),
-            new b2Vec2(-6, 0),
-            new b2Vec2(-8, -3),
-            new b2Vec2(-10, 0),
-            new b2Vec2(-10, -4),
+        const vertices: Vec2[] = [
+            new Vec2(10, -4),
+            new Vec2(10, 0),
+            new Vec2(6, 0),
+            new Vec2(4, 2),
+            new Vec2(2, 0),
+            new Vec2(-2, 0),
+            new Vec2(-6, 0),
+            new Vec2(-8, -3),
+            new Vec2(-10, 0),
+            new Vec2(-10, -4),
         ];
 
         this.m_offset1.Set(0, 8);
@@ -64,7 +64,7 @@ class EdgeTest extends Test {
 
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
+            const shape = new EdgeShape();
 
             shape.SetOneSided(v10, v1, v2, v3);
             ground.CreateFixture({ shape });
@@ -111,7 +111,7 @@ class EdgeTest extends Test {
 
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
+            const shape = new EdgeShape();
 
             shape.SetTwoSided(v1, v2);
             ground.CreateFixture({ shape });
@@ -171,7 +171,7 @@ class EdgeTest extends Test {
 
         {
             this.m_body1 = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: {
                     x: 8 + this.m_offset1.x,
                     y: 2.6 + this.m_offset1.y,
@@ -179,7 +179,7 @@ class EdgeTest extends Test {
                 allowSleep: false,
             });
 
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.5, 1);
 
             this.m_body1.CreateFixture({ shape, density: 1 });
@@ -187,12 +187,12 @@ class EdgeTest extends Test {
 
         {
             this.m_body2 = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: 8 + this.m_offset2.x, y: 2.6 + this.m_offset2.y },
                 allowSleep: false,
             });
 
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.5, 1);
 
             this.m_body2.CreateFixture({ shape, density: 1 });
@@ -212,24 +212,24 @@ class EdgeTest extends Test {
 
         {
             this.m_body1 = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: this.m_offset1.x - 0.5, y: this.m_offset1.y + 0.6 },
                 allowSleep: false,
             });
 
-            const shape = new b2CircleShape(0.5);
+            const shape = new CircleShape(0.5);
 
             this.m_body1.CreateFixture({ shape, density: 1 });
         }
 
         {
             this.m_body2 = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: this.m_offset2.x - 0.5, y: this.m_offset2.y + 0.6 },
                 allowSleep: false,
             });
 
-            const shape = new b2CircleShape(0.5);
+            const shape = new CircleShape(0.5);
 
             this.m_body2.CreateFixture({ shape, density: 1 });
         }
@@ -238,15 +238,15 @@ class EdgeTest extends Test {
     public getHotkeys(): HotKey[] {
         return [
             hotKeyStep("a", "Apply Force Left", () => {
-                this.m_body1?.ApplyForceToCenter(new b2Vec2(-10, 0), true);
-                this.m_body2?.ApplyForceToCenter(new b2Vec2(-10, 0), true);
+                this.m_body1?.ApplyForceToCenter(new Vec2(-10, 0), true);
+                this.m_body2?.ApplyForceToCenter(new Vec2(-10, 0), true);
             }),
             hotKeyStep("d", "Apply Force Right", () => {
-                this.m_body1?.ApplyForceToCenter(new b2Vec2(10, 0), true);
-                this.m_body2?.ApplyForceToCenter(new b2Vec2(10, 0), true);
+                this.m_body1?.ApplyForceToCenter(new Vec2(10, 0), true);
+                this.m_body2?.ApplyForceToCenter(new Vec2(10, 0), true);
             }),
         ];
     }
 }
 
-registerTest("Geometry", "Edge Test", EdgeTest);
+registerTest("Geometry", "Edge", EdgeTest);

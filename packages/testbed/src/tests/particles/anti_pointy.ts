@@ -16,8 +16,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2PolygonShape, b2Vec2, XY } from "@box2d/core";
-import { b2ParticleFlag, b2ParticleDef } from "@box2d/particles";
+import { PolygonShape, Vec2, XY } from "@box2d/core";
+import { ParticleFlag, ParticleDef } from "@box2d/particles";
 
 import { registerTest, TestContext } from "../../test";
 import { Settings } from "../../settings";
@@ -29,7 +29,7 @@ import { baseParticleTypes } from "../../utils/particles/particle_parameter";
  * ambiguous Body contact fixture junction.
  */
 
-class AntiPointy extends AbstractParticleTestWithControls {
+class AntiPointyTest extends AbstractParticleTestWithControls {
     public m_particlesToCreate = 300;
 
     public constructor({ particleParameter }: TestContext) {
@@ -45,18 +45,18 @@ class AntiPointy extends AbstractParticleTestWithControls {
             const step = 1;
 
             for (let i = -10; i < 10; i += step) {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(i, -10), new b2Vec2(i + step, -10), new b2Vec2(0, 15)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(i, -10), new Vec2(i + step, -10), new Vec2(0, 15)];
                 shape.Set(vertices, 3);
                 ground.CreateFixture({ shape });
             }
             for (let i = -10; i < 35; i += step) {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(-10, i), new b2Vec2(-10, i + step), new b2Vec2(0, 15)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(-10, i), new Vec2(-10, i + step), new Vec2(0, 15)];
                 shape.Set(vertices, 3);
                 ground.CreateFixture({ shape });
 
-                const vertices2 = [new b2Vec2(10, i), new b2Vec2(10, i + step), new b2Vec2(0, 15)];
+                const vertices2 = [new Vec2(10, i), new Vec2(10, i + step), new Vec2(0, 15)];
                 shape.Set(vertices2, 3);
                 ground.CreateFixture({ shape });
             }
@@ -67,7 +67,7 @@ class AntiPointy extends AbstractParticleTestWithControls {
 
         this.m_particleSystem.SetRadius(0.25 * 2); // HACK: increase particle radius
         const particleType = particleParameter.GetValue();
-        if (particleType === b2ParticleFlag.b2_waterParticle) {
+        if (particleType === ParticleFlag.Water) {
             this.m_particleSystem.SetDamping(0.2);
         }
         particleParameter.SetValues(baseParticleTypes, "water");
@@ -83,16 +83,16 @@ class AntiPointy extends AbstractParticleTestWithControls {
         --this.m_particlesToCreate;
 
         const flags = this.particleParameter.GetValue();
-        const pd = new b2ParticleDef();
+        const pd = new ParticleDef();
 
         pd.position.Set(0, 40);
         pd.velocity.Set(0, -1);
         pd.flags = flags;
 
-        if (flags & (b2ParticleFlag.b2_springParticle | b2ParticleFlag.b2_elasticParticle)) {
+        if (flags & (ParticleFlag.Spring | ParticleFlag.Elastic)) {
             const count = this.m_particleSystem.GetParticleCount();
             pd.velocity.Set(count & 1 ? -1 : 1, -5);
-            pd.flags |= b2ParticleFlag.b2_reactiveParticle;
+            pd.flags |= ParticleFlag.Reactive;
         }
 
         this.m_particleSystem.CreateParticle(pd);
@@ -106,4 +106,4 @@ class AntiPointy extends AbstractParticleTestWithControls {
     }
 }
 
-registerTest("Particles", "AntiPointy", AntiPointy);
+registerTest("Particles", "AntiPointy", AntiPointyTest);

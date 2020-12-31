@@ -16,18 +16,18 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Vec2, b2Draw, b2Transform, b2Color, b2AABB, RGBA, XY, b2Clamp } from "@box2d/core";
+import { Vec2, Draw, Transform, Color, AABB, RGBA, XY, Clamp } from "@box2d/core";
 
 import { g_camera } from "./camera";
 
-const COLOR_STRING_WORLD = new b2Color(0.5, 0.9, 0.5);
+const COLOR_STRING_WORLD = new Color(0.5, 0.9, 0.5);
 
 // This class implements debug drawing callbacks that are invoked
-// inside b2World::Step.
-export class DebugDraw implements b2Draw {
+// inside World::Step.
+export class DebugDraw implements Draw {
     public m_ctx: CanvasRenderingContext2D | null = null;
 
-    public PushTransform(xf: b2Transform): void {
+    public PushTransform(xf: Transform): void {
         const ctx: CanvasRenderingContext2D | null = this.m_ctx;
         if (ctx) {
             ctx.save();
@@ -36,7 +36,7 @@ export class DebugDraw implements b2Draw {
         }
     }
 
-    public PopTransform(_xf: b2Transform): void {
+    public PopTransform(_xf: Transform): void {
         const ctx: CanvasRenderingContext2D | null = this.m_ctx;
         if (ctx) {
             ctx.restore();
@@ -138,7 +138,7 @@ export class DebugDraw implements b2Draw {
         }
     }
 
-    public DrawTransform(xf: b2Transform): void {
+    public DrawTransform(xf: Transform): void {
         const ctx: CanvasRenderingContext2D | null = this.m_ctx;
         if (ctx) {
             this.PushTransform(xf);
@@ -146,13 +146,13 @@ export class DebugDraw implements b2Draw {
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.lineTo(1, 0);
-            ctx.strokeStyle = DebugDraw.MakeStyleString(b2Color.RED);
+            ctx.strokeStyle = DebugDraw.MakeStyleString(Color.RED);
             ctx.stroke();
 
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.lineTo(0, 1);
-            ctx.strokeStyle = DebugDraw.MakeStyleString(b2Color.GREEN);
+            ctx.strokeStyle = DebugDraw.MakeStyleString(Color.GREEN);
             ctx.stroke();
 
             this.PopTransform(xf);
@@ -174,18 +174,18 @@ export class DebugDraw implements b2Draw {
         if (ctx) {
             ctx.font = "16px Open Sans";
             ctx.textAlign = align;
-            ctx.fillStyle = DebugDraw.MakeStyleString(b2Color.WHITE);
+            ctx.fillStyle = DebugDraw.MakeStyleString(Color.WHITE);
             // ctx.shadowOffsetX = 3;
             // ctx.shadowOffsetY = 3;
             // ctx.shadowBlur = 2;
-            // ctx.shadowColor = DebugDraw.MakeStyleString(b2Color.BLACK);
+            // ctx.shadowColor = DebugDraw.MakeStyleString(Color.BLACK);
             ctx.fillText(message, x, y);
         }
     }
 
-    private static DrawStringWorld_s_p = new b2Vec2();
+    private static DrawStringWorld_s_p = new Vec2();
 
-    private static DrawStringWorld_s_cc = new b2Vec2();
+    private static DrawStringWorld_s_cc = new Vec2();
 
     public DrawStringWorld(x: number, y: number, message: string): void {
         const ctx: CanvasRenderingContext2D | null = this.m_ctx;
@@ -194,11 +194,11 @@ export class DebugDraw implements b2Draw {
 
             // world -> viewport
             const vt = g_camera.getCenter();
-            b2Vec2.Subtract(p, vt, p);
-            b2Vec2.Scale(g_camera.getZoom(), p, p);
+            Vec2.Subtract(p, vt, p);
+            Vec2.Scale(g_camera.getZoom(), p, p);
             p.y *= -1;
             const cc = DebugDraw.DrawStringWorld_s_cc.Set(0.5 * ctx.canvas.width, 0.5 * ctx.canvas.height);
-            b2Vec2.Add(p, cc, p);
+            Vec2.Add(p, cc, p);
 
             ctx.save();
             ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -209,7 +209,7 @@ export class DebugDraw implements b2Draw {
         }
     }
 
-    public DrawAABB(aabb: b2AABB, color: RGBA): void {
+    public DrawAABB(aabb: AABB, color: RGBA): void {
         const ctx: CanvasRenderingContext2D | null = this.m_ctx;
         if (ctx) {
             ctx.strokeStyle = DebugDraw.MakeStyleString(color);
@@ -223,11 +223,11 @@ export class DebugDraw implements b2Draw {
 
     public static MakeStyleString(color: RGBA, a = color.a): string {
         let { r, g, b } = color;
-        r = b2Clamp(r * 255, 0, 255);
-        g = b2Clamp(g * 255, 0, 255);
-        b = b2Clamp(b * 255, 0, 255);
+        r = Clamp(r * 255, 0, 255);
+        g = Clamp(g * 255, 0, 255);
+        b = Clamp(b * 255, 0, 255);
         if (a < 1) {
-            a = b2Clamp(a, 0, 1);
+            a = Clamp(a, 0, 1);
             return `rgba(${r},${g},${b},${a})`;
         }
         return `rgb(${r},${g},${b})`;

@@ -1,11 +1,11 @@
-import { b2World, b2Body } from "@box2d/core";
+import { World, Body } from "@box2d/core";
 import { RayHandler, Light, XY } from "@box2d/lights";
 
 export class RayHandlerImpl extends RayHandler {
-    private readonly world: b2World;
+    private readonly world: World;
 
     public constructor(
-        world: b2World,
+        world: World,
         gl: WebGLRenderingContext,
         fboWidth: number,
         fboHeight: number,
@@ -24,10 +24,10 @@ export class RayHandlerImpl extends RayHandler {
     }
 
     public getBodyPosition(body: any) {
-        return (body as b2Body).GetPosition();
+        return (body as Body).GetPosition();
     }
 
     public getBodyAngle(body: any) {
-        return (body as b2Body).GetAngle();
+        return (body as Body).GetAngle();
     }
 }

@@ -16,14 +16,14 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Vec2, b2ChainShape, b2PolygonShape, XY, b2Assert } from "@box2d/core";
-import { b2ParticleGroupDef, b2ParticleFlag } from "@box2d/particles";
+import { Vec2, ChainShape, PolygonShape, XY, Assert } from "@box2d/core";
+import { ParticleGroupDef, ParticleFlag } from "@box2d/particles";
 
 import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 import { registerTest, TestContext } from "../../test";
 import { AbstractParticleTestWithControls } from "./abstract_particle_test";
 
-class Impulse extends AbstractParticleTestWithControls {
+class ImpulseTest extends AbstractParticleTestWithControls {
     public static readonly kBoxLeft = -2;
 
     public static readonly kBoxRight = 2;
@@ -42,12 +42,12 @@ class Impulse extends AbstractParticleTestWithControls {
             const ground = this.m_world.CreateBody();
 
             const box = [
-                new b2Vec2(Impulse.kBoxLeft, Impulse.kBoxBottom),
-                new b2Vec2(Impulse.kBoxRight, Impulse.kBoxBottom),
-                new b2Vec2(Impulse.kBoxRight, Impulse.kBoxTop),
-                new b2Vec2(Impulse.kBoxLeft, Impulse.kBoxTop),
+                new Vec2(ImpulseTest.kBoxLeft, ImpulseTest.kBoxBottom),
+                new Vec2(ImpulseTest.kBoxRight, ImpulseTest.kBoxBottom),
+                new Vec2(ImpulseTest.kBoxRight, ImpulseTest.kBoxTop),
+                new Vec2(ImpulseTest.kBoxLeft, ImpulseTest.kBoxTop),
             ];
-            const shape = new b2ChainShape();
+            const shape = new ChainShape();
             shape.CreateLoop(box, box.length);
             ground.CreateFixture({ shape });
         }
@@ -57,30 +57,33 @@ class Impulse extends AbstractParticleTestWithControls {
 
         // Create the particles.
         {
-            const shape = new b2PolygonShape();
-            shape.SetAsBox(0.8, 1, new b2Vec2(0, 1.01), 0);
-            const pd = new b2ParticleGroupDef();
+            const shape = new PolygonShape();
+            shape.SetAsBox(0.8, 1, new Vec2(0, 1.01), 0);
+            const pd = new ParticleGroupDef();
             pd.flags = particleParameter.GetValue();
             pd.shape = shape;
             const group = this.m_particleSystem.CreateParticleGroup(pd);
-            if (pd.flags & b2ParticleFlag.b2_colorMixingParticle) {
+            if (pd.flags & ParticleFlag.ColorMixing) {
                 this.ColorParticleGroup(group, 0);
             }
         }
     }
 
-    public MouseUp(p: b2Vec2) {
+    public MouseUp(p: Vec2) {
         super.MouseUp(p);
 
         // Apply an impulse to the particles.
         const isInsideBox =
-            Impulse.kBoxLeft <= p.x && p.x <= Impulse.kBoxRight && Impulse.kBoxBottom <= p.y && p.y <= Impulse.kBoxTop;
+            ImpulseTest.kBoxLeft <= p.x &&
+            p.x <= ImpulseTest.kBoxRight &&
+            ImpulseTest.kBoxBottom <= p.y &&
+            p.y <= ImpulseTest.kBoxTop;
         if (isInsideBox) {
-            const kBoxCenter = new b2Vec2(
-                0.5 * (Impulse.kBoxLeft + Impulse.kBoxRight),
-                0.5 * (Impulse.kBoxBottom + Impulse.kBoxTop),
+            const kBoxCenter = new Vec2(
+                0.5 * (ImpulseTest.kBoxLeft + ImpulseTest.kBoxRight),
+                0.5 * (ImpulseTest.kBoxBottom + ImpulseTest.kBoxTop),
             );
-            const direction = b2Vec2.Subtract(p, kBoxCenter, new b2Vec2());
+            const direction = Vec2.Subtract(p, kBoxCenter, new Vec2());
             direction.Normalize();
             this.ApplyImpulseOrForce(direction);
         }
@@ -88,7 +91,7 @@ class Impulse extends AbstractParticleTestWithControls {
 
     public getHotkeys(): HotKey[] {
         return [
-            hotKeyPress("l", "Use Linear Impulse", () => {
+            hotKeyPress("l", "Use Linear ImpulseTest", () => {
                 this.m_useLinearImpulse = true;
             }),
             hotKeyPress("f", "Use Force", () => {
@@ -97,20 +100,20 @@ class Impulse extends AbstractParticleTestWithControls {
         ];
     }
 
-    public ApplyImpulseOrForce(direction: b2Vec2) {
+    public ApplyImpulseOrForce(direction: Vec2) {
         const particleSystem = this.m_world.GetParticleSystemList();
-        b2Assert(particleSystem !== null);
+        Assert(particleSystem !== null);
         const particleGroup = particleSystem.GetParticleGroupList();
-        b2Assert(particleGroup !== null);
+        Assert(particleGroup !== null);
         const numParticles = particleGroup.GetParticleCount();
 
         if (this.m_useLinearImpulse) {
             const kImpulseMagnitude = 0.005;
-            const impulse = b2Vec2.Scale(kImpulseMagnitude * numParticles, direction, new b2Vec2());
+            const impulse = Vec2.Scale(kImpulseMagnitude * numParticles, direction, new Vec2());
             particleGroup.ApplyLinearImpulse(impulse);
         } else {
             const kForceMagnitude = 1;
-            const force = b2Vec2.Scale(kForceMagnitude * numParticles, direction, new b2Vec2());
+            const force = Vec2.Scale(kForceMagnitude * numParticles, direction, new Vec2());
             particleGroup.ApplyForce(force);
         }
     }
@@ -127,4 +130,4 @@ class Impulse extends AbstractParticleTestWithControls {
     }
 }
 
-registerTest("Particles", "Impulse", Impulse);
+registerTest("Particles", "Impulse", ImpulseTest);

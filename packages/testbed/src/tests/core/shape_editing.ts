@@ -16,18 +16,18 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Body, b2Fixture, b2EdgeShape, b2Vec2, b2BodyType, b2PolygonShape, b2CircleShape } from "@box2d/core";
+import { Body, Fixture, EdgeShape, Vec2, BodyType, PolygonShape, CircleShape } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
 import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 
-class ShapeEditing extends Test {
-    public m_body: b2Body;
+class ShapeEditingTest extends Test {
+    public m_body: Body;
 
-    public m_fixture1: b2Fixture;
+    public m_fixture1: Fixture;
 
-    public m_fixture2: b2Fixture | null = null;
+    public m_fixture2: Fixture | null = null;
 
     public m_sensor = false;
 
@@ -37,18 +37,18 @@ class ShapeEditing extends Test {
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.CreateFixture({ shape });
         }
 
         this.m_body = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
             position: { x: 0, y: 10 },
         });
 
-        const shape = new b2PolygonShape();
-        shape.SetAsBox(4, 4, new b2Vec2(), 0);
+        const shape = new PolygonShape();
+        shape.SetAsBox(4, 4, new Vec2(), 0);
         this.m_fixture1 = this.m_body.CreateFixture({ shape, density: 10 });
     }
 
@@ -56,7 +56,7 @@ class ShapeEditing extends Test {
         return [
             hotKeyPress("c", "Create a Shape", () => {
                 if (this.m_fixture2 === null) {
-                    const shape = new b2CircleShape();
+                    const shape = new CircleShape();
                     shape.m_radius = 3;
                     shape.m_p.Set(0.5, -4);
                     this.m_fixture2 = this.m_body.CreateFixture({ shape, density: 10 });
@@ -85,4 +85,4 @@ class ShapeEditing extends Test {
     }
 }
 
-registerTest("Examples", "Shape Editing", ShapeEditing);
+registerTest("Examples", "Shape Editing", ShapeEditingTest);

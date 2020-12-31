@@ -17,18 +17,18 @@
  */
 
 import {
-    b2Color,
-    b2Vec2,
-    b2CircleShape,
+    Color,
+    Vec2,
+    CircleShape,
     RGBA,
-    b2BodyType,
-    b2Contact,
-    b2WorldManifold,
-    b2PolygonShape,
+    BodyType,
+    Contact,
+    WorldManifold,
+    PolygonShape,
     XY,
-    b2RandomFloat,
+    RandomFloat,
 } from "@box2d/core";
-import { b2ParticleGroup, b2ParticleSystem, b2ParticleFlag, b2ParticleGroupDef } from "@box2d/particles";
+import { ParticleGroup, ParticleSystem, ParticleFlag, ParticleGroupDef } from "@box2d/particles";
 
 import { registerTest, TestContext } from "../../test";
 import { Settings } from "../../settings";
@@ -46,27 +46,27 @@ class ParticleVFX {
 
     private m_halfLifetime = 0;
 
-    private m_pg: b2ParticleGroup;
+    private m_pg: ParticleGroup;
 
-    private m_particleSystem: b2ParticleSystem;
+    private m_particleSystem: ParticleSystem;
 
-    private m_origColor = new b2Color();
+    private m_origColor = new Color();
 
     public constructor(
-        particleSystem: b2ParticleSystem,
-        origin: b2Vec2,
+        particleSystem: ParticleSystem,
+        origin: Vec2,
         size: number,
         speed: number,
         lifetime: number,
-        particleFlags: b2ParticleFlag,
+        particleFlags: ParticleFlag,
     ) {
         // Create a circle to house the particles of size size
-        const shape = new b2CircleShape();
+        const shape = new CircleShape();
         shape.m_p.Copy(origin);
         shape.m_radius = size;
 
         // Create particle def of random color.
-        const pd = new b2ParticleGroupDef();
+        const pd = new ParticleGroupDef();
         pd.flags = particleFlags;
         pd.shape = shape;
         // this.m_origColor.Set(
@@ -123,7 +123,7 @@ class ParticleVFX {
         const pos = this.m_particleSystem.GetPositionBuffer();
         const vel = this.m_particleSystem.GetVelocityBuffer();
         for (let i = bufferIndex; i < bufferIndex + this.m_pg.GetParticleCount(); i++) {
-            b2Vec2.Subtract(pos[i], origin, vel[i]);
+            Vec2.Subtract(pos[i], origin, vel[i]);
             vel[i].Scale(speed);
         }
     }
@@ -164,7 +164,7 @@ class ParticleVFX {
     }
 }
 
-class Sparky extends AbstractParticleTestWithControls {
+class SparkyTest extends AbstractParticleTestWithControls {
     private static c_maxCircles = 3; // 6;
 
     private static c_maxVFX = 20; // 50;
@@ -179,7 +179,7 @@ class Sparky extends AbstractParticleTestWithControls {
 
     private m_contact = false;
 
-    private m_contactPoint = new b2Vec2();
+    private m_contactPoint = new Vec2();
 
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter);
@@ -187,7 +187,7 @@ class Sparky extends AbstractParticleTestWithControls {
         // Set up array of sparks trackers.
         this.m_VFXIndex = 0;
 
-        for (let i = 0; i < Sparky.c_maxVFX; i++) {
+        for (let i = 0; i < SparkyTest.c_maxVFX; i++) {
             this.m_VFX[i] = null;
         }
 
@@ -195,12 +195,12 @@ class Sparky extends AbstractParticleTestWithControls {
         this.m_particleSystem.SetRadius(0.25 * 2); // HACK: increase particle radius
 
         // Create a list of circles that will spark.
-        for (let i = 0; i < Sparky.c_maxCircles; i++) {
+        for (let i = 0; i < SparkyTest.c_maxCircles; i++) {
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
             });
-            const shape = new b2CircleShape();
-            shape.m_p.Set(3 * b2RandomFloat(-1, 1), Sparky.SHAPE_HEIGHT_OFFSET + Sparky.SHAPE_OFFSET * i);
+            const shape = new CircleShape();
+            shape.m_p.Set(3 * RandomFloat(-1, 1), SparkyTest.SHAPE_HEIGHT_OFFSET + SparkyTest.SHAPE_OFFSET * i);
             shape.m_radius = 2;
             const f = body.CreateFixture({ shape, density: 0.5 });
             // Tag this as a sparkable body.
@@ -213,13 +213,13 @@ class Sparky extends AbstractParticleTestWithControls {
         particleParameter.SetRestartOnChange(false);
     }
 
-    public BeginContact(contact: b2Contact) {
+    public BeginContact(contact: Contact) {
         super.BeginContact(contact);
         // Check to see if these are two circles hitting one another.
         const userA: SparkUserData = contact.GetFixtureA().GetUserData();
         const userB: SparkUserData = contact.GetFixtureB().GetUserData();
         if (userA?.spark || userB?.spark) {
-            const worldManifold = new b2WorldManifold();
+            const worldManifold = new WorldManifold();
             contact.GetWorldManifold(worldManifold);
 
             // Note that we overwrite any contact; if there are two collisions
@@ -248,7 +248,7 @@ class Sparky extends AbstractParticleTestWithControls {
         }
 
         // Step particle explosions.
-        for (let i = 0; i < Sparky.c_maxVFX; i++) {
+        for (let i = 0; i < SparkyTest.c_maxVFX; i++) {
             const vfx = this.m_VFX[i];
             if (vfx === null) {
                 continue;
@@ -261,7 +261,7 @@ class Sparky extends AbstractParticleTestWithControls {
         }
     }
 
-    public AddVFX(p: b2Vec2, particleFlags: b2ParticleFlag) {
+    public AddVFX(p: Vec2, particleFlags: ParticleFlag) {
         const vfx = this.m_VFX[this.m_VFXIndex];
         if (vfx !== null) {
             vfx.Drop();
@@ -270,12 +270,12 @@ class Sparky extends AbstractParticleTestWithControls {
         this.m_VFX[this.m_VFXIndex] = new ParticleVFX(
             this.m_particleSystem,
             p,
-            b2RandomFloat(1, 2),
-            b2RandomFloat(10, 20),
-            b2RandomFloat(0.5, 1),
+            RandomFloat(1, 2),
+            RandomFloat(10, 20),
+            RandomFloat(0.5, 1),
             particleFlags,
         );
-        if (++this.m_VFXIndex >= Sparky.c_maxVFX) {
+        if (++this.m_VFXIndex >= SparkyTest.c_maxVFX) {
             this.m_VFXIndex = 0;
         }
     }
@@ -292,33 +292,33 @@ class Sparky extends AbstractParticleTestWithControls {
         const ground = this.m_world.CreateBody();
 
         {
-            const shape = new b2PolygonShape();
-            const vertices = [new b2Vec2(-40, -10), new b2Vec2(40, -10), new b2Vec2(40, 0), new b2Vec2(-40, 0)];
+            const shape = new PolygonShape();
+            const vertices = [new Vec2(-40, -10), new Vec2(40, -10), new Vec2(40, 0), new Vec2(-40, 0)];
             shape.Set(vertices, 4);
             ground.CreateFixture({ shape });
         }
 
         {
-            const shape = new b2PolygonShape();
-            const vertices = [new b2Vec2(-40, 40), new b2Vec2(40, 40), new b2Vec2(40, 50), new b2Vec2(-40, 50)];
+            const shape = new PolygonShape();
+            const vertices = [new Vec2(-40, 40), new Vec2(40, 40), new Vec2(40, 50), new Vec2(-40, 50)];
             shape.Set(vertices, 4);
             ground.CreateFixture({ shape });
         }
 
         {
-            const shape = new b2PolygonShape();
-            const vertices = [new b2Vec2(-40, -10), new b2Vec2(-20, -10), new b2Vec2(-20, 50), new b2Vec2(-40, 50)];
+            const shape = new PolygonShape();
+            const vertices = [new Vec2(-40, -10), new Vec2(-20, -10), new Vec2(-20, 50), new Vec2(-40, 50)];
             shape.Set(vertices, 4);
             ground.CreateFixture({ shape });
         }
 
         {
-            const shape = new b2PolygonShape();
-            const vertices = [new b2Vec2(20, -10), new b2Vec2(40, -10), new b2Vec2(40, 50), new b2Vec2(20, 50)];
+            const shape = new PolygonShape();
+            const vertices = [new Vec2(20, -10), new Vec2(40, -10), new Vec2(40, 50), new Vec2(20, 50)];
             shape.Set(vertices, 4);
             ground.CreateFixture({ shape });
         }
     }
 }
 
-registerTest("Particles", "Sparky", Sparky);
+registerTest("Particles", "Sparky", SparkyTest);

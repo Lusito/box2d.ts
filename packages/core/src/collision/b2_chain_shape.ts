@@ -20,14 +20,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { b2Assert, b2_linearSlop } from "../common/b2_common";
-import { b2_polygonRadius } from "../common/b2_common";
-import { b2Vec2, b2Transform, XY } from "../common/b2_math";
-import { b2AABB, b2RayCastInput, b2RayCastOutput } from "./b2_collision";
-import { b2DistanceProxy } from "./b2_distance";
-import { b2MassData, b2Shape, b2ShapeType } from "./b2_shape";
-import { b2EdgeShape } from "./b2_edge_shape";
-import { b2Color, b2Draw } from "../common/b2_draw";
+// DEBUG: import { Assert, LINEAR_SLOP } from "../common/b2_common";
+import { POLYGON_RADIUS } from "../common/b2_common";
+import { Vec2, Transform, XY } from "../common/b2_math";
+import { AABB, RayCastInput, RayCastOutput } from "./b2_collision";
+import { DistanceProxy } from "./b2_distance";
+import { MassData, Shape, ShapeType } from "./b2_shape";
+import { EdgeShape } from "./b2_edge_shape";
+import { Color, Draw } from "../common/b2_draw";
 
 /**
  * A chain shape is a free form sequence of line segments.
@@ -37,15 +37,15 @@ import { b2Color, b2Draw } from "../common/b2_draw";
  *
  * @warning the chain will not collide properly if there are self-intersections.
  */
-export class b2ChainShape extends b2Shape {
-    public m_vertices: b2Vec2[] = [];
+export class ChainShape extends Shape {
+    public m_vertices: Vec2[] = [];
 
-    public readonly m_prevVertex = new b2Vec2();
+    public readonly m_prevVertex = new Vec2();
 
-    public readonly m_nextVertex = new b2Vec2();
+    public readonly m_nextVertex = new Vec2();
 
     public constructor() {
-        super(b2ShapeType.e_chain, b2_polygonRadius);
+        super(ShapeType.Chain, POLYGON_RADIUS);
     }
 
     /**
@@ -54,8 +54,8 @@ export class b2ChainShape extends b2Shape {
      * @param vertices An array of vertices, these are copied
      * @param count The vertex count
      */
-    public CreateLoop(vertices: XY[], count = vertices.length): b2ChainShape {
-        // DEBUG: b2Assert(count >= 3);
+    public CreateLoop(vertices: XY[], count = vertices.length): ChainShape {
+        // DEBUG: Assert(count >= 3);
         if (count < 3) {
             return this;
         }
@@ -63,13 +63,13 @@ export class b2ChainShape extends b2Shape {
         // DEBUG:   const v1 = vertices[i - 1];
         // DEBUG:   const v2 = vertices[i];
         // DEBUG:   // If the code crashes here, it means your vertices are too close together.
-        // DEBUG:   b2Assert(b2Vec2.DistanceSquared(v1, v2) > b2_linearSlop * b2_linearSlop);
+        // DEBUG:   Assert(Vec2.DistanceSquared(v1, v2) > LINEAR_SLOP * LINEAR_SLOP);
         // DEBUG: }
 
         this.m_vertices.length = count + 1;
         for (let i = 0; i < count; ++i) {
             const { x, y } = vertices[i];
-            this.m_vertices[i] = new b2Vec2(x, y);
+            this.m_vertices[i] = new Vec2(x, y);
         }
 
         this.m_vertices[count] = this.m_vertices[0].Clone();
@@ -86,22 +86,17 @@ export class b2ChainShape extends b2Shape {
      * @param prevVertex Previous vertex from chain that connects to the start
      * @param nextVertex Next vertex from chain that connects to the end
      */
-    public CreateChain(
-        vertices: XY[],
-        count: number,
-        prevVertex: Readonly<XY>,
-        nextVertex: Readonly<XY>,
-    ): b2ChainShape {
-        // DEBUG: b2Assert(count >= 2);
+    public CreateChain(vertices: XY[], count: number, prevVertex: Readonly<XY>, nextVertex: Readonly<XY>): ChainShape {
+        // DEBUG: Assert(count >= 2);
         // DEBUG: for (let i =  1; i < count; ++i) {
         // DEBUG:   // If the code crashes here, it means your vertices are too close together.
-        // DEBUG:   b2Assert(b2Vec2.DistanceSquared(vertices[i-1], vertices[i]) > b2_linearSlop * b2_linearSlop);
+        // DEBUG:   Assert(Vec2.DistanceSquared(vertices[i-1], vertices[i]) > LINEAR_SLOP * LINEAR_SLOP);
         // DEBUG: }
 
         this.m_vertices.length = count;
         for (let i = 0; i < count; ++i) {
             const { x, y } = vertices[i];
-            this.m_vertices[i] = new b2Vec2(x, y);
+            this.m_vertices[i] = new Vec2(x, y);
         }
 
         this.m_prevVertex.Copy(prevVertex);
@@ -111,22 +106,22 @@ export class b2ChainShape extends b2Shape {
     }
 
     /**
-     * Implement b2Shape. Vertices are cloned using b2Alloc.
+     * Implement Shape. Vertices are cloned using Alloc.
      */
-    public Clone(): b2ChainShape {
-        return new b2ChainShape().Copy(this);
+    public Clone(): ChainShape {
+        return new ChainShape().Copy(this);
     }
 
-    public Copy(other: b2ChainShape): b2ChainShape {
+    public Copy(other: ChainShape): ChainShape {
         super.Copy(other);
 
-        // DEBUG: b2Assert(other instanceof b2ChainShape);
+        // DEBUG: Assert(other instanceof ChainShape);
 
         return this.CreateChain(other.m_vertices, other.m_vertices.length, other.m_prevVertex, other.m_nextVertex);
     }
 
     /**
-     * @see b2Shape::GetChildCount
+     * @see Shape::GetChildCount
      */
     public GetChildCount(): number {
         // edge count = vertex count - 1
@@ -136,8 +131,8 @@ export class b2ChainShape extends b2Shape {
     /**
      * Get a child edge.
      */
-    public GetChildEdge(edge: b2EdgeShape, index: number): void {
-        // DEBUG: b2Assert(0 <= index && index < this.m_vertices.length - 1);
+    public GetChildEdge(edge: EdgeShape, index: number): void {
+        // DEBUG: Assert(0 <= index && index < this.m_vertices.length - 1);
         edge.m_radius = this.m_radius;
 
         edge.m_vertex1.Copy(this.m_vertices[index]);
@@ -160,21 +155,21 @@ export class b2ChainShape extends b2Shape {
     /**
      * This always return false.
      *
-     * @see b2Shape::TestPoint
+     * @see Shape::TestPoint
      */
-    public TestPoint(_xf: b2Transform, _p: XY): boolean {
+    public TestPoint(_xf: Transform, _p: XY): boolean {
         return false;
     }
 
-    private static RayCast_s_edgeShape = new b2EdgeShape();
+    private static RayCast_s_edgeShape = new EdgeShape();
 
     /**
-     * Implement b2Shape.
+     * Implement Shape.
      */
-    public RayCast(output: b2RayCastOutput, input: b2RayCastInput, xf: b2Transform, childIndex: number): boolean {
-        // DEBUG: b2Assert(childIndex < this.m_vertices.length);
+    public RayCast(output: RayCastOutput, input: RayCastInput, xf: Transform, childIndex: number): boolean {
+        // DEBUG: Assert(childIndex < this.m_vertices.length);
 
-        const edgeShape = b2ChainShape.RayCast_s_edgeShape;
+        const edgeShape = ChainShape.RayCast_s_edgeShape;
 
         const i1 = childIndex;
         let i2 = childIndex + 1;
@@ -188,19 +183,19 @@ export class b2ChainShape extends b2Shape {
         return edgeShape.RayCast(output, input, xf, 0);
     }
 
-    private static ComputeAABB_s_v1 = new b2Vec2();
+    private static ComputeAABB_s_v1 = new Vec2();
 
-    private static ComputeAABB_s_v2 = new b2Vec2();
+    private static ComputeAABB_s_v2 = new Vec2();
 
-    private static ComputeAABB_s_lower = new b2Vec2();
+    private static ComputeAABB_s_lower = new Vec2();
 
-    private static ComputeAABB_s_upper = new b2Vec2();
+    private static ComputeAABB_s_upper = new Vec2();
 
     /**
-     * @see b2Shape::ComputeAABB
+     * @see Shape::ComputeAABB
      */
-    public ComputeAABB(aabb: b2AABB, xf: b2Transform, childIndex: number): void {
-        // DEBUG: b2Assert(childIndex < this.m_vertices.length);
+    public ComputeAABB(aabb: AABB, xf: Transform, childIndex: number): void {
+        // DEBUG: Assert(childIndex < this.m_vertices.length);
 
         const i1 = childIndex;
         let i2 = childIndex + 1;
@@ -208,11 +203,11 @@ export class b2ChainShape extends b2Shape {
             i2 = 0;
         }
 
-        const v1 = b2Transform.MultiplyVec2(xf, this.m_vertices[i1], b2ChainShape.ComputeAABB_s_v1);
-        const v2 = b2Transform.MultiplyVec2(xf, this.m_vertices[i2], b2ChainShape.ComputeAABB_s_v2);
+        const v1 = Transform.MultiplyVec2(xf, this.m_vertices[i1], ChainShape.ComputeAABB_s_v1);
+        const v2 = Transform.MultiplyVec2(xf, this.m_vertices[i2], ChainShape.ComputeAABB_s_v2);
 
-        const lower = b2Vec2.Min(v1, v2, b2ChainShape.ComputeAABB_s_lower);
-        const upper = b2Vec2.Max(v1, v2, b2ChainShape.ComputeAABB_s_upper);
+        const lower = Vec2.Min(v1, v2, ChainShape.ComputeAABB_s_lower);
+        const upper = Vec2.Max(v1, v2, ChainShape.ComputeAABB_s_upper);
 
         aabb.lowerBound.x = lower.x - this.m_radius;
         aabb.lowerBound.y = lower.y - this.m_radius;
@@ -223,16 +218,16 @@ export class b2ChainShape extends b2Shape {
     /**
      * Chains have zero mass.
      *
-     * @see b2Shape::ComputeMass
+     * @see Shape::ComputeMass
      */
-    public ComputeMass(massData: b2MassData, _density: number): void {
+    public ComputeMass(massData: MassData, _density: number): void {
         massData.mass = 0;
         massData.center.SetZero();
         massData.I = 0;
     }
 
-    public SetupDistanceProxy(proxy: b2DistanceProxy, index: number): void {
-        // DEBUG: b2Assert(0 <= index && index < this.m_vertices.length);
+    public SetupDistanceProxy(proxy: DistanceProxy, index: number): void {
+        // DEBUG: Assert(0 <= index && index < this.m_vertices.length);
 
         proxy.m_vertices = proxy.m_buffer;
         proxy.m_vertices[0].Copy(this.m_vertices[index]);
@@ -245,7 +240,7 @@ export class b2ChainShape extends b2Shape {
         proxy.m_radius = this.m_radius;
     }
 
-    public Draw(draw: b2Draw, color: b2Color): void {
+    public Draw(draw: Draw, color: Color): void {
         const vertices = this.m_vertices;
         let v1 = vertices[0];
         for (let i = 1; i < vertices.length; ++i) {

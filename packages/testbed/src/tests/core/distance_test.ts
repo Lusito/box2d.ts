@@ -17,14 +17,14 @@
  */
 
 import {
-    b2Vec2,
-    b2Transform,
-    b2PolygonShape,
-    b2DistanceInput,
-    b2SimplexCache,
-    b2DistanceOutput,
-    b2Distance,
-    b2Color,
+    Vec2,
+    Transform,
+    PolygonShape,
+    DistanceInput,
+    SimplexCache,
+    DistanceOutput,
+    Distance,
+    Color,
     XY,
 } from "@box2d/core";
 
@@ -34,17 +34,17 @@ import { g_debugDraw } from "../../utils/draw";
 import { hotKeyPress, HotKey } from "../../utils/hotkeys";
 
 class DistanceTest extends Test {
-    public m_positionB = new b2Vec2();
+    public m_positionB = new Vec2();
 
     public m_angleB = 0;
 
-    public m_transformA = new b2Transform();
+    public m_transformA = new Transform();
 
-    public m_transformB = new b2Transform();
+    public m_transformB = new Transform();
 
-    public m_polygonA = new b2PolygonShape();
+    public m_polygonA = new PolygonShape();
 
-    public m_polygonB = new b2PolygonShape();
+    public m_polygonB = new PolygonShape();
 
     public constructor() {
         super();
@@ -92,30 +92,30 @@ class DistanceTest extends Test {
     public Step(settings: Settings, timeStep: number): void {
         super.Step(settings, timeStep);
 
-        const input = new b2DistanceInput();
+        const input = new DistanceInput();
         input.proxyA.SetShape(this.m_polygonA, 0);
         input.proxyB.SetShape(this.m_polygonB, 0);
         input.transformA.Copy(this.m_transformA);
         input.transformB.Copy(this.m_transformB);
         input.useRadii = true;
-        const cache = new b2SimplexCache();
+        const cache = new SimplexCache();
         cache.count = 0;
-        const output = new b2DistanceOutput();
-        b2Distance(output, cache, input);
+        const output = new DistanceOutput();
+        Distance(output, cache, input);
 
         this.addDebug("Distance", output.distance.toFixed(2));
         this.addDebug("Iterations", output.iterations);
 
         {
-            const color = new b2Color(0.9, 0.9, 0.9);
+            const color = new Color(0.9, 0.9, 0.9);
             const v = [];
             for (let i = 0; i < this.m_polygonA.m_count; ++i) {
-                v[i] = b2Transform.MultiplyVec2(this.m_transformA, this.m_polygonA.m_vertices[i], new b2Vec2());
+                v[i] = Transform.MultiplyVec2(this.m_transformA, this.m_polygonA.m_vertices[i], new Vec2());
             }
             g_debugDraw.DrawPolygon(v, this.m_polygonA.m_count, color);
 
             for (let i = 0; i < this.m_polygonB.m_count; ++i) {
-                v[i] = b2Transform.MultiplyVec2(this.m_transformB, this.m_polygonB.m_vertices[i], new b2Vec2());
+                v[i] = Transform.MultiplyVec2(this.m_transformB, this.m_polygonB.m_vertices[i], new Vec2());
             }
             g_debugDraw.DrawPolygon(v, this.m_polygonB.m_count, color);
         }
@@ -123,12 +123,12 @@ class DistanceTest extends Test {
         const x1 = output.pointA;
         const x2 = output.pointB;
 
-        const c1 = new b2Color(1, 0, 0);
+        const c1 = new Color(1, 0, 0);
         g_debugDraw.DrawPoint(x1, 4, c1);
 
-        const c2 = new b2Color(1, 1, 0);
+        const c2 = new Color(1, 1, 0);
         g_debugDraw.DrawPoint(x2, 4, c2);
     }
 }
 
-registerTest("Examples", "Distance Test", DistanceTest);
+registerTest("Examples", "Distance", DistanceTest);

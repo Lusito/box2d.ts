@@ -16,17 +16,17 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Vec2, b2RandomFloat, b2Clamp, b2PolygonShape, b2Color } from "@box2d/core";
+import { Vec2, RandomFloat, Clamp, PolygonShape, Color } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
 import { g_debugDraw } from "../../utils/draw";
 import { hotKeyPress, HotKey } from "../../utils/hotkeys";
 
-class ConvexHull extends Test {
+class ConvexHullTest extends Test {
     public static readonly e_count = 10;
 
-    public m_test_points: b2Vec2[] = [];
+    public m_test_points: Vec2[] = [];
 
     public m_count = 0;
 
@@ -43,18 +43,18 @@ class ConvexHull extends Test {
     }
 
     public Generate(): void {
-        for (let i = 0; i < ConvexHull.e_count; ++i) {
-            let x = b2RandomFloat(-10, 10);
-            let y = b2RandomFloat(-10, 10);
+        for (let i = 0; i < ConvexHullTest.e_count; ++i) {
+            let x = RandomFloat(-10, 10);
+            let y = RandomFloat(-10, 10);
 
             // Clamp onto a square to help create collinearities.
             // This will stress the convex hull algorithm.
-            x = b2Clamp(x, -8, 8);
-            y = b2Clamp(y, -8, 8);
-            this.m_test_points[i] = new b2Vec2(x, y);
+            x = Clamp(x, -8, 8);
+            y = Clamp(y, -8, 8);
+            this.m_test_points[i] = new Vec2(x, y);
         }
 
-        this.m_count = ConvexHull.e_count;
+        this.m_count = ConvexHullTest.e_count;
     }
 
     public getHotkeys(): HotKey[] {
@@ -69,13 +69,13 @@ class ConvexHull extends Test {
     public Step(settings: Settings, timeStep: number): void {
         super.Step(settings, timeStep);
 
-        const shape = new b2PolygonShape();
+        const shape = new PolygonShape();
         shape.Set(this.m_test_points, this.m_count);
 
-        g_debugDraw.DrawPolygon(shape.m_vertices, shape.m_count, new b2Color(0.9, 0.9, 0.9));
+        g_debugDraw.DrawPolygon(shape.m_vertices, shape.m_count, new Color(0.9, 0.9, 0.9));
 
         for (let i = 0; i < this.m_count; ++i) {
-            g_debugDraw.DrawPoint(this.m_test_points[i], 3, new b2Color(0.3, 0.9, 0.3));
+            g_debugDraw.DrawPoint(this.m_test_points[i], 3, new Color(0.3, 0.9, 0.3));
             g_debugDraw.DrawStringWorld(this.m_test_points[i].x + 0.05, this.m_test_points[i].y + 0.05, `${i}`);
         }
 
@@ -87,4 +87,4 @@ class ConvexHull extends Test {
     }
 }
 
-registerTest("Geometry", "Convex Hull", ConvexHull);
+registerTest("Geometry", "Convex Hull", ConvexHullTest);

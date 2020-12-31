@@ -20,25 +20,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { b2Assert } from "../common/b2_common";
-import { b2Vec2, b2Transform, XY } from "../common/b2_math";
-import { b2AABB, b2RayCastInput, b2RayCastOutput } from "../collision/b2_collision";
-import { b2TreeNode } from "../collision/b2_dynamic_tree";
-import { b2Shape, b2ShapeType, b2MassData } from "../collision/b2_shape";
-import type { b2Body } from "./b2_body";
-import { b2Assert } from "../common/b2_common";
-import { b2_lengthUnitsPerMeter } from "../common/b2_settings";
-import { b2BroadPhase } from "../collision/b2_broad_phase";
+// DEBUG: import { Assert } from "../common/b2_common";
+import { Vec2, Transform, XY } from "../common/b2_math";
+import { AABB, RayCastInput, RayCastOutput } from "../collision/b2_collision";
+import { TreeNode } from "../collision/b2_dynamic_tree";
+import { Shape, ShapeType, MassData } from "../collision/b2_shape";
+import type { Body } from "./b2_body";
+import { Assert } from "../common/b2_common";
+import { LENGTH_UNITS_PER_METER } from "../common/b2_settings";
+import { BroadPhase } from "../collision/b2_broad_phase";
 
 const temp = {
-    c1: new b2Vec2(),
-    c2: new b2Vec2(),
+    c1: new Vec2(),
+    c2: new Vec2(),
 };
 
 /**
  * This holds contact filtering data.
  */
-export interface b2Filter {
+export interface Filter {
     /** The collision category bits. Normally you would just set one bit. */
     categoryBits: number;
 
@@ -56,7 +56,7 @@ export interface b2Filter {
     groupIndex: number;
 }
 
-export const b2DefaultFilter: Readonly<b2Filter> = {
+export const DefaultFilter: Readonly<Filter> = {
     categoryBits: 0x0001,
     maskBits: 0xffff,
     groupIndex: 0,
@@ -66,12 +66,12 @@ export const b2DefaultFilter: Readonly<b2Filter> = {
  * A fixture definition is used to create a fixture. This class defines an
  * abstract fixture definition. You can reuse fixture definitions safely.
  */
-export interface b2FixtureDef {
+export interface FixtureDef {
     /**
      * The shape, this must be set. The shape will be cloned, so you
      * can create the shape on the stack.
      */
-    shape: b2Shape;
+    shape: Shape;
 
     /** Use this to store application specific fixture data. */
     userData?: any;
@@ -98,27 +98,22 @@ export interface b2FixtureDef {
     isSensor?: boolean;
 
     /** Contact filtering data. */
-    filter?: Partial<b2Filter>;
+    filter?: Partial<Filter>;
 }
 
 /**
  * This proxy is used internally to connect fixtures to the broad-phase.
  */
-export class b2FixtureProxy {
-    public readonly aabb = new b2AABB();
+export class FixtureProxy {
+    public readonly aabb = new AABB();
 
-    public readonly fixture: b2Fixture;
+    public readonly fixture: Fixture;
 
     public readonly childIndex: number;
 
-    public readonly treeNode: b2TreeNode<b2FixtureProxy>;
+    public readonly treeNode: TreeNode<FixtureProxy>;
 
-    public constructor(
-        fixture: b2Fixture,
-        broadPhase: b2BroadPhase<b2FixtureProxy>,
-        xf: b2Transform,
-        childIndex: number,
-    ) {
+    public constructor(fixture: Fixture, broadPhase: BroadPhase<FixtureProxy>, xf: Transform, childIndex: number) {
         this.fixture = fixture;
         this.childIndex = childIndex;
         fixture.m_shape.ComputeAABB(this.aabb, xf, childIndex);
@@ -126,30 +121,30 @@ export class b2FixtureProxy {
     }
 }
 
-const Synchronize_s_aabb1 = new b2AABB();
-const Synchronize_s_aabb2 = new b2AABB();
-const Synchronize_s_displacement = new b2Vec2();
+const Synchronize_s_aabb1 = new AABB();
+const Synchronize_s_aabb2 = new AABB();
+const Synchronize_s_displacement = new Vec2();
 
 /**
  * A fixture is used to attach a shape to a body for collision detection. A fixture
  * inherits its transform from its parent. Fixtures hold additional non-geometric data
  * such as friction, collision filters, etc.
- * Fixtures are created via b2Body::CreateFixture.
+ * Fixtures are created via Body::CreateFixture.
  *
  * @warning you cannot reuse fixtures.
  */
-export class b2Fixture {
+export class Fixture {
     /** @internal protected */
     public m_density = 0;
 
     /** @internal protected */
-    public m_next: b2Fixture | null = null;
+    public m_next: Fixture | null = null;
 
     /** @internal protected */
-    public readonly m_body: b2Body;
+    public readonly m_body: Body;
 
     /** @internal protected */
-    public readonly m_shape: b2Shape;
+    public readonly m_shape: Shape;
 
     /** @internal protected */
     public m_friction = 0;
@@ -161,14 +156,14 @@ export class b2Fixture {
     public m_restitutionThreshold = 0;
 
     /** @internal protected */
-    public readonly m_proxies: b2FixtureProxy[] = [];
+    public readonly m_proxies: FixtureProxy[] = [];
 
     /** @internal protected */
     public get m_proxyCount(): number {
         return this.m_proxies.length;
     }
 
-    protected readonly m_filter: b2Filter;
+    protected readonly m_filter: Filter;
 
     /** @internal protected */
     public m_isSensor = false;
@@ -176,15 +171,15 @@ export class b2Fixture {
     protected m_userData: any = null;
 
     /** @internal protected */
-    public constructor(body: b2Body, def: b2FixtureDef) {
+    public constructor(body: Body, def: FixtureDef) {
         this.m_body = body;
         this.m_shape = def.shape.Clone();
         this.m_userData = def.userData;
         this.m_friction = def.friction ?? 0.2;
         this.m_restitution = def.restitution ?? 0;
-        this.m_restitutionThreshold = def.restitutionThreshold ?? b2_lengthUnitsPerMeter;
+        this.m_restitutionThreshold = def.restitutionThreshold ?? LENGTH_UNITS_PER_METER;
         this.m_filter = {
-            ...b2DefaultFilter,
+            ...DefaultFilter,
             ...def.filter,
         };
         this.m_isSensor = def.isSensor ?? false;
@@ -196,7 +191,7 @@ export class b2Fixture {
      *
      * @returns The shape type.
      */
-    public GetType(): b2ShapeType {
+    public GetType(): ShapeType {
         return this.m_shape.GetType();
     }
 
@@ -205,7 +200,7 @@ export class b2Fixture {
      * number of vertices because this will crash some collision caching mechanisms.
      * Manipulating the shape may lead to non-physical behavior.
      */
-    public GetShape(): b2Shape {
+    public GetShape(): Shape {
         return this.m_shape;
     }
 
@@ -233,10 +228,10 @@ export class b2Fixture {
      * step when either parent body is active and awake.
      * This automatically calls Refilter.
      */
-    public SetFilterData(filter: Readonly<Partial<b2Filter>>): void {
-        this.m_filter.categoryBits = filter.categoryBits ?? b2DefaultFilter.categoryBits;
-        this.m_filter.groupIndex = filter.groupIndex ?? b2DefaultFilter.groupIndex;
-        this.m_filter.maskBits = filter.maskBits ?? b2DefaultFilter.maskBits;
+    public SetFilterData(filter: Readonly<Partial<Filter>>): void {
+        this.m_filter.categoryBits = filter.categoryBits ?? DefaultFilter.categoryBits;
+        this.m_filter.groupIndex = filter.groupIndex ?? DefaultFilter.groupIndex;
+        this.m_filter.maskBits = filter.maskBits ?? DefaultFilter.maskBits;
 
         this.Refilter();
     }
@@ -244,12 +239,12 @@ export class b2Fixture {
     /**
      * Get the contact filtering data.
      */
-    public GetFilterData(): Readonly<b2Filter> {
+    public GetFilterData(): Readonly<Filter> {
         return this.m_filter;
     }
 
     /**
-     * Call this if you want to establish collision that was previously disabled by b2ContactFilter::ShouldCollide.
+     * Call this if you want to establish collision that was previously disabled by ContactFilter::ShouldCollide.
      */
     public Refilter(): void {
         // Flag associated contacts for filtering.
@@ -280,7 +275,7 @@ export class b2Fixture {
      *
      * @returns The parent body.
      */
-    public GetBody(): b2Body {
+    public GetBody(): Body {
         return this.m_body;
     }
 
@@ -289,7 +284,7 @@ export class b2Fixture {
      *
      * @returns The next shape.
      */
-    public GetNext(): b2Fixture | null {
+    public GetNext(): Fixture | null {
         return this.m_next;
     }
 
@@ -323,7 +318,7 @@ export class b2Fixture {
      * @param output The ray-cast results.
      * @param input The ray-cast input parameters.
      */
-    public RayCast(output: b2RayCastOutput, input: b2RayCastInput, childIndex: number): boolean {
+    public RayCast(output: RayCastOutput, input: RayCastInput, childIndex: number): boolean {
         return this.m_shape.RayCast(output, input, this.m_body.GetTransform(), childIndex);
     }
 
@@ -332,7 +327,7 @@ export class b2Fixture {
      * the shape. The rotational inertia is about the shape's origin. This operation
      * may be expensive.
      */
-    public GetMassData(massData = new b2MassData()): b2MassData {
+    public GetMassData(massData = new MassData()): MassData {
         this.m_shape.ComputeMass(massData, this.m_density);
 
         return massData;
@@ -340,10 +335,10 @@ export class b2Fixture {
 
     /**
      * Set the density of this fixture. This will _not_ automatically adjust the mass
-     * of the body. You must call b2Body::ResetMassData to update the body's mass.
+     * of the body. You must call Body::ResetMassData to update the body's mass.
      */
     public SetDensity(density: number): void {
-        // DEBUG: b2Assert(Number.isFinite(density) && density >= 0);
+        // DEBUG: Assert(Number.isFinite(density) && density >= 0);
         this.m_density = density;
     }
 
@@ -393,8 +388,8 @@ export class b2Fixture {
      * If you need a more accurate AABB, compute it using the shape and
      * the body transform.
      */
-    public GetAABB(childIndex: number): Readonly<b2AABB> {
-        // DEBUG: b2Assert(0 <= childIndex && childIndex < this.m_proxyCount);
+    public GetAABB(childIndex: number): Readonly<AABB> {
+        // DEBUG: Assert(0 <= childIndex && childIndex < this.m_proxyCount);
         return this.m_proxies[childIndex].aabb;
     }
 
@@ -403,17 +398,17 @@ export class b2Fixture {
      *
      * @internal protected
      */
-    public CreateProxies(broadPhase: b2BroadPhase<b2FixtureProxy>, xf: b2Transform): void {
-        b2Assert(this.m_proxies.length === 0);
+    public CreateProxies(broadPhase: BroadPhase<FixtureProxy>, xf: Transform): void {
+        Assert(this.m_proxies.length === 0);
         // Create proxies in the broad-phase.
         this.m_proxies.length = this.m_shape.GetChildCount();
         for (let i = 0; i < this.m_proxies.length; ++i) {
-            this.m_proxies[i] = new b2FixtureProxy(this, broadPhase, xf, i);
+            this.m_proxies[i] = new FixtureProxy(this, broadPhase, xf, i);
         }
     }
 
     /** @internal protected */
-    public DestroyProxies(broadPhase: b2BroadPhase<b2FixtureProxy>): void {
+    public DestroyProxies(broadPhase: BroadPhase<FixtureProxy>): void {
         // Destroy proxies in the broad-phase.
         for (const proxy of this.m_proxies) {
             broadPhase.DestroyProxy(proxy.treeNode);
@@ -422,7 +417,7 @@ export class b2Fixture {
     }
 
     /** @internal protected */
-    public Synchronize(broadPhase: b2BroadPhase<b2FixtureProxy>, transform1: b2Transform, transform2: b2Transform) {
+    public Synchronize(broadPhase: BroadPhase<FixtureProxy>, transform1: Transform, transform2: Transform) {
         const { c1, c2 } = temp;
         const displacement = Synchronize_s_displacement;
         for (const proxy of this.m_proxies) {
@@ -434,7 +429,7 @@ export class b2Fixture {
 
             proxy.aabb.Combine2(aabb1, aabb2);
 
-            b2Vec2.Subtract(aabb2.GetCenter(c2), aabb1.GetCenter(c1), displacement);
+            Vec2.Subtract(aabb2.GetCenter(c2), aabb1.GetCenter(c1), displacement);
 
             broadPhase.MoveProxy(proxy.treeNode, proxy.aabb, displacement);
         }

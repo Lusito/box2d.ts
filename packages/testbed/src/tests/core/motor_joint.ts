@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2MotorJoint, b2EdgeShape, b2Vec2, b2BodyType, b2PolygonShape, b2MotorJointDef, b2Color } from "@box2d/core";
+import { MotorJoint, EdgeShape, Vec2, BodyType, PolygonShape, MotorJointDef, Color } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -28,8 +28,8 @@ import { HotKey, hotKeyPress } from "../../utils/hotkeys";
  * can be used to animate a dynamic body. With finite motor forces
  * the body can be blocked by collision with other bodies.
  */
-class MotorJoint extends Test {
-    public m_joint: b2MotorJoint;
+class MotorJointTest extends Test {
+    public m_joint: MotorJoint;
 
     public m_time = 0;
 
@@ -43,8 +43,8 @@ class MotorJoint extends Test {
         {
             ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-20, 0), new b2Vec2(20, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
 
             ground.CreateFixture({ shape });
         }
@@ -52,11 +52,11 @@ class MotorJoint extends Test {
         // Define motorized body
         {
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: 0, y: 8 },
             });
 
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(2, 0.5);
 
             body.CreateFixture({
@@ -65,7 +65,7 @@ class MotorJoint extends Test {
                 density: 2,
             });
 
-            const mjd = new b2MotorJointDef();
+            const mjd = new MotorJointDef();
             mjd.Initialize(ground, body);
             mjd.maxForce = 1000;
             mjd.maxTorque = 1000;
@@ -89,7 +89,7 @@ class MotorJoint extends Test {
             this.m_time += 1 / settings.m_hertz;
         }
 
-        const linearOffset = new b2Vec2();
+        const linearOffset = new Vec2();
         linearOffset.x = 6 * Math.sin(2 * this.m_time);
         linearOffset.y = 8 + 4 * Math.sin(1 * this.m_time);
 
@@ -98,10 +98,10 @@ class MotorJoint extends Test {
         this.m_joint.SetLinearOffset(linearOffset);
         this.m_joint.SetAngularOffset(angularOffset);
 
-        g_debugDraw.DrawPoint(linearOffset, 4, new b2Color(0.9, 0.9, 0.9));
+        g_debugDraw.DrawPoint(linearOffset, 4, new Color(0.9, 0.9, 0.9));
 
         super.Step(settings, timeStep);
     }
 }
 
-registerTest("Joints", "Motor Joint", MotorJoint);
+registerTest("Joints", "Motor Joint", MotorJointTest);

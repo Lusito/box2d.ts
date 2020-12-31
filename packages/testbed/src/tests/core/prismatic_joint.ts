@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2PrismaticJoint, b2EdgeShape, b2Vec2, b2PolygonShape, b2BodyType, b2PrismaticJointDef } from "@box2d/core";
+import { PrismaticJoint, EdgeShape, Vec2, PolygonShape, BodyType, PrismaticJointDef } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -25,8 +25,8 @@ import { checkboxDef } from "../../ui/controls/Checkbox";
 import { sliderDef } from "../../ui/controls/Slider";
 
 // Test the prismatic joint with limits and motor options.
-class PrismaticJoint extends Test {
-    public m_joint: b2PrismaticJoint;
+class PrismaticJointTest extends Test {
+    public m_joint: PrismaticJoint;
 
     public m_motorSpeed = 10;
 
@@ -42,28 +42,28 @@ class PrismaticJoint extends Test {
         {
             ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.CreateFixture({ shape });
         }
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(1, 1);
 
             const position = { x: 0, y: 10 };
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position,
                 angle: 0.5 * Math.PI,
                 allowSleep: false,
             });
             body.CreateFixture({ shape, density: 5 });
 
-            const pjd = new b2PrismaticJointDef();
+            const pjd = new PrismaticJointDef();
 
             // Horizontal
-            pjd.Initialize(ground, body, position, new b2Vec2(1, 0));
+            pjd.Initialize(ground, body, position, new Vec2(1, 0));
 
             pjd.motorSpeed = this.m_motorSpeed;
             pjd.maxMotorForce = 10000;
@@ -105,4 +105,4 @@ class PrismaticJoint extends Test {
     }
 }
 
-registerTest("Joints", "Prismatic", PrismaticJoint);
+registerTest("Joints", "Prismatic", PrismaticJointTest);

@@ -16,14 +16,14 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Body, b2EdgeShape, b2Vec2, b2CircleShape, b2BodyType } from "@box2d/core";
+import { Body, EdgeShape, Vec2, CircleShape, BodyType } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
-class CircleStack extends Test {
+class CircleStackTest extends Test {
     public static readonly e_count = 10;
 
-    public m_bodies: b2Body[] = [];
+    public m_bodies: Body[] = [];
 
     public constructor() {
         super();
@@ -31,27 +31,27 @@ class CircleStack extends Test {
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.CreateFixture({ shape });
         }
 
         {
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_radius = 1;
 
-            for (let i = 0; i < CircleStack.e_count; ++i) {
+            for (let i = 0; i < CircleStackTest.e_count; ++i) {
                 this.m_bodies[i] = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
                     position: { x: 0, y: 4 + 3 * i },
                 });
 
                 this.m_bodies[i].CreateFixture({ shape, density: 1 });
 
-                this.m_bodies[i].SetLinearVelocity(new b2Vec2(0, -50));
+                this.m_bodies[i].SetLinearVelocity(new Vec2(0, -50));
             }
         }
     }
 }
 
-registerTest("Stacking", "Circle Stack", CircleStack);
+registerTest("Stacking", "Circle Stack", CircleStackTest);

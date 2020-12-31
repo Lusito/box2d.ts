@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Body, b2EdgeShape, b2Vec2, b2PolygonShape, b2BodyType, b2RandomFloat, b2Gjk, b2Toi } from "@box2d/core";
+import { Body, EdgeShape, Vec2, PolygonShape, BodyType, RandomFloat, Gjk, Toi } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -26,9 +26,9 @@ function formatValueAveMax(step: number, ave: number, max: number) {
 }
 
 class BulletTest extends Test {
-    public m_body: b2Body;
+    public m_body: Body;
 
-    public m_bullet: b2Body;
+    public m_bullet: Body;
 
     public m_x = 0;
 
@@ -38,22 +38,22 @@ class BulletTest extends Test {
         {
             const body = this.m_world.CreateBody();
 
-            const edge = new b2EdgeShape();
+            const edge = new EdgeShape();
 
-            edge.SetTwoSided(new b2Vec2(-10, 0), new b2Vec2(10, 0));
+            edge.SetTwoSided(new Vec2(-10, 0), new Vec2(10, 0));
             body.CreateFixture({ shape: edge });
 
-            const shape = new b2PolygonShape();
-            shape.SetAsBox(0.2, 1, new b2Vec2(0.5, 1), 0);
+            const shape = new PolygonShape();
+            shape.SetAsBox(0.2, 1, new Vec2(0.5, 1), 0);
             body.CreateFixture({ shape });
         }
 
         {
-            const box = new b2PolygonShape();
+            const box = new PolygonShape();
             box.SetAsBox(2, 0.1);
 
             this.m_body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: {
                     x: 0,
                     y: 4,
@@ -63,11 +63,11 @@ class BulletTest extends Test {
 
             box.SetAsBox(0.25, 0.25);
 
-            // this.m_x = b2RandomFloat(-1, 1);
+            // this.m_x = RandomFloat(-1, 1);
             this.m_x = 0.20352793;
 
             this.m_bullet = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 bullet: true,
                 position: {
                     x: this.m_x,
@@ -76,22 +76,22 @@ class BulletTest extends Test {
             });
             this.m_bullet.CreateFixture({ shape: box, density: 100 });
 
-            this.m_bullet.SetLinearVelocity(new b2Vec2(0, -50));
+            this.m_bullet.SetLinearVelocity(new Vec2(0, -50));
         }
     }
 
     public Launch() {
-        this.m_body.SetTransformVec(new b2Vec2(0, 4), 0);
-        this.m_body.SetLinearVelocity(b2Vec2.ZERO);
+        this.m_body.SetTransformVec(new Vec2(0, 4), 0);
+        this.m_body.SetLinearVelocity(Vec2.ZERO);
         this.m_body.SetAngularVelocity(0);
 
-        this.m_x = b2RandomFloat(-1, 1);
-        this.m_bullet.SetTransformVec(new b2Vec2(this.m_x, 10), 0);
-        this.m_bullet.SetLinearVelocity(new b2Vec2(0, -50));
+        this.m_x = RandomFloat(-1, 1);
+        this.m_bullet.SetTransformVec(new Vec2(this.m_x, 10), 0);
+        this.m_bullet.SetLinearVelocity(new Vec2(0, -50));
         this.m_bullet.SetAngularVelocity(0);
 
-        b2Gjk.reset();
-        b2Toi.reset();
+        Gjk.reset();
+        Toi.reset();
     }
 
     public GetDefaultViewZoom() {
@@ -103,17 +103,17 @@ class BulletTest extends Test {
 
         this.addDebug(
             "GJK Calls [ave Iters] (max Iters)",
-            b2Gjk.calls > 0 && formatValueAveMax(b2Gjk.calls, b2Gjk.iters / b2Gjk.calls, b2Gjk.maxIters),
+            Gjk.calls > 0 && formatValueAveMax(Gjk.calls, Gjk.iters / Gjk.calls, Gjk.maxIters),
         );
 
         this.addDebug(
             "Toi Calls [ave Iters] (max Iters)",
-            b2Toi.calls > 0 && formatValueAveMax(b2Toi.calls, b2Toi.iters / b2Toi.calls, b2Toi.maxIters),
+            Toi.calls > 0 && formatValueAveMax(Toi.calls, Toi.iters / Toi.calls, Toi.maxIters),
         );
 
         this.addDebug(
             "Root Toi [ave Iters] (max Iters)",
-            b2Toi.calls > 0 && `[${(b2Toi.rootIters / b2Toi.calls).toFixed(1)}] (${b2Toi.maxRootIters})`,
+            Toi.calls > 0 && `[${(Toi.rootIters / Toi.calls).toFixed(1)}] (${Toi.maxRootIters})`,
         );
 
         if (this.m_stepCount % 60 === 0) {
@@ -122,4 +122,4 @@ class BulletTest extends Test {
     }
 }
 
-registerTest("Continuous", "Bullet Test", BulletTest);
+registerTest("Continuous", "Bullet", BulletTest);

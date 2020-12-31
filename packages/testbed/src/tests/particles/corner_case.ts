@@ -16,13 +16,13 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2PolygonShape, b2Vec2, b2CircleShape, XY } from "@box2d/core";
-import { b2ParticleGroupDef, b2ParticleFlag } from "@box2d/particles";
+import { PolygonShape, Vec2, CircleShape, XY } from "@box2d/core";
+import { ParticleGroupDef, ParticleFlag } from "@box2d/particles";
 
 import { registerTest, TestContext } from "../../test";
 import { AbstractParticleTestWithControls } from "./abstract_particle_test";
 
-class CornerCase extends AbstractParticleTestWithControls {
+class CornerCaseTest extends AbstractParticleTestWithControls {
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter);
 
@@ -35,8 +35,8 @@ class CornerCase extends AbstractParticleTestWithControls {
 
             // left edge
             {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(-20, 30), new b2Vec2(-20, 0), new b2Vec2(-25, 0), new b2Vec2(-25, 30)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(-20, 30), new Vec2(-20, 0), new Vec2(-25, 0), new Vec2(-25, 30)];
                 shape.Set(vertices);
                 ground.CreateFixture({ shape });
             }
@@ -47,22 +47,22 @@ class CornerCase extends AbstractParticleTestWithControls {
             const xstep = xrange / 2;
 
             {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(-25, 0), new b2Vec2(20, 15), new b2Vec2(25, 0)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(-25, 0), new Vec2(20, 15), new Vec2(25, 0)];
                 shape.Set(vertices);
                 ground.CreateFixture({ shape });
             }
 
             for (let x = -xrange; x < xrange; x += xstep) {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(-25, 0), new b2Vec2(x, 15), new b2Vec2(x + xstep, 15)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(-25, 0), new Vec2(x, 15), new Vec2(x + xstep, 15)];
                 shape.Set(vertices);
                 ground.CreateFixture({ shape });
             }
 
             for (let y = 0; y < yrange; y += ystep) {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(25, y), new b2Vec2(25, y + ystep), new b2Vec2(20, 15)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(25, y), new Vec2(25, y + ystep), new Vec2(20, 15)];
                 shape.Set(vertices);
                 ground.CreateFixture({ shape });
             }
@@ -72,14 +72,14 @@ class CornerCase extends AbstractParticleTestWithControls {
         const particleType = particleParameter.GetValue();
 
         {
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_p.Set(0, 35);
             shape.m_radius = 12;
-            const pd = new b2ParticleGroupDef();
+            const pd = new ParticleGroupDef();
             pd.flags = particleType;
             pd.shape = shape;
             const group = this.m_particleSystem.CreateParticleGroup(pd);
-            if (pd.flags & b2ParticleFlag.b2_colorMixingParticle) {
+            if (pd.flags & ParticleFlag.ColorMixing) {
                 this.ColorParticleGroup(group, 0);
             }
         }
@@ -93,4 +93,4 @@ class CornerCase extends AbstractParticleTestWithControls {
     }
 }
 
-registerTest("Particles", "Corner Case", CornerCase);
+registerTest("Particles", "Corner Case", CornerCaseTest);

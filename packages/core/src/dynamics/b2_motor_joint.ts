@@ -20,11 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { b2Assert } from "../common/b2_common";
-import { b2Clamp, b2Vec2, b2Mat22, b2Rot, XY } from "../common/b2_math";
-import { b2Body } from "./b2_body";
-import { b2Joint, b2JointDef, b2JointType, b2IJointDef } from "./b2_joint";
-import { b2SolverData } from "./b2_time_step";
+// DEBUG: import { Assert } from "../common/b2_common";
+import { Clamp, Vec2, Mat22, Rot, XY } from "../common/b2_math";
+import { Body } from "./b2_body";
+import { Joint, JointDef, JointType, IJointDef } from "./b2_joint";
+import { SolverData } from "./b2_time_step";
 
 // Point-to-point constraint
 // Cdot = v2 - v1
@@ -42,15 +42,15 @@ import { b2SolverData } from "./b2_time_step";
 // K = invI1 + invI2
 
 const temp = {
-    qA: new b2Rot(),
-    qB: new b2Rot(),
-    K: new b2Mat22(),
-    Cdot: new b2Vec2(),
-    impulse: new b2Vec2(),
-    oldImpulse: new b2Vec2(),
+    qA: new Rot(),
+    qB: new Rot(),
+    K: new Mat22(),
+    Cdot: new Vec2(),
+    impulse: new Vec2(),
+    oldImpulse: new Vec2(),
 };
 
-export interface b2IMotorJointDef extends b2IJointDef {
+export interface IMotorJointDef extends IJointDef {
     linearOffset?: XY;
 
     angularOffset?: number;
@@ -65,9 +65,9 @@ export interface b2IMotorJointDef extends b2IJointDef {
 /**
  * Motor joint definition.
  */
-export class b2MotorJointDef extends b2JointDef implements b2IMotorJointDef {
+export class MotorJointDef extends JointDef implements IMotorJointDef {
     /** Position of bodyB minus the position of bodyA, in bodyA's frame, in meters. */
-    public readonly linearOffset = new b2Vec2();
+    public readonly linearOffset = new Vec2();
 
     /** The bodyB angle minus bodyA angle in radians. */
     public angularOffset = 0;
@@ -82,10 +82,10 @@ export class b2MotorJointDef extends b2JointDef implements b2IMotorJointDef {
     public correctionFactor = 0.3;
 
     public constructor() {
-        super(b2JointType.e_motorJoint);
+        super(JointType.Motor);
     }
 
-    public Initialize(bodyA: b2Body, bodyB: b2Body): void {
+    public Initialize(bodyA: Body, bodyB: Body): void {
         this.bodyA = bodyA;
         this.bodyB = bodyB;
         this.bodyA.GetLocalPoint(bodyB.GetPosition(), this.linearOffset);
@@ -101,13 +101,13 @@ export class b2MotorJointDef extends b2JointDef implements b2IMotorJointDef {
  * between two bodies. A typical usage is to control the movement
  * of a dynamic body with respect to the ground.
  */
-export class b2MotorJoint extends b2Joint {
+export class MotorJoint extends Joint {
     // Solver shared
-    protected readonly m_linearOffset = new b2Vec2();
+    protected readonly m_linearOffset = new Vec2();
 
     protected m_angularOffset: number;
 
-    protected readonly m_linearImpulse = new b2Vec2();
+    protected readonly m_linearImpulse = new Vec2();
 
     protected m_angularImpulse = 0;
 
@@ -122,15 +122,15 @@ export class b2MotorJoint extends b2Joint {
 
     protected m_indexB = 0;
 
-    protected readonly m_rA = new b2Vec2();
+    protected readonly m_rA = new Vec2();
 
-    protected readonly m_rB = new b2Vec2();
+    protected readonly m_rB = new Vec2();
 
-    protected readonly m_localCenterA = new b2Vec2();
+    protected readonly m_localCenterA = new Vec2();
 
-    protected readonly m_localCenterB = new b2Vec2();
+    protected readonly m_localCenterB = new Vec2();
 
-    protected readonly m_linearError = new b2Vec2();
+    protected readonly m_linearError = new Vec2();
 
     protected m_angularError = 0;
 
@@ -142,15 +142,15 @@ export class b2MotorJoint extends b2Joint {
 
     protected m_invIB = 0;
 
-    protected readonly m_linearMass = new b2Mat22();
+    protected readonly m_linearMass = new Mat22();
 
     protected m_angularMass = 0;
 
     /** @internal protected */
-    public constructor(def: b2IMotorJointDef) {
+    public constructor(def: IMotorJointDef) {
         super(def);
 
-        this.m_linearOffset.Copy(def.linearOffset ?? b2Vec2.ZERO);
+        this.m_linearOffset.Copy(def.linearOffset ?? Vec2.ZERO);
         this.m_angularOffset = def.angularOffset ?? 0;
         this.m_linearImpulse.SetZero();
         this.m_maxForce = def.maxForce ?? 1;
@@ -173,15 +173,15 @@ export class b2MotorJoint extends b2Joint {
     }
 
     public GetReactionForce<T extends XY>(inv_dt: number, out: T): T {
-        return b2Vec2.Scale(inv_dt, this.m_linearImpulse, out);
+        return Vec2.Scale(inv_dt, this.m_linearImpulse, out);
     }
 
     public GetReactionTorque(inv_dt: number): number {
         return inv_dt * this.m_angularImpulse;
     }
 
-    public SetLinearOffset(linearOffset: b2Vec2): void {
-        if (!b2Vec2.Equals(linearOffset, this.m_linearOffset)) {
+    public SetLinearOffset(linearOffset: Vec2): void {
+        if (!Vec2.Equals(linearOffset, this.m_linearOffset)) {
             this.m_bodyA.SetAwake(true);
             this.m_bodyB.SetAwake(true);
             this.m_linearOffset.Copy(linearOffset);
@@ -205,7 +205,7 @@ export class b2MotorJoint extends b2Joint {
     }
 
     public SetMaxForce(force: number): void {
-        // DEBUG: b2Assert(Number.isFinite(force) && force >= 0);
+        // DEBUG: Assert(Number.isFinite(force) && force >= 0);
         this.m_maxForce = force;
     }
 
@@ -214,7 +214,7 @@ export class b2MotorJoint extends b2Joint {
     }
 
     public SetMaxTorque(torque: number): void {
-        // DEBUG: b2Assert(Number.isFinite(torque) && torque >= 0);
+        // DEBUG: Assert(Number.isFinite(torque) && torque >= 0);
         this.m_maxTorque = torque;
     }
 
@@ -227,12 +227,12 @@ export class b2MotorJoint extends b2Joint {
     }
 
     public SetCorrectionFactor(factor: number) {
-        // DEBUG: b2Assert(Number.isFinite(factor) && factor >= 0 && factor <= 1);
+        // DEBUG: Assert(Number.isFinite(factor) && factor >= 0 && factor <= 1);
         this.m_correctionFactor = factor;
     }
 
     /** @internal protected */
-    public InitVelocityConstraints(data: b2SolverData): void {
+    public InitVelocityConstraints(data: SolverData): void {
         this.m_indexA = this.m_bodyA.m_islandIndex;
         this.m_indexB = this.m_bodyB.m_islandIndex;
         this.m_localCenterA.Copy(this.m_bodyA.m_sweep.localCenter);
@@ -257,12 +257,8 @@ export class b2MotorJoint extends b2Joint {
         qB.Set(aB);
 
         // Compute the effective mass matrix.
-        const rA = b2Rot.MultiplyVec2(
-            qA,
-            b2Vec2.Subtract(this.m_linearOffset, this.m_localCenterA, b2Vec2.s_t0),
-            this.m_rA,
-        );
-        const rB = b2Rot.MultiplyVec2(qB, b2Vec2.Negate(this.m_localCenterB, b2Vec2.s_t0), this.m_rB);
+        const rA = Rot.MultiplyVec2(qA, Vec2.Subtract(this.m_linearOffset, this.m_localCenterA, Vec2.s_t0), this.m_rA);
+        const rB = Rot.MultiplyVec2(qB, Vec2.Negate(this.m_localCenterB, Vec2.s_t0), this.m_rB);
 
         // J = [-I -r1_skew I r2_skew]
         // r_skew = [-ry; rx]
@@ -291,7 +287,7 @@ export class b2MotorJoint extends b2Joint {
             this.m_angularMass = 1 / this.m_angularMass;
         }
 
-        b2Vec2.Subtract(b2Vec2.Add(cB, rB, b2Vec2.s_t0), b2Vec2.Add(cA, rA, b2Vec2.s_t1), this.m_linearError);
+        Vec2.Subtract(Vec2.Add(cB, rB, Vec2.s_t0), Vec2.Add(cA, rA, Vec2.s_t1), this.m_linearError);
         this.m_angularError = aB - aA - this.m_angularOffset;
 
         if (data.step.warmStarting) {
@@ -301,9 +297,9 @@ export class b2MotorJoint extends b2Joint {
 
             const P = this.m_linearImpulse;
             vA.SubtractScaled(mA, P);
-            wA -= iA * (b2Vec2.Cross(rA, P) + this.m_angularImpulse);
+            wA -= iA * (Vec2.Cross(rA, P) + this.m_angularImpulse);
             vB.AddScaled(mB, P);
-            wB += iB * (b2Vec2.Cross(rB, P) + this.m_angularImpulse);
+            wB += iB * (Vec2.Cross(rB, P) + this.m_angularImpulse);
         } else {
             this.m_linearImpulse.SetZero();
             this.m_angularImpulse = 0;
@@ -314,7 +310,7 @@ export class b2MotorJoint extends b2Joint {
     }
 
     /** @internal protected */
-    public SolveVelocityConstraints(data: b2SolverData): void {
+    public SolveVelocityConstraints(data: SolverData): void {
         const vA = data.velocities[this.m_indexA].v;
         let wA = data.velocities[this.m_indexA].w;
         const vB = data.velocities[this.m_indexB].v;
@@ -335,7 +331,7 @@ export class b2MotorJoint extends b2Joint {
 
             const oldImpulse = this.m_angularImpulse;
             const maxImpulse = h * this.m_maxTorque;
-            this.m_angularImpulse = b2Clamp(this.m_angularImpulse + impulse, -maxImpulse, maxImpulse);
+            this.m_angularImpulse = Clamp(this.m_angularImpulse + impulse, -maxImpulse, maxImpulse);
             impulse = this.m_angularImpulse - oldImpulse;
 
             wA -= iA * impulse;
@@ -346,18 +342,18 @@ export class b2MotorJoint extends b2Joint {
         {
             const { impulse, oldImpulse, Cdot } = temp;
 
-            b2Vec2.AddScaled(
-                b2Vec2.Subtract(
-                    b2Vec2.AddCrossScalarVec2(vB, wB, this.m_rB, b2Vec2.s_t0),
-                    b2Vec2.AddCrossScalarVec2(vA, wA, this.m_rA, b2Vec2.s_t1),
-                    b2Vec2.s_t2,
+            Vec2.AddScaled(
+                Vec2.Subtract(
+                    Vec2.AddCrossScalarVec2(vB, wB, this.m_rB, Vec2.s_t0),
+                    Vec2.AddCrossScalarVec2(vA, wA, this.m_rA, Vec2.s_t1),
+                    Vec2.s_t2,
                 ),
                 inv_h * this.m_correctionFactor,
                 this.m_linearError,
                 Cdot,
             );
 
-            b2Mat22.MultiplyVec2(this.m_linearMass, Cdot, impulse).Negate();
+            Mat22.MultiplyVec2(this.m_linearMass, Cdot, impulse).Negate();
             oldImpulse.Copy(this.m_linearImpulse);
             this.m_linearImpulse.Add(impulse);
 
@@ -368,13 +364,13 @@ export class b2MotorJoint extends b2Joint {
                 this.m_linearImpulse.Scale(maxImpulse);
             }
 
-            b2Vec2.Subtract(this.m_linearImpulse, oldImpulse, impulse);
+            Vec2.Subtract(this.m_linearImpulse, oldImpulse, impulse);
 
             vA.SubtractScaled(mA, impulse);
-            wA -= iA * b2Vec2.Cross(this.m_rA, impulse);
+            wA -= iA * Vec2.Cross(this.m_rA, impulse);
 
             vB.AddScaled(mB, impulse);
-            wB += iB * b2Vec2.Cross(this.m_rB, impulse);
+            wB += iB * Vec2.Cross(this.m_rB, impulse);
         }
 
         data.velocities[this.m_indexA].w = wA;
@@ -382,7 +378,7 @@ export class b2MotorJoint extends b2Joint {
     }
 
     /** @internal protected */
-    public SolvePositionConstraints(_data: b2SolverData): boolean {
+    public SolvePositionConstraints(_data: SolverData): boolean {
         return true;
     }
 }

@@ -20,19 +20,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { b2Assert } from "../common/b2_common";
-import { b2Transform } from "../common/b2_math";
-import { b2Manifold, b2WorldManifold, b2TestOverlap } from "../collision/b2_collision";
-import { b2Body } from "./b2_body";
-import { b2Fixture } from "./b2_fixture";
-import { b2Shape } from "../collision/b2_shape";
-import type { b2ContactListener } from "./b2_world_callbacks";
+import { Assert } from "../common/b2_common";
+import { Transform } from "../common/b2_math";
+import { Manifold, WorldManifold, TestOverlap } from "../collision/b2_collision";
+import { Body } from "./b2_body";
+import { Fixture } from "./b2_fixture";
+import { Shape } from "../collision/b2_shape";
+import type { ContactListener } from "./b2_world_callbacks";
 
 /**
  * Friction mixing law. The idea is to allow either fixture to drive the friction to zero.
  * For example, anything slides on ice.
  */
-export function b2MixFriction(friction1: number, friction2: number): number {
+export function MixFriction(friction1: number, friction2: number): number {
     return Math.sqrt(friction1 * friction2);
 }
 
@@ -40,14 +40,14 @@ export function b2MixFriction(friction1: number, friction2: number): number {
  * Restitution mixing law. The idea is allow for anything to bounce off an inelastic surface.
  * For example, a superball bounces on anything.
  */
-export function b2MixRestitution(restitution1: number, restitution2: number): number {
+export function MixRestitution(restitution1: number, restitution2: number): number {
     return restitution1 > restitution2 ? restitution1 : restitution2;
 }
 
 /**
  * Restitution mixing law. This picks the lowest value.
  */
-export function b2MixRestitutionThreshold(threshold1: number, threshold2: number) {
+export function MixRestitutionThreshold(threshold1: number, threshold2: number) {
     return threshold1 < threshold2 ? threshold1 : threshold2;
 }
 
@@ -58,30 +58,30 @@ export function b2MixRestitutionThreshold(threshold1: number, threshold2: number
  * maintained in each attached body. Each contact has two contact
  * nodes, one for each attached body.
  */
-export class b2ContactEdge {
+export class ContactEdge {
     /** Provides quick access to the other body attached. */
-    private m_other: b2Body | null = null;
+    private m_other: Body | null = null;
 
-    public get other(): b2Body {
-        b2Assert(this.m_other !== null);
+    public get other(): Body {
+        Assert(this.m_other !== null);
         return this.m_other;
     }
 
-    public set other(value: b2Body) {
-        b2Assert(this.m_other === null);
+    public set other(value: Body) {
+        Assert(this.m_other === null);
         this.m_other = value;
     }
 
     /** The contact */
-    public readonly contact: b2Contact;
+    public readonly contact: Contact;
 
     /** The previous contact edge in the body's contact list */
-    public prev: b2ContactEdge | null = null;
+    public prev: ContactEdge | null = null;
 
     /** The next contact edge in the body's contact list */
-    public next: b2ContactEdge | null = null;
+    public next: ContactEdge | null = null;
 
-    public constructor(contact: b2Contact) {
+    public constructor(contact: Contact) {
         this.contact = contact;
     }
 
@@ -97,7 +97,7 @@ export class b2ContactEdge {
  * AABB in the broad-phase (except if filtered). Therefore a contact object may exist
  * that has no contact points.
  */
-export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape = b2Shape> {
+export abstract class Contact<A extends Shape = Shape, B extends Shape = Shape> {
     /**
      * Used when crawling contact graph when forming islands.
      *
@@ -145,26 +145,26 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
      *
      * @internal protected
      */
-    public m_prev: b2Contact | null = null;
+    public m_prev: Contact | null = null;
 
     /** @internal protected */
-    public m_next: b2Contact | null = null;
+    public m_next: Contact | null = null;
 
     /**
      * Nodes for connecting bodies.
      *
      * @internal protected
      */
-    public readonly m_nodeA: b2ContactEdge = new b2ContactEdge(this);
+    public readonly m_nodeA: ContactEdge = new ContactEdge(this);
 
     /** @internal protected */
-    public readonly m_nodeB: b2ContactEdge = new b2ContactEdge(this);
+    public readonly m_nodeB: ContactEdge = new ContactEdge(this);
 
     /** @internal protected */
-    public m_fixtureA!: b2Fixture;
+    public m_fixtureA!: Fixture;
 
     /** @internal protected */
-    public m_fixtureB!: b2Fixture;
+    public m_fixtureB!: Fixture;
 
     /** @internal protected */
     public m_indexA = 0;
@@ -173,7 +173,7 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
     public m_indexB = 0;
 
     /** @internal protected */
-    public m_manifold = new b2Manifold(); // TODO: readonly
+    public m_manifold = new Manifold(); // TODO: readonly
 
     /** @internal protected */
     public m_toiCount = 0;
@@ -193,13 +193,13 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
     /** @internal protected */
     public m_tangentSpeed = 0;
 
-    protected m_oldManifold = new b2Manifold(); // TODO: readonly
+    protected m_oldManifold = new Manifold(); // TODO: readonly
 
     public GetManifold() {
         return this.m_manifold;
     }
 
-    public GetWorldManifold(worldManifold: b2WorldManifold): void {
+    public GetWorldManifold(worldManifold: WorldManifold): void {
         const bodyA = this.m_fixtureA.GetBody();
         const bodyB = this.m_fixtureB.GetBody();
         const shapeA = this.GetShapeA();
@@ -225,11 +225,11 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
         return this.m_enabledFlag;
     }
 
-    public GetNext(): b2Contact | null {
+    public GetNext(): Contact | null {
         return this.m_next;
     }
 
-    public GetFixtureA(): b2Fixture {
+    public GetFixtureA(): Fixture {
         return this.m_fixtureA;
     }
 
@@ -241,7 +241,7 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
         return this.m_fixtureA.GetShape() as A;
     }
 
-    public GetFixtureB(): b2Fixture {
+    public GetFixtureB(): Fixture {
         return this.m_fixtureB;
     }
 
@@ -253,7 +253,7 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
         return this.m_fixtureB.GetShape() as B;
     }
 
-    public abstract Evaluate(manifold: b2Manifold, xfA: b2Transform, xfB: b2Transform): void;
+    public abstract Evaluate(manifold: Manifold, xfA: Transform, xfB: Transform): void;
 
     /** @internal protected */
     public FlagForFiltering(): void {
@@ -269,7 +269,7 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
     }
 
     public ResetFriction(): void {
-        this.m_friction = b2MixFriction(this.m_fixtureA.m_friction, this.m_fixtureB.m_friction);
+        this.m_friction = MixFriction(this.m_fixtureA.m_friction, this.m_fixtureB.m_friction);
     }
 
     public SetRestitution(restitution: number): void {
@@ -281,11 +281,11 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
     }
 
     public ResetRestitution(): void {
-        this.m_restitution = b2MixRestitution(this.m_fixtureA.m_restitution, this.m_fixtureB.m_restitution);
+        this.m_restitution = MixRestitution(this.m_fixtureA.m_restitution, this.m_fixtureB.m_restitution);
     }
 
     /**
-     * Override the default restitution velocity threshold mixture. You can call this in b2ContactListener::PreSolve.
+     * Override the default restitution velocity threshold mixture. You can call this in ContactListener::PreSolve.
      * The value persists until you set or reset.
      */
     public SetRestitutionThreshold(threshold: number) {
@@ -303,7 +303,7 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
      * Reset the restitution threshold to the default value.
      */
     public ResetRestitutionThreshold() {
-        this.m_restitutionThreshold = b2MixRestitutionThreshold(
+        this.m_restitutionThreshold = MixRestitutionThreshold(
             this.m_fixtureA.m_restitutionThreshold,
             this.m_fixtureB.m_restitutionThreshold,
         );
@@ -317,7 +317,7 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
         return this.m_tangentSpeed;
     }
 
-    public Reset(fixtureA: b2Fixture, indexA: number, fixtureB: b2Fixture, indexB: number): void {
+    public Reset(fixtureA: Fixture, indexA: number, fixtureB: Fixture, indexB: number): void {
         this.m_islandFlag = false;
         this.m_touchingFlag = false;
         this.m_enabledFlag = true;
@@ -341,16 +341,16 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
 
         this.m_toiCount = 0;
 
-        this.m_friction = b2MixFriction(this.m_fixtureA.m_friction, this.m_fixtureB.m_friction);
-        this.m_restitution = b2MixRestitution(this.m_fixtureA.m_restitution, this.m_fixtureB.m_restitution);
-        this.m_restitutionThreshold = b2MixRestitutionThreshold(
+        this.m_friction = MixFriction(this.m_fixtureA.m_friction, this.m_fixtureB.m_friction);
+        this.m_restitution = MixRestitution(this.m_fixtureA.m_restitution, this.m_fixtureB.m_restitution);
+        this.m_restitutionThreshold = MixRestitutionThreshold(
             this.m_fixtureA.m_restitutionThreshold,
             this.m_fixtureB.m_restitutionThreshold,
         );
     }
 
     /** @internal protected */
-    public Update(listener: b2ContactListener): void {
+    public Update(listener: ContactListener): void {
         const tManifold = this.m_oldManifold;
         this.m_oldManifold = this.m_manifold;
         this.m_manifold = tManifold;
@@ -374,7 +374,7 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
         if (sensor) {
             const shapeA = this.GetShapeA();
             const shapeB = this.GetShapeB();
-            touching = b2TestOverlap(shapeA, this.m_indexA, shapeB, this.m_indexB, xfA, xfB);
+            touching = TestOverlap(shapeA, this.m_indexA, shapeB, this.m_indexB, xfA, xfB);
 
             // Sensors don't generate manifolds.
             this.m_manifold.pointCount = 0;

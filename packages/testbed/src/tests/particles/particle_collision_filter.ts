@@ -16,8 +16,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2ContactFilter, b2Vec2, b2ChainShape, b2PolygonShape, XY, b2RandomFloat } from "@box2d/core";
-import { b2ParticleGroupDef, b2ParticleFlag, b2ParticleGroup } from "@box2d/particles";
+import { ContactFilter, Vec2, ChainShape, PolygonShape, XY, RandomFloat } from "@box2d/core";
+import { ParticleGroupDef, ParticleFlag, ParticleGroup } from "@box2d/particles";
 
 import { registerTest } from "../../test";
 import { Settings } from "../../settings";
@@ -25,7 +25,7 @@ import { hotKeyPress, HotKey } from "../../utils/hotkeys";
 import { AbstractParticleTest } from "./abstract_particle_test";
 
 // Optionally disables particle / fixture and particle / particle contacts.
-class ParticleContactDisabler extends b2ContactFilter {
+class ParticleContactDisabler extends ContactFilter {
     public m_enableFixtureParticleCollisions = true;
 
     public m_enableParticleParticleCollisions = true;
@@ -41,34 +41,34 @@ class ParticleContactDisabler extends b2ContactFilter {
     }
 }
 
-class ParticleCollisionFilter extends AbstractParticleTest {
+class ParticleCollisionFilterTest extends AbstractParticleTest {
     public constructor() {
-        super(b2Vec2.ZERO);
+        super(Vec2.ZERO);
 
-        // must also set b2_particleContactFilterParticle and
-        // b2_fixtureContactFilterParticle flags for particle group
+        // must also set ParticleContactFilter and
+        // FixtureContactFilter flags for particle group
         this.m_world.SetContactFilter(this.m_contactDisabler);
 
         // Create the container.
         {
             const ground = this.m_world.CreateBody();
-            const shape = new b2ChainShape();
+            const shape = new ChainShape();
             const vertices = [
-                new b2Vec2(
-                    -ParticleCollisionFilter.kBoxSize,
-                    -ParticleCollisionFilter.kBoxSize + ParticleCollisionFilter.kOffset,
+                new Vec2(
+                    -ParticleCollisionFilterTest.kBoxSize,
+                    -ParticleCollisionFilterTest.kBoxSize + ParticleCollisionFilterTest.kOffset,
                 ),
-                new b2Vec2(
-                    ParticleCollisionFilter.kBoxSize,
-                    -ParticleCollisionFilter.kBoxSize + ParticleCollisionFilter.kOffset,
+                new Vec2(
+                    ParticleCollisionFilterTest.kBoxSize,
+                    -ParticleCollisionFilterTest.kBoxSize + ParticleCollisionFilterTest.kOffset,
                 ),
-                new b2Vec2(
-                    ParticleCollisionFilter.kBoxSize,
-                    ParticleCollisionFilter.kBoxSize + ParticleCollisionFilter.kOffset,
+                new Vec2(
+                    ParticleCollisionFilterTest.kBoxSize,
+                    ParticleCollisionFilterTest.kBoxSize + ParticleCollisionFilterTest.kOffset,
                 ),
-                new b2Vec2(
-                    -ParticleCollisionFilter.kBoxSize,
-                    ParticleCollisionFilter.kBoxSize + ParticleCollisionFilter.kOffset,
+                new Vec2(
+                    -ParticleCollisionFilterTest.kBoxSize,
+                    ParticleCollisionFilterTest.kBoxSize + ParticleCollisionFilterTest.kOffset,
                 ),
             ];
             shape.CreateLoop(vertices);
@@ -82,49 +82,46 @@ class ParticleCollisionFilter extends AbstractParticleTest {
         // create the particles
         this.m_particleSystem.SetRadius(0.5);
         {
-            // b2PolygonShape shape;
-            const shape = new b2PolygonShape();
-            // shape.SetAsBox(1.5, 1.5, b2Vec2(kBoxSizeHalf, kBoxSizeHalf + kOffset), 0);
+            // PolygonShape shape;
+            const shape = new PolygonShape();
+            // shape.SetAsBox(1.5, 1.5, Vec2(kBoxSizeHalf, kBoxSizeHalf + kOffset), 0);
             shape.SetAsBox(
                 1.5,
                 1.5,
-                new b2Vec2(
-                    ParticleCollisionFilter.kBoxSizeHalf,
-                    ParticleCollisionFilter.kBoxSizeHalf + ParticleCollisionFilter.kOffset,
+                new Vec2(
+                    ParticleCollisionFilterTest.kBoxSizeHalf,
+                    ParticleCollisionFilterTest.kBoxSizeHalf + ParticleCollisionFilterTest.kOffset,
                 ),
                 0,
             );
-            // b2ParticleGroupDef pd;
-            const pd = new b2ParticleGroupDef();
+            // ParticleGroupDef pd;
+            const pd = new ParticleGroupDef();
             // pd.shape = &shape;
             pd.shape = shape;
-            // pd.flags = b2_powderParticle
-            // 		| b2_particleContactFilterParticle
-            // 		| b2_fixtureContactFilterParticle;
-            pd.flags =
-                b2ParticleFlag.b2_powderParticle |
-                b2ParticleFlag.b2_particleContactFilterParticle |
-                b2ParticleFlag.b2_fixtureContactFilterParticle;
+            // pd.flags = Powder
+            // 		| ParticleContactFilter
+            // 		| FixtureContactFilter;
+            pd.flags = ParticleFlag.Powder | ParticleFlag.ParticleContactFilter | ParticleFlag.FixtureContactFilter;
             // m_particleGroup =
             // 	m_particleSystem.CreateParticleGroup(pd);
             this.m_particleGroup = this.m_particleSystem.CreateParticleGroup(pd);
 
-            // b2Vec2* velocities =
+            // Vec2* velocities =
             // 	m_particleSystem.GetVelocityBuffer() +
             // 	m_particleGroup.GetBufferIndex();
             const velocities = this.m_particleSystem.GetVelocityBuffer();
             const index = this.m_particleGroup.GetBufferIndex();
             // for (int i = 0; i < m_particleGroup.GetParticleCount(); ++i) {
-            // 	b2Vec2& v = *(velocities + i);
-            // 	v.Set(b2RandomFloat(-1, 1), b2RandomFloat(-1, 1));
+            // 	Vec2& v = *(velocities + i);
+            // 	v.Set(RandomFloat(-1, 1), RandomFloat(-1, 1));
             // 	v.Normalize();
             // 	v *= kSpeedup;
             // }
             for (let i = 0; i < this.m_particleGroup.GetParticleCount(); ++i) {
                 const v = velocities[index + i];
-                v.Set(b2RandomFloat(-1, 1), b2RandomFloat(-1, 1));
+                v.Set(RandomFloat(-1, 1), RandomFloat(-1, 1));
                 v.Normalize();
-                v.Scale(ParticleCollisionFilter.kSpeedup);
+                v.Scale(ParticleCollisionFilterTest.kSpeedup);
             }
         }
     }
@@ -134,19 +131,19 @@ class ParticleCollisionFilter extends AbstractParticleTest {
 
         // const int32 index = m_particleGroup.GetBufferIndex();
         const index = this.m_particleGroup.GetBufferIndex();
-        // b2Vec2* const velocities =
+        // Vec2* const velocities =
         // 	m_particleSystem.GetVelocityBuffer() + index;
         const velocities = this.m_particleSystem.GetVelocityBuffer();
         // for (int32 i = 0; i < m_particleGroup.GetParticleCount(); i++) {
         // 	// Add energy to particles based upon the temperature.
-        // 	b2Vec2& v = velocities[i];
+        // 	Vec2& v = velocities[i];
         // 	v.Normalize();
         // 	v *= kSpeedup;
         // }
         for (let i = 0; i < this.m_particleGroup.GetParticleCount(); ++i) {
             const v = velocities[index + i];
             v.Normalize();
-            v.Scale(ParticleCollisionFilter.kSpeedup);
+            v.Scale(ParticleCollisionFilterTest.kSpeedup);
         }
     }
 
@@ -176,17 +173,17 @@ class ParticleCollisionFilter extends AbstractParticleTest {
 
     public m_contactDisabler = new ParticleContactDisabler();
 
-    public m_particleGroup: b2ParticleGroup;
+    public m_particleGroup: ParticleGroup;
 
     public static readonly kBoxSize = 10;
 
-    public static readonly kBoxSizeHalf = ParticleCollisionFilter.kBoxSize / 2;
+    public static readonly kBoxSizeHalf = ParticleCollisionFilterTest.kBoxSize / 2;
 
     public static readonly kOffset = 20;
 
-    public static readonly kParticlesContainerSize = ParticleCollisionFilter.kOffset + 0.5;
+    public static readonly kParticlesContainerSize = ParticleCollisionFilterTest.kOffset + 0.5;
 
     public static readonly kSpeedup = 8;
 }
 
-registerTest("Particles", "Particle Collisions", ParticleCollisionFilter);
+registerTest("Particles", "Particle Collisions", ParticleCollisionFilterTest);

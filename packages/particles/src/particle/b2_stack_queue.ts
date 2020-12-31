@@ -16,11 +16,11 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Assert } from "@box2d/core";
+import { Assert } from "@box2d/core";
 
-// DEBUG: import { b2Assert } from "../common/b2_settings";
+// DEBUG: import { Assert } from "../common/b2_settings";
 
-export class b2StackQueue<T> {
+export class StackQueue<T> {
     public readonly m_buffer: Array<T | null> = [];
 
     public m_front = 0;
@@ -48,19 +48,19 @@ export class b2StackQueue<T> {
     }
 
     public Pop(): void {
-        // DEBUG: b2Assert(this.m_front < this.m_back);
+        // DEBUG: Assert(this.m_front < this.m_back);
         this.m_buffer[this.m_front] = null;
         this.m_front++;
     }
 
     public Empty(): boolean {
-        // DEBUG: b2Assert(this.m_front <= this.m_back);
+        // DEBUG: Assert(this.m_front <= this.m_back);
         return this.m_front === this.m_back;
     }
 
     public Front(): T {
         const item = this.m_buffer[this.m_front];
-        b2Assert(item !== null);
+        Assert(item !== null);
         return item;
     }
 }

@@ -16,23 +16,14 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import {
-    b2Body,
-    b2EdgeShape,
-    b2Vec2,
-    b2PolygonShape,
-    b2FixtureDef,
-    b2RevoluteJointDef,
-    b2BodyType,
-    b2CircleShape,
-} from "@box2d/core";
+import { Body, EdgeShape, Vec2, PolygonShape, FixtureDef, RevoluteJointDef, BodyType, CircleShape } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
-class Bridge extends Test {
+class BridgeTest extends Test {
     public static readonly e_count = 30;
 
-    public m_middle!: b2Body;
+    public m_middle!: Body;
 
     public constructor() {
         super();
@@ -42,57 +33,57 @@ class Bridge extends Test {
         {
             ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.CreateFixture({ shape });
         }
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.5, 0.125);
 
-            const fd: b2FixtureDef = {
+            const fd: FixtureDef = {
                 shape,
                 density: 20,
                 friction: 0.2,
             };
 
-            const jd = new b2RevoluteJointDef();
+            const jd = new RevoluteJointDef();
 
             let prevBody = ground;
-            for (let i = 0; i < Bridge.e_count; ++i) {
+            for (let i = 0; i < BridgeTest.e_count; ++i) {
                 const body = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
                     position: { x: -14.5 + 1 * i, y: 5 },
                 });
                 body.CreateFixture(fd);
 
-                const anchor = new b2Vec2(-15 + 1 * i, 5);
+                const anchor = new Vec2(-15 + 1 * i, 5);
                 jd.Initialize(prevBody, body, anchor);
                 this.m_world.CreateJoint(jd);
 
-                if (i === Bridge.e_count >> 1) {
+                if (i === BridgeTest.e_count >> 1) {
                     this.m_middle = body;
                 }
                 prevBody = body;
             }
 
-            const anchor = new b2Vec2(-15 + 1 * Bridge.e_count, 5);
+            const anchor = new Vec2(-15 + 1 * BridgeTest.e_count, 5);
             jd.Initialize(prevBody, ground, anchor);
             this.m_world.CreateJoint(jd);
         }
 
         for (let i = 0; i < 2; ++i) {
             const vertices = [];
-            vertices[0] = new b2Vec2(-0.5, 0);
-            vertices[1] = new b2Vec2(0.5, 0);
-            vertices[2] = new b2Vec2(0, 1.5);
+            vertices[0] = new Vec2(-0.5, 0);
+            vertices[1] = new Vec2(0.5, 0);
+            vertices[2] = new Vec2(0, 1.5);
 
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.Set(vertices);
 
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: -8 + 8 * i, y: 12 },
             });
             body.CreateFixture({
@@ -102,11 +93,11 @@ class Bridge extends Test {
         }
 
         for (let i = 0; i < 3; ++i) {
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_radius = 0.5;
 
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: -6 + 6 * i, y: 10 },
             });
             body.CreateFixture({
@@ -117,4 +108,4 @@ class Bridge extends Test {
     }
 }
 
-registerTest("Joints", "Bridge", Bridge);
+registerTest("Joints", "Bridge", BridgeTest);

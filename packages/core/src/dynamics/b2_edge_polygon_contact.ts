@@ -20,16 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { b2Transform } from "../common/b2_math";
-import { b2CollideEdgeAndPolygon } from "../collision/b2_collide_edge";
-import { b2Manifold } from "../collision/b2_collision";
-import { b2EdgeShape } from "../collision/b2_edge_shape";
-import { b2PolygonShape } from "../collision/b2_polygon_shape";
-import { b2Contact } from "./b2_contact";
+import { Transform } from "../common/b2_math";
+import { CollideEdgeAndPolygon } from "../collision/b2_collide_edge";
+import { Manifold } from "../collision/b2_collision";
+import { EdgeShape } from "../collision/b2_edge_shape";
+import { PolygonShape } from "../collision/b2_polygon_shape";
+import { Contact } from "./b2_contact";
 
 /** @internal */
-export class b2EdgeAndPolygonContact extends b2Contact<b2EdgeShape, b2PolygonShape> {
-    public Evaluate(manifold: b2Manifold, xfA: b2Transform, xfB: b2Transform): void {
-        b2CollideEdgeAndPolygon(manifold, this.GetShapeA(), xfA, this.GetShapeB(), xfB);
+export class EdgeAndPolygonContact extends Contact<EdgeShape, PolygonShape> {
+    public Evaluate(manifold: Manifold, xfA: Transform, xfB: Transform): void {
+        CollideEdgeAndPolygon(manifold, this.GetShapeA(), xfA, this.GetShapeB(), xfB);
     }
 }

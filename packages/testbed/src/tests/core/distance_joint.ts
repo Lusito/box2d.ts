@@ -20,22 +20,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import {
-    b2BodyType,
-    b2DistanceJoint,
-    b2DistanceJointDef,
-    b2EdgeShape,
-    b2LinearStiffness,
-    b2PolygonShape,
-    b2Vec2,
-} from "@box2d/core";
+import { BodyType, DistanceJoint, DistanceJointDef, EdgeShape, LinearStiffness, PolygonShape, Vec2 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { sliderDef } from "../../ui/controls/Slider";
 
 // This tests distance joints, body destruction, and joint destruction.
-class DistanceJoint extends Test {
-    private m_joint: b2DistanceJoint;
+class DistanceJointTest extends Test {
+    private m_joint: DistanceJoint;
 
     public m_length: number;
 
@@ -51,8 +43,8 @@ class DistanceJoint extends Test {
         super();
 
         const ground = this.m_world.CreateBody();
-        const edgeShape = new b2EdgeShape();
-        edgeShape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+        const edgeShape = new EdgeShape();
+        edgeShape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
         ground.CreateFixture({ shape: edgeShape });
 
         const position = {
@@ -60,25 +52,25 @@ class DistanceJoint extends Test {
             y: 5,
         };
         const body = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
             angularDamping: 0.1,
             position,
         });
 
-        const shape = new b2PolygonShape();
+        const shape = new PolygonShape();
         shape.SetAsBox(0.5, 0.5);
         body.CreateFixture({ shape, density: 5 });
 
         this.m_hertz = 1;
         this.m_dampingRatio = 0.7;
 
-        const jd = new b2DistanceJointDef();
-        jd.Initialize(ground, body, new b2Vec2(0, 15), position);
+        const jd = new DistanceJointDef();
+        jd.Initialize(ground, body, new Vec2(0, 15), position);
         jd.collideConnected = true;
         this.m_length = jd.length;
         this.m_minLength = this.m_length;
         this.m_maxLength = this.m_length;
-        b2LinearStiffness(jd, this.m_hertz, this.m_dampingRatio, jd.bodyA, jd.bodyB);
+        LinearStiffness(jd, this.m_hertz, this.m_dampingRatio, jd.bodyA, jd.bodyB);
         this.m_joint = this.m_world.CreateJoint(jd);
     }
 
@@ -106,10 +98,10 @@ class DistanceJoint extends Test {
 
     private UpdateStiffness() {
         const def = { stiffness: 0, damping: 0 };
-        b2LinearStiffness(def, this.m_hertz, this.m_dampingRatio, this.m_joint.GetBodyA(), this.m_joint.GetBodyB());
+        LinearStiffness(def, this.m_hertz, this.m_dampingRatio, this.m_joint.GetBodyA(), this.m_joint.GetBodyB());
         this.m_joint.SetStiffness(def.stiffness);
         this.m_joint.SetDamping(def.damping);
     }
 }
 
-registerTest("Joints", "Distance Joint", DistanceJoint);
+registerTest("Joints", "Distance Joint", DistanceJointTest);

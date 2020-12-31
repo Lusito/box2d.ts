@@ -16,11 +16,11 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Vec2, b2RevoluteJointDef, b2Body, b2BodyType, b2PolygonShape, XY } from "@box2d/core";
+import { Vec2, RevoluteJointDef, Body, BodyType, PolygonShape, XY } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
-class MobileBalanced extends Test {
+class MobileBalancedTest extends Test {
     public static readonly e_depth = 4;
 
     public constructor() {
@@ -32,11 +32,11 @@ class MobileBalanced extends Test {
         });
 
         const a = 0.5;
-        const h = new b2Vec2(0, a);
+        const h = new Vec2(0, a);
 
-        const root = this.AddNode(ground, b2Vec2.ZERO, 0, 3, a);
+        const root = this.AddNode(ground, Vec2.ZERO, 0, 3, a);
 
-        const jointDef = new b2RevoluteJointDef();
+        const jointDef = new RevoluteJointDef();
         jointDef.bodyA = ground;
         jointDef.bodyB = root;
         jointDef.localAnchorA.SetZero();
@@ -55,35 +55,35 @@ class MobileBalanced extends Test {
         };
     }
 
-    public AddNode(parent: b2Body, localAnchor: XY, depth: number, offset: number, a: number): b2Body {
+    public AddNode(parent: Body, localAnchor: XY, depth: number, offset: number, a: number): Body {
         const density = 20;
-        const h = new b2Vec2(0, a);
+        const h = new Vec2(0, a);
 
-        //  b2Vec2 p = parent->GetPosition() + localAnchor - h;
+        //  Vec2 p = parent->GetPosition() + localAnchor - h;
         const p = parent.GetPosition().Clone().Add(localAnchor).Subtract(h);
 
         const body = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
             position: p,
         });
 
-        const shape = new b2PolygonShape();
+        const shape = new PolygonShape();
         shape.SetAsBox(0.25 * a, a);
         body.CreateFixture({ shape, density });
 
-        if (depth === MobileBalanced.e_depth) {
+        if (depth === MobileBalancedTest.e_depth) {
             return body;
         }
 
-        shape.SetAsBox(offset, 0.25 * a, new b2Vec2(0, -a), 0);
+        shape.SetAsBox(offset, 0.25 * a, new Vec2(0, -a), 0);
         body.CreateFixture({ shape, density });
 
-        const a1 = new b2Vec2(offset, -a);
-        const a2 = new b2Vec2(-offset, -a);
+        const a1 = new Vec2(offset, -a);
+        const a2 = new Vec2(-offset, -a);
         const body1 = this.AddNode(body, a1, depth + 1, 0.5 * offset, a);
         const body2 = this.AddNode(body, a2, depth + 1, 0.5 * offset, a);
 
-        const jointDef = new b2RevoluteJointDef();
+        const jointDef = new RevoluteJointDef();
         jointDef.bodyA = body;
         jointDef.localAnchorB.Copy(h);
 
@@ -99,4 +99,4 @@ class MobileBalanced extends Test {
     }
 }
 
-registerTest("Solver", "Mobile Balanced", MobileBalanced);
+registerTest("Solver", "Mobile Balanced", MobileBalancedTest);

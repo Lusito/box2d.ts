@@ -16,24 +16,24 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2EdgeShape, b2Vec2, b2PolygonShape, b2FixtureDef, b2BodyType, XY } from "@box2d/core";
+import { EdgeShape, Vec2, PolygonShape, FixtureDef, BodyType, XY } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
-class Friction extends Test {
+class FrictionTest extends Test {
     public constructor() {
         super();
 
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.CreateFixture({ shape });
         }
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(13, 0.25);
 
             const ground = this.m_world.CreateBody({
@@ -44,7 +44,7 @@ class Friction extends Test {
         }
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.25, 1);
 
             const ground = this.m_world.CreateBody({
@@ -54,7 +54,7 @@ class Friction extends Test {
         }
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(13, 0.25);
             const ground = this.m_world.CreateBody({
                 position: { x: 4, y: 14 },
@@ -64,7 +64,7 @@ class Friction extends Test {
         }
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.25, 1);
 
             const ground = this.m_world.CreateBody({
@@ -74,7 +74,7 @@ class Friction extends Test {
         }
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(13, 0.25);
             const ground = this.m_world.CreateBody({
                 position: { x: -4, y: 6 },
@@ -84,10 +84,10 @@ class Friction extends Test {
         }
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(0.5, 0.5);
 
-            const fd: b2FixtureDef = {
+            const fd: FixtureDef = {
                 shape,
                 density: 25,
             };
@@ -96,7 +96,7 @@ class Friction extends Test {
 
             for (let i = 0; i < 5; ++i) {
                 const body = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
                     position: { x: -15 + 4 * i, y: 28 },
                 });
 
@@ -114,4 +114,4 @@ class Friction extends Test {
     }
 }
 
-registerTest("Forces", "Friction", Friction);
+registerTest("Forces", "Friction", FrictionTest);

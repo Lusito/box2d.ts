@@ -16,19 +16,19 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2ChainShape, b2Vec2, b2PolygonShape, b2EdgeShape, XY } from "@box2d/core";
-import { b2ParticleGroupDef, b2ParticleFlag } from "@box2d/particles";
+import { ChainShape, Vec2, PolygonShape, EdgeShape, XY } from "@box2d/core";
+import { ParticleGroupDef, ParticleFlag } from "@box2d/particles";
 
 import { registerTest, TestContext } from "../../test";
 import { baseParticleTypes } from "../../utils/particles/particle_parameter";
 import { AbstractParticleTestWithControls } from "./abstract_particle_test";
 
 const particleTypes = {
-    "tensile + viscous": b2ParticleFlag.b2_tensileParticle | b2ParticleFlag.b2_viscousParticle,
+    "tensile + viscous": ParticleFlag.Tensile | ParticleFlag.Viscous,
     ...baseParticleTypes,
 };
 
-class LiquidTimer extends AbstractParticleTestWithControls {
+class LiquidTimerTest extends AbstractParticleTestWithControls {
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter);
 
@@ -38,92 +38,92 @@ class LiquidTimer extends AbstractParticleTestWithControls {
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2ChainShape();
-            const vertices = [new b2Vec2(-2, 0), new b2Vec2(2, 0), new b2Vec2(2, 4), new b2Vec2(-2, 4)];
+            const shape = new ChainShape();
+            const vertices = [new Vec2(-2, 0), new Vec2(2, 0), new Vec2(2, 4), new Vec2(-2, 4)];
             shape.CreateLoop(vertices, 4);
             ground.CreateFixture({ shape });
         }
 
         this.m_particleSystem.SetRadius(0.025);
         {
-            const shape = new b2PolygonShape();
-            shape.SetAsBox(2, 0.4, new b2Vec2(0, 3.6), 0);
-            const pd = new b2ParticleGroupDef();
+            const shape = new PolygonShape();
+            shape.SetAsBox(2, 0.4, new Vec2(0, 3.6), 0);
+            const pd = new ParticleGroupDef();
             pd.flags = particleParameter.GetValue();
             pd.shape = shape;
             const group = this.m_particleSystem.CreateParticleGroup(pd);
-            if (pd.flags & b2ParticleFlag.b2_colorMixingParticle) {
+            if (pd.flags & ParticleFlag.ColorMixing) {
                 this.ColorParticleGroup(group, 0);
             }
         }
 
         {
             const body = this.m_world.CreateBody();
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-2, 3.2), new b2Vec2(-1.2, 3.2));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-2, 3.2), new Vec2(-1.2, 3.2));
             body.CreateFixture({ shape, density: 0.1 });
         }
 
         {
             const body = this.m_world.CreateBody();
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-1.1, 3.2), new b2Vec2(2, 3.2));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-1.1, 3.2), new Vec2(2, 3.2));
             body.CreateFixture({ shape, density: 0.1 });
         }
 
         {
             const body = this.m_world.CreateBody();
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-1.2, 3.2), new b2Vec2(-1.2, 2.8));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-1.2, 3.2), new Vec2(-1.2, 2.8));
             body.CreateFixture({ shape, density: 0.1 });
         }
 
         {
             const body = this.m_world.CreateBody();
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-1.1, 3.2), new b2Vec2(-1.1, 2.8));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-1.1, 3.2), new Vec2(-1.1, 2.8));
             body.CreateFixture({ shape, density: 0.1 });
         }
 
         {
             const body = this.m_world.CreateBody();
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-1.6, 2.4), new b2Vec2(0.8, 2));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-1.6, 2.4), new Vec2(0.8, 2));
             body.CreateFixture({ shape, density: 0.1 });
         }
 
         {
             const body = this.m_world.CreateBody();
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(1.6, 1.6), new b2Vec2(-0.8, 1.2));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(1.6, 1.6), new Vec2(-0.8, 1.2));
             body.CreateFixture({ shape, density: 0.1 });
         }
 
         {
             const body = this.m_world.CreateBody();
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-1.2, 0.8), new b2Vec2(-1.2, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-1.2, 0.8), new Vec2(-1.2, 0));
             body.CreateFixture({ shape, density: 0.1 });
         }
 
         {
             const body = this.m_world.CreateBody();
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-0.4, 0.8), new b2Vec2(-0.4, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-0.4, 0.8), new Vec2(-0.4, 0));
             body.CreateFixture({ shape, density: 0.1 });
         }
 
         {
             const body = this.m_world.CreateBody();
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(0.4, 0.8), new b2Vec2(0.4, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(0.4, 0.8), new Vec2(0.4, 0));
             body.CreateFixture({ shape, density: 0.1 });
         }
 
         {
             const body = this.m_world.CreateBody();
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(1.2, 0.8), new b2Vec2(1.2, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(1.2, 0.8), new Vec2(1.2, 0));
             body.CreateFixture({ shape, density: 0.1 });
         }
     }
@@ -140,4 +140,4 @@ class LiquidTimer extends AbstractParticleTestWithControls {
     }
 }
 
-registerTest("Particles", "Liquid Timer", LiquidTimer);
+registerTest("Particles", "Liquid Timer", LiquidTimerTest);

@@ -16,11 +16,11 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2ControllerEdge } from "../controller/b2_controller";
+import { ControllerEdge } from "../controller/b2_controller";
 
 declare module "@box2d/core" {
-    export interface b2Body {
-        m_controllerList: b2ControllerEdge | null;
+    export interface Body {
+        m_controllerList: ControllerEdge | null;
 
         m_controllerCount: number;
     }

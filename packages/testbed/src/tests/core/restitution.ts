@@ -16,13 +16,13 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2EdgeShape, b2Vec2, b2CircleShape, b2FixtureDef, b2BodyType } from "@box2d/core";
+import { EdgeShape, Vec2, CircleShape, FixtureDef, BodyType } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
 // Note: even with a restitution of 1, there is some energy change
 // due to position correction.
-class Restitution extends Test {
+class RestitutionTest extends Test {
     public constructor() {
         super();
 
@@ -30,16 +30,16 @@ class Restitution extends Test {
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.CreateFixture({ shape, restitutionThreshold });
         }
 
         {
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_radius = 1;
 
-            const fd: b2FixtureDef = {
+            const fd: FixtureDef = {
                 shape,
                 density: 1,
                 restitutionThreshold,
@@ -49,7 +49,7 @@ class Restitution extends Test {
 
             for (let i = 0; i < 7; ++i) {
                 const body = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
                     position: { x: -10 + 3 * i, y: 20 },
                 });
 
@@ -60,4 +60,4 @@ class Restitution extends Test {
     }
 }
 
-registerTest("Forces", "Restitution", Restitution);
+registerTest("Forces", "Restitution", RestitutionTest);

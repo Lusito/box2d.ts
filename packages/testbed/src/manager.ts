@@ -1,4 +1,4 @@
-import { b2Vec2, b2Clamp, b2Color } from "@box2d/core";
+import { Vec2, Clamp, Color } from "@box2d/core";
 import { createContext, useContext } from "react";
 import { Signal } from "typed-signals";
 
@@ -36,7 +36,7 @@ export class TestManager {
 
     public m_ctx: CanvasRenderingContext2D | null = null;
 
-    private m_mouse = new b2Vec2();
+    private m_mouse = new Vec2();
 
     private readonly ownHotKeys: HotKey[];
 
@@ -171,17 +171,17 @@ export class TestManager {
 
     public HomeCamera(): void {
         const zoom = this.m_test ? this.m_test.GetDefaultViewZoom() : 25;
-        const center = this.m_test ? this.m_test.getCenter() : b2Vec2.ZERO;
+        const center = this.m_test ? this.m_test.getCenter() : Vec2.ZERO;
         g_camera.setPositionAndZoom(center.x, center.y, zoom);
     }
 
     public ZoomCamera(zoom: number): void {
-        g_camera.setZoom(b2Clamp(g_camera.getZoom() * zoom, 0.5, 500));
+        g_camera.setZoom(Clamp(g_camera.getZoom() * zoom, 0.5, 500));
     }
 
     public HandleMouseMove(e: MouseEvent): void {
-        const element = new b2Vec2(e.offsetX, e.offsetY);
-        const world = g_camera.unproject(element, new b2Vec2());
+        const element = new Vec2(e.offsetX, e.offsetY);
+        const world = g_camera.unproject(element, new Vec2());
 
         this.m_mouse.Copy(element);
 
@@ -195,8 +195,8 @@ export class TestManager {
     }
 
     public HandleMouseDown(e: MouseEvent): void {
-        const element = new b2Vec2(e.offsetX, e.offsetY);
-        const world = g_camera.unproject(element, new b2Vec2());
+        const element = new Vec2(e.offsetX, e.offsetY);
+        const world = g_camera.unproject(element, new Vec2());
 
         switch (e.button) {
             case 0: // left mouse button
@@ -214,8 +214,8 @@ export class TestManager {
     }
 
     public HandleMouseUp(e: MouseEvent): void {
-        const element = new b2Vec2(e.offsetX, e.offsetY);
-        const world = g_camera.unproject(element, new b2Vec2());
+        const element = new Vec2(e.offsetX, e.offsetY);
+        const world = g_camera.unproject(element, new Vec2());
 
         switch (e.button) {
             case 0: // left mouse button
@@ -371,7 +371,7 @@ export class TestManager {
         ctx.save();
         ctx.translate(0, g_camera.getHeight());
         ctx.scale(1, -1);
-        ctx.fillStyle = DebugDraw.MakeStyleString(b2Color.GREEN);
+        ctx.fillStyle = DebugDraw.MakeStyleString(Color.GREEN);
         let x = 5;
         for (const frameTime of this.m_fpsCalculator.getFrames()) {
             ctx.fillRect(x, 5, 1, frameTime);

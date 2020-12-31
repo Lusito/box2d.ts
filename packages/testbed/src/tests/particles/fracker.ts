@@ -17,24 +17,24 @@
  */
 
 import {
-    b2DestructionListener,
-    b2Color,
-    b2Body,
-    b2BodyType,
-    b2PolygonShape,
-    b2Vec2,
-    b2ChainShape,
-    b2Clamp,
-    b2Transform,
-    b2Joint,
-    b2Contact,
-    b2Manifold,
-    b2ContactImpulse,
-    b2World,
+    DestructionListener,
+    Color,
+    Body,
+    BodyType,
+    PolygonShape,
+    Vec2,
+    ChainShape,
+    Clamp,
+    Transform,
+    Joint,
+    Contact,
+    Manifold,
+    ContactImpulse,
+    World,
     XY,
-    b2MakeArray,
+    MakeArray,
 } from "@box2d/core";
-import { b2ParticleGroup, b2ParticleGroupDef, b2ParticleFlag, b2ParticleSystem } from "@box2d/particles";
+import { ParticleGroup, ParticleGroupDef, ParticleFlag, ParticleSystem } from "@box2d/particles";
 
 import { registerTest } from "../../test";
 import { Settings } from "../../settings";
@@ -109,31 +109,31 @@ class EmitterTracker {
  * Keep track of particle groups in a set, removing them when
  * they're destroyed.
  */
-class ParticleGroupTracker extends b2DestructionListener {
-    public m_particleGroups: b2ParticleGroup[] = [];
+class ParticleGroupTracker extends DestructionListener {
+    public m_particleGroups: ParticleGroup[] = [];
 
     /**
      * Called when any particle group is about to be destroyed.
      */
-    public SayGoodbyeParticleGroup(group: b2ParticleGroup): void {
+    public SayGoodbyeParticleGroup(group: ParticleGroup): void {
         this.RemoveParticleGroup(group);
     }
 
     /**
      * Add a particle group to the tracker.
      */
-    public AddParticleGroup(group: b2ParticleGroup): void {
+    public AddParticleGroup(group: ParticleGroup): void {
         this.m_particleGroups.push(group);
     }
 
     /**
      * Remove a particle group from the tracker.
      */
-    public RemoveParticleGroup(group: b2ParticleGroup): void {
+    public RemoveParticleGroup(group: ParticleGroup): void {
         this.m_particleGroups.splice(this.m_particleGroups.indexOf(group), 1);
     }
 
-    public GetParticleGroups(): b2ParticleGroup[] {
+    public GetParticleGroups(): ParticleGroup[] {
         return this.m_particleGroups;
     }
 }
@@ -168,17 +168,17 @@ class FrackerSettings {
     public static readonly k_worldHalfHeight = FrackerSettings.k_worldHeightTiles * FrackerSettings.k_tileHeight * 0.5;
 
     /** Colors of tiles. */
-    public static readonly k_playerColor = new b2Color(1, 1, 1);
+    public static readonly k_playerColor = new Color(1, 1, 1);
 
-    public static readonly k_playerFrackColor = new b2Color(1, 0.5, 0.5);
+    public static readonly k_playerFrackColor = new Color(1, 0.5, 0.5);
 
-    public static readonly k_wellColor = new b2Color(0.5, 0.5, 0.5);
+    public static readonly k_wellColor = new Color(0.5, 0.5, 0.5);
 
-    public static readonly k_oilColor = new b2Color(1, 0, 0);
+    public static readonly k_oilColor = new Color(1, 0, 0);
 
-    public static readonly k_waterColor = new b2Color(0, 0.2, 1);
+    public static readonly k_waterColor = new Color(0, 0.2, 1);
 
-    public static readonly k_frackingFluidColor = new b2Color(0.8, 0.4, 0);
+    public static readonly k_frackingFluidColor = new Color(0.8, 0.4, 0);
 
     /** Default density of each body. */
     public static readonly k_density = 0.1;
@@ -232,17 +232,17 @@ class Fracker_DestructionListener extends ParticleGroupTracker {
 
     public m_oil = 0;
 
-    public m_world: b2World;
+    public m_world: World;
 
-    public m_previousListener: b2DestructionListener | null = null;
+    public m_previousListener: DestructionListener | null = null;
 
     /**
      * Initialize the particle system and world, setting this class
      * as a destruction listener for the world.
      */
-    public constructor(world: b2World) {
+    public constructor(world: World) {
         super();
-        // DEBUG: b2Assert(world !== null);
+        // DEBUG: Assert(world !== null);
         this.m_world = world;
         this.m_previousListener = world.GetDestructionListener();
         this.m_world.SetDestructionListener(this);
@@ -285,8 +285,8 @@ class Fracker_DestructionListener extends ParticleGroupTracker {
     /**
      * Update the score when certain particles are destroyed.
      */
-    public SayGoodbyeParticle(particleSystem: b2ParticleSystem, index: number): void {
-        // DEBUG: b2Assert(particleSystem !== null);
+    public SayGoodbyeParticle(particleSystem: ParticleSystem, index: number): void {
+        // DEBUG: Assert(particleSystem !== null);
         const userData = particleSystem.GetUserDataBuffer()[index];
         if (userData) {
             const material = userData;
@@ -313,8 +313,8 @@ class Fracker_DestructionListener extends ParticleGroupTracker {
  * press 'space'.  Fracking fluid can be used to push other
  * fluids to the well head and ultimately score points.
  */
-class Fracker extends AbstractParticleTest {
-    public m_player!: b2Body;
+class FrackerTest extends AbstractParticleTest {
+    public m_player!: Body;
 
     public m_wellX = FrackerSettings.k_worldWidthTiles - FrackerSettings.k_worldWidthTiles / 4;
 
@@ -330,7 +330,7 @@ class Fracker extends AbstractParticleTest {
 
     public m_material: Fracker_Material[] = [];
 
-    public m_bodies: Array<b2Body | null> = [];
+    public m_bodies: Array<Body | null> = [];
 
     /** Set of particle groups the well has influence over. */
     public m_listener = new Fracker_DestructionListener(this.m_world);
@@ -369,32 +369,32 @@ class Fracker extends AbstractParticleTest {
      * Get the material of the tile at the specified tile position.
      */
     public GetMaterial(x: number, y: number): Fracker_Material {
-        return this.m_material[Fracker.TileToArrayOffset(x, y)];
+        return this.m_material[FrackerTest.TileToArrayOffset(x, y)];
     }
 
     /**
      * Set the material of the tile at the specified tile position.
      */
     public SetMaterial(x: number, y: number, material: Fracker_Material): void {
-        this.m_material[Fracker.TileToArrayOffset(x, y)] = material;
+        this.m_material[FrackerTest.TileToArrayOffset(x, y)] = material;
     }
 
     /**
      * Get the body associated with the specified tile position.
      */
-    public GetBody(x: number, y: number): b2Body | null {
-        return this.m_bodies[Fracker.TileToArrayOffset(x, y)];
+    public GetBody(x: number, y: number): Body | null {
+        return this.m_bodies[FrackerTest.TileToArrayOffset(x, y)];
     }
 
     /**
      * Set the body associated with the specified tile position.
      */
-    public SetBody(x: number, y: number, body: b2Body | null): void {
-        const currentBody = this.m_bodies[Fracker.TileToArrayOffset(x, y)];
+    public SetBody(x: number, y: number, body: Body | null): void {
+        const currentBody = this.m_bodies[FrackerTest.TileToArrayOffset(x, y)];
         if (currentBody) {
             this.m_world.DestroyBody(currentBody);
         }
-        this.m_bodies[Fracker.TileToArrayOffset(x, y)] = body;
+        this.m_bodies[FrackerTest.TileToArrayOffset(x, y)] = body;
     }
 
     /**
@@ -402,18 +402,18 @@ class Fracker extends AbstractParticleTest {
      */
     public CreatePlayer(): void {
         this.m_player = this.m_world.CreateBody({
-            type: b2BodyType.b2_kinematicBody,
+            type: BodyType.Kinematic,
         });
-        const shape = new b2PolygonShape();
+        const shape = new PolygonShape();
         shape.SetAsBox(
             FrackerSettings.k_tileHalfWidth,
             FrackerSettings.k_tileHalfHeight,
-            new b2Vec2(FrackerSettings.k_tileHalfWidth, FrackerSettings.k_tileHalfHeight),
+            new Vec2(FrackerSettings.k_tileHalfWidth, FrackerSettings.k_tileHalfHeight),
             0,
         );
         this.m_player.CreateFixture({ shape, density: FrackerSettings.k_density });
         this.m_player.SetTransformVec(
-            Fracker.TileToWorld(FrackerSettings.k_worldWidthTiles / 2, FrackerSettings.k_worldHeightTiles / 2),
+            FrackerTest.TileToWorld(FrackerSettings.k_worldWidthTiles / 2, FrackerSettings.k_worldHeightTiles / 2),
             0,
         );
     }
@@ -422,7 +422,7 @@ class Fracker extends AbstractParticleTest {
      * Create the geography / features of the world.
      */
     public CreateGeo(): void {
-        // DEBUG: b2Assert(FrackerSettings.k_dirtProbability +
+        // DEBUG: Assert(FrackerSettings.k_dirtProbability +
         // DEBUG:   FrackerSettings.k_emptyProbability +
         // DEBUG:   FrackerSettings.k_oilProbability +
         // DEBUG:   FrackerSettings.k_waterProbability === 100);
@@ -457,15 +457,15 @@ class Fracker extends AbstractParticleTest {
      */
     public CreateGround(): void {
         const ground = this.m_world.CreateBody();
-        const shape = new b2ChainShape();
-        const bottomLeft = new b2Vec2();
-        const topRight = new b2Vec2();
-        Fracker.GetExtents(bottomLeft, topRight);
+        const shape = new ChainShape();
+        const bottomLeft = new Vec2();
+        const topRight = new Vec2();
+        FrackerTest.GetExtents(bottomLeft, topRight);
         const vertices = [
-            new b2Vec2(bottomLeft.x, bottomLeft.y),
-            new b2Vec2(topRight.x, bottomLeft.y),
-            new b2Vec2(topRight.x, topRight.y),
-            new b2Vec2(bottomLeft.x, topRight.y),
+            new Vec2(bottomLeft.x, bottomLeft.y),
+            new Vec2(topRight.x, bottomLeft.y),
+            new Vec2(topRight.x, topRight.y),
+            new Vec2(bottomLeft.x, topRight.y),
         ];
         shape.CreateLoop(vertices, 4);
         ground.CreateFixture({ shape });
@@ -475,13 +475,13 @@ class Fracker extends AbstractParticleTest {
      * Create a dirt block at the specified world position.
      */
     public CreateDirtBlock(x: number, y: number): void {
-        const position = Fracker.TileToWorld(x, y);
+        const position = FrackerTest.TileToWorld(x, y);
         const body = this.m_world.CreateBody();
-        const shape = new b2PolygonShape();
+        const shape = new PolygonShape();
         shape.SetAsBox(
             FrackerSettings.k_tileHalfWidth,
             FrackerSettings.k_tileHalfHeight,
-            Fracker.CenteredPosition(position),
+            FrackerTest.CenteredPosition(position),
             0,
         );
         body.CreateFixture({ shape, density: FrackerSettings.k_density });
@@ -493,20 +493,17 @@ class Fracker extends AbstractParticleTest {
      * Create particles in a tile with resources.
      */
     public CreateReservoirBlock(x: number, y: number, material: Fracker_Material): void {
-        const position = Fracker.TileToWorld(x, y);
-        const shape = new b2PolygonShape();
+        const position = FrackerTest.TileToWorld(x, y);
+        const shape = new PolygonShape();
         this.SetMaterial(x, y, material);
         shape.SetAsBox(
             FrackerSettings.k_tileHalfWidth,
             FrackerSettings.k_tileHalfHeight,
-            Fracker.CenteredPosition(position),
+            FrackerTest.CenteredPosition(position),
             0,
         );
-        const pd = new b2ParticleGroupDef();
-        pd.flags =
-            b2ParticleFlag.b2_tensileParticle |
-            b2ParticleFlag.b2_viscousParticle |
-            b2ParticleFlag.b2_destructionListenerParticle;
+        const pd = new ParticleGroupDef();
+        pd.flags = ParticleFlag.Tensile | ParticleFlag.Viscous | ParticleFlag.DestructionListener;
         pd.shape = shape;
         pd.color.Copy(material === Fracker_Material.OIL ? FrackerSettings.k_oilColor : FrackerSettings.k_waterColor);
         const group = this.m_particleSystem.CreateParticleGroup(pd);
@@ -517,7 +514,7 @@ class Fracker extends AbstractParticleTest {
         const userDataBuffer = this.m_particleSystem.GetUserDataBuffer();
         const index = group.GetBufferIndex();
         for (let i = 0; i < particleCount; ++i) {
-            userDataBuffer[index + i] = this.m_material[Fracker.TileToArrayOffset(x, y)];
+            userDataBuffer[index + i] = this.m_material[FrackerTest.TileToArrayOffset(x, y)];
         }
         // Keep track of the total available oil.
         if (material === Fracker_Material.OIL) {
@@ -538,20 +535,20 @@ class Fracker extends AbstractParticleTest {
     /**
      * Create a fracking fluid emitter.
      */
-    public CreateFrackingFluidEmitter(position: b2Vec2): void {
-        const groupDef = new b2ParticleGroupDef();
+    public CreateFrackingFluidEmitter(position: Vec2): void {
+        const groupDef = new ParticleGroupDef();
         const group = this.m_particleSystem.CreateParticleGroup(groupDef);
         this.m_listener.AddParticleGroup(group);
         const emitter = new RadialEmitter();
         emitter.SetGroup(group);
         emitter.SetParticleSystem(this.m_particleSystem);
-        emitter.SetPosition(Fracker.CenteredPosition(position));
-        emitter.SetVelocity(new b2Vec2(0, -FrackerSettings.k_tileHalfHeight));
+        emitter.SetPosition(FrackerTest.CenteredPosition(position));
+        emitter.SetVelocity(new Vec2(0, -FrackerSettings.k_tileHalfHeight));
         emitter.SetSpeed(FrackerSettings.k_tileHalfWidth * 0.1);
-        emitter.SetSize(new b2Vec2(FrackerSettings.k_tileHalfWidth, FrackerSettings.k_tileHalfHeight));
+        emitter.SetSize(new Vec2(FrackerSettings.k_tileHalfWidth, FrackerSettings.k_tileHalfHeight));
         emitter.SetEmitRate(20);
         emitter.SetColor(FrackerSettings.k_frackingFluidColor);
-        emitter.SetParticleFlags(b2ParticleFlag.b2_tensileParticle | b2ParticleFlag.b2_viscousParticle);
+        emitter.SetParticleFlags(ParticleFlag.Tensile | ParticleFlag.Viscous);
         this.m_tracker.Add(emitter, FrackerSettings.k_frackingFluidEmitterLifetime);
         this.m_listener.AddScore(FrackerSettings.k_scorePerFrackingDeployment);
     }
@@ -563,10 +560,10 @@ class Fracker extends AbstractParticleTest {
         const playerPosition = this.m_player.GetTransform().p;
         const currentPlayerX: [number] = [0];
         const currentPlayerY: [number] = [0];
-        Fracker.WorldToTile(playerPosition, currentPlayerX, currentPlayerY);
+        FrackerTest.WorldToTile(playerPosition, currentPlayerX, currentPlayerY);
 
-        playerX = b2Clamp(playerX, 0, FrackerSettings.k_worldWidthTiles - 1);
-        playerY = b2Clamp(playerY, 0, FrackerSettings.k_worldHeightTiles - 1);
+        playerX = Clamp(playerX, 0, FrackerSettings.k_worldWidthTiles - 1);
+        playerY = Clamp(playerY, 0, FrackerSettings.k_worldHeightTiles - 1);
 
         // Only update if the player has moved and isn't attempting to
         // move through the well.
@@ -577,7 +574,7 @@ class Fracker extends AbstractParticleTest {
             // Try to deploy any fracking fluid that was charging.
             this.DeployFrackingFluid();
             // Move the player.
-            this.m_player.SetTransformVec(Fracker.TileToWorld(playerX, playerY), 0);
+            this.m_player.SetTransformVec(FrackerTest.TileToWorld(playerX, playerY), 0);
         }
     }
 
@@ -601,38 +598,38 @@ class Fracker extends AbstractParticleTest {
      * coordinates.
      */
     public DestroyParticlesInTiles(startX: number, startY: number, endX: number, endY: number): void {
-        const shape = new b2PolygonShape();
+        const shape = new PolygonShape();
         const width = endX - startX + 1;
         const height = endY - startY + 1;
         const centerX = startX + width / 2;
         const centerY = startY + height / 2;
         shape.SetAsBox(FrackerSettings.k_tileHalfWidth * width, FrackerSettings.k_tileHalfHeight * height);
-        const killLocation = new b2Transform();
-        killLocation.SetPositionAngle(Fracker.CenteredPosition(Fracker.TileToWorld(centerX, centerY)), 0);
+        const killLocation = new Transform();
+        killLocation.SetPositionAngle(FrackerTest.CenteredPosition(FrackerTest.TileToWorld(centerX, centerY)), 0);
         this.m_particleSystem.DestroyParticlesInShape(shape, killLocation);
     }
 
-    public JointDestroyed(joint: b2Joint): void {
+    public JointDestroyed(joint: Joint): void {
         super.JointDestroyed(joint);
     }
 
-    public ParticleGroupDestroyed(group: b2ParticleGroup): void {
+    public ParticleGroupDestroyed(group: ParticleGroup): void {
         super.ParticleGroupDestroyed(group);
     }
 
-    public BeginContact(contact: b2Contact): void {
+    public BeginContact(contact: Contact): void {
         super.BeginContact(contact);
     }
 
-    public EndContact(contact: b2Contact): void {
+    public EndContact(contact: Contact): void {
         super.EndContact(contact);
     }
 
-    public PreSolve(contact: b2Contact, oldManifold: b2Manifold): void {
+    public PreSolve(contact: Contact, oldManifold: Manifold): void {
         super.PreSolve(contact, oldManifold);
     }
 
-    public PostSolve(contact: b2Contact, impulse: b2ContactImpulse): void {
+    public PostSolve(contact: Contact, impulse: ContactImpulse): void {
         super.PostSolve(contact, impulse);
     }
 
@@ -666,13 +663,13 @@ class Fracker extends AbstractParticleTest {
         const playerPosition = this.m_player.GetTransform().p;
         const playerX: [number] = [0];
         const playerY: [number] = [0];
-        Fracker.WorldToTile(playerPosition, playerX, playerY);
+        FrackerTest.WorldToTile(playerPosition, playerX, playerY);
 
         this.SetPlayerPosition(playerX[0] + x, playerY[0] + y);
         this.m_allowInput = false;
     }
 
-    public MouseDown(p: b2Vec2): void {
+    public MouseDown(p: Vec2): void {
         super.MouseDown(p);
         this.m_frackingFluidChargeTime = 0;
     }
@@ -680,7 +677,7 @@ class Fracker extends AbstractParticleTest {
     /**
      * Try to deploy the fracking fluid or move the player.
      */
-    public MouseUp(p: b2Vec2): void {
+    public MouseUp(p: Vec2): void {
         super.MouseUp(p);
         if (!this.m_allowInput) {
             return;
@@ -691,10 +688,10 @@ class Fracker extends AbstractParticleTest {
             const playerPosition = this.m_player.GetTransform().p;
             const playerX: [number] = [0];
             const playerY: [number] = [0];
-            Fracker.WorldToTile(playerPosition, playerX, playerY);
+            FrackerTest.WorldToTile(playerPosition, playerX, playerY);
             // Move the player towards the mouse position, preferring to move
             // along the axis with the maximal distance from the cursor.
-            const distance = b2Vec2.Subtract(p, Fracker.CenteredPosition(playerPosition), new b2Vec2());
+            const distance = Vec2.Subtract(p, FrackerTest.CenteredPosition(playerPosition), new Vec2());
             const absDistX = Math.abs(distance.x);
             const absDistY = Math.abs(distance.y);
             if (absDistX > absDistY && absDistX >= FrackerSettings.k_tileHalfWidth) {
@@ -726,7 +723,7 @@ class Fracker extends AbstractParticleTest {
         const playerPosition = this.m_player.GetTransform().p;
         const playerX: [number] = [0];
         const playerY: [number] = [0];
-        Fracker.WorldToTile(playerPosition, playerX, playerY);
+        FrackerTest.WorldToTile(playerPosition, playerX, playerY);
         // If the player is moved to a square with dirt, remove it.
         if (this.GetMaterial(playerX[0], playerY[0]) === Fracker_Material.DIRT) {
             this.SetMaterial(playerX[0], playerY[0], Fracker_Material.EMPTY);
@@ -747,10 +744,12 @@ class Fracker extends AbstractParticleTest {
             for (let i = 0; i < particleCount; ++i) {
                 // Apply velocity to particles near the bottom or in the well
                 // sucking them up to the top.
-                const wellEnd = Fracker.CenteredPosition(Fracker.TileToWorld(this.m_wellX, this.m_wellBottom - 2));
+                const wellEnd = FrackerTest.CenteredPosition(
+                    FrackerTest.TileToWorld(this.m_wellX, this.m_wellBottom - 2),
+                );
                 const particlePosition = positionBuffer[index + i];
                 // Distance from the well's bottom.
-                const distance = b2Vec2.Subtract(particlePosition, wellEnd, new b2Vec2());
+                const distance = Vec2.Subtract(particlePosition, wellEnd, new Vec2());
                 // Distance from either well side wall.
                 const absDistX = Math.abs(distance.x);
                 if (
@@ -760,14 +759,14 @@ class Fracker extends AbstractParticleTest {
                     distance.y < 0.0
                 ) {
                     // Suck the particles towards the end of the well.
-                    const velocity = b2Vec2.Subtract(wellEnd, particlePosition, new b2Vec2());
+                    const velocity = Vec2.Subtract(wellEnd, particlePosition, new Vec2());
                     velocity.Normalize();
                     velocityBuffer[index + i].Copy(velocity.Scale(FrackerSettings.k_wellSuckSpeedOutside));
                 } else if (absDistX <= FrackerSettings.k_tileHalfWidth && distance.y > 0) {
                     // Suck the particles up the well with a random
                     // x component moving them side to side in the well.
                     const randomX = Math.random() * FrackerSettings.k_tileHalfWidth - distance.x;
-                    const velocity = new b2Vec2(randomX, FrackerSettings.k_tileHeight);
+                    const velocity = new Vec2(randomX, FrackerSettings.k_tileHeight);
                     velocity.Normalize();
                     velocityBuffer[index + i].Copy(velocity.Scale(FrackerSettings.k_wellSuckSpeedInside));
                 }
@@ -785,7 +784,7 @@ class Fracker extends AbstractParticleTest {
      */
     public DrawWell(): void {
         for (let y = this.m_wellBottom; y <= this.m_wellTop; ++y) {
-            this.DrawQuad(Fracker.TileToWorld(this.m_wellX, y), FrackerSettings.k_wellColor);
+            this.DrawQuad(FrackerTest.TileToWorld(this.m_wellX, y), FrackerSettings.k_wellColor);
         }
     }
 
@@ -795,7 +794,7 @@ class Fracker extends AbstractParticleTest {
     public DrawPlayer(): void {
         this.DrawQuad(
             this.m_player.GetTransform().p,
-            Fracker.LerpColor(
+            FrackerTest.LerpColor(
                 FrackerSettings.k_playerColor,
                 FrackerSettings.k_playerFrackColor,
                 Math.max(this.m_frackingFluidChargeTime / FrackerSettings.k_frackingFluidChargeTime, 0),
@@ -816,8 +815,8 @@ class Fracker extends AbstractParticleTest {
      * Draw a quad at position of color that is either just an
      * outline (fill = false) or solid (fill = true).
      */
-    public DrawQuad(position: b2Vec2, color: b2Color, fill = false): void {
-        const verts = b2MakeArray(4, b2Vec2);
+    public DrawQuad(position: Vec2, color: Color, fill = false): void {
+        const verts = MakeArray(4, Vec2);
         const maxX = position.x + FrackerSettings.k_tileWidth;
         const maxY = position.y + FrackerSettings.k_tileHeight;
         verts[0].Set(position.x, maxY);
@@ -834,14 +833,14 @@ class Fracker extends AbstractParticleTest {
     //  // Get a pointer to the material of the tile at the specified position.
     //  Material* GetMaterialStorage(const int32 x, const int32 y)
     //  {
-    //    return &m_material[Fracker.TileToArrayOffset(x, y)];
+    //    return &m_material[FrackerTest.TileToArrayOffset(x, y)];
     //  }
 
     //  // A pointer to the body storage associated with the specified tile
     //  // position.
-    //  b2Body** GetBodyStorage(const int32 x, const int32 y)
+    //  Body** GetBodyStorage(const int32 x, const int32 y)
     //  {
-    //    return &m_bodies[Fracker.TileToArrayOffset(x, y)];
+    //    return &m_bodies[FrackerTest.TileToArrayOffset(x, y)];
     //  }
 
     public GetDefaultViewZoom(): number {
@@ -858,7 +857,7 @@ class Fracker extends AbstractParticleTest {
     /**
      * Get the bottom left position of the world in world units.
      */
-    public static GetBottomLeft(bottomLeft: b2Vec2): void {
+    public static GetBottomLeft(bottomLeft: Vec2): void {
         bottomLeft.Set(
             FrackerSettings.k_worldCenterX - FrackerSettings.k_worldHalfWidth,
             FrackerSettings.k_worldCenterY - FrackerSettings.k_worldHalfHeight,
@@ -868,8 +867,8 @@ class Fracker extends AbstractParticleTest {
     /**
      * Get the extents of the world in world units.
      */
-    public static GetExtents(bottomLeft: b2Vec2, topRight: b2Vec2): void {
-        Fracker.GetBottomLeft(bottomLeft);
+    public static GetExtents(bottomLeft: Vec2, topRight: Vec2): void {
+        FrackerTest.GetBottomLeft(bottomLeft);
         topRight.Set(
             FrackerSettings.k_worldCenterX + FrackerSettings.k_worldHalfWidth,
             FrackerSettings.k_worldCenterY + FrackerSettings.k_worldHalfHeight,
@@ -877,11 +876,11 @@ class Fracker extends AbstractParticleTest {
     }
 
     // Convert a point in world coordintes to a tile location
-    public static WorldToTile(position: b2Vec2, x: [number], y: [number]): void {
+    public static WorldToTile(position: Vec2, x: [number], y: [number]): void {
         // Translate relative to the world center and scale based upon the
         // tile size.
-        const bottomLeft = new b2Vec2();
-        Fracker.GetBottomLeft(bottomLeft);
+        const bottomLeft = new Vec2();
+        FrackerTest.GetBottomLeft(bottomLeft);
         x[0] = Math.floor((position.x - bottomLeft.x) / FrackerSettings.k_tileWidth + FrackerSettings.k_tileHalfWidth);
         y[0] = Math.floor(
             (position.y - bottomLeft.y) / FrackerSettings.k_tileHeight + FrackerSettings.k_tileHalfHeight,
@@ -891,11 +890,11 @@ class Fracker extends AbstractParticleTest {
     /**
      * Convert a tile position to a point  in world coordinates.
      */
-    public static TileToWorld(x: number, y: number, out = new b2Vec2()): b2Vec2 {
+    public static TileToWorld(x: number, y: number, out = new Vec2()): Vec2 {
         // Scale based upon the tile size and translate relative to the world
         // center.
-        const bottomLeft = new b2Vec2();
-        Fracker.GetBottomLeft(bottomLeft);
+        const bottomLeft = new Vec2();
+        FrackerTest.GetBottomLeft(bottomLeft);
         return out.Set(x * FrackerSettings.k_tileWidth + bottomLeft.x, y * FrackerSettings.k_tileHeight + bottomLeft.y);
     }
 
@@ -904,25 +903,25 @@ class Fracker extends AbstractParticleTest {
      * the specified tile coordinates.
      */
     public static TileToArrayOffset(x: number, y: number): number {
-        // DEBUG: b2Assert(x >= 0);
-        // DEBUG: b2Assert(x < FrackerSettings.k_worldWidthTiles);
-        // DEBUG: b2Assert(y >= 0);
-        // DEBUG: b2Assert(y < FrackerSettings.k_worldHeightTiles);
+        // DEBUG: Assert(x >= 0);
+        // DEBUG: Assert(x < FrackerSettings.k_worldWidthTiles);
+        // DEBUG: Assert(y >= 0);
+        // DEBUG: Assert(y < FrackerSettings.k_worldHeightTiles);
         return x + y * FrackerSettings.k_worldWidthTiles;
     }
 
     /**
      * Calculate the center of a tile position in world units.
      */
-    public static CenteredPosition(position: b2Vec2, out = new b2Vec2()): b2Vec2 {
+    public static CenteredPosition(position: Vec2, out = new Vec2()): Vec2 {
         return out.Set(position.x + FrackerSettings.k_tileHalfWidth, position.y + FrackerSettings.k_tileHalfHeight);
     }
 
     /**
      * Interpolate between color a and b using t.
      */
-    public static LerpColor(a: b2Color, b: b2Color, t: number): b2Color {
-        return new b2Color(Fracker.Lerp(a.r, b.r, t), Fracker.Lerp(a.g, b.g, t), Fracker.Lerp(a.b, b.b, t));
+    public static LerpColor(a: Color, b: Color, t: number): Color {
+        return new Color(FrackerTest.Lerp(a.r, b.r, t), FrackerTest.Lerp(a.g, b.g, t), FrackerTest.Lerp(a.b, b.b, t));
     }
 
     /**
@@ -933,4 +932,4 @@ class Fracker extends AbstractParticleTest {
     }
 }
 
-registerTest("Particles", "Fracker", Fracker);
+registerTest("Particles", "Fracker", FrackerTest);

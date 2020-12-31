@@ -16,16 +16,16 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2_augment, b2Body, b2Transform } from "@box2d/core";
+import { b2_augment, Body, Transform } from "@box2d/core";
 
 declare module "@box2d/core" {
-    interface b2Body {
-        readonly m_xf0: b2Transform;
+    interface Body {
+        readonly m_xf0: Transform;
     }
 }
 
-b2_augment(b2Body.prototype, {
-    SetTransformXY(this: b2Body, original, x, y, angle): void {
+b2_augment(Body.prototype, {
+    SetTransformXY(this: Body, original, x, y, angle): void {
         original(x, y, angle);
         this.m_xf0.Copy(this.GetTransform());
     },

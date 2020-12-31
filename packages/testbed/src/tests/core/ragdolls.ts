@@ -17,37 +17,37 @@
  */
 
 import {
-    b2BodyDef,
-    b2Vec2,
-    b2ChainShape,
-    b2FixtureDef,
-    b2RevoluteJointDef,
-    b2BodyType,
-    b2CircleShape,
-    b2PolygonShape,
-    b2DegToRad,
+    BodyDef,
+    Vec2,
+    ChainShape,
+    FixtureDef,
+    RevoluteJointDef,
+    BodyType,
+    CircleShape,
+    PolygonShape,
+    DegToRad,
     XY,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
-class Ragdolls extends Test {
+class RagdollsTest extends Test {
     public constructor() {
         super();
 
         {
             const ground = this.m_world.CreateBody();
 
-            const shape = new b2ChainShape();
-            shape.CreateLoop([new b2Vec2(-30, 0), new b2Vec2(-30, 40), new b2Vec2(30, 40), new b2Vec2(30, 0)]);
+            const shape = new ChainShape();
+            shape.CreateLoop([new Vec2(-30, 0), new Vec2(-30, 40), new Vec2(30, 40), new Vec2(30, 0)]);
             ground.CreateFixture({ shape });
         }
 
-        const position = new b2Vec2();
-        const bd: b2BodyDef = {
+        const position = new Vec2();
+        const bd: BodyDef = {
             position,
         };
-        const jd = new b2RevoluteJointDef();
+        const jd = new RevoluteJointDef();
 
         // Add 2 ragdolls along the top
         for (let i = 0; i < 2; ++i) {
@@ -56,11 +56,11 @@ class Ragdolls extends Test {
 
             // BODIES
             // Set these to dynamic bodies
-            bd.type = b2BodyType.b2_dynamicBody;
+            bd.type = BodyType.Dynamic;
 
             // Head
-            const fd: b2FixtureDef = {
-                shape: new b2CircleShape(1.25),
+            const fd: FixtureDef = {
+                shape: new CircleShape(1.25),
                 density: 1,
                 friction: 0.4,
                 restitution: 0.3,
@@ -71,13 +71,13 @@ class Ragdolls extends Test {
             // if (i === 0)
             // {
             head.ApplyLinearImpulse(
-                new b2Vec2(Math.random() * 1000 - 500, Math.random() * 1000 - 500),
+                new Vec2(Math.random() * 1000 - 500, Math.random() * 1000 - 500),
                 head.GetWorldCenter(),
             );
             // }
 
             // Torso1
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             fd.shape = shape;
             shape.SetAsBox(1.5, 1);
             fd.density = 1;
@@ -161,73 +161,73 @@ class Ragdolls extends Test {
             jd.enableLimit = true;
 
             // Head to shoulders
-            jd.lowerAngle = b2DegToRad(-40);
-            jd.upperAngle = b2DegToRad(40);
-            jd.Initialize(torso1, head, new b2Vec2(startX, startY - 1.5));
+            jd.lowerAngle = DegToRad(-40);
+            jd.upperAngle = DegToRad(40);
+            jd.Initialize(torso1, head, new Vec2(startX, startY - 1.5));
             this.m_world.CreateJoint(jd);
 
             // Upper arm to shoulders
             // L
-            jd.lowerAngle = b2DegToRad(-85);
-            jd.upperAngle = b2DegToRad(130);
-            jd.Initialize(torso1, upperArmL, new b2Vec2(startX - 1.8, startY - 2));
+            jd.lowerAngle = DegToRad(-85);
+            jd.upperAngle = DegToRad(130);
+            jd.Initialize(torso1, upperArmL, new Vec2(startX - 1.8, startY - 2));
             this.m_world.CreateJoint(jd);
             // R
-            jd.lowerAngle = b2DegToRad(-130);
-            jd.upperAngle = b2DegToRad(85);
-            jd.Initialize(torso1, upperArmR, new b2Vec2(startX + 1.8, startY - 2));
+            jd.lowerAngle = DegToRad(-130);
+            jd.upperAngle = DegToRad(85);
+            jd.Initialize(torso1, upperArmR, new Vec2(startX + 1.8, startY - 2));
             this.m_world.CreateJoint(jd);
 
             // Lower arm to upper arm
             // L
-            jd.lowerAngle = b2DegToRad(-130);
-            jd.upperAngle = b2DegToRad(10);
-            jd.Initialize(upperArmL, lowerArmL, new b2Vec2(startX - 4.5, startY - 2));
+            jd.lowerAngle = DegToRad(-130);
+            jd.upperAngle = DegToRad(10);
+            jd.Initialize(upperArmL, lowerArmL, new Vec2(startX - 4.5, startY - 2));
             this.m_world.CreateJoint(jd);
             // R
-            jd.lowerAngle = b2DegToRad(-10);
-            jd.upperAngle = b2DegToRad(130);
-            jd.Initialize(upperArmR, lowerArmR, new b2Vec2(startX + 4.5, startY - 2));
+            jd.lowerAngle = DegToRad(-10);
+            jd.upperAngle = DegToRad(130);
+            jd.Initialize(upperArmR, lowerArmR, new Vec2(startX + 4.5, startY - 2));
             this.m_world.CreateJoint(jd);
 
             // Shoulders/stomach
-            jd.lowerAngle = b2DegToRad(-15);
-            jd.upperAngle = b2DegToRad(15);
-            jd.Initialize(torso1, torso2, new b2Vec2(startX, startY - 3.5));
+            jd.lowerAngle = DegToRad(-15);
+            jd.upperAngle = DegToRad(15);
+            jd.Initialize(torso1, torso2, new Vec2(startX, startY - 3.5));
             this.m_world.CreateJoint(jd);
             // Stomach/hips
-            jd.Initialize(torso2, torso3, new b2Vec2(startX, startY - 5));
+            jd.Initialize(torso2, torso3, new Vec2(startX, startY - 5));
             this.m_world.CreateJoint(jd);
 
             // Torso to upper leg
             // L
-            jd.lowerAngle = b2DegToRad(-25);
-            jd.upperAngle = b2DegToRad(45);
-            jd.Initialize(torso3, upperLegL, new b2Vec2(startX - 0.8, startY - 7.2));
+            jd.lowerAngle = DegToRad(-25);
+            jd.upperAngle = DegToRad(45);
+            jd.Initialize(torso3, upperLegL, new Vec2(startX - 0.8, startY - 7.2));
             this.m_world.CreateJoint(jd);
             // R
-            jd.lowerAngle = b2DegToRad(-45);
-            jd.upperAngle = b2DegToRad(25);
-            jd.Initialize(torso3, upperLegR, new b2Vec2(startX + 0.8, startY - 7.2));
+            jd.lowerAngle = DegToRad(-45);
+            jd.upperAngle = DegToRad(25);
+            jd.Initialize(torso3, upperLegR, new Vec2(startX + 0.8, startY - 7.2));
             this.m_world.CreateJoint(jd);
 
             // Upper leg to lower leg
             // L
-            jd.lowerAngle = b2DegToRad(-25);
-            jd.upperAngle = b2DegToRad(115);
-            jd.Initialize(upperLegL, lowerLegL, new b2Vec2(startX - 0.8, startY - 10.5));
+            jd.lowerAngle = DegToRad(-25);
+            jd.upperAngle = DegToRad(115);
+            jd.Initialize(upperLegL, lowerLegL, new Vec2(startX - 0.8, startY - 10.5));
             this.m_world.CreateJoint(jd);
             // R
-            jd.lowerAngle = b2DegToRad(-115);
-            jd.upperAngle = b2DegToRad(25);
-            jd.Initialize(upperLegR, lowerLegR, new b2Vec2(startX + 0.8, startY - 10.5));
+            jd.lowerAngle = DegToRad(-115);
+            jd.upperAngle = DegToRad(25);
+            jd.Initialize(upperLegR, lowerLegR, new Vec2(startX + 0.8, startY - 10.5));
             this.m_world.CreateJoint(jd);
         }
 
         // these are static bodies so set the type accordingly
-        bd.type = b2BodyType.b2_staticBody;
-        const shape = new b2PolygonShape();
-        const fd: b2FixtureDef = {
+        bd.type = BodyType.Static;
+        const shape = new PolygonShape();
+        const fd: FixtureDef = {
             shape,
             density: 0,
             friction: 0.4,
@@ -265,4 +265,4 @@ class Ragdolls extends Test {
     }
 }
 
-registerTest("Examples", "Ragdolls", Ragdolls);
+registerTest("Examples", "Ragdolls", RagdollsTest);

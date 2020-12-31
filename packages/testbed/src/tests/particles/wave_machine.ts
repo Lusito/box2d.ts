@@ -16,16 +16,16 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2RevoluteJoint, b2BodyType, b2PolygonShape, b2Vec2, b2RevoluteJointDef, XY } from "@box2d/core";
-import { b2ParticleGroupDef, b2ParticleFlag } from "@box2d/particles";
+import { RevoluteJoint, BodyType, PolygonShape, Vec2, RevoluteJointDef, XY } from "@box2d/core";
+import { ParticleGroupDef, ParticleFlag } from "@box2d/particles";
 
 import { registerTest, TestContext } from "../../test";
 import { Settings } from "../../settings";
 import { AbstractParticleTestWithControls } from "./abstract_particle_test";
 import { baseParticleTypes } from "../../utils/particles/particle_parameter";
 
-class WaveMachine extends AbstractParticleTestWithControls {
-    public m_joint: b2RevoluteJoint;
+class WaveMachineTest extends AbstractParticleTestWithControls {
+    public m_joint: RevoluteJoint;
 
     public m_time = 0;
 
@@ -38,22 +38,22 @@ class WaveMachine extends AbstractParticleTestWithControls {
 
         {
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 allowSleep: false,
                 position: { x: 0, y: 1 },
             });
 
-            const shape = new b2PolygonShape();
-            shape.SetAsBox(0.05, 1, new b2Vec2(2, 0), 0);
+            const shape = new PolygonShape();
+            shape.SetAsBox(0.05, 1, new Vec2(2, 0), 0);
             body.CreateFixture({ shape, density: 5 });
-            shape.SetAsBox(0.05, 1, new b2Vec2(-2, 0), 0);
+            shape.SetAsBox(0.05, 1, new Vec2(-2, 0), 0);
             body.CreateFixture({ shape, density: 5 });
-            shape.SetAsBox(2, 0.05, new b2Vec2(0, 1), 0);
+            shape.SetAsBox(2, 0.05, new Vec2(0, 1), 0);
             body.CreateFixture({ shape, density: 5 });
-            shape.SetAsBox(2, 0.05, new b2Vec2(0, -1), 0);
+            shape.SetAsBox(2, 0.05, new Vec2(0, -1), 0);
             body.CreateFixture({ shape, density: 5 });
 
-            const jd = new b2RevoluteJointDef();
+            const jd = new RevoluteJointDef();
             jd.bodyA = ground;
             jd.bodyB = body;
             jd.localAnchorA.Set(0, 1);
@@ -70,15 +70,15 @@ class WaveMachine extends AbstractParticleTestWithControls {
         this.m_particleSystem.SetDamping(0.2);
 
         {
-            const pd = new b2ParticleGroupDef();
+            const pd = new ParticleGroupDef();
             pd.flags = particleType;
 
-            const shape = new b2PolygonShape();
-            shape.SetAsBox(0.9, 0.9, new b2Vec2(0, 1), 0);
+            const shape = new PolygonShape();
+            shape.SetAsBox(0.9, 0.9, new Vec2(0, 1), 0);
 
             pd.shape = shape;
             const group = this.m_particleSystem.CreateParticleGroup(pd);
-            if (pd.flags & b2ParticleFlag.b2_colorMixingParticle) {
+            if (pd.flags & ParticleFlag.ColorMixing) {
                 this.ColorParticleGroup(group, 0);
             }
         }
@@ -106,4 +106,4 @@ class WaveMachine extends AbstractParticleTestWithControls {
     }
 }
 
-registerTest("Particles", "Wave Machine", WaveMachine);
+registerTest("Particles", "Wave Machine", WaveMachineTest);

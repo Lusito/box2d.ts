@@ -16,35 +16,35 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2PolygonShape, b2Vec2, b2CircleShape, b2BodyType, XY } from "@box2d/core";
-import { b2ParticleGroupDef, b2ParticleFlag } from "@box2d/particles";
+import { PolygonShape, Vec2, CircleShape, BodyType, XY } from "@box2d/core";
+import { ParticleGroupDef, ParticleFlag } from "@box2d/particles";
 
 import { registerTest, TestContext } from "../../test";
 import { AbstractParticleTestWithControls } from "./abstract_particle_test";
 
-class Particles extends AbstractParticleTestWithControls {
+class ParticlesTest extends AbstractParticleTestWithControls {
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter);
         {
             const ground = this.m_world.CreateBody();
 
             {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(-4, -1), new b2Vec2(4, -1), new b2Vec2(4, 0), new b2Vec2(-4, 0)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(-4, -1), new Vec2(4, -1), new Vec2(4, 0), new Vec2(-4, 0)];
                 shape.Set(vertices, 4);
                 ground.CreateFixture({ shape });
             }
 
             {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(-4, -0.1), new b2Vec2(-2, -0.1), new b2Vec2(-2, 2), new b2Vec2(-4, 3)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(-4, -0.1), new Vec2(-2, -0.1), new Vec2(-2, 2), new Vec2(-4, 3)];
                 shape.Set(vertices, 4);
                 ground.CreateFixture({ shape });
             }
 
             {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(2, -0.1), new b2Vec2(4, -0.1), new b2Vec2(4, 3), new b2Vec2(2, 2)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(2, -0.1), new Vec2(4, -0.1), new Vec2(4, 3), new Vec2(2, 2)];
                 shape.Set(vertices, 4);
                 ground.CreateFixture({ shape });
             }
@@ -55,23 +55,23 @@ class Particles extends AbstractParticleTestWithControls {
         this.m_particleSystem.SetDamping(0.2);
 
         {
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_p.Set(0, 3);
             shape.m_radius = 2;
-            const pd = new b2ParticleGroupDef();
+            const pd = new ParticleGroupDef();
             pd.flags = particleType;
             pd.shape = shape;
             const group = this.m_particleSystem.CreateParticleGroup(pd);
-            if (pd.flags & b2ParticleFlag.b2_colorMixingParticle) {
+            if (pd.flags & ParticleFlag.ColorMixing) {
                 this.ColorParticleGroup(group, 0);
             }
         }
 
         {
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
             });
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_p.Set(0, 8);
             shape.m_radius = 0.5;
             body.CreateFixture({ shape, density: 0.5 });
@@ -90,4 +90,4 @@ class Particles extends AbstractParticleTestWithControls {
     }
 }
 
-registerTest("Particles", "Particles", Particles);
+registerTest("Particles", "Particles", ParticlesTest);

@@ -16,8 +16,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Body, b2Vec2, b2ChainShape, b2PolygonShape, b2Clamp, XY, b2RandomFloat } from "@box2d/core";
-import { b2ParticleGroup, b2ParticleGroupDef, b2ParticleFlag } from "@box2d/particles";
+import { Body, Vec2, ChainShape, PolygonShape, Clamp, XY, RandomFloat } from "@box2d/core";
+import { ParticleGroup, ParticleGroupDef, ParticleFlag } from "@box2d/particles";
 
 import { registerTest } from "../../test";
 import { Settings } from "../../settings";
@@ -25,39 +25,39 @@ import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 import { AbstractParticleTest } from "./abstract_particle_test";
 
 /**
- * Game which adds some fun to Maxwell's demon.
+ * Game which adds some fun to MaxwellTest's demon.
  *
- * http://en.wikipedia.org/wiki/Maxwell's_demon
+ * http://en.wikipedia.org/wiki/MaxwellTest's_demon
  *
  * The user's goal is to try to catch as many particles as
  * possible in the bottom half of the container by splitting the
  * container using a barrier with the 'a' key.
  *
- * See Maxwell::getHotKeys() for other controls.
+ * See MaxwellTest::getHotKeys() for other controls.
  */
 
-class Maxwell extends AbstractParticleTest {
-    public m_density = Maxwell.k_densityDefault;
+class MaxwellTest extends AbstractParticleTest {
+    public m_density = MaxwellTest.k_densityDefault;
 
-    public m_position = Maxwell.k_containerHalfHeight;
+    public m_position = MaxwellTest.k_containerHalfHeight;
 
-    public m_temperature = Maxwell.k_temperatureDefault;
+    public m_temperature = MaxwellTest.k_temperatureDefault;
 
-    public m_barrierBody: b2Body | null = null;
+    public m_barrierBody: Body | null = null;
 
-    public m_particleGroup: b2ParticleGroup | null = null;
+    public m_particleGroup: ParticleGroup | null = null;
 
     public static readonly k_containerWidth = 2;
 
     public static readonly k_containerHeight = 4;
 
-    public static readonly k_containerHalfWidth = Maxwell.k_containerWidth / 2;
+    public static readonly k_containerHalfWidth = MaxwellTest.k_containerWidth / 2;
 
-    public static readonly k_containerHalfHeight = Maxwell.k_containerHeight / 2;
+    public static readonly k_containerHalfHeight = MaxwellTest.k_containerHeight / 2;
 
-    public static readonly k_barrierHeight = Maxwell.k_containerHalfHeight / 100;
+    public static readonly k_barrierHeight = MaxwellTest.k_containerHalfHeight / 100;
 
-    public static readonly k_barrierMovementIncrement = Maxwell.k_containerHalfHeight * 0.1;
+    public static readonly k_barrierMovementIncrement = MaxwellTest.k_containerHalfHeight * 0.1;
 
     public static readonly k_densityStep = 1.25;
 
@@ -76,17 +76,17 @@ class Maxwell extends AbstractParticleTest {
     public static readonly k_temperatureDefault = 5;
 
     public constructor() {
-        super(b2Vec2.ZERO);
+        super(Vec2.ZERO);
 
         // Create the container.
         {
             const ground = this.m_world.CreateBody();
-            const shape = new b2ChainShape();
+            const shape = new ChainShape();
             const vertices = [
-                new b2Vec2(-Maxwell.k_containerHalfWidth, 0),
-                new b2Vec2(Maxwell.k_containerHalfWidth, 0),
-                new b2Vec2(Maxwell.k_containerHalfWidth, Maxwell.k_containerHeight),
-                new b2Vec2(-Maxwell.k_containerHalfWidth, Maxwell.k_containerHeight),
+                new Vec2(-MaxwellTest.k_containerHalfWidth, 0),
+                new Vec2(MaxwellTest.k_containerHalfWidth, 0),
+                new Vec2(MaxwellTest.k_containerHalfWidth, MaxwellTest.k_containerHeight),
+                new Vec2(-MaxwellTest.k_containerHalfWidth, MaxwellTest.k_containerHeight),
             ];
             shape.CreateLoop(vertices, 4);
             ground.CreateFixture({
@@ -118,11 +118,11 @@ class Maxwell extends AbstractParticleTest {
     public EnableBarrier() {
         if (!this.m_barrierBody) {
             this.m_barrierBody = this.m_world.CreateBody();
-            const barrierShape = new b2PolygonShape();
+            const barrierShape = new PolygonShape();
             barrierShape.SetAsBox(
-                Maxwell.k_containerHalfWidth,
-                Maxwell.k_barrierHeight,
-                new b2Vec2(0, this.m_position),
+                MaxwellTest.k_containerHalfWidth,
+                MaxwellTest.k_barrierHeight,
+                new Vec2(0, this.m_position),
                 0,
             );
             this.m_barrierBody.CreateFixture({
@@ -153,17 +153,17 @@ class Maxwell extends AbstractParticleTest {
             this.m_particleGroup = null;
         }
 
-        this.m_particleSystem.SetRadius(Maxwell.k_containerHalfWidth / 20);
+        this.m_particleSystem.SetRadius(MaxwellTest.k_containerHalfWidth / 20);
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(
-                this.m_density * Maxwell.k_containerHalfWidth,
-                this.m_density * Maxwell.k_containerHalfHeight,
-                new b2Vec2(0, Maxwell.k_containerHalfHeight),
+                this.m_density * MaxwellTest.k_containerHalfWidth,
+                this.m_density * MaxwellTest.k_containerHalfHeight,
+                new Vec2(0, MaxwellTest.k_containerHalfHeight),
                 0,
             );
-            const pd = new b2ParticleGroupDef();
-            pd.flags = b2ParticleFlag.b2_powderParticle;
+            const pd = new ParticleGroupDef();
+            pd.flags = ParticleFlag.Powder;
             pd.shape = shape;
             this.m_particleGroup = this.m_particleSystem.CreateParticleGroup(pd);
             const velocities = this.m_particleSystem.GetVelocityBuffer();
@@ -171,7 +171,7 @@ class Maxwell extends AbstractParticleTest {
 
             for (let i = 0; i < this.m_particleGroup.GetParticleCount(); ++i) {
                 const v = velocities[index + i];
-                v.Set(b2RandomFloat(-1, 1) + 1, b2RandomFloat(-1, 1) + 1);
+                v.Set(RandomFloat(-1, 1) + 1, RandomFloat(-1, 1) + 1);
                 v.Normalize();
                 v.Scale(this.m_temperature);
             }
@@ -182,25 +182,31 @@ class Maxwell extends AbstractParticleTest {
         return [
             hotKeyPress("a", "Toggle Barrier", () => this.ToggleBarrier()),
             hotKeyPress("m", "Increase the Particle Density", () => {
-                this.m_density = Math.min(this.m_density * Maxwell.k_densityStep, Maxwell.k_densityMax);
+                this.m_density = Math.min(this.m_density * MaxwellTest.k_densityStep, MaxwellTest.k_densityMax);
                 this.Reset();
             }),
             hotKeyPress("n", "Reduce the Particle Density", () => {
-                this.m_density = Math.max(this.m_density / Maxwell.k_densityStep, Maxwell.k_densityMin);
+                this.m_density = Math.max(this.m_density / MaxwellTest.k_densityStep, MaxwellTest.k_densityMin);
                 this.Reset();
             }),
             hotKeyPress("w", "Move the location of the divider up", () =>
-                this.MoveDivider(this.m_position + Maxwell.k_barrierMovementIncrement),
+                this.MoveDivider(this.m_position + MaxwellTest.k_barrierMovementIncrement),
             ),
             hotKeyPress("s", "Move the location of the divider down", () =>
-                this.MoveDivider(this.m_position - Maxwell.k_barrierMovementIncrement),
+                this.MoveDivider(this.m_position - MaxwellTest.k_barrierMovementIncrement),
             ),
             hotKeyPress("h", "Reduce the temperature (velocity of particles)", () => {
-                this.m_temperature = Math.max(this.m_temperature - Maxwell.k_temperatureStep, Maxwell.k_temperatureMin);
+                this.m_temperature = Math.max(
+                    this.m_temperature - MaxwellTest.k_temperatureStep,
+                    MaxwellTest.k_temperatureMin,
+                );
                 this.Reset();
             }),
             hotKeyPress("j", "Increase the temperature (velocity of particles)", () => {
-                this.m_temperature = Math.min(this.m_temperature + Maxwell.k_temperatureStep, Maxwell.k_temperatureMax);
+                this.m_temperature = Math.min(
+                    this.m_temperature + MaxwellTest.k_temperatureStep,
+                    MaxwellTest.k_temperatureMax,
+                );
                 this.Reset();
             }),
         ];
@@ -209,22 +215,22 @@ class Maxwell extends AbstractParticleTest {
     /**
      * Determine whether a point is in the container.
      */
-    public InContainer(p: b2Vec2) {
+    public InContainer(p: Vec2) {
         return (
-            p.x >= -Maxwell.k_containerHalfWidth &&
-            p.x <= Maxwell.k_containerHalfWidth &&
+            p.x >= -MaxwellTest.k_containerHalfWidth &&
+            p.x <= MaxwellTest.k_containerHalfWidth &&
             p.y >= 0 &&
-            p.y <= Maxwell.k_containerHalfHeight * 2.0
+            p.y <= MaxwellTest.k_containerHalfHeight * 2.0
         );
     }
 
-    public MouseDown(p: b2Vec2) {
+    public MouseDown(p: Vec2) {
         if (!this.InContainer(p)) {
             super.MouseDown(p);
         }
     }
 
-    public MouseUp(p: b2Vec2) {
+    public MouseUp(p: Vec2) {
         // If the pointer is in the container.
         if (this.InContainer(p)) {
             // Enable / disable the barrier.
@@ -268,7 +274,7 @@ class Maxwell extends AbstractParticleTest {
 
         // Calculate a score based upon the difference in pressure between the
         // upper and lower divisions of the container.
-        const topPressure = top / (Maxwell.k_containerHeight - this.m_position);
+        const topPressure = top / (MaxwellTest.k_containerHeight - this.m_position);
         const botPressure = bottom / this.m_position;
         this.addDebug("Score", topPressure > 0 ? botPressure / topPressure - 1 : 0);
     }
@@ -286,10 +292,10 @@ class Maxwell extends AbstractParticleTest {
      * Move the divider / barrier.
      */
     public MoveDivider(newPosition: number) {
-        this.m_position = b2Clamp(
+        this.m_position = Clamp(
             newPosition,
-            Maxwell.k_barrierMovementIncrement,
-            Maxwell.k_containerHeight - Maxwell.k_barrierMovementIncrement,
+            MaxwellTest.k_barrierMovementIncrement,
+            MaxwellTest.k_containerHeight - MaxwellTest.k_barrierMovementIncrement,
         );
         this.Reset();
     }
@@ -306,4 +312,4 @@ class Maxwell extends AbstractParticleTest {
     }
 }
 
-registerTest("Particles", "Maxwell", Maxwell);
+registerTest("Particles", "Maxwell", MaxwellTest);

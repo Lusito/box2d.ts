@@ -1,8 +1,8 @@
-import { b2PolygonShape, b2FixtureDef, b2BodyType, b2Vec2 } from "@box2d/core";
+import { PolygonShape, FixtureDef, BodyType, Vec2 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
-class DominoTower extends Test {
+class DominoTowerTest extends Test {
     public constructor() {
         super();
 
@@ -19,10 +19,10 @@ class DominoTower extends Test {
 
         const world = this.m_world;
         function makeDomino(x: number, y: number, horizontal: boolean) {
-            const sd = new b2PolygonShape();
+            const sd = new PolygonShape();
             sd.SetAsBox(0.5 * DOMINO_WIDTH, 0.5 * DOMINO_HEIGHT);
             const myBody = world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x, y },
                 angle: horizontal ? Math.PI / 2 : 0,
             });
@@ -36,7 +36,7 @@ class DominoTower extends Test {
 
         // Create the floor
         {
-            const sd = new b2PolygonShape();
+            const sd = new PolygonShape();
             sd.SetAsBox(50, 10);
 
             const body = world.CreateBody({
@@ -48,31 +48,31 @@ class DominoTower extends Test {
         {
             dominoDensity = 10;
             // Make bullet
-            const sd = new b2PolygonShape();
+            const sd = new PolygonShape();
             sd.SetAsBox(0.7, 0.7);
-            const fd: b2FixtureDef = {
+            const fd: FixtureDef = {
                 density: 35,
                 shape: sd,
                 friction: 0,
                 restitution: 0.85,
             };
             let b = world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 bullet: true,
                 position: { x: 30, y: 5 },
             });
             b.CreateFixture(fd);
-            b.SetLinearVelocity(new b2Vec2(-25, -25));
+            b.SetLinearVelocity(new Vec2(-25, -25));
             b.SetAngularVelocity(6.7);
 
             fd.density = 25;
             b = world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 bullet: true,
                 position: { x: -30, y: 25 },
             });
             b.CreateFixture(fd);
-            b.SetLinearVelocity(new b2Vec2(35, -10));
+            b.SetLinearVelocity(new Vec2(35, -10));
             b.SetAngularVelocity(-8.3);
         }
 
@@ -115,4 +115,4 @@ class DominoTower extends Test {
     }
 }
 
-registerTest("Benchmark", "Domino Tower", DominoTower);
+registerTest("Benchmark", "Domino Tower", DominoTowerTest);

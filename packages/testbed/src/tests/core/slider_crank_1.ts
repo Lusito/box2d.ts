@@ -16,12 +16,12 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2PolygonShape, b2BodyType, b2RevoluteJointDef, b2Vec2, b2PrismaticJointDef, XY } from "@box2d/core";
+import { PolygonShape, BodyType, RevoluteJointDef, Vec2, PrismaticJointDef, XY } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
 // A basic slider crank created for GDC tutorial: Understanding Constraints
-class SliderCrank1 extends Test {
+class SliderCrank1Test extends Test {
     public constructor() {
         super();
 
@@ -37,11 +37,11 @@ class SliderCrank1 extends Test {
 
             // Define crank.
             {
-                const shape = new b2PolygonShape();
+                const shape = new PolygonShape();
                 shape.SetAsBox(4, 1);
 
                 const body = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
                     position: {
                         x: -8,
                         y: 20,
@@ -49,8 +49,8 @@ class SliderCrank1 extends Test {
                 });
                 body.CreateFixture({ shape, density: 2 });
 
-                const rjd = new b2RevoluteJointDef();
-                rjd.Initialize(prevBody, body, new b2Vec2(-12, 20));
+                const rjd = new RevoluteJointDef();
+                rjd.Initialize(prevBody, body, new Vec2(-12, 20));
                 this.m_world.CreateJoint(rjd);
 
                 prevBody = body;
@@ -58,11 +58,11 @@ class SliderCrank1 extends Test {
 
             // Define connecting rod
             {
-                const shape = new b2PolygonShape();
+                const shape = new PolygonShape();
                 shape.SetAsBox(8, 1);
 
                 const body = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
                     position: {
                         x: 4,
                         y: 20,
@@ -70,8 +70,8 @@ class SliderCrank1 extends Test {
                 });
                 body.CreateFixture({ shape, density: 2 });
 
-                const rjd = new b2RevoluteJointDef();
-                rjd.Initialize(prevBody, body, new b2Vec2(-4, 20));
+                const rjd = new RevoluteJointDef();
+                rjd.Initialize(prevBody, body, new Vec2(-4, 20));
                 this.m_world.CreateJoint(rjd);
 
                 prevBody = body;
@@ -79,11 +79,11 @@ class SliderCrank1 extends Test {
 
             // Define piston
             {
-                const shape = new b2PolygonShape();
+                const shape = new PolygonShape();
                 shape.SetAsBox(3, 3);
 
                 const body = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
                     fixedRotation: true,
                     position: {
                         x: 12,
@@ -92,12 +92,12 @@ class SliderCrank1 extends Test {
                 });
                 body.CreateFixture({ shape, density: 2 });
 
-                const rjd = new b2RevoluteJointDef();
-                rjd.Initialize(prevBody, body, new b2Vec2(12, 20));
+                const rjd = new RevoluteJointDef();
+                rjd.Initialize(prevBody, body, new Vec2(12, 20));
                 this.m_world.CreateJoint(rjd);
 
-                const pjd = new b2PrismaticJointDef();
-                pjd.Initialize(ground, body, new b2Vec2(12, 17), new b2Vec2(1, 0));
+                const pjd = new PrismaticJointDef();
+                pjd.Initialize(ground, body, new Vec2(12, 17), new Vec2(1, 0));
                 this.m_world.CreateJoint(pjd);
             }
         }
@@ -111,4 +111,4 @@ class SliderCrank1 extends Test {
     }
 }
 
-registerTest("Examples", "Slider Crank 1", SliderCrank1);
+registerTest("Examples", "Slider Crank 1", SliderCrank1Test);

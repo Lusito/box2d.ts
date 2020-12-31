@@ -16,13 +16,13 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2PulleyJoint, b2CircleShape, b2PolygonShape, b2BodyType, b2PulleyJointDef, b2Vec2, XY } from "@box2d/core";
+import { PulleyJoint, CircleShape, PolygonShape, BodyType, PulleyJointDef, Vec2, XY } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
 
-class PulleyJoint extends Test {
-    public m_joint1: b2PulleyJoint;
+class PulleyJointTest extends Test {
+    public m_joint1: PulleyJoint;
 
     public constructor() {
         super();
@@ -36,7 +36,7 @@ class PulleyJoint extends Test {
         {
             ground = this.m_world.CreateBody();
 
-            const circle = new b2CircleShape();
+            const circle = new CircleShape();
             circle.m_radius = 2;
 
             circle.m_p.Set(-10, y + b + L);
@@ -47,28 +47,28 @@ class PulleyJoint extends Test {
         }
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(a, b);
 
             const body1 = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 // fixedRotation: true,
                 position: { x: -10, y },
             });
             body1.CreateFixture({ shape, density: 5 });
 
             const body2 = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 // fixedRotation: true,
                 position: { x: 10, y },
             });
             body2.CreateFixture({ shape, density: 5 });
 
-            const pulleyDef = new b2PulleyJointDef();
-            const anchor1 = new b2Vec2(-10, y + b);
-            const anchor2 = new b2Vec2(10, y + b);
-            const groundAnchor1 = new b2Vec2(-10, y + b + L);
-            const groundAnchor2 = new b2Vec2(10, y + b + L);
+            const pulleyDef = new PulleyJointDef();
+            const anchor1 = new Vec2(-10, y + b);
+            const anchor2 = new Vec2(10, y + b);
+            const groundAnchor1 = new Vec2(-10, y + b + L);
+            const groundAnchor2 = new Vec2(10, y + b + L);
             pulleyDef.Initialize(body1, body2, groundAnchor1, groundAnchor2, anchor1, anchor2, 1.5);
 
             this.m_joint1 = this.m_world.CreateJoint(pulleyDef);
@@ -90,4 +90,4 @@ class PulleyJoint extends Test {
     }
 }
 
-registerTest("Joints", "Pulley", PulleyJoint);
+registerTest("Joints", "Pulley", PulleyJointTest);

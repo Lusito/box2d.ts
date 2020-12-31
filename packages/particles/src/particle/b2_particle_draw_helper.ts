@@ -16,17 +16,17 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { XY, RGBA, b2Draw, b2World } from "@box2d/core";
+import { XY, RGBA, Draw, World } from "@box2d/core";
 
-import { b2ParticleSystem } from "./b2_particle_system";
+import { ParticleSystem } from "./b2_particle_system";
 
 declare module "@box2d/core" {
-    interface b2Draw {
+    interface Draw {
         DrawParticles(centers: XY[], radius: number, colors: RGBA[] | null, count: number): void;
     }
 }
 
-function DrawParticleSystem(draw: b2Draw, system: b2ParticleSystem): void {
+function DrawParticleSystem(draw: Draw, system: ParticleSystem): void {
     const particleCount = system.GetParticleCount();
     if (particleCount) {
         const radius = system.GetRadius();
@@ -40,7 +40,7 @@ function DrawParticleSystem(draw: b2Draw, system: b2ParticleSystem): void {
     }
 }
 
-export function DrawParticleSystems(draw: b2Draw, world: b2World) {
+export function DrawParticleSystems(draw: Draw, world: World) {
     for (let p = world.GetParticleSystemList(); p; p = p.m_next) {
         DrawParticleSystem(draw, p);
     }

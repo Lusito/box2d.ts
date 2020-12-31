@@ -20,43 +20,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { b2_maxManifoldPoints, b2MakeNumberArray } from "../common/b2_common";
-import { b2Vec2 } from "../common/b2_math";
-import { b2Manifold } from "../collision/b2_collision";
-import { b2Contact } from "./b2_contact";
-import { b2Joint } from "./b2_joint";
-import { b2Fixture } from "./b2_fixture";
+import { MAX_MANIFOLD_POINTS, MakeNumberArray } from "../common/b2_common";
+import { Vec2 } from "../common/b2_math";
+import { Manifold } from "../collision/b2_collision";
+import { Contact } from "./b2_contact";
+import { Joint } from "./b2_joint";
+import { Fixture } from "./b2_fixture";
 
 /**
  * Joints and fixtures are destroyed when their associated
  * body is destroyed. Implement this listener so that you
  * may nullify references to these joints and shapes.
  */
-export class b2DestructionListener {
+export class DestructionListener {
     /**
      * Called when any joint is about to be destroyed due
      * to the destruction of one of its attached bodies.
      */
-    public SayGoodbyeJoint(_joint: b2Joint): void {}
+    public SayGoodbyeJoint(_joint: Joint): void {}
 
     /**
      * Called when any fixture is about to be destroyed due
      * to the destruction of its parent body.
      */
-    public SayGoodbyeFixture(_fixture: b2Fixture): void {}
+    public SayGoodbyeFixture(_fixture: Fixture): void {}
 }
 
 /**
  * Implement this class to provide collision filtering. In other words, you can implement
  * this class if you want finer control over contact creation.
  */
-export class b2ContactFilter {
+export class ContactFilter {
     /**
      * Return true if contact calculations should be performed between these two shapes.
      *
      * @warning for performance reasons this is only called when the AABBs begin to overlap.
      */
-    public ShouldCollide(fixtureA: b2Fixture, fixtureB: b2Fixture): boolean {
+    public ShouldCollide(fixtureA: Fixture, fixtureB: Fixture): boolean {
         const filterA = fixtureA.GetFilterData();
         const filterB = fixtureB.GetFilterData();
 
@@ -67,18 +67,18 @@ export class b2ContactFilter {
         return (filterA.maskBits & filterB.categoryBits) !== 0 && (filterA.categoryBits & filterB.maskBits) !== 0;
     }
 
-    public static readonly b2_defaultFilter = new b2ContactFilter();
+    public static readonly defaultFilter = new ContactFilter();
 }
 
 /**
  * Contact impulses for reporting. Impulses are used instead of forces because
  * sub-step forces may approach infinity for rigid body collisions. These
- * match up one-to-one with the contact points in b2Manifold.
+ * match up one-to-one with the contact points in Manifold.
  */
-export class b2ContactImpulse {
-    public normalImpulses = b2MakeNumberArray(b2_maxManifoldPoints);
+export class ContactImpulse {
+    public normalImpulses = MakeNumberArray(MAX_MANIFOLD_POINTS);
 
-    public tangentImpulses = b2MakeNumberArray(b2_maxManifoldPoints);
+    public tangentImpulses = MakeNumberArray(MAX_MANIFOLD_POINTS);
 
     public count = 0;
 }
@@ -95,16 +95,16 @@ export class b2ContactImpulse {
  *
  * @warning You cannot create/destroy Box2D entities inside these callbacks.
  */
-export class b2ContactListener {
+export class ContactListener {
     /**
      * Called when two fixtures begin to touch.
      */
-    public BeginContact(_contact: b2Contact): void {}
+    public BeginContact(_contact: Contact): void {}
 
     /**
      * Called when two fixtures cease to touch.
      */
-    public EndContact(_contact: b2Contact): void {}
+    public EndContact(_contact: Contact): void {}
 
     /**
      * This is called after a contact is updated. This allows you to inspect a
@@ -118,7 +118,7 @@ export class b2ContactListener {
      * get an EndContact callback. However, you may get a BeginContact callback
      * the next step.
      */
-    public PreSolve(_contact: b2Contact, _oldManifold: b2Manifold): void {}
+    public PreSolve(_contact: Contact, _oldManifold: Manifold): void {}
 
     /**
      * This lets you inspect a contact after the solver is finished. This is useful
@@ -128,20 +128,20 @@ export class b2ContactListener {
      * in a separate data structure.
      * Note: this is only called for contacts that are touching, solid, and awake.
      */
-    public PostSolve(_contact: b2Contact, _impulse: b2ContactImpulse): void {}
+    public PostSolve(_contact: Contact, _impulse: ContactImpulse): void {}
 
-    public static readonly b2_defaultListener = new b2ContactListener();
+    public static readonly defaultListener = new ContactListener();
 }
 
 /**
  * Callback class for AABB queries
- * See b2World::Query
+ * See World::Query
  */
-export type b2QueryCallback = (fixture: b2Fixture) => boolean;
+export type QueryCallback = (fixture: Fixture) => boolean;
 
 /**
  * Callback class for ray casts.
- * See b2World::RayCast
+ * See World::RayCast
  * Called for each fixture found in the query. You control how the ray cast
  * proceeds by returning a float:
  * return -1: ignore this fixture and continue
@@ -155,4 +155,4 @@ export type b2QueryCallback = (fixture: b2Fixture) => boolean;
  * @returns -1 to filter, 0 to terminate, fraction to clip the ray for
  * closest hit, 1 to continue
  */
-export type b2RayCastCallback = (fixture: b2Fixture, point: b2Vec2, normal: b2Vec2, fraction: number) => number;
+export type RayCastCallback = (fixture: Fixture, point: Vec2, normal: Vec2, fraction: number) => number;

@@ -17,14 +17,14 @@
  */
 
 import {
-    b2RevoluteJoint,
-    b2PrismaticJoint,
-    b2EdgeShape,
-    b2Vec2,
-    b2PolygonShape,
-    b2BodyType,
-    b2RevoluteJointDef,
-    b2PrismaticJointDef,
+    RevoluteJoint,
+    PrismaticJoint,
+    EdgeShape,
+    Vec2,
+    PolygonShape,
+    BodyType,
+    RevoluteJointDef,
+    PrismaticJointDef,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
@@ -32,10 +32,10 @@ import { Settings } from "../../settings";
 import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 
 // A motor driven slider crank with joint friction.
-class SliderCrank2 extends Test {
-    public m_joint1: b2RevoluteJoint;
+class SliderCrank2Test extends Test {
+    public m_joint1: RevoluteJoint;
 
-    public m_joint2: b2PrismaticJoint;
+    public m_joint2: PrismaticJoint;
 
     public constructor() {
         super();
@@ -44,8 +44,8 @@ class SliderCrank2 extends Test {
         {
             ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.CreateFixture({ shape });
         }
 
@@ -54,17 +54,17 @@ class SliderCrank2 extends Test {
 
             // Define crank.
             {
-                const shape = new b2PolygonShape();
+                const shape = new PolygonShape();
                 shape.SetAsBox(0.5, 2);
 
                 const body = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
                     position: { x: 0, y: 7 },
                 });
                 body.CreateFixture({ shape, density: 2 });
 
-                const rjd = new b2RevoluteJointDef();
-                rjd.Initialize(prevBody, body, new b2Vec2(0, 5));
+                const rjd = new RevoluteJointDef();
+                rjd.Initialize(prevBody, body, new Vec2(0, 5));
                 rjd.motorSpeed = 1 * Math.PI;
                 rjd.maxMotorTorque = 10000;
                 rjd.enableMotor = true;
@@ -75,17 +75,17 @@ class SliderCrank2 extends Test {
 
             // Define follower.
             {
-                const shape = new b2PolygonShape();
+                const shape = new PolygonShape();
                 shape.SetAsBox(0.5, 4);
 
                 const body = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
                     position: { x: 0, y: 13 },
                 });
                 body.CreateFixture({ shape, density: 2 });
 
-                const rjd = new b2RevoluteJointDef();
-                rjd.Initialize(prevBody, body, new b2Vec2(0, 9));
+                const rjd = new RevoluteJointDef();
+                rjd.Initialize(prevBody, body, new Vec2(0, 9));
                 rjd.enableMotor = false;
                 this.m_world.CreateJoint(rjd);
 
@@ -94,22 +94,22 @@ class SliderCrank2 extends Test {
 
             // Define piston
             {
-                const shape = new b2PolygonShape();
+                const shape = new PolygonShape();
                 shape.SetAsBox(1.5, 1.5);
 
                 const body = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
                     fixedRotation: true,
                     position: { x: 0, y: 17 },
                 });
                 body.CreateFixture({ shape, density: 2 });
 
-                const rjd = new b2RevoluteJointDef();
-                rjd.Initialize(prevBody, body, new b2Vec2(0, 17));
+                const rjd = new RevoluteJointDef();
+                rjd.Initialize(prevBody, body, new Vec2(0, 17));
                 this.m_world.CreateJoint(rjd);
 
-                const pjd = new b2PrismaticJointDef();
-                pjd.Initialize(ground, body, new b2Vec2(0, 17), new b2Vec2(0, 1));
+                const pjd = new PrismaticJointDef();
+                pjd.Initialize(ground, body, new Vec2(0, 17), new Vec2(0, 1));
 
                 pjd.maxMotorForce = 1000;
                 pjd.enableMotor = true;
@@ -119,11 +119,11 @@ class SliderCrank2 extends Test {
 
             // Create a payload
             {
-                const shape = new b2PolygonShape();
+                const shape = new PolygonShape();
                 shape.SetAsBox(1.5, 1.5);
 
                 const body = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
                     position: { x: 0, y: 23 },
                 });
                 body.CreateFixture({ shape, density: 2 });
@@ -151,4 +151,4 @@ class SliderCrank2 extends Test {
     }
 }
 
-registerTest("Examples", "Slider Crank 2", SliderCrank2);
+registerTest("Examples", "Slider Crank 2", SliderCrank2Test);

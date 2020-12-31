@@ -17,30 +17,30 @@
  */
 
 import {
-    b2Vec2,
-    b2BodyType,
-    b2EdgeShape,
-    b2PolygonShape,
-    b2RevoluteJointDef,
-    b2PrismaticJointDef,
+    Vec2,
+    BodyType,
+    EdgeShape,
+    PolygonShape,
+    RevoluteJointDef,
+    PrismaticJointDef,
     XY,
-    b2Body,
-    b2MakeArray,
+    Body,
+    MakeArray,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
-class DumpShell extends Test {
+class DumpShellTest extends Test {
     public constructor() {
-        super(b2Vec2.ZERO);
+        super(Vec2.ZERO);
 
         // dump begin
 
-        const bodies = new Array<b2Body>(4);
+        const bodies = new Array<Body>(4);
 
         const joints = new Array(2);
         bodies[0] = this.m_world.CreateBody({
-            type: b2BodyType.b2_staticBody,
+            type: BodyType.Static,
             angle: 0,
             angularVelocity: 0,
             linearDamping: 0,
@@ -54,7 +54,7 @@ class DumpShell extends Test {
         });
 
         {
-            const shape = new b2EdgeShape();
+            const shape = new EdgeShape();
             shape.m_radius = 0.009999999776483;
             shape.m_vertex0.Set(0, 0);
             shape.m_vertex1.Set(0, 0);
@@ -76,7 +76,7 @@ class DumpShell extends Test {
             });
         }
         {
-            const shape = new b2EdgeShape();
+            const shape = new EdgeShape();
             shape.m_radius = 0.009999999776483;
             shape.m_vertex0.Set(0, 0);
             shape.m_vertex1.Set(0, 16.695652008056641);
@@ -99,7 +99,7 @@ class DumpShell extends Test {
             });
         }
         {
-            const shape = new b2EdgeShape();
+            const shape = new EdgeShape();
             shape.m_radius = 0.009999999776483;
             shape.m_vertex0.Set(0, 0);
             shape.m_vertex1.Set(0, 16.695652008056641);
@@ -122,7 +122,7 @@ class DumpShell extends Test {
             });
         }
         {
-            const shape = new b2EdgeShape();
+            const shape = new EdgeShape();
             shape.m_radius = 0.009999999776483;
             shape.m_vertex0.Set(0, 0);
             shape.m_vertex1.Set(44.521739959716797, 16.695652008056641);
@@ -145,7 +145,7 @@ class DumpShell extends Test {
             });
         }
         bodies[1] = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
             position: { x: 0.847826063632965, y: 2.5 },
             angle: 0,
             angularVelocity: 0,
@@ -160,9 +160,9 @@ class DumpShell extends Test {
         });
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
 
-            const vs = b2MakeArray(8, b2Vec2);
+            const vs = MakeArray(8, Vec2);
             vs[0].Set(6.907599925994873, 0.327199995517731);
             vs[1].Set(-0.322800010442734, 0.282599985599518);
             vs[2].Set(-0.322800010442734, -0.295700013637543);
@@ -182,7 +182,7 @@ class DumpShell extends Test {
             });
         }
         bodies[2] = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
+            type: BodyType.Dynamic,
             position: { x: 13.043478012084959, y: 2.5 },
             angle: 0,
             angularVelocity: 0,
@@ -197,9 +197,9 @@ class DumpShell extends Test {
         });
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
 
-            const vs = b2MakeArray(8, b2Vec2);
+            const vs = MakeArray(8, Vec2);
             vs[0].Set(0.200000002980232, -0.300000011920929);
             vs[1].Set(0.200000002980232, 0.200000002980232);
             vs[2].Set(-6.900000095367432, 0.200000002980232);
@@ -219,7 +219,7 @@ class DumpShell extends Test {
             });
         }
         bodies[3] = this.m_world.CreateBody({
-            type: b2BodyType.b2_staticBody,
+            type: BodyType.Static,
             angle: 0,
             angularVelocity: 0,
             linearDamping: 0,
@@ -232,7 +232,7 @@ class DumpShell extends Test {
             gravityScale: 1,
         });
         {
-            const jd = new b2RevoluteJointDef();
+            const jd = new RevoluteJointDef();
             // eslint-disable-next-line prefer-destructuring
             jd.bodyA = bodies[1];
             // eslint-disable-next-line prefer-destructuring
@@ -250,7 +250,7 @@ class DumpShell extends Test {
             joints[0] = this.m_world.CreateJoint(jd);
         }
         {
-            const jd = new b2PrismaticJointDef();
+            const jd = new PrismaticJointDef();
             // eslint-disable-next-line prefer-destructuring
             jd.bodyA = bodies[1];
             // eslint-disable-next-line prefer-destructuring
@@ -279,4 +279,4 @@ class DumpShell extends Test {
     }
 }
 
-registerTest("Examples", "Dump Shell", DumpShell);
+registerTest("Examples", "Dump Shell", DumpShellTest);

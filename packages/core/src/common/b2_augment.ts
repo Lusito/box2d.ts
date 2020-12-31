@@ -20,11 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-export type b2Augmentation<T extends { [s: string]: any }> = {
+export type Augmentation<T extends { [s: string]: any }> = {
     [P in keyof T]?: (original: T[P], ...args: Parameters<T[P]>) => ReturnType<T[P]>;
 };
 
-export function b2_augment<T extends { [s: string]: any }>(host: T, augmentations: b2Augmentation<T>) {
+export function b2_augment<T extends { [s: string]: any }>(host: T, augmentations: Augmentation<T>) {
     for (const key of Object.keys(augmentations)) {
         const augmentation = augmentations[key] as (this: T, original: (...args: any[]) => any, ...args: any[]) => any;
         const original = host[key];
@@ -37,4 +37,4 @@ export function b2_augment<T extends { [s: string]: any }>(host: T, augmentation
     }
 }
 
-export type b2Writeable<T> = { -readonly [P in keyof T]: T[P] };
+export type Writeable<T> = { -readonly [P in keyof T]: T[P] };

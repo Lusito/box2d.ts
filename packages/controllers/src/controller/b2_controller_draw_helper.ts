@@ -15,19 +15,19 @@
  * misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  */
-import { b2Draw, b2Vec2, b2Color, b2World } from "@box2d/core";
+import { Draw, Vec2, Color, World } from "@box2d/core";
 
-import { b2BuoyancyController } from "./b2_buoyancy_controller";
+import { BuoyancyController } from "./b2_buoyancy_controller";
 
 const debugColors = {
-    buoyancyController: new b2Color(0, 0, 0.8),
+    buoyancyController: new Color(0, 0, 0.8),
 };
 
-const tempP1 = new b2Vec2();
-const tempP2 = new b2Vec2();
+const tempP1 = new Vec2();
+const tempP2 = new Vec2();
 const buoyancyR = 100;
 
-function DrawBuoyancyController(debugDraw: b2Draw, controller: b2BuoyancyController) {
+function DrawBuoyancyController(debugDraw: Draw, controller: BuoyancyController) {
     tempP1.x = controller.normal.x * controller.offset + controller.normal.y * buoyancyR;
     tempP1.y = controller.normal.y * controller.offset - controller.normal.x * buoyancyR;
     tempP2.x = controller.normal.x * controller.offset - controller.normal.y * buoyancyR;
@@ -36,15 +36,15 @@ function DrawBuoyancyController(debugDraw: b2Draw, controller: b2BuoyancyControl
     debugDraw.DrawSegment(tempP1, tempP2, debugColors.buoyancyController);
 }
 
-// function DrawAccelController(_draw: b2Draw) {}
-// function DrawConstantForceController(_draw: b2Draw) {}
-// function DrawGravityController(_draw: b2Draw) {}
-// function DrawTensorDampingController(_draw: b2Draw) {}
+// function DrawAccelController(_draw: Draw) {}
+// function DrawConstantForceController(_draw: Draw) {}
+// function DrawGravityController(_draw: Draw) {}
+// function DrawTensorDampingController(_draw: Draw) {}
 
-export function DrawControllers(draw: b2Draw, world: b2World) {
+export function DrawControllers(draw: Draw, world: World) {
     for (let c = world.m_controllerList; c; c = c.m_next) {
         // fixme: introduce type instead? which is faster? does it matter much?
-        if (c instanceof b2BuoyancyController) {
+        if (c instanceof BuoyancyController) {
             DrawBuoyancyController(draw, c);
         }
     }

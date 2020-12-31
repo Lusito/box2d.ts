@@ -1,6 +1,6 @@
 // MIT License
 
-import { b2CalculateParticleIterations } from "@box2d/particles";
+import { CalculateParticleIterations } from "@box2d/particles";
 
 // Copyright (c) 2019 Erin Catto
 
@@ -37,8 +37,8 @@ export class Settings {
 
     // Particle iterations are needed for numerical stability in particle
     // simulations with small particles and relatively high gravity.
-    // b2CalculateParticleIterations helps to determine the number.
-    public m_particleIterations = b2CalculateParticleIterations(10, 0.04, 1 / this.m_hertz);
+    // CalculateParticleIterations helps to determine the number.
+    public m_particleIterations = CalculateParticleIterations(10, 0.04, 1 / this.m_hertz);
 
     public m_drawShapes = true;
 

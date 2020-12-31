@@ -1,27 +1,17 @@
-import {
-    b2Vec2,
-    b2Transform,
-    b2Rot,
-    b2PolygonShape,
-    b2_epsilon,
-    b2MassData,
-    b2ShapeType,
-    b2Shape,
-    b2CircleShape,
-} from "@box2d/core";
+import { Vec2, Transform, Rot, PolygonShape, EPSILON, MassData, ShapeType, Shape, CircleShape } from "@box2d/core";
 
-const ComputeSubmergedArea_s_normalL = new b2Vec2();
-const ComputeSubmergedArea_s_md = new b2MassData();
-const ComputeSubmergedArea_s_intoVec = new b2Vec2();
-const ComputeSubmergedArea_s_outoVec = new b2Vec2();
-const ComputeSubmergedArea_s_center = new b2Vec2();
+const ComputeSubmergedArea_s_normalL = new Vec2();
+const ComputeSubmergedArea_s_md = new MassData();
+const ComputeSubmergedArea_s_intoVec = new Vec2();
+const ComputeSubmergedArea_s_outoVec = new Vec2();
+const ComputeSubmergedArea_s_center = new Vec2();
 
-function submergedAreaForPolygon(shape: b2Shape, normal: b2Vec2, offset: number, xf: b2Transform, c: b2Vec2): number {
-    const polygon = shape as b2PolygonShape;
+function submergedAreaForPolygon(shape: Shape, normal: Vec2, offset: number, xf: Transform, c: Vec2): number {
+    const polygon = shape as PolygonShape;
 
     // Transform plane into shape co-ordinates
-    const normalL = b2Rot.TransposeMultiplyVec2(xf.q, normal, ComputeSubmergedArea_s_normalL);
-    const offsetL = offset - b2Vec2.Dot(normal, xf.p);
+    const normalL = Rot.TransposeMultiplyVec2(xf.q, normal, ComputeSubmergedArea_s_normalL);
+    const offsetL = offset - Vec2.Dot(normal, xf.p);
 
     const depths: number[] = [];
     let diveCount = 0;
@@ -30,8 +20,8 @@ function submergedAreaForPolygon(shape: b2Shape, normal: b2Vec2, offset: number,
 
     let lastSubmerged = false;
     for (let i = 0; i < polygon.m_count; ++i) {
-        depths[i] = b2Vec2.Dot(normalL, polygon.m_vertices[i]) - offsetL;
-        const isSubmerged = depths[i] < -b2_epsilon;
+        depths[i] = Vec2.Dot(normalL, polygon.m_vertices[i]) - offsetL;
+        const isSubmerged = depths[i] < -EPSILON;
         if (i > 0) {
             if (isSubmerged) {
                 if (!lastSubmerged) {
@@ -51,7 +41,7 @@ function submergedAreaForPolygon(shape: b2Shape, normal: b2Vec2, offset: number,
                 // Completely submerged
                 const md = ComputeSubmergedArea_s_md;
                 polygon.ComputeMass(md, 1);
-                b2Transform.MultiplyVec2(xf, md.center, c);
+                Transform.MultiplyVec2(xf, md.center, c);
                 return md.mass;
             }
             // Completely dry
@@ -83,7 +73,7 @@ function submergedAreaForPolygon(shape: b2Shape, normal: b2Vec2, offset: number,
     let area = 0;
     const center = ComputeSubmergedArea_s_center.SetZero();
     let p2 = polygon.m_vertices[intoIndex2];
-    let p3: b2Vec2;
+    let p3: Vec2;
 
     // An awkward loop from intoIndex2+1 to outIndex2
     let i = intoIndex2;
@@ -106,27 +96,27 @@ function submergedAreaForPolygon(shape: b2Shape, normal: b2Vec2, offset: number,
 
     // Normalize and transform centroid
     center.Scale(1 / area);
-    b2Transform.MultiplyVec2(xf, center, c);
+    Transform.MultiplyVec2(xf, center, c);
 
     return area;
 }
 
-function submergedAreaForEdge(shape: b2Shape, _normal: b2Vec2, _offset: number, _xf: b2Transform, c: b2Vec2): number {
+function submergedAreaForEdge(shape: Shape, _normal: Vec2, _offset: number, _xf: Transform, c: Vec2): number {
     c.SetZero();
     return 0;
 }
 
-function submergedAreaForChain(shape: b2Shape, _normal: b2Vec2, _offset: number, _xf: b2Transform, c: b2Vec2): number {
+function submergedAreaForChain(shape: Shape, _normal: Vec2, _offset: number, _xf: Transform, c: Vec2): number {
     c.SetZero();
     return 0;
 }
 
-function submergedAreaForCircle(shape: b2Shape, normal: b2Vec2, offset: number, xf: b2Transform, c: b2Vec2): number {
-    const circle = shape as b2CircleShape;
-    const p = b2Transform.MultiplyVec2(xf, circle.m_p, new b2Vec2());
-    const l = -(b2Vec2.Dot(normal, p) - offset);
+function submergedAreaForCircle(shape: Shape, normal: Vec2, offset: number, xf: Transform, c: Vec2): number {
+    const circle = shape as CircleShape;
+    const p = Transform.MultiplyVec2(xf, circle.m_p, new Vec2());
+    const l = -(Vec2.Dot(normal, p) - offset);
 
-    if (l < -circle.m_radius + b2_epsilon) {
+    if (l < -circle.m_radius + EPSILON) {
         // Completely dry
         return 0;
     }
@@ -147,16 +137,16 @@ function submergedAreaForCircle(shape: b2Shape, normal: b2Vec2, offset: number, 
 
     return area;
 }
-type submergedAreaFn = (shape: b2Shape, _normal: b2Vec2, _offset: number, _xf: b2Transform, c: b2Vec2) => number;
+type submergedAreaFn = (shape: Shape, _normal: Vec2, _offset: number, _xf: Transform, c: Vec2) => number;
 
-export const b2SubmergedAreaByShape: submergedAreaFn[] = [];
+export const SubmergedAreaByShape: submergedAreaFn[] = [];
 
-b2SubmergedAreaByShape[b2ShapeType.e_circle] = submergedAreaForCircle;
-b2SubmergedAreaByShape[b2ShapeType.e_edge] = submergedAreaForEdge;
-b2SubmergedAreaByShape[b2ShapeType.e_polygon] = submergedAreaForPolygon;
-b2SubmergedAreaByShape[b2ShapeType.e_chain] = submergedAreaForChain;
+SubmergedAreaByShape[ShapeType.Circle] = submergedAreaForCircle;
+SubmergedAreaByShape[ShapeType.Edge] = submergedAreaForEdge;
+SubmergedAreaByShape[ShapeType.Polygon] = submergedAreaForPolygon;
+SubmergedAreaByShape[ShapeType.Chain] = submergedAreaForChain;
 
-export function b2SubmergedAreaForShape(shape: b2Shape, normal: b2Vec2, offset: number, xf: b2Transform, c: b2Vec2) {
-    const fn = b2SubmergedAreaByShape[shape.GetType()];
+export function SubmergedAreaForShape(shape: Shape, normal: Vec2, offset: number, xf: Transform, c: Vec2) {
+    const fn = SubmergedAreaByShape[shape.GetType()];
     return fn ? fn(shape, normal, offset, xf, c) : 0;
 }

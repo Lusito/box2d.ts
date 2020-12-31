@@ -20,15 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { b2Transform } from "../common/b2_math";
-import { b2CollidePolygons } from "../collision/b2_collide_polygon";
-import { b2Manifold } from "../collision/b2_collision";
-import { b2PolygonShape } from "../collision/b2_polygon_shape";
-import { b2Contact } from "./b2_contact";
+import { Transform } from "../common/b2_math";
+import { CollidePolygons } from "../collision/b2_collide_polygon";
+import { Manifold } from "../collision/b2_collision";
+import { PolygonShape } from "../collision/b2_polygon_shape";
+import { Contact } from "./b2_contact";
 
 /** @internal */
-export class b2PolygonContact extends b2Contact<b2PolygonShape, b2PolygonShape> {
-    public Evaluate(manifold: b2Manifold, xfA: b2Transform, xfB: b2Transform): void {
-        b2CollidePolygons(manifold, this.GetShapeA(), xfA, this.GetShapeB(), xfB);
+export class PolygonContact extends Contact<PolygonShape, PolygonShape> {
+    public Evaluate(manifold: Manifold, xfA: Transform, xfB: Transform): void {
+        CollidePolygons(manifold, this.GetShapeA(), xfA, this.GetShapeB(), xfB);
     }
 }

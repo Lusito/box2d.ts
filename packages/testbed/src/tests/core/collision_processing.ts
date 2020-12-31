@@ -16,30 +16,21 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import {
-    b2EdgeShape,
-    b2Vec2,
-    b2FixtureDef,
-    b2PolygonShape,
-    b2BodyType,
-    b2RandomFloat,
-    b2CircleShape,
-    b2Body,
-} from "@box2d/core";
+import { EdgeShape, Vec2, FixtureDef, PolygonShape, BodyType, RandomFloat, CircleShape, Body } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
 
 // This test shows collision processing and tests
 // deferred body destruction.
-class CollisionProcessing extends Test {
+class CollisionProcessingTest extends Test {
     public constructor() {
         super();
 
         // Ground body
         {
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-50, 0), new b2Vec2(50, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-50, 0), new Vec2(50, 0));
 
             const ground = this.m_world.CreateBody();
             ground.CreateFixture({ shape });
@@ -51,19 +42,19 @@ class CollisionProcessing extends Test {
         const yHi = 35;
 
         // Small triangle
-        const vertices = [new b2Vec2(-1, 0), new b2Vec2(1, 0), new b2Vec2(0, 2)];
+        const vertices = [new Vec2(-1, 0), new Vec2(1, 0), new Vec2(0, 2)];
 
-        const polygon = new b2PolygonShape();
+        const polygon = new PolygonShape();
         polygon.Set(vertices, 3);
 
-        const triangleShapeDef: b2FixtureDef = {
+        const triangleShapeDef: FixtureDef = {
             shape: polygon,
             density: 1,
         };
 
         const body1 = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
-            position: { x: b2RandomFloat(xLo, xHi), y: b2RandomFloat(yLo, yHi) },
+            type: BodyType.Dynamic,
+            position: { x: RandomFloat(xLo, xHi), y: RandomFloat(yLo, yHi) },
         });
         body1.CreateFixture(triangleShapeDef);
 
@@ -74,22 +65,22 @@ class CollisionProcessing extends Test {
         polygon.Set(vertices, 3);
 
         const body2 = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
-            position: { x: b2RandomFloat(xLo, xHi), y: b2RandomFloat(yLo, yHi) },
+            type: BodyType.Dynamic,
+            position: { x: RandomFloat(xLo, xHi), y: RandomFloat(yLo, yHi) },
         });
         body2.CreateFixture(triangleShapeDef);
 
         // Small box
         polygon.SetAsBox(1, 0.5);
 
-        const boxShapeDef: b2FixtureDef = {
+        const boxShapeDef: FixtureDef = {
             shape: polygon,
             density: 1,
         };
 
         const body3 = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
-            position: { x: b2RandomFloat(xLo, xHi), y: b2RandomFloat(yLo, yHi) },
+            type: BodyType.Dynamic,
+            position: { x: RandomFloat(xLo, xHi), y: RandomFloat(yLo, yHi) },
         });
         body3.CreateFixture(boxShapeDef);
 
@@ -97,23 +88,23 @@ class CollisionProcessing extends Test {
         polygon.SetAsBox(2, 1);
 
         const body4 = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
-            position: { x: b2RandomFloat(xLo, xHi), y: b2RandomFloat(yLo, yHi) },
+            type: BodyType.Dynamic,
+            position: { x: RandomFloat(xLo, xHi), y: RandomFloat(yLo, yHi) },
         });
         body4.CreateFixture(boxShapeDef);
 
         // Small circle
-        const circle = new b2CircleShape();
+        const circle = new CircleShape();
         circle.m_radius = 1;
 
-        const circleShapeDef: b2FixtureDef = {
+        const circleShapeDef: FixtureDef = {
             shape: circle,
             density: 1,
         };
 
         const body5 = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
-            position: { x: b2RandomFloat(xLo, xHi), y: b2RandomFloat(yLo, yHi) },
+            type: BodyType.Dynamic,
+            position: { x: RandomFloat(xLo, xHi), y: RandomFloat(yLo, yHi) },
         });
         body5.CreateFixture(circleShapeDef);
 
@@ -121,8 +112,8 @@ class CollisionProcessing extends Test {
         circle.m_radius *= 2;
 
         const body6 = this.m_world.CreateBody({
-            type: b2BodyType.b2_dynamicBody,
-            position: { x: b2RandomFloat(xLo, xHi), y: b2RandomFloat(yLo, yHi) },
+            type: BodyType.Dynamic,
+            position: { x: RandomFloat(xLo, xHi), y: RandomFloat(yLo, yHi) },
         });
         body6.CreateFixture(circleShapeDef);
     }
@@ -134,7 +125,7 @@ class CollisionProcessing extends Test {
         // points. We must buffer the bodies that should be destroyed
         // because they may belong to multiple contact points.
         const k_maxNuke = 6;
-        const nuke = new Array<b2Body>(k_maxNuke);
+        const nuke = new Array<Body>(k_maxNuke);
         let nukeCount = 0;
 
         // Traverse the contact results. Destroy bodies that
@@ -170,4 +161,4 @@ class CollisionProcessing extends Test {
     }
 }
 
-registerTest("Examples", "Collision Processing", CollisionProcessing);
+registerTest("Examples", "Collision Processing", CollisionProcessingTest);

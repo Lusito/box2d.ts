@@ -16,20 +16,20 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Vec2, b2TimeStep } from "@box2d/core";
+import { Vec2, TimeStep } from "@box2d/core";
 
-import { b2Controller } from "./b2_controller";
+import { Controller } from "./b2_controller";
 
 /**
  * Applies a force every frame
  */
-export class b2ConstantForceController extends b2Controller {
+export class ConstantForceController extends Controller {
     /**
      * The force to apply
      */
-    public readonly F = new b2Vec2();
+    public readonly F = new Vec2();
 
-    public Step(_step: b2TimeStep) {
+    public Step(_step: TimeStep) {
         for (let i = this.m_bodyList; i; i = i.nextBody) {
             const { body } = i;
             if (!body.IsAwake()) {

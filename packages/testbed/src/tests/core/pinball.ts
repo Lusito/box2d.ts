@@ -17,17 +17,17 @@
  */
 
 import {
-    b2RevoluteJoint,
-    b2Body,
-    b2Vec2,
-    b2ChainShape,
-    b2FixtureDef,
-    b2BodyType,
-    b2PolygonShape,
-    b2RevoluteJointDef,
-    b2CircleShape,
+    RevoluteJoint,
+    Body,
+    Vec2,
+    ChainShape,
+    FixtureDef,
+    BodyType,
+    PolygonShape,
+    RevoluteJointDef,
+    CircleShape,
     XY,
-    b2MakeArray,
+    MakeArray,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
@@ -38,12 +38,12 @@ import { hotKey, HotKey } from "../../utils/hotkeys";
  * gameplay scenario. This also uses a loop shape.
  */
 
-class Pinball extends Test {
-    public m_leftJoint: b2RevoluteJoint;
+class PinballTest extends Test {
+    public m_leftJoint: RevoluteJoint;
 
-    public m_rightJoint: b2RevoluteJoint;
+    public m_rightJoint: RevoluteJoint;
 
-    public m_ball: b2Body;
+    public m_ball: Body;
 
     public constructor() {
         super();
@@ -54,14 +54,14 @@ class Pinball extends Test {
         {
             ground = this.m_world.CreateBody();
 
-            const vs = b2MakeArray(5, b2Vec2);
+            const vs = MakeArray(5, Vec2);
             vs[0].Set(-8, 6);
             vs[1].Set(-8, 20);
             vs[2].Set(8, 20);
             vs[3].Set(8, 6);
             vs[4].Set(0, -2);
 
-            const loop = new b2ChainShape();
+            const loop = new ChainShape();
             loop.CreateLoop(vs, 5);
             ground.CreateFixture({
                 shape: loop,
@@ -71,30 +71,30 @@ class Pinball extends Test {
 
         // Flippers
         {
-            const p1 = new b2Vec2(-2, 0);
-            const p2 = new b2Vec2(2, 0);
+            const p1 = new Vec2(-2, 0);
+            const p2 = new Vec2(2, 0);
 
             const leftFlipper = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: p1,
             });
 
             const rightFlipper = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: p2,
             });
 
-            const box = new b2PolygonShape();
+            const box = new PolygonShape();
             box.SetAsBox(1.75, 0.1);
 
-            const fd: b2FixtureDef = {
+            const fd: FixtureDef = {
                 shape: box,
                 density: 1,
             };
             leftFlipper.CreateFixture(fd);
             rightFlipper.CreateFixture(fd);
 
-            const jd = new b2RevoluteJointDef();
+            const jd = new RevoluteJointDef();
             jd.bodyA = ground;
             jd.localAnchorB.SetZero();
             jd.enableMotor = true;
@@ -120,14 +120,14 @@ class Pinball extends Test {
         {
             this.m_ball = this.m_world.CreateBody({
                 position: { x: 1, y: 15 },
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 bullet: true,
             });
 
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_radius = 0.2;
 
-            const fd: b2FixtureDef = {
+            const fd: FixtureDef = {
                 shape,
                 density: 1,
             };
@@ -161,4 +161,4 @@ class Pinball extends Test {
     }
 }
 
-registerTest("Examples", "Pinball", Pinball);
+registerTest("Examples", "Pinball", PinballTest);

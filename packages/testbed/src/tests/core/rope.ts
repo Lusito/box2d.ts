@@ -21,15 +21,15 @@
 // SOFTWARE.
 
 import {
-    b2Rope,
-    b2RopeTuning,
-    b2Vec2,
-    b2MakeNumberArray,
-    b2BendingModel,
-    b2StretchingModel,
-    b2RopeDef,
+    Rope,
+    RopeTuning,
+    Vec2,
+    MakeNumberArray,
+    BendingModel,
+    StretchingModel,
+    RopeDef,
     XY,
-    b2MakeArray,
+    MakeArray,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
@@ -44,20 +44,20 @@ import { selectDef } from "../../ui/controls/Select";
 const bendingModels = ["Spring", "PBD Ang", "XPBD Ang", "PBD Dist", "PBD Height", "PBD Triangle"];
 const stretchingModels = ["PBD", "XPBD"];
 
-class Rope extends Test {
-    public readonly m_rope1: b2Rope;
+class RopeTest extends Test {
+    public readonly m_rope1: Rope;
 
-    public readonly m_rope2: b2Rope;
+    public readonly m_rope2: Rope;
 
-    public readonly m_tuning1 = new b2RopeTuning();
+    public readonly m_tuning1 = new RopeTuning();
 
-    public readonly m_tuning2 = new b2RopeTuning();
+    public readonly m_tuning2 = new RopeTuning();
 
     public m_iterations: [number, number] = [8, 8];
 
-    public readonly m_position1 = new b2Vec2();
+    public readonly m_position1 = new Vec2();
 
-    public readonly m_position2 = new b2Vec2();
+    public readonly m_position2 = new Vec2();
 
     public m_speed = 10;
 
@@ -69,8 +69,8 @@ class Rope extends Test {
         super();
         const N = 20;
         const L = 0.5;
-        const vertices = b2MakeArray(N, b2Vec2);
-        const masses = b2MakeNumberArray(N);
+        const vertices = MakeArray(N, Vec2);
+        const masses = MakeNumberArray(N);
 
         for (let i = 0; i < N; ++i) {
             vertices[i].Set(0, L * (N - i));
@@ -82,29 +82,29 @@ class Rope extends Test {
         this.m_tuning1.bendHertz = 30;
         this.m_tuning1.bendDamping = 4;
         this.m_tuning1.bendStiffness = 1;
-        this.m_tuning1.bendingModel = b2BendingModel.b2_pbdTriangleBendingModel;
+        this.m_tuning1.bendingModel = BendingModel.PbdTriangle;
         this.m_tuning1.isometric = true;
 
         this.m_tuning1.stretchHertz = 30;
         this.m_tuning1.stretchDamping = 4;
         this.m_tuning1.stretchStiffness = 1;
-        this.m_tuning1.stretchingModel = b2StretchingModel.b2_pbdStretchingModel;
+        this.m_tuning1.stretchingModel = StretchingModel.Pbd;
 
         this.m_tuning2.bendHertz = 30;
         this.m_tuning2.bendDamping = 0.7;
         this.m_tuning2.bendStiffness = 1;
-        this.m_tuning2.bendingModel = b2BendingModel.b2_pbdHeightBendingModel;
+        this.m_tuning2.bendingModel = BendingModel.PbdHeight;
         this.m_tuning2.isometric = true;
 
         this.m_tuning2.stretchHertz = 30;
         this.m_tuning2.stretchDamping = 1;
         this.m_tuning2.stretchStiffness = 1;
-        this.m_tuning2.stretchingModel = b2StretchingModel.b2_pbdStretchingModel;
+        this.m_tuning2.stretchingModel = StretchingModel.Pbd;
 
         this.m_position1.Set(-5, 15);
         this.m_position2.Set(5, 15);
 
-        const def: b2RopeDef = {
+        const def: RopeDef = {
             position: this.m_position1,
             vertices,
             masses,
@@ -115,11 +115,11 @@ class Rope extends Test {
             tuning: this.m_tuning1,
         };
 
-        this.m_rope1 = new b2Rope(def);
+        this.m_rope1 = new Rope(def);
 
         def.position = this.m_position2;
         def.tuning = this.m_tuning2;
-        this.m_rope2 = new b2Rope(def);
+        this.m_rope2 = new Rope(def);
     }
 
     public setupControls() {
@@ -132,7 +132,7 @@ class Rope extends Test {
         ]);
     }
 
-    private ropeControls(i: number, tuning: b2RopeTuning): TestControl[] {
+    private ropeControls(i: number, tuning: RopeTuning): TestControl[] {
         return [
             selectDef("Bend Model#", bendingModels, bendingModels[tuning.bendingModel], (value) => {
                 tuning.bendingModel = bendingModels.indexOf(value);
@@ -224,4 +224,4 @@ class Rope extends Test {
     }
 }
 
-registerTest("Rope", "Bending", Rope);
+registerTest("Rope", "Bending", RopeTest);

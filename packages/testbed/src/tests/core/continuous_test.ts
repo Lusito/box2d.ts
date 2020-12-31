@@ -16,13 +16,13 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Body, b2EdgeShape, b2Vec2, b2PolygonShape, b2BodyType, b2RandomFloat, b2Gjk, b2Toi } from "@box2d/core";
+import { Body, EdgeShape, Vec2, PolygonShape, BodyType, RandomFloat, Gjk, Toi } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
 
 class ContinuousTest extends Test {
-    public m_body: b2Body;
+    public m_body: Body;
 
     public m_angularVelocity = 0;
 
@@ -32,64 +32,64 @@ class ContinuousTest extends Test {
         {
             const body = this.m_world.CreateBody();
 
-            const edge = new b2EdgeShape();
+            const edge = new EdgeShape();
 
-            edge.SetTwoSided(new b2Vec2(-10, 0), new b2Vec2(10, 0));
+            edge.SetTwoSided(new Vec2(-10, 0), new Vec2(10, 0));
             body.CreateFixture({ shape: edge });
 
-            const shape = new b2PolygonShape();
-            shape.SetAsBox(0.2, 1, new b2Vec2(0.5, 1), 0);
+            const shape = new PolygonShape();
+            shape.SetAsBox(0.2, 1, new Vec2(0.5, 1), 0);
             body.CreateFixture({ shape });
         }
 
         {
-            const shape = new b2PolygonShape();
+            const shape = new PolygonShape();
             shape.SetAsBox(2, 0.1);
 
             this.m_body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position: { x: 0, y: 20 },
                 // angle: 0.1,
             });
             this.m_body.CreateFixture({ shape, density: 1 });
 
-            this.m_angularVelocity = b2RandomFloat(-50, 50);
+            this.m_angularVelocity = RandomFloat(-50, 50);
             // this.m_angularVelocity = 46.661274;
-            this.m_body.SetLinearVelocity(new b2Vec2(0, -100));
+            this.m_body.SetLinearVelocity(new Vec2(0, -100));
             this.m_body.SetAngularVelocity(this.m_angularVelocity);
         }
         /*
     else
     {
       const body = this.m_world.CreateBody({
-        type: b2BodyType.b2_dynamicBody,
+        type: BodyType.Dynamic,
         position: { y: 0, y:2}
       });
-      const shape = new b2CircleShape();
+      const shape = new CircleShape();
       shape.m_p.SetZero();
       shape.m_radius = 0.5;
       body.CreateFixture({ shape, density: 1 });
       body = this.m_world.CreateBody({
-        type: b2BodyType.b2_dynamicBody,
+        type: BodyType.Dynamic,
         bullet: true,
         position: { y: 0, y:10}
       });
       body.CreateFixture({ shape, density: 1 });
-      body.SetLinearVelocity(new b2Vec2(0, -100));
+      body.SetLinearVelocity(new Vec2(0, -100));
     }
     */
 
-        b2Gjk.reset();
-        b2Toi.reset();
+        Gjk.reset();
+        Toi.reset();
     }
 
     public Launch() {
-        b2Gjk.reset();
-        b2Toi.reset();
+        Gjk.reset();
+        Toi.reset();
 
-        this.m_body.SetTransformVec(new b2Vec2(0, 20), 0);
-        this.m_angularVelocity = b2RandomFloat(-50, 50);
-        this.m_body.SetLinearVelocity(new b2Vec2(0, -100));
+        this.m_body.SetTransformVec(new Vec2(0, 20), 0);
+        this.m_angularVelocity = RandomFloat(-50, 50);
+        this.m_body.SetLinearVelocity(new Vec2(0, -100));
         this.m_body.SetAngularVelocity(this.m_angularVelocity);
     }
 
@@ -98,24 +98,23 @@ class ContinuousTest extends Test {
 
         this.addDebug(
             "GJK Calls [ave Iters] (max Iters)",
-            b2Gjk.calls > 0 &&
-                `${b2Gjk.calls.toFixed(0)} [${(b2Gjk.iters / b2Gjk.calls).toFixed(1)}] (${b2Gjk.maxIters.toFixed(0)})`,
+            Gjk.calls > 0 &&
+                `${Gjk.calls.toFixed(0)} [${(Gjk.iters / Gjk.calls).toFixed(1)}] (${Gjk.maxIters.toFixed(0)})`,
         );
 
         this.addDebug(
             "Toi Calls [ave Iters] (max Iters)",
-            b2Toi.calls > 0 && `${b2Toi.calls} [${(b2Toi.iters / b2Toi.calls).toFixed(1)}] (${b2Toi.maxIters})`,
+            Toi.calls > 0 && `${Toi.calls} [${(Toi.iters / Toi.calls).toFixed(1)}] (${Toi.maxIters})`,
         );
 
         this.addDebug(
             "Toi Root [ave Iters] (max Iters)",
-            b2Toi.calls > 0 && `${b2Toi.calls} [${(b2Toi.rootIters / b2Toi.calls).toFixed(1)}] (${b2Toi.maxRootIters})`,
+            Toi.calls > 0 && `${Toi.calls} [${(Toi.rootIters / Toi.calls).toFixed(1)}] (${Toi.maxRootIters})`,
         );
 
         this.addDebug(
             "Toi Time in ms [ave] (max)",
-            b2Toi.calls > 0 &&
-                `[${((1000 * b2Toi.time) / b2Toi.calls).toFixed(1)}] (${(1000 * b2Toi.maxTime).toFixed(1)})`,
+            Toi.calls > 0 && `[${((1000 * Toi.time) / Toi.calls).toFixed(1)}] (${(1000 * Toi.maxTime).toFixed(1)})`,
         );
 
         if (this.m_stepCount % 60 === 0) {
@@ -128,4 +127,4 @@ class ContinuousTest extends Test {
     }
 }
 
-registerTest("Continuous", "Continuous Test", ContinuousTest);
+registerTest("Continuous", "Continuous", ContinuousTest);

@@ -17,33 +17,33 @@
  */
 
 import {
-    b2Fixture,
-    b2Body,
-    b2EdgeShape,
-    b2Vec2,
-    b2CircleShape,
-    b2BodyType,
-    b2Contact,
-    b2_epsilon_sq,
+    Fixture,
+    Body,
+    EdgeShape,
+    Vec2,
+    CircleShape,
+    BodyType,
+    Contact,
+    EPSILON_SQUARED,
     XY,
-    b2MakeBooleanArray,
+    MakeBooleanArray,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
 import { sliderDef } from "../../ui/controls/Slider";
 
-// This shows how to use sensor shapes. Sensors don't have collision, but report overlap events.
-class Sensors extends Test {
+// This shows how to use sensor shapes. SensorsTest don't have collision, but report overlap events.
+class SensorsTest extends Test {
     public static readonly e_count = 7;
 
-    public m_sensor: b2Fixture;
+    public m_sensor: Fixture;
 
-    public m_bodies = new Array<b2Body>(Sensors.e_count);
+    public m_bodies = new Array<Body>(SensorsTest.e_count);
 
     public m_force = 100;
 
-    public m_touching = b2MakeBooleanArray(Sensors.e_count);
+    public m_touching = MakeBooleanArray(SensorsTest.e_count);
 
     public constructor() {
         super();
@@ -51,21 +51,21 @@ class Sensors extends Test {
         const ground = this.m_world.CreateBody();
 
         {
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.CreateFixture({ shape });
         }
 
         /*
     {
-      const sd = new b2FixtureDef();
-      sd.SetAsBox(10, 2, new b2Vec2(0, 20), 0);
+      const sd = new FixtureDef();
+      sd.SetAsBox(10, 2, new Vec2(0, 20), 0);
       sd.isSensor = true;
       this.m_sensor = ground.CreateFixture(sd);
     }
     */
         {
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_radius = 5;
             shape.m_p.Set(0, 10);
 
@@ -76,13 +76,13 @@ class Sensors extends Test {
         }
 
         {
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_radius = 1;
 
-            for (let i = 0; i < Sensors.e_count; ++i) {
+            for (let i = 0; i < SensorsTest.e_count; ++i) {
                 this.m_touching[i] = false;
                 this.m_bodies[i] = this.m_world.CreateBody({
-                    type: b2BodyType.b2_dynamicBody,
+                    type: BodyType.Dynamic,
                     position: { x: -10 + 3 * i, y: 20 },
                     userData: { index: i },
                 });
@@ -107,7 +107,7 @@ class Sensors extends Test {
         };
     }
 
-    public BeginContact(contact: b2Contact) {
+    public BeginContact(contact: Contact) {
         const fixtureA = contact.GetFixtureA();
         const fixtureB = contact.GetFixtureB();
 
@@ -126,7 +126,7 @@ class Sensors extends Test {
         }
     }
 
-    public EndContact(contact: b2Contact) {
+    public EndContact(contact: Contact) {
         const fixtureA = contact.GetFixtureA();
         const fixtureB = contact.GetFixtureB();
 
@@ -150,7 +150,7 @@ class Sensors extends Test {
 
         // Traverse the contact results. Apply a force on shapes
         // that overlap the sensor.
-        for (let i = 0; i < Sensors.e_count; ++i) {
+        for (let i = 0; i < SensorsTest.e_count; ++i) {
             if (!this.m_touching[i]) {
                 continue;
             }
@@ -158,21 +158,21 @@ class Sensors extends Test {
             const body = this.m_bodies[i];
             const ground = this.m_sensor.GetBody();
 
-            const circle = this.m_sensor.GetShape() as b2CircleShape;
-            const center = ground.GetWorldPoint(circle.m_p, new b2Vec2());
+            const circle = this.m_sensor.GetShape() as CircleShape;
+            const center = ground.GetWorldPoint(circle.m_p, new Vec2());
 
             const position = body.GetPosition();
 
-            const d = b2Vec2.Subtract(center, position, new b2Vec2());
-            if (d.LengthSquared() < b2_epsilon_sq) {
+            const d = Vec2.Subtract(center, position, new Vec2());
+            if (d.LengthSquared() < EPSILON_SQUARED) {
                 continue;
             }
 
             d.Normalize();
-            const F = b2Vec2.Scale(this.m_force, d, new b2Vec2());
+            const F = Vec2.Scale(this.m_force, d, new Vec2());
             body.ApplyForce(F, position);
         }
     }
 }
 
-registerTest("Collision", "Sensor Test", Sensors);
+registerTest("Collision", "Sensor", SensorsTest);

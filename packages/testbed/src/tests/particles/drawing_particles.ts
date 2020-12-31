@@ -16,8 +16,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2PolygonShape, b2Vec2, b2CircleShape, b2Transform, XY } from "@box2d/core";
-import { b2ParticleGroup, b2ParticleFlag, b2ParticleGroupFlag, b2ParticleGroupDef } from "@box2d/particles";
+import { PolygonShape, Vec2, CircleShape, Transform, XY } from "@box2d/core";
+import { ParticleGroup, ParticleFlag, ParticleGroupFlag, ParticleGroupDef } from "@box2d/particles";
 
 import { registerTest, TestContext } from "../../test";
 import { Settings } from "../../settings";
@@ -26,30 +26,29 @@ import { defaultParticleTypes } from "../../utils/particles/particle_parameter";
 
 const particleTypes = {
     ...defaultParticleTypes,
-    erase: b2ParticleFlag.b2_zombieParticle,
-    rigid: b2ParticleFlag.b2_waterParticle,
-    "rigid barrier": b2ParticleFlag.b2_barrierParticle,
-    "elastic barrier": b2ParticleFlag.b2_barrierParticle | b2ParticleFlag.b2_elasticParticle,
-    "spring barrier": b2ParticleFlag.b2_barrierParticle | b2ParticleFlag.b2_springParticle,
-    "repulsive wall": b2ParticleFlag.b2_repulsiveParticle | b2ParticleFlag.b2_wallParticle,
+    erase: ParticleFlag.Zombie,
+    rigid: ParticleFlag.Water,
+    "rigid barrier": ParticleFlag.Barrier,
+    "elastic barrier": ParticleFlag.Barrier | ParticleFlag.Elastic,
+    "spring barrier": ParticleFlag.Barrier | ParticleFlag.Spring,
+    "repulsive wall": ParticleFlag.Repulsive | ParticleFlag.Wall,
 };
 
 const groupFlagsByKey: Record<string, number> = {
-    elastic: b2ParticleGroupFlag.b2_solidParticleGroup,
-    rigid: b2ParticleGroupFlag.b2_rigidParticleGroup | b2ParticleGroupFlag.b2_solidParticleGroup,
-    spring: b2ParticleGroupFlag.b2_solidParticleGroup,
-    wall: b2ParticleGroupFlag.b2_solidParticleGroup,
-    "rigid barrier": b2ParticleGroupFlag.b2_rigidParticleGroup,
-    "elastic barrier": b2ParticleGroupFlag.b2_solidParticleGroup,
-    "spring barrier": b2ParticleGroupFlag.b2_solidParticleGroup,
-    "repulsive wall": b2ParticleGroupFlag.b2_solidParticleGroup,
+    elastic: ParticleGroupFlag.Solid,
+    rigid: ParticleGroupFlag.Rigid | ParticleGroupFlag.Solid,
+    spring: ParticleGroupFlag.Solid,
+    wall: ParticleGroupFlag.Solid,
+    "rigid barrier": ParticleGroupFlag.Rigid,
+    "elastic barrier": ParticleGroupFlag.Solid,
+    "spring barrier": ParticleGroupFlag.Solid,
+    "repulsive wall": ParticleGroupFlag.Solid,
 };
 
-const reactiveParticleFlags =
-    b2ParticleFlag.b2_wallParticle | b2ParticleFlag.b2_springParticle | b2ParticleFlag.b2_elasticParticle;
+const reactiveParticleFlags = ParticleFlag.Wall | ParticleFlag.Spring | ParticleFlag.Elastic;
 
-class DrawingParticles extends AbstractParticleTestWithControls {
-    public m_lastGroup: b2ParticleGroup | null;
+class DrawingParticlesTest extends AbstractParticleTestWithControls {
+    public m_lastGroup: ParticleGroup | null;
 
     public m_colorIndex = 0;
 
@@ -60,29 +59,29 @@ class DrawingParticles extends AbstractParticleTestWithControls {
             const ground = this.m_world.CreateBody();
 
             {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(-4, -2), new b2Vec2(4, -2), new b2Vec2(4, 0), new b2Vec2(-4, 0)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(-4, -2), new Vec2(4, -2), new Vec2(4, 0), new Vec2(-4, 0)];
                 shape.Set(vertices, 4);
                 ground.CreateFixture({ shape });
             }
 
             {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(-4, -2), new b2Vec2(-2, -2), new b2Vec2(-2, 6), new b2Vec2(-4, 6)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(-4, -2), new Vec2(-2, -2), new Vec2(-2, 6), new Vec2(-4, 6)];
                 shape.Set(vertices, 4);
                 ground.CreateFixture({ shape });
             }
 
             {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(2, -2), new b2Vec2(4, -2), new b2Vec2(4, 6), new b2Vec2(2, 6)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(2, -2), new Vec2(4, -2), new Vec2(4, 6), new Vec2(2, 6)];
                 shape.Set(vertices, 4);
                 ground.CreateFixture({ shape });
             }
 
             {
-                const shape = new b2PolygonShape();
-                const vertices = [new b2Vec2(-4, 4), new b2Vec2(4, 4), new b2Vec2(4, 6), new b2Vec2(-4, 6)];
+                const shape = new PolygonShape();
+                const vertices = [new Vec2(-4, 4), new Vec2(4, 4), new Vec2(4, 6), new Vec2(-4, 6)];
                 shape.Set(vertices, 4);
                 ground.CreateFixture({ shape });
             }
@@ -100,25 +99,25 @@ class DrawingParticles extends AbstractParticleTestWithControls {
         return groupFlagsByKey[this.particleParameter.GetSelectedKey()] ?? 0;
     }
 
-    public MouseMove(p: b2Vec2, leftDrag: boolean) {
+    public MouseMove(p: Vec2, leftDrag: boolean) {
         super.MouseMove(p, leftDrag);
         if (leftDrag) {
             const parameterValue = this.particleParameter.GetValue();
-            const shape = new b2CircleShape();
+            const shape = new CircleShape();
             shape.m_p.Copy(p);
             shape.m_radius = 0.2;
 
-            this.m_particleSystem.DestroyParticlesInShape(shape, b2Transform.IDENTITY);
+            this.m_particleSystem.DestroyParticlesInShape(shape, Transform.IDENTITY);
 
             const groupFlags = this.getGroupFlags();
 
             const joinGroup = this.m_lastGroup && groupFlags === this.m_lastGroup.GetGroupFlags();
             if (!joinGroup) this.m_colorIndex = (this.m_colorIndex + 1) % particleColors.length;
 
-            const pd = new b2ParticleGroupDef();
+            const pd = new ParticleGroupDef();
             pd.shape = shape;
             pd.flags = parameterValue;
-            if (parameterValue & reactiveParticleFlags) pd.flags |= b2ParticleFlag.b2_reactiveParticle;
+            if (parameterValue & reactiveParticleFlags) pd.flags |= ParticleFlag.Reactive;
             pd.groupFlags = groupFlags;
             pd.color.Copy(particleColors[this.m_colorIndex]);
             pd.group = this.m_lastGroup;
@@ -127,12 +126,12 @@ class DrawingParticles extends AbstractParticleTestWithControls {
         }
     }
 
-    public MouseUp(p: b2Vec2) {
+    public MouseUp(p: Vec2) {
         super.MouseUp(p);
         this.m_lastGroup = null;
     }
 
-    public ParticleGroupDestroyed(group: b2ParticleGroup) {
+    public ParticleGroupDestroyed(group: ParticleGroup) {
         super.ParticleGroupDestroyed(group);
         if (group === this.m_lastGroup) {
             this.m_lastGroup = null;
@@ -143,8 +142,8 @@ class DrawingParticles extends AbstractParticleTestWithControls {
         for (let group = this.m_particleSystem.GetParticleGroupList(); group; group = group.GetNext()) {
             if (
                 group !== this.m_lastGroup &&
-                group.GetGroupFlags() & b2ParticleGroupFlag.b2_rigidParticleGroup &&
-                group.GetAllParticleFlags() & b2ParticleFlag.b2_zombieParticle
+                group.GetGroupFlags() & ParticleGroupFlag.Rigid &&
+                group.GetAllParticleFlags() & ParticleFlag.Zombie
             ) {
                 // Split a rigid particle group which may be disconnected
                 // by destroying particles.
@@ -154,7 +153,7 @@ class DrawingParticles extends AbstractParticleTestWithControls {
     }
 
     public Step(settings: Settings, timeStep: number) {
-        if (this.m_particleSystem.GetAllParticleFlags() & b2ParticleFlag.b2_zombieParticle) {
+        if (this.m_particleSystem.GetAllParticleFlags() & ParticleFlag.Zombie) {
             this.SplitParticleGroups();
         }
 
@@ -173,4 +172,4 @@ class DrawingParticles extends AbstractParticleTestWithControls {
     }
 }
 
-registerTest("Particles", "Particle Drawing", DrawingParticles);
+registerTest("Particles", "Particle Drawing", DrawingParticlesTest);

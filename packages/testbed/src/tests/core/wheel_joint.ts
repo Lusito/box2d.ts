@@ -20,15 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import {
-    b2WheelJoint,
-    b2EdgeShape,
-    b2Vec2,
-    b2BodyType,
-    b2CircleShape,
-    b2WheelJointDef,
-    b2LinearStiffness,
-} from "@box2d/core";
+import { WheelJoint, EdgeShape, Vec2, BodyType, CircleShape, WheelJointDef, LinearStiffness } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -36,8 +28,8 @@ import { checkboxDef } from "../../ui/controls/Checkbox";
 import { sliderDef } from "../../ui/controls/Slider";
 
 // Test the wheel joint with motor, spring, and limit options.
-class WheelJoint extends Test {
-    public m_joint: b2WheelJoint;
+class WheelJointTest extends Test {
+    public m_joint: WheelJoint;
 
     public m_motorSpeed = 10;
 
@@ -50,26 +42,26 @@ class WheelJoint extends Test {
 
         const ground = this.m_world.CreateBody();
         {
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.CreateFixture({ shape, density: 0 });
         }
 
         {
-            const shape = new b2CircleShape(2);
+            const shape = new CircleShape(2);
 
-            const position = new b2Vec2(0, 10);
+            const position = new Vec2(0, 10);
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
+                type: BodyType.Dynamic,
                 position,
                 allowSleep: false,
             });
             body.CreateFixture({ shape, density: 5 });
 
-            const jd = new b2WheelJointDef();
+            const jd = new WheelJointDef();
 
             // Horizontal
-            jd.Initialize(ground, body, position, new b2Vec2(0, 1));
+            jd.Initialize(ground, body, position, new Vec2(0, 1));
 
             jd.motorSpeed = this.m_motorSpeed;
             jd.maxMotorTorque = 10000;
@@ -80,7 +72,7 @@ class WheelJoint extends Test {
 
             const hertz = 1;
             const dampingRatio = 0.7;
-            b2LinearStiffness(jd, hertz, dampingRatio, ground, body);
+            LinearStiffness(jd, hertz, dampingRatio, ground, body);
 
             this.m_joint = this.m_world.CreateJoint(jd);
         }
@@ -104,9 +96,9 @@ class WheelJoint extends Test {
         const torque = this.m_joint.GetMotorTorque(settings.m_hertz);
         this.addDebug("Motor Torque", torque);
 
-        const F = this.m_joint.GetReactionForce(settings.m_hertz, new b2Vec2());
+        const F = this.m_joint.GetReactionForce(settings.m_hertz, new Vec2());
         this.addDebug("Reaction Force", `(${F.x.toFixed(1)}, ${F.y.toFixed(1)})`);
     }
 }
 
-registerTest("Joints", "Wheel", WheelJoint);
+registerTest("Joints", "Wheel", WheelJointTest);

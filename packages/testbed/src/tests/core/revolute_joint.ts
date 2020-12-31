@@ -17,14 +17,14 @@
  */
 
 import {
-    b2Body,
-    b2RevoluteJoint,
-    b2EdgeShape,
-    b2Vec2,
-    b2CircleShape,
-    b2BodyType,
-    b2RevoluteJointDef,
-    b2PolygonShape,
+    Body,
+    RevoluteJoint,
+    EdgeShape,
+    Vec2,
+    CircleShape,
+    BodyType,
+    RevoluteJointDef,
+    PolygonShape,
     XY,
 } from "@box2d/core";
 
@@ -33,12 +33,12 @@ import { Settings } from "../../settings";
 import { checkboxDef } from "../../ui/controls/Checkbox";
 import { sliderDef } from "../../ui/controls/Slider";
 
-class RevoluteJoint extends Test {
-    public m_ball: b2Body;
+class RevoluteJointTest extends Test {
+    public m_ball: Body;
 
-    public m_joint1: b2RevoluteJoint;
+    public m_joint1: RevoluteJoint;
 
-    public m_joint2: b2RevoluteJoint;
+    public m_joint2: RevoluteJoint;
 
     public m_motorSpeed = 1;
 
@@ -54,8 +54,8 @@ class RevoluteJoint extends Test {
         {
             ground = this.m_world.CreateBody();
 
-            const shape = new b2EdgeShape();
-            shape.SetTwoSided(new b2Vec2(-40, 0), new b2Vec2(40, 0));
+            const shape = new EdgeShape();
+            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
 
             ground.CreateFixture({
                 shape,
@@ -64,17 +64,17 @@ class RevoluteJoint extends Test {
         }
 
         {
-            const shape = new b2PolygonShape();
-            shape.SetAsBox(0.25, 3, new b2Vec2(0, 3), 0);
+            const shape = new PolygonShape();
+            shape.SetAsBox(0.25, 3, new Vec2(0, 3), 0);
 
             const body = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
-                position: new b2Vec2(-10, 20),
+                type: BodyType.Dynamic,
+                position: new Vec2(-10, 20),
             });
             body.CreateFixture({ shape, density: 5 });
 
-            const jd = new b2RevoluteJointDef();
-            jd.Initialize(ground, body, new b2Vec2(-10, 20.5));
+            const jd = new RevoluteJointDef();
+            jd.Initialize(ground, body, new Vec2(-10, 20.5));
             jd.motorSpeed = this.m_motorSpeed;
             jd.maxMotorTorque = 10000;
             jd.enableMotor = this.m_enableMotor;
@@ -86,10 +86,10 @@ class RevoluteJoint extends Test {
         }
 
         {
-            const circle_shape = new b2CircleShape(2);
+            const circle_shape = new CircleShape(2);
             this.m_ball = this.m_world.CreateBody({
-                type: b2BodyType.b2_dynamicBody,
-                position: new b2Vec2(5, 30),
+                type: BodyType.Dynamic,
+                position: new Vec2(5, 30),
             });
             this.m_ball.CreateFixture({
                 density: 5,
@@ -97,12 +97,12 @@ class RevoluteJoint extends Test {
                 shape: circle_shape,
             });
 
-            const polygon_shape = new b2PolygonShape();
-            polygon_shape.SetAsBox(10, 0.5, new b2Vec2(-10, 0), 0);
+            const polygon_shape = new PolygonShape();
+            polygon_shape.SetAsBox(10, 0.5, new Vec2(-10, 0), 0);
 
             const polygon_body = this.m_world.CreateBody({
-                position: new b2Vec2(20, 10),
-                type: b2BodyType.b2_dynamicBody,
+                position: new Vec2(20, 10),
+                type: BodyType.Dynamic,
                 bullet: true,
             });
             polygon_body.CreateFixture({
@@ -110,8 +110,8 @@ class RevoluteJoint extends Test {
                 density: 2,
             });
 
-            const jd = new b2RevoluteJointDef();
-            jd.Initialize(ground, polygon_body, new b2Vec2(19, 10));
+            const jd = new RevoluteJointDef();
+            jd.Initialize(ground, polygon_body, new Vec2(19, 10));
             jd.lowerAngle = -0.25 * Math.PI;
             jd.upperAngle = 0 * Math.PI;
             jd.enableLimit = true;
@@ -153,4 +153,4 @@ class RevoluteJoint extends Test {
     }
 }
 
-registerTest("Joints", "Revolute", RevoluteJoint);
+registerTest("Joints", "Revolute", RevoluteJointTest);
