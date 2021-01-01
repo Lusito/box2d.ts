@@ -47,15 +47,15 @@ class BreakableTest extends Test {
 
         // Ground body
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape });
         }
 
         // Breakable dynamic body
-        this.m_body1 = this.m_world.CreateBody({
+        this.m_body1 = this.m_world.createBody({
             type: BodyType.Dynamic,
             position: {
                 x: 0,
@@ -65,22 +65,22 @@ class BreakableTest extends Test {
         });
 
         this.m_shape1 = new PolygonShape();
-        this.m_shape1.SetAsBox(0.5, 0.5, new Vec2(-0.5, 0), 0);
-        this.m_piece1 = this.m_body1.CreateFixture({ shape: this.m_shape1, density: 1 });
+        this.m_shape1.setAsBox(0.5, 0.5, new Vec2(-0.5, 0), 0);
+        this.m_piece1 = this.m_body1.createFixture({ shape: this.m_shape1, density: 1 });
 
         this.m_shape2 = new PolygonShape();
-        this.m_shape2.SetAsBox(0.5, 0.5, new Vec2(0.5, 0), 0);
-        this.m_piece2 = this.m_body1.CreateFixture({ shape: this.m_shape2, density: 1 });
+        this.m_shape2.setAsBox(0.5, 0.5, new Vec2(0.5, 0), 0);
+        this.m_piece2 = this.m_body1.createFixture({ shape: this.m_shape2, density: 1 });
     }
 
-    public PostSolve(contact: Contact, impulse: ContactImpulse) {
+    public postSolve(contact: Contact, impulse: ContactImpulse) {
         if (this.m_broke) {
             // The body already broke.
             return;
         }
 
         // Should the body break?
-        const count = contact.GetManifold().pointCount;
+        const count = contact.getManifold().pointCount;
 
         let maxImpulse = 0;
         for (let i = 0; i < count; ++i) {
@@ -93,60 +93,60 @@ class BreakableTest extends Test {
         }
     }
 
-    public Break() {
+    public break() {
         // Create two bodies from one.
-        const body1 = this.m_piece1.GetBody();
-        const center = body1.GetWorldCenter();
+        const body1 = this.m_piece1.getBody();
+        const center = body1.getWorldCenter();
 
-        body1.DestroyFixture(this.m_piece2);
+        body1.destroyFixture(this.m_piece2);
 
-        const body2 = this.m_world.CreateBody({
+        const body2 = this.m_world.createBody({
             type: BodyType.Dynamic,
-            position: body1.GetPosition(),
-            angle: body1.GetAngle(),
+            position: body1.getPosition(),
+            angle: body1.getAngle(),
         });
-        this.m_piece2 = body2.CreateFixture({ shape: this.m_shape2, density: 1 });
+        this.m_piece2 = body2.createFixture({ shape: this.m_shape2, density: 1 });
 
         // Compute consistent velocities for new bodies based on
         // cached velocity.
-        const center1 = body1.GetWorldCenter();
-        const center2 = body2.GetWorldCenter();
+        const center1 = body1.getWorldCenter();
+        const center2 = body2.getWorldCenter();
 
-        const velocity1 = Vec2.AddCrossScalarVec2(
+        const velocity1 = Vec2.addCrossScalarVec2(
             this.m_velocity,
             this.m_angularVelocity,
-            Vec2.Subtract(center1, center, Vec2.s_t0),
+            Vec2.subtract(center1, center, Vec2.s_t0),
             new Vec2(),
         );
 
-        const velocity2 = Vec2.AddCrossScalarVec2(
+        const velocity2 = Vec2.addCrossScalarVec2(
             this.m_velocity,
             this.m_angularVelocity,
-            Vec2.Subtract(center2, center, Vec2.s_t0),
+            Vec2.subtract(center2, center, Vec2.s_t0),
             new Vec2(),
         );
 
-        body1.SetAngularVelocity(this.m_angularVelocity);
-        body1.SetLinearVelocity(velocity1);
+        body1.setAngularVelocity(this.m_angularVelocity);
+        body1.setLinearVelocity(velocity1);
 
-        body2.SetAngularVelocity(this.m_angularVelocity);
-        body2.SetLinearVelocity(velocity2);
+        body2.setAngularVelocity(this.m_angularVelocity);
+        body2.setLinearVelocity(velocity2);
     }
 
-    public Step(settings: Settings, timeStep: number): void {
+    public step(settings: Settings, timeStep: number): void {
         if (this.m_break) {
-            this.Break();
+            this.break();
             this.m_broke = true;
             this.m_break = false;
         }
 
         // Cache velocities to improve movement on breakage.
         if (!this.m_broke) {
-            this.m_velocity.Copy(this.m_body1.GetLinearVelocity());
-            this.m_angularVelocity = this.m_body1.GetAngularVelocity();
+            this.m_velocity.copy(this.m_body1.getLinearVelocity());
+            this.m_angularVelocity = this.m_body1.getAngularVelocity();
         }
 
-        super.Step(settings, timeStep);
+        super.step(settings, timeStep);
     }
 }
 

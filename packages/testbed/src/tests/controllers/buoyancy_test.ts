@@ -34,27 +34,27 @@ class BuoyancyTest extends Test {
         const bc = new BuoyancyController();
         this.m_controller = bc;
 
-        bc.normal.Set(0, 1);
+        bc.normal.set(0, 1);
         bc.offset = 20;
         bc.density = 2;
         bc.linearDrag = 5;
         bc.angularDrag = 2;
 
-        const ground = this.m_world.CreateBody();
+        const ground = this.m_world.createBody();
 
         {
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape });
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(-40, 25));
-            ground.CreateFixture({ shape });
-            shape.SetTwoSided(new Vec2(40, 0), new Vec2(40, 25));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(-40, 25));
+            ground.createFixture({ shape });
+            shape.setTwoSided(new Vec2(40, 0), new Vec2(40, 25));
+            ground.createFixture({ shape });
         }
 
         // Spawn in a bunch of crap
         for (let i = 0; i < 5; i++) {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 // isBullet: true,
                 position: {
@@ -65,8 +65,8 @@ class BuoyancyTest extends Test {
             });
 
             const polygon = new PolygonShape();
-            polygon.SetAsBox(Math.random() * 0.5 + 1, Math.random() * 0.5 + 1);
-            body.CreateFixture({
+            polygon.setAsBox(Math.random() * 0.5 + 1, Math.random() * 0.5 + 1);
+            body.createFixture({
                 density: 1,
                 // Override the default friction.
                 friction: 0.3,
@@ -78,7 +78,7 @@ class BuoyancyTest extends Test {
         }
 
         for (let i = 0; i < 5; i++) {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 // isBullet: true,
                 position: {
@@ -88,7 +88,7 @@ class BuoyancyTest extends Test {
                 angle: Math.random() * Math.PI,
             });
 
-            body.CreateFixture({
+            body.createFixture({
                 density: 1,
                 // Override the default friction.
                 friction: 0.3,
@@ -100,7 +100,7 @@ class BuoyancyTest extends Test {
         }
 
         for (let i = 0; i < 15; i++) {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 // isBullet: true,
                 position: {
@@ -112,7 +112,7 @@ class BuoyancyTest extends Test {
 
             const polygon = new PolygonShape();
             if (Math.random() > 0.66) {
-                polygon.Set([
+                polygon.set([
                     new Vec2(-1 - Math.random() * 1, 1 + Math.random() * 1),
                     new Vec2(-0.5 - Math.random() * 1, -1 - Math.random() * 1),
                     new Vec2(0.5 + Math.random() * 1, -1 - Math.random() * 1),
@@ -124,18 +124,18 @@ class BuoyancyTest extends Test {
                 array[2] = new Vec2(-0.5 - Math.random() * 1, -1 - Math.random() * 1);
                 array[3] = new Vec2(0.5 + Math.random() * 1, -1 - Math.random() * 1);
                 array[1] = new Vec2(array[0].x + array[2].x, array[0].y + array[2].y);
-                array[1].Scale(Math.random() / 2 + 0.8);
+                array[1].scale(Math.random() / 2 + 0.8);
                 array[4] = new Vec2(array[3].x + array[0].x, array[3].y + array[0].y);
-                array[4].Scale(Math.random() / 2 + 0.8);
-                polygon.Set(array);
+                array[4].scale(Math.random() / 2 + 0.8);
+                polygon.set(array);
             } else {
-                polygon.Set([
+                polygon.set([
                     new Vec2(0, 1 + Math.random() * 1),
                     new Vec2(-0.5 - Math.random() * 1, -1 - Math.random() * 1),
                     new Vec2(0.5 + Math.random() * 1, -1 - Math.random() * 1),
                 ]);
             }
-            body.CreateFixture({
+            body.createFixture({
                 density: 1,
                 friction: 0.3,
                 restitution: 0.1,
@@ -147,15 +147,15 @@ class BuoyancyTest extends Test {
 
         // Add some exciting bath toys
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 0, y: 40 },
                 angle: 0,
             });
 
             const polygon = new PolygonShape();
-            polygon.SetAsBox(4, 1);
-            body.CreateFixture({
+            polygon.setAsBox(4, 1);
+            body.createFixture({
                 density: 3,
                 shape: polygon,
             });
@@ -164,7 +164,7 @@ class BuoyancyTest extends Test {
         }
 
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: {
                     x: 0,
@@ -177,40 +177,40 @@ class BuoyancyTest extends Test {
                 density: 2,
                 shape: circle,
             };
-            circle.m_p.Set(3, 0);
-            body.CreateFixture(fd);
-            circle.m_p.Set(-3, 0);
-            body.CreateFixture(fd);
-            circle.m_p.Set(0, 3);
-            body.CreateFixture(fd);
-            circle.m_p.Set(0, -3);
-            body.CreateFixture(fd);
+            circle.m_p.set(3, 0);
+            body.createFixture(fd);
+            circle.m_p.set(-3, 0);
+            body.createFixture(fd);
+            circle.m_p.set(0, 3);
+            body.createFixture(fd);
+            circle.m_p.set(0, -3);
+            body.createFixture(fd);
 
             fd.density = 2;
             const polygon = new PolygonShape();
             fd.shape = polygon;
-            polygon.SetAsBox(3, 0.2);
-            body.CreateFixture(fd);
-            polygon.SetAsBox(0.2, 3);
-            body.CreateFixture(fd);
+            polygon.setAsBox(3, 0.2);
+            body.createFixture(fd);
+            polygon.setAsBox(0.2, 3);
+            body.createFixture(fd);
 
             this.m_bodies.push(body);
         }
 
         // if (DEBUG) {
         //   for (let body_i = 0; i < this.m_bodies.length; ++i)
-        //     this.m_controller.AddBody(this.m_bodies[body_i]);
+        //     this.m_controller.addBody(this.m_bodies[body_i]);
         //   for (let body_i = 0; i < this.m_bodies.length; ++i)
-        //     this.m_controller.RemoveBody(this.m_bodies[body_i]);
+        //     this.m_controller.removeBody(this.m_bodies[body_i]);
         // }
         for (const body of this.m_bodies) {
-            this.m_controller.AddBody(body);
+            this.m_controller.addBody(body);
         }
         // if (DEBUG) {
-        //   this.m_world.AddController(this.m_controller);
-        //   this.m_world.RemoveController(this.m_controller);
+        //   this.m_world.addController(this.m_controller);
+        //   this.m_world.removeController(this.m_controller);
         // }
-        this.m_world.AddController(this.m_controller);
+        this.m_world.addController(this.m_controller);
     }
 
     public getCenter(): XY {

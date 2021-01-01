@@ -53,7 +53,7 @@ export * from "./dynamics/b2_contact_manager";
 
 export * from "./dynamics/b2_contact";
 export * from "./dynamics/b2_contact_factory";
-export { SetBlockSolve, GetBlockSolve } from "./dynamics/b2_contact_solver";
+export { setBlockSolve, getBlockSolve } from "./dynamics/b2_contact_solver";
 
 export * from "./dynamics/b2_joint";
 export * from "./dynamics/b2_area_joint";

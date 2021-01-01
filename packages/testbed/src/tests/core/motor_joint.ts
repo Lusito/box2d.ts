@@ -41,35 +41,35 @@ class MotorJointTest extends Test {
         let ground = null;
 
         {
-            ground = this.m_world.CreateBody();
+            ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
+            shape.setTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
 
-            ground.CreateFixture({ shape });
+            ground.createFixture({ shape });
         }
 
         // Define motorized body
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 0, y: 8 },
             });
 
             const shape = new PolygonShape();
-            shape.SetAsBox(2, 0.5);
+            shape.setAsBox(2, 0.5);
 
-            body.CreateFixture({
+            body.createFixture({
                 shape,
                 friction: 0.6,
                 density: 2,
             });
 
             const mjd = new MotorJointDef();
-            mjd.Initialize(ground, body);
+            mjd.initialize(ground, body);
             mjd.maxForce = 1000;
             mjd.maxTorque = 1000;
-            this.m_joint = this.m_world.CreateJoint(mjd);
+            this.m_joint = this.m_world.createJoint(mjd);
         }
 
         this.m_go = false;
@@ -84,7 +84,7 @@ class MotorJointTest extends Test {
         ];
     }
 
-    public Step(settings: Settings, timeStep: number): void {
+    public step(settings: Settings, timeStep: number): void {
         if (this.m_go && settings.m_hertz > 0) {
             this.m_time += 1 / settings.m_hertz;
         }
@@ -95,12 +95,12 @@ class MotorJointTest extends Test {
 
         const angularOffset = 4 * this.m_time;
 
-        this.m_joint.SetLinearOffset(linearOffset);
-        this.m_joint.SetAngularOffset(angularOffset);
+        this.m_joint.setLinearOffset(linearOffset);
+        this.m_joint.setAngularOffset(angularOffset);
 
-        g_debugDraw.DrawPoint(linearOffset, 4, new Color(0.9, 0.9, 0.9));
+        g_debugDraw.drawPoint(linearOffset, 4, new Color(0.9, 0.9, 0.9));
 
-        super.Step(settings, timeStep);
+        super.step(settings, timeStep);
     }
 }
 

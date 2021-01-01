@@ -30,7 +30,7 @@ export class Timer {
     /**
      * Reset the timer.
      */
-    public Reset(): Timer {
+    public reset(): Timer {
         this.m_start = performance.now();
         return this;
     }
@@ -38,7 +38,7 @@ export class Timer {
     /**
      * Get the time since construction or the last reset.
      */
-    public GetMilliseconds(): number {
+    public getMilliseconds(): number {
         return performance.now() - this.m_start;
     }
 }

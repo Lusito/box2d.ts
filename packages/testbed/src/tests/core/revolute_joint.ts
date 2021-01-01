@@ -52,12 +52,12 @@ class RevoluteJointTest extends Test {
         let ground = null;
 
         {
-            ground = this.m_world.CreateBody();
+            ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
 
-            ground.CreateFixture({
+            ground.createFixture({
                 shape,
                 // filter.categoryBits = 2;
             });
@@ -65,16 +65,16 @@ class RevoluteJointTest extends Test {
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.25, 3, new Vec2(0, 3), 0);
+            shape.setAsBox(0.25, 3, new Vec2(0, 3), 0);
 
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: new Vec2(-10, 20),
             });
-            body.CreateFixture({ shape, density: 5 });
+            body.createFixture({ shape, density: 5 });
 
             const jd = new RevoluteJointDef();
-            jd.Initialize(ground, body, new Vec2(-10, 20.5));
+            jd.initialize(ground, body, new Vec2(-10, 20.5));
             jd.motorSpeed = this.m_motorSpeed;
             jd.maxMotorTorque = 10000;
             jd.enableMotor = this.m_enableMotor;
@@ -82,36 +82,36 @@ class RevoluteJointTest extends Test {
             jd.upperAngle = 0.5 * Math.PI;
             jd.enableLimit = this.m_enableLimit;
 
-            this.m_joint1 = this.m_world.CreateJoint(jd);
+            this.m_joint1 = this.m_world.createJoint(jd);
         }
 
         {
             const circle_shape = new CircleShape(2);
-            this.m_ball = this.m_world.CreateBody({
+            this.m_ball = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: new Vec2(5, 30),
             });
-            this.m_ball.CreateFixture({
+            this.m_ball.createFixture({
                 density: 5,
                 filter: { maskBits: 1 },
                 shape: circle_shape,
             });
 
             const polygon_shape = new PolygonShape();
-            polygon_shape.SetAsBox(10, 0.5, new Vec2(-10, 0), 0);
+            polygon_shape.setAsBox(10, 0.5, new Vec2(-10, 0), 0);
 
-            const polygon_body = this.m_world.CreateBody({
+            const polygon_body = this.m_world.createBody({
                 position: new Vec2(20, 10),
                 type: BodyType.Dynamic,
                 bullet: true,
             });
-            polygon_body.CreateFixture({
+            polygon_body.createFixture({
                 shape: polygon_shape,
                 density: 2,
             });
 
             const jd = new RevoluteJointDef();
-            jd.Initialize(ground, polygon_body, new Vec2(19, 10));
+            jd.initialize(ground, polygon_body, new Vec2(19, 10));
             jd.lowerAngle = -0.25 * Math.PI;
             jd.upperAngle = 0 * Math.PI;
             jd.enableLimit = true;
@@ -119,18 +119,18 @@ class RevoluteJointTest extends Test {
             jd.motorSpeed = 0;
             jd.maxMotorTorque = 10000;
 
-            this.m_joint2 = this.m_world.CreateJoint(jd);
+            this.m_joint2 = this.m_world.createJoint(jd);
         }
 
         this.addTestControlGroup("Joint Controls", [
             checkboxDef("Limit", this.m_enableLimit, (value: boolean) => {
-                this.m_enableLimit = this.m_joint1.EnableLimit(value);
+                this.m_enableLimit = this.m_joint1.enableLimit(value);
             }),
             checkboxDef("Motor", this.m_enableMotor, (value: boolean) => {
-                this.m_enableMotor = this.m_joint1.EnableMotor(value);
+                this.m_enableMotor = this.m_joint1.enableMotor(value);
             }),
             sliderDef("Speed", -20, 20, 1, this.m_motorSpeed, (value: number) => {
-                this.m_motorSpeed = this.m_joint1.SetMotorSpeed(value);
+                this.m_motorSpeed = this.m_joint1.setMotorSpeed(value);
             }),
         ]);
     }
@@ -142,13 +142,13 @@ class RevoluteJointTest extends Test {
         };
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
 
-        const torque1 = this.m_joint1.GetMotorTorque(settings.m_hertz);
+        const torque1 = this.m_joint1.getMotorTorque(settings.m_hertz);
         this.addDebug("Motor Torque 1", torque1.toFixed(0));
 
-        const torque2 = this.m_joint2.GetMotorTorque(settings.m_hertz);
+        const torque2 = this.m_joint2.getMotorTorque(settings.m_hertz);
         this.addDebug("Motor Torque 2", torque2.toFixed(0));
     }
 }

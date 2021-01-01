@@ -63,11 +63,11 @@ export class Color implements RGBA {
         this.a = a;
     }
 
-    public Clone(): Color {
+    public clone(): Color {
         return new Color(this.r, this.g, this.b, this.a);
     }
 
-    public Copy(other: RGBA) {
+    public copy(other: RGBA) {
         this.r = other.r;
         this.g = other.g;
         this.b = other.b;
@@ -75,22 +75,22 @@ export class Color implements RGBA {
         return this;
     }
 
-    public IsEqual(color: RGBA): boolean {
+    public isEqual(color: RGBA): boolean {
         return this.r === color.r && this.g === color.g && this.b === color.b && this.a === color.a;
     }
 
-    public IsZero(): boolean {
+    public isZero(): boolean {
         return this.r === 0 && this.g === 0 && this.b === 0 && this.a === 0;
     }
 
-    public SetByteRGB(r: number, g: number, b: number) {
+    public setByteRGB(r: number, g: number, b: number) {
         this.r = r / 0xff;
         this.g = g / 0xff;
         this.b = b / 0xff;
         return this;
     }
 
-    public SetByteRGBA(r: number, g: number, b: number, a: number) {
+    public setByteRGBA(r: number, g: number, b: number, a: number) {
         this.r = r / 0xff;
         this.g = g / 0xff;
         this.b = b / 0xff;
@@ -98,14 +98,14 @@ export class Color implements RGBA {
         return this;
     }
 
-    public SetRGB(r: number, g: number, b: number) {
+    public setRGB(r: number, g: number, b: number) {
         this.r = r;
         this.g = g;
         this.b = b;
         return this;
     }
 
-    public SetRGBA(r: number, g: number, b: number, a: number) {
+    public setRGBA(r: number, g: number, b: number, a: number) {
         this.r = r;
         this.g = g;
         this.b = b;
@@ -113,7 +113,7 @@ export class Color implements RGBA {
         return this;
     }
 
-    public Add(color: RGBA) {
+    public add(color: RGBA) {
         this.r += color.r;
         this.g += color.g;
         this.b += color.b;
@@ -121,7 +121,7 @@ export class Color implements RGBA {
         return this;
     }
 
-    public Subtract(color: RGBA) {
+    public subtract(color: RGBA) {
         this.r -= color.r;
         this.g -= color.g;
         this.b -= color.b;
@@ -129,7 +129,7 @@ export class Color implements RGBA {
         return this;
     }
 
-    public Scale(s: number) {
+    public scale(s: number) {
         this.r *= s;
         this.g *= s;
         this.b *= s;
@@ -137,11 +137,11 @@ export class Color implements RGBA {
         return this;
     }
 
-    public Mix(mixColor: RGBA, strength: number): void {
-        Color.MixColors(this, mixColor, strength);
+    public mix(mixColor: RGBA, strength: number): void {
+        Color.mix(this, mixColor, strength);
     }
 
-    public static Add<T extends RGBA>(colorA: RGBA, colorB: RGBA, out: T): T {
+    public static add<T extends RGBA>(colorA: RGBA, colorB: RGBA, out: T): T {
         out.r = colorA.r + colorB.r;
         out.g = colorA.g + colorB.g;
         out.b = colorA.b + colorB.b;
@@ -149,7 +149,7 @@ export class Color implements RGBA {
         return out;
     }
 
-    public static Subtract<T extends RGBA>(colorA: RGBA, colorB: RGBA, out: T): T {
+    public static subtract<T extends RGBA>(colorA: RGBA, colorB: RGBA, out: T): T {
         out.r = colorA.r - colorB.r;
         out.g = colorA.g - colorB.g;
         out.b = colorA.b - colorB.b;
@@ -157,7 +157,7 @@ export class Color implements RGBA {
         return out;
     }
 
-    public static Scale<T extends RGBA>(color: RGBA, s: number, out: T): T {
+    public static scale<T extends RGBA>(color: RGBA, s: number, out: T): T {
         out.r = color.r * s;
         out.g = color.g * s;
         out.b = color.b * s;
@@ -165,7 +165,7 @@ export class Color implements RGBA {
         return out;
     }
 
-    public static MixColors(colorA: RGBA, colorB: RGBA, strength: number): void {
+    public static mix(colorA: RGBA, colorB: RGBA, strength: number): void {
         const dr = strength * (colorB.r - colorA.r);
         const dg = strength * (colorB.g - colorA.g);
         const db = strength * (colorB.b - colorA.b);
@@ -186,23 +186,23 @@ export class Color implements RGBA {
  * entities in your game.
  */
 export interface Draw {
-    PushTransform(xf: Transform): void;
+    pushTransform(xf: Transform): void;
 
-    PopTransform(xf: Transform): void;
+    popTransform(xf: Transform): void;
 
-    DrawPolygon(vertices: XY[], vertexCount: number, color: RGBA): void;
+    drawPolygon(vertices: XY[], vertexCount: number, color: RGBA): void;
 
-    DrawSolidPolygon(vertices: XY[], vertexCount: number, color: RGBA): void;
+    drawSolidPolygon(vertices: XY[], vertexCount: number, color: RGBA): void;
 
-    DrawCircle(center: XY, radius: number, color: RGBA): void;
+    drawCircle(center: XY, radius: number, color: RGBA): void;
 
-    DrawSolidCircle(center: XY, radius: number, axis: XY, color: RGBA): void;
+    drawSolidCircle(center: XY, radius: number, axis: XY, color: RGBA): void;
 
-    DrawSegment(p1: XY, p2: XY, color: RGBA): void;
+    drawSegment(p1: XY, p2: XY, color: RGBA): void;
 
-    DrawTransform(xf: Transform): void;
+    drawTransform(xf: Transform): void;
 
-    DrawPoint(p: XY, size: number, color: RGBA): void;
+    drawPoint(p: XY, size: number, color: RGBA): void;
 }
 
 export const debugColors = {

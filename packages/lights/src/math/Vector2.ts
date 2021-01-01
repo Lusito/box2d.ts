@@ -90,7 +90,7 @@ export class Vector2 implements XY {
         return Math.atan2(this.y, this.x);
     }
 
-    public static MakeArray(length: number) {
+    public static makeArray(length: number) {
         const result = new Array<Vector2>(length);
         for (let i = 0; i < length; i++) result[i] = new Vector2();
         return result;

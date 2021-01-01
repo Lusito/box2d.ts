@@ -22,7 +22,7 @@
 
 import { LINEAR_SLOP, ANGULAR_SLOP, MAX_ANGULAR_CORRECTION } from "../common/b2_common";
 import { Draw, debugColors } from "../common/b2_draw";
-import { Clamp, Vec2, Mat22, Rot, XY, Transform } from "../common/b2_math";
+import { clamp, Vec2, Mat22, Rot, XY, Transform } from "../common/b2_math";
 import { Body } from "./b2_body";
 import { Joint, JointDef, JointType, IJointDef } from "./b2_joint";
 import { SolverData } from "./b2_time_step";
@@ -111,12 +111,12 @@ export class RevoluteJointDef extends JointDef implements IRevoluteJointDef {
         super(JointType.Revolute);
     }
 
-    public Initialize(bA: Body, bB: Body, anchor: XY): void {
+    public initialize(bA: Body, bB: Body, anchor: XY): void {
         this.bodyA = bA;
         this.bodyB = bB;
-        this.bodyA.GetLocalPoint(anchor, this.localAnchorA);
-        this.bodyB.GetLocalPoint(anchor, this.localAnchorB);
-        this.referenceAngle = this.bodyB.GetAngle() - this.bodyA.GetAngle();
+        this.bodyA.getLocalPoint(anchor, this.localAnchorA);
+        this.bodyB.getLocalPoint(anchor, this.localAnchorB);
+        this.referenceAngle = this.bodyB.getAngle() - this.bodyA.getAngle();
     }
 }
 
@@ -190,11 +190,11 @@ export class RevoluteJoint extends Joint {
     public constructor(def: IRevoluteJointDef) {
         super(def);
 
-        this.m_localAnchorA.Copy(def.localAnchorA ?? Vec2.ZERO);
-        this.m_localAnchorB.Copy(def.localAnchorB ?? Vec2.ZERO);
+        this.m_localAnchorA.copy(def.localAnchorA ?? Vec2.ZERO);
+        this.m_localAnchorB.copy(def.localAnchorB ?? Vec2.ZERO);
         this.m_referenceAngle = def.referenceAngle ?? 0;
 
-        this.m_impulse.SetZero();
+        this.m_impulse.setZero();
 
         this.m_lowerAngle = def.lowerAngle ?? 0;
         this.m_upperAngle = def.upperAngle ?? 0;
@@ -204,11 +204,11 @@ export class RevoluteJoint extends Joint {
         this.m_enableMotor = def.enableMotor ?? false;
     }
 
-    public InitVelocityConstraints(data: SolverData): void {
+    public initVelocityConstraints(data: SolverData): void {
         this.m_indexA = this.m_bodyA.m_islandIndex;
         this.m_indexB = this.m_bodyB.m_islandIndex;
-        this.m_localCenterA.Copy(this.m_bodyA.m_sweep.localCenter);
-        this.m_localCenterB.Copy(this.m_bodyB.m_sweep.localCenter);
+        this.m_localCenterA.copy(this.m_bodyA.m_sweep.localCenter);
+        this.m_localCenterB.copy(this.m_bodyB.m_sweep.localCenter);
         this.m_invMassA = this.m_bodyA.m_invMass;
         this.m_invMassB = this.m_bodyB.m_invMass;
         this.m_invIA = this.m_bodyA.m_invI;
@@ -223,11 +223,11 @@ export class RevoluteJoint extends Joint {
         let wB = data.velocities[this.m_indexB].w;
 
         const { qA, qB, lalcA, lalcB } = temp;
-        qA.Set(aA);
-        qB.Set(aB);
+        qA.set(aA);
+        qB.set(aB);
 
-        Rot.MultiplyVec2(qA, Vec2.Subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), this.m_rA);
-        Rot.MultiplyVec2(qB, Vec2.Subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
+        Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), this.m_rA);
+        Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
 
         // J = [-I -r1_skew I r2_skew]
         // r_skew = [-ry; rx]
@@ -267,21 +267,21 @@ export class RevoluteJoint extends Joint {
 
         if (data.step.warmStarting) {
             // Scale impulses to support a variable time step.
-            this.m_impulse.Scale(data.step.dtRatio);
+            this.m_impulse.scale(data.step.dtRatio);
             this.m_motorImpulse *= data.step.dtRatio;
             this.m_lowerImpulse *= data.step.dtRatio;
             this.m_upperImpulse *= data.step.dtRatio;
 
             const axialImpulse = this.m_motorImpulse + this.m_lowerImpulse - this.m_upperImpulse;
-            const P = temp.P.Set(this.m_impulse.x, this.m_impulse.y);
+            const P = temp.P.set(this.m_impulse.x, this.m_impulse.y);
 
-            vA.SubtractScaled(mA, P);
-            wA -= iA * (Vec2.Cross(this.m_rA, P) + axialImpulse);
+            vA.subtractScaled(mA, P);
+            wA -= iA * (Vec2.cross(this.m_rA, P) + axialImpulse);
 
-            vB.AddScaled(mB, P);
-            wB += iB * (Vec2.Cross(this.m_rB, P) + axialImpulse);
+            vB.addScaled(mB, P);
+            wB += iB * (Vec2.cross(this.m_rB, P) + axialImpulse);
         } else {
-            this.m_impulse.SetZero();
+            this.m_impulse.setZero();
             this.m_motorImpulse = 0;
             this.m_lowerImpulse = 0;
             this.m_upperImpulse = 0;
@@ -291,7 +291,7 @@ export class RevoluteJoint extends Joint {
         data.velocities[this.m_indexB].w = wB;
     }
 
-    public SolveVelocityConstraints(data: SolverData): void {
+    public solveVelocityConstraints(data: SolverData): void {
         const vA = data.velocities[this.m_indexA].v;
         let wA = data.velocities[this.m_indexA].w;
         const vB = data.velocities[this.m_indexB].v;
@@ -310,7 +310,7 @@ export class RevoluteJoint extends Joint {
             let impulse = -this.m_axialMass * Cdot;
             const oldImpulse = this.m_motorImpulse;
             const maxImpulse = data.step.dt * this.m_maxMotorTorque;
-            this.m_motorImpulse = Clamp(this.m_motorImpulse + impulse, -maxImpulse, maxImpulse);
+            this.m_motorImpulse = clamp(this.m_motorImpulse + impulse, -maxImpulse, maxImpulse);
             impulse = this.m_motorImpulse - oldImpulse;
 
             wA -= iA * impulse;
@@ -351,36 +351,36 @@ export class RevoluteJoint extends Joint {
         // Solve point-to-point constraint
         {
             const { Cdot, impulse } = temp;
-            Vec2.Subtract(
-                Vec2.AddCrossScalarVec2(vB, wB, this.m_rB, Vec2.s_t0),
-                Vec2.AddCrossScalarVec2(vA, wA, this.m_rA, Vec2.s_t1),
+            Vec2.subtract(
+                Vec2.addCrossScalarVec2(vB, wB, this.m_rB, Vec2.s_t0),
+                Vec2.addCrossScalarVec2(vA, wA, this.m_rA, Vec2.s_t1),
                 Cdot,
             );
-            this.m_K.Solve(-Cdot.x, -Cdot.y, impulse);
+            this.m_K.solve(-Cdot.x, -Cdot.y, impulse);
 
             this.m_impulse.x += impulse.x;
             this.m_impulse.y += impulse.y;
 
-            vA.SubtractScaled(mA, impulse);
-            wA -= iA * Vec2.Cross(this.m_rA, impulse);
+            vA.subtractScaled(mA, impulse);
+            wA -= iA * Vec2.cross(this.m_rA, impulse);
 
-            vB.AddScaled(mB, impulse);
-            wB += iB * Vec2.Cross(this.m_rB, impulse);
+            vB.addScaled(mB, impulse);
+            wB += iB * Vec2.cross(this.m_rB, impulse);
         }
 
         data.velocities[this.m_indexA].w = wA;
         data.velocities[this.m_indexB].w = wB;
     }
 
-    public SolvePositionConstraints(data: SolverData): boolean {
+    public solvePositionConstraints(data: SolverData): boolean {
         const cA = data.positions[this.m_indexA].c;
         let aA = data.positions[this.m_indexA].a;
         const cB = data.positions[this.m_indexB].c;
         let aB = data.positions[this.m_indexB].a;
 
         const { qA, qB, lalcA, lalcB, impulse } = temp;
-        qA.Set(aA);
-        qB.Set(aB);
+        qA.set(aA);
+        qB.set(aB);
 
         let angularError = 0;
         let positionError = 0;
@@ -394,13 +394,13 @@ export class RevoluteJoint extends Joint {
 
             if (Math.abs(this.m_upperAngle - this.m_lowerAngle) < 2 * ANGULAR_SLOP) {
                 // Prevent large angular corrections
-                C = Clamp(angle - this.m_lowerAngle, -MAX_ANGULAR_CORRECTION, MAX_ANGULAR_CORRECTION);
+                C = clamp(angle - this.m_lowerAngle, -MAX_ANGULAR_CORRECTION, MAX_ANGULAR_CORRECTION);
             } else if (angle <= this.m_lowerAngle) {
                 // Prevent large angular corrections and allow some slop.
-                C = Clamp(angle - this.m_lowerAngle + ANGULAR_SLOP, -MAX_ANGULAR_CORRECTION, 0);
+                C = clamp(angle - this.m_lowerAngle + ANGULAR_SLOP, -MAX_ANGULAR_CORRECTION, 0);
             } else if (angle >= this.m_upperAngle) {
                 // Prevent large angular corrections and allow some slop.
-                C = Clamp(angle - this.m_upperAngle - ANGULAR_SLOP, 0, MAX_ANGULAR_CORRECTION);
+                C = clamp(angle - this.m_upperAngle - ANGULAR_SLOP, 0, MAX_ANGULAR_CORRECTION);
             }
 
             const limitImpulse = -this.m_axialMass * C;
@@ -411,13 +411,13 @@ export class RevoluteJoint extends Joint {
 
         // Solve point-to-point constraint.
         {
-            qA.Set(aA);
-            qB.Set(aB);
-            const rA = Rot.MultiplyVec2(qA, Vec2.Subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), this.m_rA);
-            const rB = Rot.MultiplyVec2(qB, Vec2.Subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
+            qA.set(aA);
+            qB.set(aB);
+            const rA = Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), this.m_rA);
+            const rB = Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
 
-            const C = Vec2.Add(cB, rB, temp.C).Subtract(cA).Subtract(rA);
-            positionError = C.Length();
+            const C = Vec2.add(cB, rB, temp.C).subtract(cA).subtract(rA);
+            positionError = C.length();
 
             const mA = this.m_invMassA;
             const mB = this.m_invMassB;
@@ -430,13 +430,13 @@ export class RevoluteJoint extends Joint {
             K.ey.x = K.ex.y;
             K.ey.y = mA + mB + iA * rA.x * rA.x + iB * rB.x * rB.x;
 
-            K.Solve(C.x, C.y, impulse).Negate();
+            K.solve(C.x, C.y, impulse).negate();
 
-            cA.SubtractScaled(mA, impulse);
-            aA -= iA * Vec2.Cross(rA, impulse);
+            cA.subtractScaled(mA, impulse);
+            aA -= iA * Vec2.cross(rA, impulse);
 
-            cB.AddScaled(mB, impulse);
-            aB += iB * Vec2.Cross(rB, impulse);
+            cB.addScaled(mB, impulse);
+            aB += iB * Vec2.cross(rB, impulse);
         }
 
         data.positions[this.m_indexA].a = aA;
@@ -445,85 +445,85 @@ export class RevoluteJoint extends Joint {
         return positionError <= LINEAR_SLOP && angularError <= ANGULAR_SLOP;
     }
 
-    public GetAnchorA<T extends XY>(out: T): T {
-        return this.m_bodyA.GetWorldPoint(this.m_localAnchorA, out);
+    public getAnchorA<T extends XY>(out: T): T {
+        return this.m_bodyA.getWorldPoint(this.m_localAnchorA, out);
     }
 
-    public GetAnchorB<T extends XY>(out: T): T {
-        return this.m_bodyB.GetWorldPoint(this.m_localAnchorB, out);
+    public getAnchorB<T extends XY>(out: T): T {
+        return this.m_bodyB.getWorldPoint(this.m_localAnchorB, out);
     }
 
-    public GetReactionForce<T extends XY>(inv_dt: number, out: T): T {
+    public getReactionForce<T extends XY>(inv_dt: number, out: T): T {
         out.x = inv_dt * this.m_impulse.x;
         out.y = inv_dt * this.m_impulse.y;
         return out;
     }
 
-    public GetReactionTorque(inv_dt: number): number {
+    public getReactionTorque(inv_dt: number): number {
         return inv_dt * (this.m_motorImpulse + this.m_lowerImpulse - this.m_upperImpulse);
     }
 
-    public GetLocalAnchorA(): Readonly<Vec2> {
+    public getLocalAnchorA(): Readonly<Vec2> {
         return this.m_localAnchorA;
     }
 
-    public GetLocalAnchorB(): Readonly<Vec2> {
+    public getLocalAnchorB(): Readonly<Vec2> {
         return this.m_localAnchorB;
     }
 
-    public GetReferenceAngle(): number {
+    public getReferenceAngle(): number {
         return this.m_referenceAngle;
     }
 
-    public GetJointAngle(): number {
+    public getJointAngle(): number {
         return this.m_bodyB.m_sweep.a - this.m_bodyA.m_sweep.a - this.m_referenceAngle;
     }
 
-    public GetJointSpeed(): number {
+    public getJointSpeed(): number {
         return this.m_bodyB.m_angularVelocity - this.m_bodyA.m_angularVelocity;
     }
 
-    public IsMotorEnabled(): boolean {
+    public isMotorEnabled(): boolean {
         return this.m_enableMotor;
     }
 
-    public EnableMotor(flag: boolean): boolean {
+    public enableMotor(flag: boolean): boolean {
         if (flag !== this.m_enableMotor) {
-            this.m_bodyA.SetAwake(true);
-            this.m_bodyB.SetAwake(true);
+            this.m_bodyA.setAwake(true);
+            this.m_bodyB.setAwake(true);
             this.m_enableMotor = flag;
         }
         return flag;
     }
 
-    public GetMotorTorque(inv_dt: number): number {
+    public getMotorTorque(inv_dt: number): number {
         return inv_dt * this.m_motorImpulse;
     }
 
-    public GetMotorSpeed(): number {
+    public getMotorSpeed(): number {
         return this.m_motorSpeed;
     }
 
-    public SetMaxMotorTorque(torque: number): void {
+    public setMaxMotorTorque(torque: number): void {
         if (torque !== this.m_maxMotorTorque) {
-            this.m_bodyA.SetAwake(true);
-            this.m_bodyB.SetAwake(true);
+            this.m_bodyA.setAwake(true);
+            this.m_bodyB.setAwake(true);
             this.m_maxMotorTorque = torque;
         }
     }
 
-    public GetMaxMotorTorque(): number {
+    public getMaxMotorTorque(): number {
         return this.m_maxMotorTorque;
     }
 
-    public IsLimitEnabled(): boolean {
+    public isLimitEnabled(): boolean {
         return this.m_enableLimit;
     }
 
-    public EnableLimit(flag: boolean): boolean {
+    public enableLimit(flag: boolean): boolean {
         if (flag !== this.m_enableLimit) {
-            this.m_bodyA.SetAwake(true);
-            this.m_bodyB.SetAwake(true);
+            this.m_bodyA.setAwake(true);
+            this.m_bodyB.setAwake(true);
             this.m_enableLimit = flag;
             this.m_lowerImpulse = 0;
             this.m_upperImpulse = 0;
@@ -531,18 +531,18 @@ export class RevoluteJoint extends Joint {
         return flag;
     }
 
-    public GetLowerLimit(): number {
+    public getLowerLimit(): number {
         return this.m_lowerAngle;
     }
 
-    public GetUpperLimit(): number {
+    public getUpperLimit(): number {
         return this.m_upperAngle;
     }
 
-    public SetLimits(lower: number, upper: number): void {
+    public setLimits(lower: number, upper: number): void {
         if (lower !== this.m_lowerAngle || upper !== this.m_upperAngle) {
-            this.m_bodyA.SetAwake(true);
-            this.m_bodyB.SetAwake(true);
+            this.m_bodyA.setAwake(true);
+            this.m_bodyB.setAwake(true);
             this.m_lowerImpulse = 0;
             this.m_upperImpulse = 0;
             this.m_lowerAngle = lower;
@@ -550,45 +550,45 @@ export class RevoluteJoint extends Joint {
         }
     }
 
-    public SetMotorSpeed(speed: number): number {
+    public setMotorSpeed(speed: number): number {
         if (speed !== this.m_motorSpeed) {
-            this.m_bodyA.SetAwake(true);
-            this.m_bodyB.SetAwake(true);
+            this.m_bodyA.setAwake(true);
+            this.m_bodyB.setAwake(true);
             this.m_motorSpeed = speed;
         }
         return speed;
     }
 
-    public Draw(draw: Draw): void {
+    public draw(draw: Draw): void {
         const { p2, r, pA, pB } = temp;
-        const xfA = this.m_bodyA.GetTransform();
-        const xfB = this.m_bodyB.GetTransform();
-        Transform.MultiplyVec2(xfA, this.m_localAnchorA, pA);
-        Transform.MultiplyVec2(xfB, this.m_localAnchorB, pB);
+        const xfA = this.m_bodyA.getTransform();
+        const xfB = this.m_bodyB.getTransform();
+        Transform.multiplyVec2(xfA, this.m_localAnchorA, pA);
+        Transform.multiplyVec2(xfB, this.m_localAnchorB, pB);
 
-        draw.DrawPoint(pA, 5, debugColors.joint4);
-        draw.DrawPoint(pB, 5, debugColors.joint5);
+        draw.drawPoint(pA, 5, debugColors.joint4);
+        draw.drawPoint(pB, 5, debugColors.joint5);
 
-        const aA = this.m_bodyA.GetAngle();
-        const aB = this.m_bodyB.GetAngle();
+        const aA = this.m_bodyA.getAngle();
+        const aB = this.m_bodyB.getAngle();
         const angle = aB - aA - this.m_referenceAngle;
 
         const L = 0.5;
 
-        r.Set(Math.cos(angle), Math.sin(angle)).Scale(L);
-        draw.DrawSegment(pB, Vec2.Add(pB, r, p2), debugColors.joint1);
-        draw.DrawCircle(pB, L, debugColors.joint1);
+        r.set(Math.cos(angle), Math.sin(angle)).scale(L);
+        draw.drawSegment(pB, Vec2.add(pB, r, p2), debugColors.joint1);
+        draw.drawCircle(pB, L, debugColors.joint1);
 
         if (this.m_enableLimit) {
             const { rlo, rhi } = temp;
-            rlo.Set(Math.cos(this.m_lowerAngle), Math.sin(this.m_lowerAngle)).Scale(L);
-            rhi.Set(Math.cos(this.m_upperAngle), Math.sin(this.m_upperAngle)).Scale(L);
-            draw.DrawSegment(pB, Vec2.Add(pB, rlo, p2), debugColors.joint2);
-            draw.DrawSegment(pB, Vec2.Add(pB, rhi, p2), debugColors.joint3);
+            rlo.set(Math.cos(this.m_lowerAngle), Math.sin(this.m_lowerAngle)).scale(L);
+            rhi.set(Math.cos(this.m_upperAngle), Math.sin(this.m_upperAngle)).scale(L);
+            draw.drawSegment(pB, Vec2.add(pB, rlo, p2), debugColors.joint2);
+            draw.drawSegment(pB, Vec2.add(pB, rhi, p2), debugColors.joint3);
         }
 
-        draw.DrawSegment(xfA.p, pA, debugColors.joint6);
-        draw.DrawSegment(pA, pB, debugColors.joint6);
-        draw.DrawSegment(xfB.p, pB, debugColors.joint6);
+        draw.drawSegment(xfA.p, pA, debugColors.joint6);
+        draw.drawSegment(pA, pB, debugColors.joint6);
+        draw.drawSegment(xfB.p, pB, debugColors.joint6);
     }
 }

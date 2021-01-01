@@ -26,7 +26,7 @@ import {
     Vec2,
     RevoluteJoint,
     RevoluteJointDef,
-    Clamp,
+    clamp,
     Fixture,
     FixtureDef,
     Contact,
@@ -100,16 +100,16 @@ class TDTire {
     public m_maxLateralImpulse = 0;
 
     public constructor(world: World) {
-        this.m_body = world.CreateBody({
+        this.m_body = world.createBody({
             type: BodyType.Dynamic,
         });
 
         const polygonShape = new PolygonShape();
-        polygonShape.SetAsBox(0.5, 1.25);
-        const fixture = this.m_body.CreateFixture({ shape: polygonShape, density: 1 }); // shape, density
-        fixture.SetUserData(new CarTireFUD());
+        polygonShape.setAsBox(0.5, 1.25);
+        const fixture = this.m_body.createFixture({ shape: polygonShape, density: 1 }); // shape, density
+        fixture.setUserData(new CarTireFUD());
 
-        this.m_body.SetUserData(this);
+        this.m_body.setUserData(this);
     }
 
     public setCharacteristics(
@@ -149,35 +149,35 @@ class TDTire {
     }
 
     public getLateralVelocity(): Vec2 {
-        const currentRightNormal = this.m_body.GetWorldVector(new Vec2(1, 0), new Vec2());
-        return currentRightNormal.Scale(Vec2.Dot(currentRightNormal, this.m_body.GetLinearVelocity()));
+        const currentRightNormal = this.m_body.getWorldVector(new Vec2(1, 0), new Vec2());
+        return currentRightNormal.scale(Vec2.dot(currentRightNormal, this.m_body.getLinearVelocity()));
     }
 
     public getForwardVelocity(): Vec2 {
-        const currentForwardNormal = this.m_body.GetWorldVector(new Vec2(0, 1), new Vec2());
-        return currentForwardNormal.Scale(Vec2.Dot(currentForwardNormal, this.m_body.GetLinearVelocity()));
+        const currentForwardNormal = this.m_body.getWorldVector(new Vec2(0, 1), new Vec2());
+        return currentForwardNormal.scale(Vec2.dot(currentForwardNormal, this.m_body.getLinearVelocity()));
     }
 
     public updateFriction(): void {
         // lateral linear velocity
-        const impulse = this.getLateralVelocity().Scale(-1 * this.m_body.GetMass());
-        if (impulse.Length() > this.m_maxLateralImpulse) {
-            impulse.Scale(this.m_maxLateralImpulse / impulse.Length());
+        const impulse = this.getLateralVelocity().scale(-1 * this.m_body.getMass());
+        if (impulse.length() > this.m_maxLateralImpulse) {
+            impulse.scale(this.m_maxLateralImpulse / impulse.length());
         }
-        this.m_body.ApplyLinearImpulse(impulse.Scale(this.m_currentTraction), this.m_body.GetWorldCenter());
+        this.m_body.applyLinearImpulse(impulse.scale(this.m_currentTraction), this.m_body.getWorldCenter());
 
         // angular velocity
-        this.m_body.ApplyAngularImpulse(
-            this.m_currentTraction * 0.1 * this.m_body.GetInertia() * -this.m_body.GetAngularVelocity(),
+        this.m_body.applyAngularImpulse(
+            this.m_currentTraction * 0.1 * this.m_body.getInertia() * -this.m_body.getAngularVelocity(),
         );
 
         // forward linear velocity
         const currentForwardNormal = this.getForwardVelocity();
-        const currentForwardSpeed = currentForwardNormal.Normalize();
+        const currentForwardSpeed = currentForwardNormal.normalize();
         const dragForceMagnitude = -2 * currentForwardSpeed;
-        this.m_body.ApplyForce(
-            currentForwardNormal.Scale(this.m_currentTraction * dragForceMagnitude),
-            this.m_body.GetWorldCenter(),
+        this.m_body.applyForce(
+            currentForwardNormal.scale(this.m_currentTraction * dragForceMagnitude),
+            this.m_body.getWorldCenter(),
         );
     }
 
@@ -190,8 +190,8 @@ class TDTire {
         else if (controlState.down) desiredSpeed = this.m_maxBackwardSpeed;
 
         // find current speed in forward direction
-        const currentForwardNormal = this.m_body.GetWorldVector(new Vec2(0, 1), new Vec2());
-        const currentSpeed = Vec2.Dot(this.getForwardVelocity(), currentForwardNormal);
+        const currentForwardNormal = this.m_body.getWorldVector(new Vec2(0, 1), new Vec2());
+        const currentSpeed = Vec2.dot(this.getForwardVelocity(), currentForwardNormal);
 
         // apply necessary force
         let force = 0;
@@ -202,9 +202,9 @@ class TDTire {
         } else {
             return;
         }
-        this.m_body.ApplyForce(
-            currentForwardNormal.Scale(this.m_currentTraction * force),
-            this.m_body.GetWorldCenter(),
+        this.m_body.applyForce(
+            currentForwardNormal.scale(this.m_currentTraction * force),
+            this.m_body.getWorldCenter(),
         );
     }
 
@@ -212,7 +212,7 @@ class TDTire {
         let desiredTorque = 0;
         if (controlState.left) desiredTorque += 15;
         if (controlState.right) desiredTorque -= 15;
-        this.m_body.ApplyTorque(desiredTorque);
+        this.m_body.applyTorque(desiredTorque);
     }
 }
 
@@ -229,10 +229,10 @@ class TDCar {
         this.m_tires = [];
 
         // create car body
-        this.m_body = world.CreateBody({
+        this.m_body = world.createBody({
             type: BodyType.Dynamic,
         });
-        this.m_body.SetAngularDamping(3);
+        this.m_body.setAngularDamping(3);
 
         const vertices = [];
         vertices[0] = new Vec2(1.5, 0);
@@ -244,8 +244,8 @@ class TDCar {
         vertices[6] = new Vec2(-3, 2.5);
         vertices[7] = new Vec2(-1.5, 0);
         const polygonShape = new PolygonShape();
-        polygonShape.Set(vertices, 8);
-        this.m_body.CreateFixture({ shape: polygonShape, density: 0.1 }); // shape, density
+        polygonShape.set(vertices, 8);
+        this.m_body.createFixture({ shape: polygonShape, density: 0.1 }); // shape, density
 
         // prepare common joint parameters
         const jointDef = new RevoluteJointDef();
@@ -253,7 +253,7 @@ class TDCar {
         jointDef.enableLimit = true;
         jointDef.lowerAngle = 0;
         jointDef.upperAngle = 0;
-        jointDef.localAnchorB.SetZero(); // center of tire
+        jointDef.localAnchorB.setZero(); // center of tire
 
         const maxForwardSpeed = 250;
         const maxBackwardSpeed = -40;
@@ -266,32 +266,32 @@ class TDCar {
         let tire = new TDTire(world);
         tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed, backTireMaxDriveForce, backTireMaxLateralImpulse);
         jointDef.bodyB = tire.m_body;
-        jointDef.localAnchorA.Set(-3, 0.75);
-        world.CreateJoint(jointDef);
+        jointDef.localAnchorA.set(-3, 0.75);
+        world.createJoint(jointDef);
         this.m_tires.push(tire);
 
         // back right tire
         tire = new TDTire(world);
         tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed, backTireMaxDriveForce, backTireMaxLateralImpulse);
         jointDef.bodyB = tire.m_body;
-        jointDef.localAnchorA.Set(3, 0.75);
-        world.CreateJoint(jointDef);
+        jointDef.localAnchorA.set(3, 0.75);
+        world.createJoint(jointDef);
         this.m_tires.push(tire);
 
         // front left tire
         tire = new TDTire(world);
         tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed, frontTireMaxDriveForce, frontTireMaxLateralImpulse);
         jointDef.bodyB = tire.m_body;
-        jointDef.localAnchorA.Set(-3, 8.5);
-        this.flJoint = world.CreateJoint(jointDef);
+        jointDef.localAnchorA.set(-3, 8.5);
+        this.flJoint = world.createJoint(jointDef);
         this.m_tires.push(tire);
 
         // front right tire
         tire = new TDTire(world);
         tire.setCharacteristics(maxForwardSpeed, maxBackwardSpeed, frontTireMaxDriveForce, frontTireMaxLateralImpulse);
         jointDef.bodyB = tire.m_body;
-        jointDef.localAnchorA.Set(3, 8.5);
-        this.frJoint = world.CreateJoint(jointDef);
+        jointDef.localAnchorA.set(3, 8.5);
+        this.frJoint = world.createJoint(jointDef);
         this.m_tires.push(tire);
     }
 
@@ -310,12 +310,12 @@ class TDCar {
         let desiredAngle = 0;
         if (controlState.left) desiredAngle += lockAngle;
         if (controlState.right) desiredAngle -= lockAngle;
-        const angleNow = this.flJoint.GetJointAngle();
+        const angleNow = this.flJoint.getJointAngle();
         let angleToTurn = desiredAngle - angleNow;
-        angleToTurn = Clamp(angleToTurn, -turnPerTimeStep, turnPerTimeStep);
+        angleToTurn = clamp(angleToTurn, -turnPerTimeStep, turnPerTimeStep);
         const newAngle = angleNow + angleToTurn;
-        this.flJoint.SetLimits(newAngle, newAngle);
-        this.frJoint.SetLimits(newAngle, newAngle);
+        this.flJoint.setLimits(newAngle, newAngle);
+        this.frJoint.setLimits(newAngle, newAngle);
     }
 }
 
@@ -334,7 +334,7 @@ class TopdownCarTest extends Test {
 
         // set up ground areas
         {
-            this.m_groundBody = this.m_world.CreateBody();
+            this.m_groundBody = this.m_world.createBody();
 
             const polygonShape = new PolygonShape();
             const fixtureDef: FixtureDef = {
@@ -342,13 +342,13 @@ class TopdownCarTest extends Test {
                 isSensor: true,
             };
 
-            polygonShape.SetAsBox(9, 7, new Vec2(-10, 15), 20 * DEGTORAD);
-            let groundAreaFixture = this.m_groundBody.CreateFixture(fixtureDef);
-            groundAreaFixture.SetUserData(new GroundAreaFUD(0.5, false));
+            polygonShape.setAsBox(9, 7, new Vec2(-10, 15), 20 * DEGTORAD);
+            let groundAreaFixture = this.m_groundBody.createFixture(fixtureDef);
+            groundAreaFixture.setUserData(new GroundAreaFUD(0.5, false));
 
-            polygonShape.SetAsBox(9, 5, new Vec2(5, 20), -40 * DEGTORAD);
-            groundAreaFixture = this.m_groundBody.CreateFixture(fixtureDef);
-            groundAreaFixture.SetUserData(new GroundAreaFUD(0.2, false));
+            polygonShape.setAsBox(9, 5, new Vec2(5, 20), -40 * DEGTORAD);
+            groundAreaFixture = this.m_groundBody.createFixture(fixtureDef);
+            groundAreaFixture.setUserData(new GroundAreaFUD(0.2, false));
         }
 
         // this.m_tire = new TDTire(this.m_world);
@@ -367,10 +367,10 @@ class TopdownCarTest extends Test {
     }
 
     public static handleContact(contact: Contact, began: boolean): void {
-        const a = contact.GetFixtureA();
-        const b = contact.GetFixtureB();
-        const fudA: GroundAreaFUD = a.GetUserData();
-        const fudB: GroundAreaFUD = b.GetUserData();
+        const a = contact.getFixtureA();
+        const b = contact.getFixtureB();
+        const fudA: GroundAreaFUD = a.getUserData();
+        const fudB: GroundAreaFUD = b.getUserData();
 
         if (!fudA || !fudB) {
             return;
@@ -383,17 +383,17 @@ class TopdownCarTest extends Test {
         }
     }
 
-    public BeginContact(contact: Contact): void {
+    public beginContact(contact: Contact): void {
         TopdownCarTest.handleContact(contact, true);
     }
 
-    public EndContact(contact: Contact): void {
+    public endContact(contact: Contact): void {
         TopdownCarTest.handleContact(contact, false);
     }
 
     public static tire_vs_groundArea(tireFixture: Fixture, groundAreaFixture: Fixture, began: boolean): void {
-        const tire: TDTire = tireFixture.GetBody().GetUserData();
-        const gaFud: GroundAreaFUD = groundAreaFixture.GetUserData();
+        const tire: TDTire = tireFixture.getBody().getUserData();
+        const gaFud: GroundAreaFUD = groundAreaFixture.getUserData();
         if (began) {
             tire.addGroundArea(gaFud);
         } else {
@@ -401,14 +401,14 @@ class TopdownCarTest extends Test {
         }
     }
 
-    public Step(settings: Settings, timeStep: number): void {
+    public step(settings: Settings, timeStep: number): void {
         /* this.m_tire.updateFriction();
     this.m_tire.updateDrive(this.m_controlState);
     this.m_tire.updateTurn(this.m_controlState); */
 
         this.m_car.update(this.m_controlState);
 
-        super.Step(settings, timeStep);
+        super.step(settings, timeStep);
     }
 }
 

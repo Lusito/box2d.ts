@@ -26,7 +26,7 @@ import {
     DistanceJointDef,
     CircleShape,
     XY,
-    LinearStiffness,
+    linearStiffness,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
@@ -38,25 +38,25 @@ class DominosTest extends Test {
         let b1 = null;
         {
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
 
-            b1 = this.m_world.CreateBody();
-            b1.CreateFixture({ shape });
+            b1 = this.m_world.createBody();
+            b1.createFixture({ shape });
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(6, 0.25);
+            shape.setAsBox(6, 0.25);
 
-            const ground = this.m_world.CreateBody({
+            const ground = this.m_world.createBody({
                 position: { x: -1.5, y: 10 },
             });
-            ground.CreateFixture({ shape });
+            ground.createFixture({ shape });
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.1, 1);
+            shape.setAsBox(0.1, 1);
 
             const fd: FixtureDef = {
                 shape,
@@ -65,75 +65,75 @@ class DominosTest extends Test {
             };
 
             for (let i = 0; i < 10; ++i) {
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: -6 + 1 * i, y: 11.25 },
                 });
-                body.CreateFixture(fd);
+                body.createFixture(fd);
             }
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(7, 0.25, Vec2.ZERO, 0.3);
+            shape.setAsBox(7, 0.25, Vec2.ZERO, 0.3);
 
-            const ground = this.m_world.CreateBody({
+            const ground = this.m_world.createBody({
                 position: { x: 1, y: 6 },
             });
-            ground.CreateFixture({ shape });
+            ground.createFixture({ shape });
         }
 
         let b2 = null;
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.25, 1.5);
+            shape.setAsBox(0.25, 1.5);
 
-            b2 = this.m_world.CreateBody({
+            b2 = this.m_world.createBody({
                 position: { x: -7, y: 4 },
             });
-            b2.CreateFixture({ shape });
+            b2.createFixture({ shape });
         }
 
         let b3 = null;
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(6, 0.125);
+            shape.setAsBox(6, 0.125);
 
-            b3 = this.m_world.CreateBody({
+            b3 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 angle: -0.15,
                 position: { x: -0.9, y: 1 },
             });
-            b3.CreateFixture({ shape, density: 10 });
+            b3.createFixture({ shape, density: 10 });
         }
 
         const jd = new RevoluteJointDef();
         const anchor = new Vec2();
 
-        anchor.Set(-2, 1);
-        jd.Initialize(b1, b3, anchor);
+        anchor.set(-2, 1);
+        jd.initialize(b1, b3, anchor);
         jd.collideConnected = true;
-        this.m_world.CreateJoint(jd);
+        this.m_world.createJoint(jd);
 
         let b4 = null;
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.25, 0.25);
+            shape.setAsBox(0.25, 0.25);
 
-            b4 = this.m_world.CreateBody({
+            b4 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -10, y: 15 },
             });
-            b4.CreateFixture({ shape, density: 10 });
+            b4.createFixture({ shape, density: 10 });
         }
 
-        anchor.Set(-7, 15);
-        jd.Initialize(b2, b4, anchor);
-        this.m_world.CreateJoint(jd);
+        anchor.set(-7, 15);
+        jd.initialize(b2, b4, anchor);
+        this.m_world.createJoint(jd);
 
         let b5 = null;
         {
-            b5 = this.m_world.CreateBody({
+            b5 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 6.5, y: 3 },
             });
@@ -145,61 +145,61 @@ class DominosTest extends Test {
                 friction: 0.1,
             };
 
-            shape.SetAsBox(1, 0.1, new Vec2(0, -0.9), 0);
-            b5.CreateFixture(fd);
+            shape.setAsBox(1, 0.1, new Vec2(0, -0.9), 0);
+            b5.createFixture(fd);
 
-            shape.SetAsBox(0.1, 1, new Vec2(-0.9, 0), 0);
-            b5.CreateFixture(fd);
+            shape.setAsBox(0.1, 1, new Vec2(-0.9, 0), 0);
+            b5.createFixture(fd);
 
-            shape.SetAsBox(0.1, 1, new Vec2(0.9, 0), 0);
-            b5.CreateFixture(fd);
+            shape.setAsBox(0.1, 1, new Vec2(0.9, 0), 0);
+            b5.createFixture(fd);
         }
 
-        anchor.Set(6, 2);
-        jd.Initialize(b1, b5, anchor);
-        this.m_world.CreateJoint(jd);
+        anchor.set(6, 2);
+        jd.initialize(b1, b5, anchor);
+        this.m_world.createJoint(jd);
 
         let b6 = null;
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(1, 0.1);
+            shape.setAsBox(1, 0.1);
 
-            b6 = this.m_world.CreateBody({
+            b6 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 6.5, y: 4.1 },
             });
-            b6.CreateFixture({ shape, density: 30 });
+            b6.createFixture({ shape, density: 30 });
         }
 
-        anchor.Set(7.5, 4);
-        jd.Initialize(b5, b6, anchor);
-        this.m_world.CreateJoint(jd);
+        anchor.set(7.5, 4);
+        jd.initialize(b5, b6, anchor);
+        this.m_world.createJoint(jd);
 
         let b7 = null;
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.1, 1);
+            shape.setAsBox(0.1, 1);
 
-            b7 = this.m_world.CreateBody({
+            b7 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 7.4, y: 1 },
             });
-            b7.CreateFixture({ shape, density: 10 });
+            b7.createFixture({ shape, density: 10 });
         }
 
         const djd = new DistanceJointDef();
         djd.bodyA = b3;
         djd.bodyB = b7;
-        djd.localAnchorA.Set(6, 0);
-        djd.localAnchorB.Set(0, -1);
-        const d = Vec2.Subtract(
-            djd.bodyB.GetWorldPoint(djd.localAnchorB, new Vec2()),
-            djd.bodyA.GetWorldPoint(djd.localAnchorA, new Vec2()),
+        djd.localAnchorA.set(6, 0);
+        djd.localAnchorB.set(0, -1);
+        const d = Vec2.subtract(
+            djd.bodyB.getWorldPoint(djd.localAnchorB, new Vec2()),
+            djd.bodyA.getWorldPoint(djd.localAnchorA, new Vec2()),
             new Vec2(),
         );
-        djd.length = d.Length();
-        LinearStiffness(djd, 1, 1, djd.bodyA, djd.bodyB);
-        this.m_world.CreateJoint(djd);
+        djd.length = d.length();
+        linearStiffness(djd, 1, 1, djd.bodyA, djd.bodyB);
+        this.m_world.createJoint(djd);
 
         {
             const radius = 0.2;
@@ -208,16 +208,16 @@ class DominosTest extends Test {
             shape.m_radius = radius;
 
             for (let i = 0; i < 4; ++i) {
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: 5.9 + 2 * radius * i, y: 2.4 },
                 });
-                body.CreateFixture({ shape, density: 10 });
+                body.createFixture({ shape, density: 10 });
             }
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 50;
     }
 

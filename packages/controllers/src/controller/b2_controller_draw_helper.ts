@@ -27,25 +27,25 @@ const tempP1 = new Vec2();
 const tempP2 = new Vec2();
 const buoyancyR = 100;
 
-function DrawBuoyancyController(debugDraw: Draw, controller: BuoyancyController) {
+function drawBuoyancyController(debugDraw: Draw, controller: BuoyancyController) {
     tempP1.x = controller.normal.x * controller.offset + controller.normal.y * buoyancyR;
     tempP1.y = controller.normal.y * controller.offset - controller.normal.x * buoyancyR;
     tempP2.x = controller.normal.x * controller.offset - controller.normal.y * buoyancyR;
     tempP2.y = controller.normal.y * controller.offset + controller.normal.x * buoyancyR;
 
-    debugDraw.DrawSegment(tempP1, tempP2, debugColors.buoyancyController);
+    debugDraw.drawSegment(tempP1, tempP2, debugColors.buoyancyController);
 }
 
-// function DrawAccelController(_draw: Draw) {}
-// function DrawConstantForceController(_draw: Draw) {}
-// function DrawGravityController(_draw: Draw) {}
-// function DrawTensorDampingController(_draw: Draw) {}
+// function drawAccelController(_draw: Draw) {}
+// function drawConstantForceController(_draw: Draw) {}
+// function drawGravityController(_draw: Draw) {}
+// function drawTensorDampingController(_draw: Draw) {}
 
-export function DrawControllers(draw: Draw, world: World) {
+export function drawControllers(draw: Draw, world: World) {
     for (let c = world.m_controllerList; c; c = c.m_next) {
         // fixme: introduce type instead? which is faster? does it matter much?
         if (c instanceof BuoyancyController) {
-            DrawBuoyancyController(draw, c);
+            drawBuoyancyController(draw, c);
         }
     }
 }

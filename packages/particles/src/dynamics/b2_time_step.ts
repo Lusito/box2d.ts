@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { TimeStep, b2_augment } from "@box2d/core";
+import { TimeStep, augment } from "@box2d/core";
 
 declare module "@box2d/core" {
     interface StepConfig {
@@ -24,8 +24,8 @@ declare module "@box2d/core" {
     }
 }
 
-b2_augment(TimeStep, {
-    Create(original) {
+augment(TimeStep, {
+    create(original) {
         const step = original();
         step.config.particleIterations = 0;
         return step;

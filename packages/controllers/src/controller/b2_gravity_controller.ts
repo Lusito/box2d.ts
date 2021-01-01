@@ -39,52 +39,52 @@ export class GravityController extends Controller {
     /**
      * @see Controller::Step
      */
-    public Step(_step: TimeStep) {
+    public step(_step: TimeStep) {
         if (this.invSqr) {
             for (let i = this.m_bodyList; i; i = i.nextBody) {
                 const body1 = i.body;
-                const p1 = body1.GetWorldCenter();
-                const mass1 = body1.GetMass();
+                const p1 = body1.getWorldCenter();
+                const mass1 = body1.getMass();
                 for (let j = this.m_bodyList; j && j !== i; j = j.nextBody) {
                     const body2 = j.body;
-                    const p2 = body2.GetWorldCenter();
-                    const mass2 = body2.GetMass();
+                    const p2 = body2.getWorldCenter();
+                    const mass2 = body2.getMass();
                     const dx = p2.x - p1.x;
                     const dy = p2.y - p1.y;
                     const r2 = dx * dx + dy * dy;
                     if (r2 < EPSILON) {
                         continue;
                     }
-                    tempF.Set(dx, dy).Scale((this.G / r2 / Math.sqrt(r2)) * mass1 * mass2);
-                    if (body1.IsAwake()) {
-                        body1.ApplyForce(tempF, p1);
+                    tempF.set(dx, dy).scale((this.G / r2 / Math.sqrt(r2)) * mass1 * mass2);
+                    if (body1.isAwake()) {
+                        body1.applyForce(tempF, p1);
                     }
-                    if (body2.IsAwake()) {
-                        body2.ApplyForce(tempF.Scale(-1), p2);
+                    if (body2.isAwake()) {
+                        body2.applyForce(tempF.scale(-1), p2);
                     }
                 }
             }
         } else {
             for (let i = this.m_bodyList; i; i = i.nextBody) {
                 const body1 = i.body;
-                const p1 = body1.GetWorldCenter();
-                const mass1 = body1.GetMass();
+                const p1 = body1.getWorldCenter();
+                const mass1 = body1.getMass();
                 for (let j = this.m_bodyList; j && j !== i; j = j.nextBody) {
                     const body2 = j.body;
-                    const p2 = body2.GetWorldCenter();
-                    const mass2 = body2.GetMass();
+                    const p2 = body2.getWorldCenter();
+                    const mass2 = body2.getMass();
                     const dx = p2.x - p1.x;
                     const dy = p2.y - p1.y;
                     const r2 = dx * dx + dy * dy;
                     if (r2 < EPSILON) {
                         continue;
                     }
-                    tempF.Set(dx, dy).Scale((this.G / r2) * mass1 * mass2);
-                    if (body1.IsAwake()) {
-                        body1.ApplyForce(tempF, p1);
+                    tempF.set(dx, dy).scale((this.G / r2) * mass1 * mass2);
+                    if (body1.isAwake()) {
+                        body1.applyForce(tempF, p1);
                     }
-                    if (body2.IsAwake()) {
-                        body2.ApplyForce(tempF.Scale(-1), p2);
+                    if (body2.isAwake()) {
+                        body2.applyForce(tempF.scale(-1), p2);
                     }
                 }
             }

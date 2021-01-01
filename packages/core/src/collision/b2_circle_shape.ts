@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { Assert } from "../common/b2_common";
+// DEBUG: import { assert } from "../common/b2_common";
 import { EPSILON } from "../common/b2_common";
 import { Color, Draw } from "../common/b2_draw";
 import { Vec2, Transform, XY } from "../common/b2_math";
@@ -39,8 +39,8 @@ export class CircleShape extends Shape {
         super(ShapeType.Circle, radius);
     }
 
-    public Set(position: XY, radius = this.m_radius) {
-        this.m_p.Copy(position);
+    public set(position: XY, radius = this.m_radius) {
+        this.m_p.copy(position);
         this.m_radius = radius;
         return this;
     }
@@ -48,23 +48,23 @@ export class CircleShape extends Shape {
     /**
      * Implement Shape.
      */
-    public Clone(): CircleShape {
-        return new CircleShape().Copy(this);
+    public clone(): CircleShape {
+        return new CircleShape().copy(this);
     }
 
-    public Copy(other: CircleShape): CircleShape {
-        super.Copy(other);
+    public copy(other: CircleShape): CircleShape {
+        super.copy(other);
 
-        // DEBUG: Assert(other instanceof CircleShape);
+        // DEBUG: assert(other instanceof CircleShape);
 
-        this.m_p.Copy(other.m_p);
+        this.m_p.copy(other.m_p);
         return this;
     }
 
     /**
      * @see Shape::GetChildCount
      */
-    public GetChildCount(): number {
+    public getChildCount(): number {
         return 1;
     }
 
@@ -75,10 +75,10 @@ export class CircleShape extends Shape {
     /**
      * Implement Shape.
      */
-    public TestPoint(transform: Transform, p: XY): boolean {
-        const center = Transform.MultiplyVec2(transform, this.m_p, CircleShape.TestPoint_s_center);
-        const d = Vec2.Subtract(p, center, CircleShape.TestPoint_s_d);
-        return Vec2.Dot(d, d) <= this.m_radius ** 2;
+    public testPoint(transform: Transform, p: XY): boolean {
+        const center = Transform.multiplyVec2(transform, this.m_p, CircleShape.TestPoint_s_center);
+        const d = Vec2.subtract(p, center, CircleShape.TestPoint_s_d);
+        return Vec2.dot(d, d) <= this.m_radius ** 2;
     }
 
     private static RayCast_s_position = new Vec2();
@@ -96,15 +96,15 @@ export class CircleShape extends Shape {
      * x = s + a * r
      * norm(x) = radius
      */
-    public RayCast(output: RayCastOutput, input: RayCastInput, transform: Transform, _childIndex: number): boolean {
-        const position = Transform.MultiplyVec2(transform, this.m_p, CircleShape.RayCast_s_position);
-        const s = Vec2.Subtract(input.p1, position, CircleShape.RayCast_s_s);
-        const b = Vec2.Dot(s, s) - this.m_radius ** 2;
+    public rayCast(output: RayCastOutput, input: RayCastInput, transform: Transform, _childIndex: number): boolean {
+        const position = Transform.multiplyVec2(transform, this.m_p, CircleShape.RayCast_s_position);
+        const s = Vec2.subtract(input.p1, position, CircleShape.RayCast_s_s);
+        const b = Vec2.dot(s, s) - this.m_radius ** 2;
 
         // Solve quadratic equation.
-        const r = Vec2.Subtract(input.p2, input.p1, CircleShape.RayCast_s_r);
-        const c = Vec2.Dot(s, r);
-        const rr = Vec2.Dot(r, r);
+        const r = Vec2.subtract(input.p2, input.p1, CircleShape.RayCast_s_r);
+        const c = Vec2.dot(s, r);
+        const rr = Vec2.dot(r, r);
         const sigma = c * c - rr * b;
 
         // Check for negative discriminant and short segment.
@@ -119,7 +119,7 @@ export class CircleShape extends Shape {
         if (a >= 0 && a <= input.maxFraction * rr) {
             a /= rr;
             output.fraction = a;
-            Vec2.AddScaled(s, a, r, output.normal).Normalize();
+            Vec2.addScaled(s, a, r, output.normal).normalize();
             return true;
         }
 
@@ -131,35 +131,35 @@ export class CircleShape extends Shape {
     /**
      * @see Shape::ComputeAABB
      */
-    public ComputeAABB(aabb: AABB, transform: Transform, _childIndex: number): void {
-        const p = Transform.MultiplyVec2(transform, this.m_p, CircleShape.ComputeAABB_s_p);
-        aabb.lowerBound.Set(p.x - this.m_radius, p.y - this.m_radius);
-        aabb.upperBound.Set(p.x + this.m_radius, p.y + this.m_radius);
+    public computeAABB(aabb: AABB, transform: Transform, _childIndex: number): void {
+        const p = Transform.multiplyVec2(transform, this.m_p, CircleShape.ComputeAABB_s_p);
+        aabb.lowerBound.set(p.x - this.m_radius, p.y - this.m_radius);
+        aabb.upperBound.set(p.x + this.m_radius, p.y + this.m_radius);
     }
 
     /**
      * @see Shape::ComputeMass
      */
-    public ComputeMass(massData: MassData, density: number): void {
+    public computeMass(massData: MassData, density: number): void {
         const radius_sq = this.m_radius ** 2;
         massData.mass = density * Math.PI * radius_sq;
-        massData.center.Copy(this.m_p);
+        massData.center.copy(this.m_p);
 
         // inertia about the local origin
-        massData.I = massData.mass * (0.5 * radius_sq + Vec2.Dot(this.m_p, this.m_p));
+        massData.I = massData.mass * (0.5 * radius_sq + Vec2.dot(this.m_p, this.m_p));
     }
 
-    public SetupDistanceProxy(proxy: DistanceProxy, _index: number): void {
+    public setupDistanceProxy(proxy: DistanceProxy, _index: number): void {
         proxy.m_vertices = proxy.m_buffer;
-        proxy.m_vertices[0].Copy(this.m_p);
+        proxy.m_vertices[0].copy(this.m_p);
         proxy.m_count = 1;
         proxy.m_radius = this.m_radius;
     }
 
-    public Draw(draw: Draw, color: Color): void {
+    public draw(draw: Draw, color: Color): void {
         const center = this.m_p;
         const radius = this.m_radius;
         const axis = Vec2.UNITX;
-        draw.DrawSolidCircle(center, radius, axis, color);
+        draw.drawSolidCircle(center, radius, axis, color);
     }
 }

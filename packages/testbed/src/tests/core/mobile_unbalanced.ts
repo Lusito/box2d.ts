@@ -27,24 +27,24 @@ class MobileUnbalancedTest extends Test {
         super();
 
         // Create ground body.
-        const ground = this.m_world.CreateBody({
+        const ground = this.m_world.createBody({
             position: { x: 0, y: 20 },
         });
 
         const a = 0.5;
         const h = new Vec2(0, a);
 
-        const root = this.AddNode(ground, Vec2.ZERO, 0, 3, a);
+        const root = this.addNode(ground, Vec2.ZERO, 0, 3, a);
 
         const jointDef = new RevoluteJointDef();
         jointDef.bodyA = ground;
         jointDef.bodyB = root;
-        jointDef.localAnchorA.SetZero();
-        jointDef.localAnchorB.Copy(h);
-        this.m_world.CreateJoint(jointDef);
+        jointDef.localAnchorA.setZero();
+        jointDef.localAnchorB.copy(h);
+        this.m_world.createJoint(jointDef);
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 60;
     }
 
@@ -55,18 +55,18 @@ class MobileUnbalancedTest extends Test {
         };
     }
 
-    public AddNode(parent: Body, localAnchor: XY, depth: number, offset: number, a: number): Body {
+    public addNode(parent: Body, localAnchor: XY, depth: number, offset: number, a: number): Body {
         const density = 20;
         const h = new Vec2(0, a);
 
-        const body = this.m_world.CreateBody({
+        const body = this.m_world.createBody({
             type: BodyType.Dynamic,
-            position: parent.GetPosition().Clone().Add(localAnchor).Subtract(h),
+            position: parent.getPosition().clone().add(localAnchor).subtract(h),
         });
 
         const shape = new PolygonShape();
-        shape.SetAsBox(0.25 * a, a);
-        body.CreateFixture({ shape, density });
+        shape.setAsBox(0.25 * a, a);
+        body.createFixture({ shape, density });
 
         if (depth === MobileUnbalancedTest.e_depth) {
             return body;
@@ -74,20 +74,20 @@ class MobileUnbalancedTest extends Test {
 
         const a1 = new Vec2(offset, -a);
         const a2 = new Vec2(-offset, -a);
-        const body1 = this.AddNode(body, a1, depth + 1, 0.5 * offset, a);
-        const body2 = this.AddNode(body, a2, depth + 1, 0.5 * offset, a);
+        const body1 = this.addNode(body, a1, depth + 1, 0.5 * offset, a);
+        const body2 = this.addNode(body, a2, depth + 1, 0.5 * offset, a);
 
         const jointDef = new RevoluteJointDef();
         jointDef.bodyA = body;
-        jointDef.localAnchorB.Copy(h);
+        jointDef.localAnchorB.copy(h);
 
-        jointDef.localAnchorA.Copy(a1);
+        jointDef.localAnchorA.copy(a1);
         jointDef.bodyB = body1;
-        this.m_world.CreateJoint(jointDef);
+        this.m_world.createJoint(jointDef);
 
-        jointDef.localAnchorA.Copy(a2);
+        jointDef.localAnchorA.copy(a2);
         jointDef.bodyB = body2;
-        this.m_world.CreateJoint(jointDef);
+        this.m_world.createJoint(jointDef);
 
         return body;
     }

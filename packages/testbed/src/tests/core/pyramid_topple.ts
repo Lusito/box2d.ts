@@ -12,19 +12,19 @@ class PyramidToppleTest extends Test {
         const add_domino = (world: World, pos: Vec2, flipped: boolean) => {
             const mass = 1;
 
-            const body = world.CreateBody({
+            const body = world.createBody({
                 type: BodyType.Dynamic,
                 position: pos,
             });
 
             const shape = new PolygonShape();
             if (flipped) {
-                shape.SetAsBox(0.5 * HEIGHT, 0.5 * WIDTH);
+                shape.setAsBox(0.5 * HEIGHT, 0.5 * WIDTH);
             } else {
-                shape.SetAsBox(0.5 * WIDTH, 0.5 * HEIGHT);
+                shape.setAsBox(0.5 * WIDTH, 0.5 * HEIGHT);
             }
 
-            body.CreateFixture({
+            body.createFixture({
                 shape,
                 density: mass / (WIDTH * HEIGHT),
                 friction: 0.6,
@@ -34,15 +34,15 @@ class PyramidToppleTest extends Test {
 
         const world = this.m_world;
         // settings.positionIterations = 30; // cpSpaceSetIterations(space, 30);
-        // world.SetGravity(new Vec2(0, -300)); // cpSpaceSetGravity(space, cpv(0, -300));
+        // world.setGravity(new Vec2(0, -300)); // cpSpaceSetGravity(space, cpv(0, -300));
         // b2_timeToSleep = 0.5; // cpSpaceSetSleepTimeThreshold(space, 0.5 );
         // LINEAR_SLOP = 0.5; // cpSpaceSetCollisionSlop(space, 0.5 );
 
         // Add a floor.
-        const body = world.CreateBody();
+        const body = world.createBody();
         const shape = new EdgeShape();
-        shape.SetTwoSided(new Vec2(-600, -240), new Vec2(600, -240));
-        body.CreateFixture({
+        shape.setTwoSided(new Vec2(-600, -240), new Vec2(600, -240));
+        body.createFixture({
             shape,
             friction: 1,
             restitution: 1,
@@ -57,12 +57,12 @@ class PyramidToppleTest extends Test {
                     (i + 0.5) * (HEIGHT + 2 * WIDTH) - WIDTH - 240,
                 );
                 add_domino(world, offset, false);
-                add_domino(world, Vec2.Add(offset, new Vec2(0, (HEIGHT + WIDTH) / 2), new Vec2()), true);
+                add_domino(world, Vec2.add(offset, new Vec2(0, (HEIGHT + WIDTH) / 2), new Vec2()), true);
 
                 if (j === 0) {
                     add_domino(
                         world,
-                        Vec2.Add(offset, new Vec2(0.5 * (WIDTH - HEIGHT), HEIGHT + WIDTH), new Vec2()),
+                        Vec2.add(offset, new Vec2(0.5 * (WIDTH - HEIGHT), HEIGHT + WIDTH), new Vec2()),
                         false,
                     );
                 }
@@ -70,13 +70,13 @@ class PyramidToppleTest extends Test {
                 if (j !== n - i - 1) {
                     add_domino(
                         world,
-                        Vec2.Add(offset, new Vec2(HEIGHT * 0.75, (HEIGHT + 3 * WIDTH) / 2), new Vec2()),
+                        Vec2.add(offset, new Vec2(HEIGHT * 0.75, (HEIGHT + 3 * WIDTH) / 2), new Vec2()),
                         true,
                     );
                 } else {
                     add_domino(
                         world,
-                        Vec2.Add(offset, new Vec2(0.5 * (HEIGHT - WIDTH), HEIGHT + WIDTH), new Vec2()),
+                        Vec2.add(offset, new Vec2(0.5 * (HEIGHT - WIDTH), HEIGHT + WIDTH), new Vec2()),
                         false,
                     );
                 }
@@ -84,7 +84,7 @@ class PyramidToppleTest extends Test {
         }
     }
 
-    public GetDefaultViewZoom(): number {
+    public getDefaultViewZoom(): number {
         return 1.5;
     }
 

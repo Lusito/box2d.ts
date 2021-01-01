@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { Assert } from "../common/b2_common";
+// DEBUG: import { assert } from "../common/b2_common";
 import { LINEAR_SLOP } from "../common/b2_common";
 import { Vec2, Rot, XY } from "../common/b2_math";
 import { Joint, JointDef, JointType, IJointDef } from "./b2_joint";
@@ -184,22 +184,22 @@ export class GearJoint extends Joint {
         this.m_joint1 = def.joint1;
         this.m_joint2 = def.joint2;
 
-        this.m_typeA = this.m_joint1.GetType();
-        this.m_typeB = this.m_joint2.GetType();
+        this.m_typeA = this.m_joint1.getType();
+        this.m_typeB = this.m_joint2.getType();
 
-        // DEBUG: Assert(this.m_typeA === JointType.Revolute || this.m_typeA === JointType.Prismatic);
-        // DEBUG: Assert(this.m_typeB === JointType.Revolute || this.m_typeB === JointType.Prismatic);
+        // DEBUG: assert(this.m_typeA === JointType.Revolute || this.m_typeA === JointType.Prismatic);
+        // DEBUG: assert(this.m_typeB === JointType.Revolute || this.m_typeB === JointType.Prismatic);
 
         let coordinateA: number;
         let coordinateB: number;
 
         // TODO_ERIN there might be some problem with the joint edges in Joint.
 
-        this.m_bodyC = this.m_joint1.GetBodyA();
-        this.m_bodyA = this.m_joint1.GetBodyB();
+        this.m_bodyC = this.m_joint1.getBodyA();
+        this.m_bodyA = this.m_joint1.getBodyB();
 
         // Body B on joint1 must be dynamic
-        // DEBUG: Assert(this.m_bodyA.m_type === BodyType.Dynamic);
+        // DEBUG: assert(this.m_bodyA.m_type === BodyType.Dynamic);
 
         // Get geometry of joint1
         const xfA = this.m_bodyA.m_xf;
@@ -209,33 +209,33 @@ export class GearJoint extends Joint {
 
         if (this.m_typeA === JointType.Revolute) {
             const revolute = def.joint1 as RevoluteJoint;
-            this.m_localAnchorC.Copy(revolute.m_localAnchorA);
-            this.m_localAnchorA.Copy(revolute.m_localAnchorB);
+            this.m_localAnchorC.copy(revolute.m_localAnchorA);
+            this.m_localAnchorA.copy(revolute.m_localAnchorB);
             this.m_referenceAngleA = revolute.m_referenceAngle;
-            this.m_localAxisC.SetZero();
+            this.m_localAxisC.setZero();
 
             coordinateA = aA - aC - this.m_referenceAngleA;
         } else {
             const prismatic = def.joint1 as PrismaticJoint;
-            this.m_localAnchorC.Copy(prismatic.m_localAnchorA);
-            this.m_localAnchorA.Copy(prismatic.m_localAnchorB);
+            this.m_localAnchorC.copy(prismatic.m_localAnchorA);
+            this.m_localAnchorA.copy(prismatic.m_localAnchorB);
             this.m_referenceAngleA = prismatic.m_referenceAngle;
-            this.m_localAxisC.Copy(prismatic.m_localXAxisA);
+            this.m_localAxisC.copy(prismatic.m_localXAxisA);
 
             const pC = this.m_localAnchorC;
-            const pA = Rot.TransposeMultiplyVec2(
+            const pA = Rot.transposeMultiplyVec2(
                 xfC.q,
-                Rot.MultiplyVec2(xfA.q, this.m_localAnchorA, Vec2.s_t0).Add(xfA.p).Subtract(xfC.p),
+                Rot.multiplyVec2(xfA.q, this.m_localAnchorA, Vec2.s_t0).add(xfA.p).subtract(xfC.p),
                 Vec2.s_t0,
             );
-            coordinateA = Vec2.Dot(pA.Subtract(pC), this.m_localAxisC);
+            coordinateA = Vec2.dot(pA.subtract(pC), this.m_localAxisC);
         }
 
-        this.m_bodyD = this.m_joint2.GetBodyA();
-        this.m_bodyB = this.m_joint2.GetBodyB();
+        this.m_bodyD = this.m_joint2.getBodyA();
+        this.m_bodyB = this.m_joint2.getBodyB();
 
         // Body B on joint2 must be dynamic
-        // DEBUG: Assert(this.m_bodyB.m_type === BodyType.Dynamic);
+        // DEBUG: assert(this.m_bodyB.m_type === BodyType.Dynamic);
 
         // Get geometry of joint2
         const xfB = this.m_bodyB.m_xf;
@@ -245,26 +245,26 @@ export class GearJoint extends Joint {
 
         if (this.m_typeB === JointType.Revolute) {
             const revolute = def.joint2 as RevoluteJoint;
-            this.m_localAnchorD.Copy(revolute.m_localAnchorA);
-            this.m_localAnchorB.Copy(revolute.m_localAnchorB);
+            this.m_localAnchorD.copy(revolute.m_localAnchorA);
+            this.m_localAnchorB.copy(revolute.m_localAnchorB);
             this.m_referenceAngleB = revolute.m_referenceAngle;
-            this.m_localAxisD.SetZero();
+            this.m_localAxisD.setZero();
 
             coordinateB = aB - aD - this.m_referenceAngleB;
         } else {
             const prismatic = def.joint2 as PrismaticJoint;
-            this.m_localAnchorD.Copy(prismatic.m_localAnchorA);
-            this.m_localAnchorB.Copy(prismatic.m_localAnchorB);
+            this.m_localAnchorD.copy(prismatic.m_localAnchorA);
+            this.m_localAnchorB.copy(prismatic.m_localAnchorB);
             this.m_referenceAngleB = prismatic.m_referenceAngle;
-            this.m_localAxisD.Copy(prismatic.m_localXAxisA);
+            this.m_localAxisD.copy(prismatic.m_localXAxisA);
 
             const pD = this.m_localAnchorD;
-            const pB = Rot.TransposeMultiplyVec2(
+            const pB = Rot.transposeMultiplyVec2(
                 xfD.q,
-                Rot.MultiplyVec2(xfB.q, this.m_localAnchorB, Vec2.s_t0).Add(xfB.p).Subtract(xfD.p),
+                Rot.multiplyVec2(xfB.q, this.m_localAnchorB, Vec2.s_t0).add(xfB.p).subtract(xfD.p),
                 Vec2.s_t0,
             );
-            coordinateB = Vec2.Dot(pB.Subtract(pD), this.m_localAxisD);
+            coordinateB = Vec2.dot(pB.subtract(pD), this.m_localAxisD);
         }
 
         this.m_ratio = def.ratio ?? 1;
@@ -275,15 +275,15 @@ export class GearJoint extends Joint {
     }
 
     /** @internal protected */
-    public InitVelocityConstraints(data: SolverData): void {
+    public initVelocityConstraints(data: SolverData): void {
         this.m_indexA = this.m_bodyA.m_islandIndex;
         this.m_indexB = this.m_bodyB.m_islandIndex;
         this.m_indexC = this.m_bodyC.m_islandIndex;
         this.m_indexD = this.m_bodyD.m_islandIndex;
-        this.m_lcA.Copy(this.m_bodyA.m_sweep.localCenter);
-        this.m_lcB.Copy(this.m_bodyB.m_sweep.localCenter);
-        this.m_lcC.Copy(this.m_bodyC.m_sweep.localCenter);
-        this.m_lcD.Copy(this.m_bodyD.m_sweep.localCenter);
+        this.m_lcA.copy(this.m_bodyA.m_sweep.localCenter);
+        this.m_lcB.copy(this.m_bodyB.m_sweep.localCenter);
+        this.m_lcC.copy(this.m_bodyC.m_sweep.localCenter);
+        this.m_lcD.copy(this.m_bodyD.m_sweep.localCenter);
         this.m_mA = this.m_bodyA.m_invMass;
         this.m_mB = this.m_bodyB.m_invMass;
         this.m_mC = this.m_bodyC.m_invMass;
@@ -310,43 +310,43 @@ export class GearJoint extends Joint {
         let wD = data.velocities[this.m_indexD].w;
 
         const { qA, qB, qC, qD } = temp;
-        qA.Set(aA);
-        qB.Set(aB);
-        qC.Set(aC);
-        qD.Set(aD);
+        qA.set(aA);
+        qB.set(aB);
+        qC.set(aC);
+        qD.set(aD);
 
         this.m_mass = 0;
 
         if (this.m_typeA === JointType.Revolute) {
-            this.m_JvAC.SetZero();
+            this.m_JvAC.setZero();
             this.m_JwA = 1;
             this.m_JwC = 1;
             this.m_mass += this.m_iA + this.m_iC;
         } else {
             const { u, rC, rA, lalcA, lalcC } = temp;
-            Rot.MultiplyVec2(qC, this.m_localAxisC, u);
-            Rot.MultiplyVec2(qC, Vec2.Subtract(this.m_localAnchorC, this.m_lcC, lalcC), rC);
-            Rot.MultiplyVec2(qA, Vec2.Subtract(this.m_localAnchorA, this.m_lcA, lalcA), rA);
-            this.m_JvAC.Copy(u);
-            this.m_JwC = Vec2.Cross(rC, u);
-            this.m_JwA = Vec2.Cross(rA, u);
+            Rot.multiplyVec2(qC, this.m_localAxisC, u);
+            Rot.multiplyVec2(qC, Vec2.subtract(this.m_localAnchorC, this.m_lcC, lalcC), rC);
+            Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_lcA, lalcA), rA);
+            this.m_JvAC.copy(u);
+            this.m_JwC = Vec2.cross(rC, u);
+            this.m_JwA = Vec2.cross(rA, u);
             this.m_mass +=
                 this.m_mC + this.m_mA + this.m_iC * this.m_JwC * this.m_JwC + this.m_iA * this.m_JwA * this.m_JwA;
         }
 
         if (this.m_typeB === JointType.Revolute) {
-            this.m_JvBD.SetZero();
+            this.m_JvBD.setZero();
             this.m_JwB = this.m_ratio;
             this.m_JwD = this.m_ratio;
             this.m_mass += this.m_ratio * this.m_ratio * (this.m_iB + this.m_iD);
         } else {
             const { u, rB, rD, lalcB, lalcD } = temp;
-            Rot.MultiplyVec2(qD, this.m_localAxisD, u);
-            Rot.MultiplyVec2(qD, Vec2.Subtract(this.m_localAnchorD, this.m_lcD, lalcD), rD);
-            Rot.MultiplyVec2(qB, Vec2.Subtract(this.m_localAnchorB, this.m_lcB, lalcB), rB);
-            Vec2.Scale(this.m_ratio, u, this.m_JvBD);
-            this.m_JwD = this.m_ratio * Vec2.Cross(rD, u);
-            this.m_JwB = this.m_ratio * Vec2.Cross(rB, u);
+            Rot.multiplyVec2(qD, this.m_localAxisD, u);
+            Rot.multiplyVec2(qD, Vec2.subtract(this.m_localAnchorD, this.m_lcD, lalcD), rD);
+            Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_lcB, lalcB), rB);
+            Vec2.scale(this.m_ratio, u, this.m_JvBD);
+            this.m_JwD = this.m_ratio * Vec2.cross(rD, u);
+            this.m_JwB = this.m_ratio * Vec2.cross(rB, u);
             this.m_mass +=
                 this.m_ratio * this.m_ratio * (this.m_mD + this.m_mB) +
                 this.m_iD * this.m_JwD * this.m_JwD +
@@ -357,13 +357,13 @@ export class GearJoint extends Joint {
         this.m_mass = this.m_mass > 0 ? 1 / this.m_mass : 0;
 
         if (data.step.warmStarting) {
-            vA.AddScaled(this.m_mA * this.m_impulse, this.m_JvAC);
+            vA.addScaled(this.m_mA * this.m_impulse, this.m_JvAC);
             wA += this.m_iA * this.m_impulse * this.m_JwA;
-            vB.AddScaled(this.m_mB * this.m_impulse, this.m_JvBD);
+            vB.addScaled(this.m_mB * this.m_impulse, this.m_JvBD);
             wB += this.m_iB * this.m_impulse * this.m_JwB;
-            vC.SubtractScaled(this.m_mC * this.m_impulse, this.m_JvAC);
+            vC.subtractScaled(this.m_mC * this.m_impulse, this.m_JvAC);
             wC -= this.m_iC * this.m_impulse * this.m_JwC;
-            vD.SubtractScaled(this.m_mD * this.m_impulse, this.m_JvBD);
+            vD.subtractScaled(this.m_mD * this.m_impulse, this.m_JvBD);
             wD -= this.m_iD * this.m_impulse * this.m_JwD;
         } else {
             this.m_impulse = 0;
@@ -376,7 +376,7 @@ export class GearJoint extends Joint {
     }
 
     /** @internal protected */
-    public SolveVelocityConstraints(data: SolverData): void {
+    public solveVelocityConstraints(data: SolverData): void {
         const vA = data.velocities[this.m_indexA].v;
         let wA = data.velocities[this.m_indexA].w;
         const vB = data.velocities[this.m_indexB].v;
@@ -387,20 +387,20 @@ export class GearJoint extends Joint {
         let wD = data.velocities[this.m_indexD].w;
 
         let Cdot =
-            Vec2.Dot(this.m_JvAC, Vec2.Subtract(vA, vC, Vec2.s_t0)) +
-            Vec2.Dot(this.m_JvBD, Vec2.Subtract(vB, vD, Vec2.s_t0));
+            Vec2.dot(this.m_JvAC, Vec2.subtract(vA, vC, Vec2.s_t0)) +
+            Vec2.dot(this.m_JvBD, Vec2.subtract(vB, vD, Vec2.s_t0));
         Cdot += this.m_JwA * wA - this.m_JwC * wC + (this.m_JwB * wB - this.m_JwD * wD);
 
         const impulse = -this.m_mass * Cdot;
         this.m_impulse += impulse;
 
-        vA.AddScaled(this.m_mA * impulse, this.m_JvAC);
+        vA.addScaled(this.m_mA * impulse, this.m_JvAC);
         wA += this.m_iA * impulse * this.m_JwA;
-        vB.AddScaled(this.m_mB * impulse, this.m_JvBD);
+        vB.addScaled(this.m_mB * impulse, this.m_JvBD);
         wB += this.m_iB * impulse * this.m_JwB;
-        vC.SubtractScaled(this.m_mC * impulse, this.m_JvAC);
+        vC.subtractScaled(this.m_mC * impulse, this.m_JvAC);
         wC -= this.m_iC * impulse * this.m_JwC;
-        vD.SubtractScaled(this.m_mD * impulse, this.m_JvBD);
+        vD.subtractScaled(this.m_mD * impulse, this.m_JvBD);
         wD -= this.m_iD * impulse * this.m_JwD;
 
         data.velocities[this.m_indexA].w = wA;
@@ -410,7 +410,7 @@ export class GearJoint extends Joint {
     }
 
     /** @internal protected */
-    public SolvePositionConstraints(data: SolverData): boolean {
+    public solvePositionConstraints(data: SolverData): boolean {
         const cA = data.positions[this.m_indexA].c;
         let aA = data.positions[this.m_indexA].a;
         const cB = data.positions[this.m_indexB].c;
@@ -421,10 +421,10 @@ export class GearJoint extends Joint {
         let aD = data.positions[this.m_indexD].a;
 
         const { qA, qB, qC, qD, JvAC, JvBD } = temp;
-        qA.Set(aA);
-        qB.Set(aB);
-        qC.Set(aC);
-        qD.Set(aD);
+        qA.set(aA);
+        qB.set(aB);
+        qC.set(aC);
+        qD.set(aD);
 
         const linearError = 0;
 
@@ -438,7 +438,7 @@ export class GearJoint extends Joint {
         let mass = 0;
 
         if (this.m_typeA === JointType.Revolute) {
-            JvAC.SetZero();
+            JvAC.setZero();
             JwA = 1;
             JwC = 1;
             mass += this.m_iA + this.m_iC;
@@ -446,21 +446,21 @@ export class GearJoint extends Joint {
             coordinateA = aA - aC - this.m_referenceAngleA;
         } else {
             const { u, rC, rA, lalcC, lalcA } = temp;
-            Rot.MultiplyVec2(qC, this.m_localAxisC, u);
-            Rot.MultiplyVec2(qC, Vec2.Subtract(this.m_localAnchorC, this.m_lcC, lalcC), rC);
-            Rot.MultiplyVec2(qA, Vec2.Subtract(this.m_localAnchorA, this.m_lcA, lalcA), rA);
-            JvAC.Copy(u);
-            JwC = Vec2.Cross(rC, u);
-            JwA = Vec2.Cross(rA, u);
+            Rot.multiplyVec2(qC, this.m_localAxisC, u);
+            Rot.multiplyVec2(qC, Vec2.subtract(this.m_localAnchorC, this.m_lcC, lalcC), rC);
+            Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_lcA, lalcA), rA);
+            JvAC.copy(u);
+            JwC = Vec2.cross(rC, u);
+            JwA = Vec2.cross(rA, u);
             mass += this.m_mC + this.m_mA + this.m_iC * JwC * JwC + this.m_iA * JwA * JwA;
 
             const pC = lalcC;
-            const pA = Rot.TransposeMultiplyVec2(qC, Vec2.Add(rA, cA, Vec2.s_t0).Subtract(cC), Vec2.s_t0);
-            coordinateA = Vec2.Dot(Vec2.Subtract(pA, pC, Vec2.s_t0), this.m_localAxisC);
+            const pA = Rot.transposeMultiplyVec2(qC, Vec2.add(rA, cA, Vec2.s_t0).subtract(cC), Vec2.s_t0);
+            coordinateA = Vec2.dot(Vec2.subtract(pA, pC, Vec2.s_t0), this.m_localAxisC);
         }
 
         if (this.m_typeB === JointType.Revolute) {
-            JvBD.SetZero();
+            JvBD.setZero();
             JwB = this.m_ratio;
             JwD = this.m_ratio;
             mass += this.m_ratio * this.m_ratio * (this.m_iB + this.m_iD);
@@ -468,18 +468,18 @@ export class GearJoint extends Joint {
             coordinateB = aB - aD - this.m_referenceAngleB;
         } else {
             const { u, rD, rB, lalcD, lalcB } = temp;
-            Rot.MultiplyVec2(qD, this.m_localAxisD, u);
-            Rot.MultiplyVec2(qD, Vec2.Subtract(this.m_localAnchorD, this.m_lcD, lalcD), rD);
-            Rot.MultiplyVec2(qB, Vec2.Subtract(this.m_localAnchorB, this.m_lcB, lalcB), rB);
-            Vec2.Scale(this.m_ratio, u, JvBD);
-            JwD = this.m_ratio * Vec2.Cross(rD, u);
-            JwB = this.m_ratio * Vec2.Cross(rB, u);
+            Rot.multiplyVec2(qD, this.m_localAxisD, u);
+            Rot.multiplyVec2(qD, Vec2.subtract(this.m_localAnchorD, this.m_lcD, lalcD), rD);
+            Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_lcB, lalcB), rB);
+            Vec2.scale(this.m_ratio, u, JvBD);
+            JwD = this.m_ratio * Vec2.cross(rD, u);
+            JwB = this.m_ratio * Vec2.cross(rB, u);
             mass +=
                 this.m_ratio * this.m_ratio * (this.m_mD + this.m_mB) + this.m_iD * JwD * JwD + this.m_iB * JwB * JwB;
 
             const pD = lalcD;
-            const pB = Rot.TransposeMultiplyVec2(qD, Vec2.Add(rB, cB, Vec2.s_t0).Subtract(cD), Vec2.s_t0);
-            coordinateB = Vec2.Dot(pB.Subtract(pD), this.m_localAxisD);
+            const pB = Rot.transposeMultiplyVec2(qD, Vec2.add(rB, cB, Vec2.s_t0).subtract(cD), Vec2.s_t0);
+            coordinateB = Vec2.dot(pB.subtract(pD), this.m_localAxisD);
         }
 
         const C = coordinateA + this.m_ratio * coordinateB - this.m_constant;
@@ -489,13 +489,13 @@ export class GearJoint extends Joint {
             impulse = -C / mass;
         }
 
-        cA.AddScaled(this.m_mA * impulse, JvAC);
+        cA.addScaled(this.m_mA * impulse, JvAC);
         aA += this.m_iA * impulse * JwA;
-        cB.AddScaled(this.m_mB * impulse, JvBD);
+        cB.addScaled(this.m_mB * impulse, JvBD);
         aB += this.m_iB * impulse * JwB;
-        cC.SubtractScaled(this.m_mC * impulse, JvAC);
+        cC.subtractScaled(this.m_mC * impulse, JvAC);
         aC -= this.m_iC * impulse * JwC;
-        cD.SubtractScaled(this.m_mD * impulse, JvBD);
+        cD.subtractScaled(this.m_mD * impulse, JvBD);
         aD -= this.m_iD * impulse * JwD;
 
         data.positions[this.m_indexA].a = aA;
@@ -507,36 +507,36 @@ export class GearJoint extends Joint {
         return linearError < LINEAR_SLOP;
     }
 
-    public GetAnchorA<T extends XY>(out: T): T {
-        return this.m_bodyA.GetWorldPoint(this.m_localAnchorA, out);
+    public getAnchorA<T extends XY>(out: T): T {
+        return this.m_bodyA.getWorldPoint(this.m_localAnchorA, out);
     }
 
-    public GetAnchorB<T extends XY>(out: T): T {
-        return this.m_bodyB.GetWorldPoint(this.m_localAnchorB, out);
+    public getAnchorB<T extends XY>(out: T): T {
+        return this.m_bodyB.getWorldPoint(this.m_localAnchorB, out);
     }
 
-    public GetReactionForce<T extends XY>(inv_dt: number, out: T): T {
-        return Vec2.Scale(inv_dt * this.m_impulse, this.m_JvAC, out);
+    public getReactionForce<T extends XY>(inv_dt: number, out: T): T {
+        return Vec2.scale(inv_dt * this.m_impulse, this.m_JvAC, out);
     }
 
-    public GetReactionTorque(inv_dt: number): number {
+    public getReactionTorque(inv_dt: number): number {
         return inv_dt * this.m_impulse * this.m_JwA;
     }
 
-    public GetJoint1() {
+    public getJoint1() {
         return this.m_joint1;
     }
 
-    public GetJoint2() {
+    public getJoint2() {
         return this.m_joint2;
     }
 
-    public GetRatio() {
+    public getRatio() {
         return this.m_ratio;
     }
 
-    public SetRatio(ratio: number): void {
-        // DEBUG: Assert(Number.isFinite(ratio));
+    public setRatio(ratio: number): void {
+        // DEBUG: assert(Number.isFinite(ratio));
         this.m_ratio = ratio;
     }
 }

@@ -26,7 +26,7 @@ import {
     Contact,
     EPSILON_SQUARED,
     XY,
-    MakeBooleanArray,
+    makeBooleanArray,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
@@ -43,33 +43,33 @@ class SensorsTest extends Test {
 
     public m_force = 100;
 
-    public m_touching = MakeBooleanArray(SensorsTest.e_count);
+    public m_touching = makeBooleanArray(SensorsTest.e_count);
 
     public constructor() {
         super();
 
-        const ground = this.m_world.CreateBody();
+        const ground = this.m_world.createBody();
 
         {
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape });
         }
 
         /*
     {
       const sd = new FixtureDef();
-      sd.SetAsBox(10, 2, new Vec2(0, 20), 0);
+      sd.setAsBox(10, 2, new Vec2(0, 20), 0);
       sd.isSensor = true;
-      this.m_sensor = ground.CreateFixture(sd);
+      this.m_sensor = ground.createFixture(sd);
     }
     */
         {
             const shape = new CircleShape();
             shape.m_radius = 5;
-            shape.m_p.Set(0, 10);
+            shape.m_p.set(0, 10);
 
-            this.m_sensor = ground.CreateFixture({
+            this.m_sensor = ground.createFixture({
                 shape,
                 isSensor: true,
             });
@@ -81,13 +81,13 @@ class SensorsTest extends Test {
 
             for (let i = 0; i < SensorsTest.e_count; ++i) {
                 this.m_touching[i] = false;
-                this.m_bodies[i] = this.m_world.CreateBody({
+                this.m_bodies[i] = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: -10 + 3 * i, y: 20 },
                     userData: { index: i },
                 });
 
-                this.m_bodies[i].CreateFixture({ shape, density: 1 });
+                this.m_bodies[i].createFixture({ shape, density: 1 });
             }
         }
     }
@@ -107,46 +107,46 @@ class SensorsTest extends Test {
         };
     }
 
-    public BeginContact(contact: Contact) {
-        const fixtureA = contact.GetFixtureA();
-        const fixtureB = contact.GetFixtureB();
+    public beginContact(contact: Contact) {
+        const fixtureA = contact.getFixtureA();
+        const fixtureB = contact.getFixtureB();
 
         if (fixtureA === this.m_sensor) {
-            const userData = fixtureB.GetBody().GetUserData();
+            const userData = fixtureB.getBody().getUserData();
             if (userData) {
                 this.m_touching[userData.index] = true;
             }
         }
 
         if (fixtureB === this.m_sensor) {
-            const userData = fixtureA.GetBody().GetUserData();
+            const userData = fixtureA.getBody().getUserData();
             if (userData) {
                 this.m_touching[userData.index] = true;
             }
         }
     }
 
-    public EndContact(contact: Contact) {
-        const fixtureA = contact.GetFixtureA();
-        const fixtureB = contact.GetFixtureB();
+    public endContact(contact: Contact) {
+        const fixtureA = contact.getFixtureA();
+        const fixtureB = contact.getFixtureB();
 
         if (fixtureA === this.m_sensor) {
-            const userData = fixtureB.GetBody().GetUserData();
+            const userData = fixtureB.getBody().getUserData();
             if (userData) {
                 this.m_touching[userData.index] = false;
             }
         }
 
         if (fixtureB === this.m_sensor) {
-            const userData = fixtureA.GetBody().GetUserData();
+            const userData = fixtureA.getBody().getUserData();
             if (userData) {
                 this.m_touching[userData.index] = false;
             }
         }
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
 
         // Traverse the contact results. Apply a force on shapes
         // that overlap the sensor.
@@ -156,21 +156,21 @@ class SensorsTest extends Test {
             }
 
             const body = this.m_bodies[i];
-            const ground = this.m_sensor.GetBody();
+            const ground = this.m_sensor.getBody();
 
-            const circle = this.m_sensor.GetShape() as CircleShape;
-            const center = ground.GetWorldPoint(circle.m_p, new Vec2());
+            const circle = this.m_sensor.getShape() as CircleShape;
+            const center = ground.getWorldPoint(circle.m_p, new Vec2());
 
-            const position = body.GetPosition();
+            const position = body.getPosition();
 
-            const d = Vec2.Subtract(center, position, new Vec2());
-            if (d.LengthSquared() < EPSILON_SQUARED) {
+            const d = Vec2.subtract(center, position, new Vec2());
+            if (d.lengthSquared() < EPSILON_SQUARED) {
                 continue;
             }
 
-            d.Normalize();
-            const F = Vec2.Scale(this.m_force, d, new Vec2());
-            body.ApplyForce(F, position);
+            d.normalize();
+            const F = Vec2.scale(this.m_force, d, new Vec2());
+            body.applyForce(F, position);
         }
     }
 }

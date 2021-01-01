@@ -20,12 +20,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { Assert } from "../common/b2_common";
-import { Assert, Verify, EPSILON, MAX_SUB_STEPS, MAX_TOI_CONTACTS } from "../common/b2_common";
+// DEBUG: import { assert } from "../common/b2_common";
+import { assert, verify, EPSILON, MAX_SUB_STEPS, MAX_TOI_CONTACTS } from "../common/b2_common";
 import { Vec2, Transform, Sweep, XY } from "../common/b2_math";
 import { Timer } from "../common/b2_timer";
-import { AABB, RayCastInput, RayCastOutput, TestOverlap } from "../collision/b2_collision";
-import { TimeOfImpact, TOIInput, TOIOutput, TOIOutputState } from "../collision/b2_time_of_impact";
+import { AABB, RayCastInput, RayCastOutput, testOverlap } from "../collision/b2_collision";
+import { timeOfImpact, TOIInput, TOIOutput, TOIOutputState } from "../collision/b2_time_of_impact";
 import { Shape } from "../collision/b2_shape";
 import { Contact } from "./b2_contact";
 import { Joint, IJointDef, JointType } from "./b2_joint";
@@ -110,7 +110,7 @@ export class World {
     private readonly s_stack: Array<Body | null> = [];
 
     private constructor(gravity: XY) {
-        this.m_gravity.Copy(gravity);
+        this.m_gravity.copy(gravity);
     }
 
     /**
@@ -118,7 +118,7 @@ export class World {
      *
      * @param gravity The world gravity vector.
      */
-    public static Create(gravity: XY) {
+    public static create(gravity: XY) {
         return new World(gravity);
     }
 
@@ -126,14 +126,14 @@ export class World {
      * Register a destruction listener. The listener is owned by you and must
      * remain in scope.
      */
-    public SetDestructionListener(listener: DestructionListener | null): void {
+    public setDestructionListener(listener: DestructionListener | null): void {
         this.m_destructionListener = listener;
     }
 
     /**
      * Get the current destruction listener
      */
-    public GetDestructionListener() {
+    public getDestructionListener() {
         return this.m_destructionListener;
     }
 
@@ -142,7 +142,7 @@ export class World {
      * Otherwise the default filter is used (b2_defaultFilter). The listener is
      * owned by you and must remain in scope.
      */
-    public SetContactFilter(filter: ContactFilter): void {
+    public setContactFilter(filter: ContactFilter): void {
         this.m_contactManager.m_contactFilter = filter;
     }
 
@@ -150,7 +150,7 @@ export class World {
      * Register a contact event listener. The listener is owned by you and must
      * remain in scope.
      */
-    public SetContactListener(listener: ContactListener): void {
+    public setContactListener(listener: ContactListener): void {
         this.m_contactManager.m_contactListener = listener;
         this.m_island.m_listener = listener;
     }
@@ -161,8 +161,8 @@ export class World {
      *
      * @warning This function is locked during callbacks.
      */
-    public CreateBody(def: BodyDef = {}): Body {
-        Assert(!this.IsLocked());
+    public createBody(def: BodyDef = {}): Body {
+        assert(!this.isLocked());
 
         const b = new Body(def, this);
 
@@ -185,9 +185,9 @@ export class World {
      * @warning This automatically deletes all associated shapes and joints.
      * @warning This function is locked during callbacks.
      */
-    public DestroyBody(b: Body): void {
-        // DEBUG: Assert(this.m_bodyCount > 0);
-        Assert(!this.IsLocked());
+    public destroyBody(b: Body): void {
+        // DEBUG: assert(this.m_bodyCount > 0);
+        assert(!this.isLocked());
 
         // Delete the attached joints.
         let je = b.m_jointList;
@@ -195,9 +195,9 @@ export class World {
             const je0 = je;
             je = je.next;
 
-            this.m_destructionListener?.SayGoodbyeJoint(je0.joint);
+            this.m_destructionListener?.sayGoodbyeJoint(je0.joint);
 
-            this.DestroyJoint(je0.joint);
+            this.destroyJoint(je0.joint);
 
             b.m_jointList = je;
         }
@@ -208,7 +208,7 @@ export class World {
         while (ce) {
             const ce0 = ce;
             ce = ce.next;
-            this.m_contactManager.Destroy(ce0.contact);
+            this.m_contactManager.destroy(ce0.contact);
         }
         b.m_contactList = null;
 
@@ -219,9 +219,9 @@ export class World {
             const f0 = f;
             f = f.m_next;
 
-            this.m_destructionListener?.SayGoodbyeFixture(f0);
+            this.m_destructionListener?.sayGoodbyeFixture(f0);
 
-            f0.DestroyProxies(broadPhase);
+            f0.destroyProxies(broadPhase);
 
             b.m_fixtureList = f;
             b.m_fixtureCount -= 1;
@@ -245,7 +245,7 @@ export class World {
         --this.m_bodyCount;
     }
 
-    private static Joint_Create(def: IJointDef): Joint {
+    private static joint_Create(def: IJointDef): Joint {
         switch (def.type) {
             case JointType.Distance:
                 return new DistanceJoint(def as IDistanceJointDef);
@@ -279,32 +279,32 @@ export class World {
      *
      * @warning This function is locked during callbacks.
      */
-    public CreateJoint(def: IAreaJointDef): AreaJoint;
+    public createJoint(def: IAreaJointDef): AreaJoint;
 
-    public CreateJoint(def: IDistanceJointDef): DistanceJoint;
+    public createJoint(def: IDistanceJointDef): DistanceJoint;
 
-    public CreateJoint(def: IFrictionJointDef): FrictionJoint;
+    public createJoint(def: IFrictionJointDef): FrictionJoint;
 
-    public CreateJoint(def: IGearJointDef): GearJoint;
+    public createJoint(def: IGearJointDef): GearJoint;
 
-    public CreateJoint(def: IMotorJointDef): MotorJoint;
+    public createJoint(def: IMotorJointDef): MotorJoint;
 
-    public CreateJoint(def: IMouseJointDef): MouseJoint;
+    public createJoint(def: IMouseJointDef): MouseJoint;
 
-    public CreateJoint(def: IPrismaticJointDef): PrismaticJoint;
+    public createJoint(def: IPrismaticJointDef): PrismaticJoint;
 
-    public CreateJoint(def: IPulleyJointDef): PulleyJoint;
+    public createJoint(def: IPulleyJointDef): PulleyJoint;
 
-    public CreateJoint(def: IRevoluteJointDef): RevoluteJoint;
+    public createJoint(def: IRevoluteJointDef): RevoluteJoint;
 
-    public CreateJoint(def: IWeldJointDef): WeldJoint;
+    public createJoint(def: IWeldJointDef): WeldJoint;
 
-    public CreateJoint(def: IWheelJointDef): WheelJoint;
+    public createJoint(def: IWheelJointDef): WheelJoint;
 
-    public CreateJoint(def: IJointDef): Joint {
-        Assert(!this.IsLocked());
+    public createJoint(def: IJointDef): Joint {
+        assert(!this.isLocked());
 
-        const j = World.Joint_Create(def);
+        const j = World.joint_Create(def);
 
         // Connect to the world list.
         j.m_prev = null;
@@ -331,12 +331,12 @@ export class World {
 
         // If the joint prevents collisions, then flag any contacts for filtering.
         if (!def.collideConnected) {
-            let edge = bodyB.GetContactList();
+            let edge = bodyB.getContactList();
             while (edge) {
                 if (edge.other === bodyA) {
                     // Flag the contact for filtering at the next time step (where either
                     // body is awake).
-                    edge.contact.FlagForFiltering();
+                    edge.contact.flagForFiltering();
                 }
 
                 edge = edge.next;
@@ -353,8 +353,8 @@ export class World {
      *
      * @warning This function is locked during callbacks.
      */
-    public DestroyJoint(j: Joint): void {
-        Assert(!this.IsLocked());
+    public destroyJoint(j: Joint): void {
+        assert(!this.isLocked());
 
         // Remove from the doubly linked list.
         if (j.m_prev) {
@@ -375,8 +375,8 @@ export class World {
         const collideConnected = j.m_collideConnected;
 
         // Wake up connected bodies.
-        bodyA.SetAwake(true);
-        bodyB.SetAwake(true);
+        bodyA.setAwake(true);
+        bodyB.setAwake(true);
 
         // Remove from body 1.
         if (j.m_edgeA.prev) {
@@ -410,23 +410,29 @@ export class World {
         j.m_edgeB.prev = null;
         j.m_edgeB.next = null;
 
-        // DEBUG: Assert(this.m_jointCount > 0);
+        // DEBUG: assert(this.m_jointCount > 0);
         --this.m_jointCount;
 
         // If the joint prevents collisions, then flag any contacts for filtering.
         if (!collideConnected) {
-            let edge = bodyB.GetContactList();
+            let edge = bodyB.getContactList();
             while (edge) {
                 if (edge.other === bodyA) {
                     // Flag the contact for filtering at the next time step (where either
                     // body is awake).
-                    edge.contact.FlagForFiltering();
+                    edge.contact.flagForFiltering();
                 }
 
                 edge = edge.next;
             }
         }
     }
+
+    private static Step_s_step = TimeStep.create();
+
+    private static Step_s_stepTimer = new Timer();
+
+    private static Step_s_timer = new Timer();
 
     /**
      * Take a time step. This performs collision detection, integration,
@@ -436,18 +442,12 @@ export class World {
      * @param velocityIterations For the velocity constraint solver.
      * @param positionIterations For the position constraint solver.
      */
-    private static Step_s_step = TimeStep.Create();
-
-    private static Step_s_stepTimer = new Timer();
-
-    private static Step_s_timer = new Timer();
-
-    public Step(dt: number, iterations: StepConfig): void {
-        const stepTimer = World.Step_s_stepTimer.Reset();
+    public step(dt: number, iterations: StepConfig): void {
+        const stepTimer = World.Step_s_stepTimer.reset();
 
         // If new fixtures were added, we need to find the new contacts.
         if (this.m_newContacts) {
-            this.m_contactManager.FindNewContacts();
+            this.m_contactManager.findNewContacts();
             this.m_newContacts = false;
         }
 
@@ -470,23 +470,23 @@ export class World {
 
         // Update contacts. This is where some contacts are destroyed.
         {
-            const timer = World.Step_s_timer.Reset();
-            this.m_contactManager.Collide();
-            this.m_profile.collide = timer.GetMilliseconds();
+            const timer = World.Step_s_timer.reset();
+            this.m_contactManager.collide();
+            this.m_profile.collide = timer.getMilliseconds();
         }
 
         // Integrate velocities, solve velocity constraints, and integrate positions.
         if (this.m_stepComplete && step.dt > 0) {
-            const timer = World.Step_s_timer.Reset();
-            this.Solve(step);
-            this.m_profile.solve = timer.GetMilliseconds();
+            const timer = World.Step_s_timer.reset();
+            this.solve(step);
+            this.m_profile.solve = timer.getMilliseconds();
         }
 
         // Handle TOI events.
         if (this.m_continuousPhysics && step.dt > 0) {
-            const timer = World.Step_s_timer.Reset();
-            this.SolveTOI(step);
-            this.m_profile.solveTOI = timer.GetMilliseconds();
+            const timer = World.Step_s_timer.reset();
+            this.solveTOI(step);
+            this.m_profile.solveTOI = timer.getMilliseconds();
         }
 
         if (step.dt > 0) {
@@ -494,12 +494,12 @@ export class World {
         }
 
         if (this.m_clearForces) {
-            this.ClearForces();
+            this.clearForces();
         }
 
         this.m_locked = false;
 
-        this.m_profile.step = stepTimer.GetMilliseconds();
+        this.m_profile.step = stepTimer.getMilliseconds();
     }
 
     /**
@@ -512,9 +512,9 @@ export class World {
      *
      * @see SetAutoClearForces
      */
-    public ClearForces(): void {
-        for (let body = this.m_bodyList; body; body = body.GetNext()) {
-            body.m_force.SetZero();
+    public clearForces(): void {
+        for (let body = this.m_bodyList; body; body = body.getNext()) {
+            body.m_force.setZero();
             body.m_torque = 0;
         }
     }
@@ -526,16 +526,16 @@ export class World {
      * @param aabb The query box.
      * @param callback A user implemented callback class or function.
      */
-    public QueryAABB(aabb: AABB, callback: QueryCallback): void {
-        this.m_contactManager.m_broadPhase.Query(aabb, (proxy) => {
-            const fixture_proxy = Verify(proxy.userData);
-            // DEBUG: Assert(fixture_proxy instanceof FixtureProxy);
+    public queryAABB(aabb: AABB, callback: QueryCallback): void {
+        this.m_contactManager.m_broadPhase.query(aabb, (proxy) => {
+            const fixture_proxy = verify(proxy.userData);
+            // DEBUG: assert(fixture_proxy instanceof FixtureProxy);
             return callback(fixture_proxy.fixture);
         });
     }
 
-    public QueryAllAABB(aabb: AABB, out: Fixture[] = []): Fixture[] {
-        this.QueryAABB(aabb, (fixture) => {
+    public queryAllAABB(aabb: AABB, out: Fixture[] = []): Fixture[] {
+        this.queryAABB(aabb, (fixture) => {
             out.push(fixture);
             return true;
         });
@@ -549,16 +549,16 @@ export class World {
      * @param point The query point.
      * @param callback A user implemented callback class or function.
      */
-    public QueryPointAABB(point: XY, callback: QueryCallback): void {
-        this.m_contactManager.m_broadPhase.QueryPoint(point, (proxy) => {
-            const fixture_proxy = Verify(proxy.userData);
-            // DEBUG: Assert(fixture_proxy instanceof FixtureProxy);
+    public queryPointAABB(point: XY, callback: QueryCallback): void {
+        this.m_contactManager.m_broadPhase.queryPoint(point, (proxy) => {
+            const fixture_proxy = verify(proxy.userData);
+            // DEBUG: assert(fixture_proxy instanceof FixtureProxy);
             return callback(fixture_proxy.fixture);
         });
     }
 
-    public QueryAllPointAABB(point: XY, out: Fixture[] = []): Fixture[] {
-        this.QueryPointAABB(point, (fixture) => {
+    public queryAllPointAABB(point: XY, out: Fixture[] = []): Fixture[] {
+        this.queryPointAABB(point, (fixture) => {
             out.push(fixture);
             return true;
         });
@@ -567,45 +567,45 @@ export class World {
 
     private static QueryFixtureShape_s_aabb = new AABB();
 
-    public QueryFixtureShape(shape: Shape, index: number, transform: Transform, callback: QueryCallback): void {
+    public queryFixtureShape(shape: Shape, index: number, transform: Transform, callback: QueryCallback): void {
         const aabb = World.QueryFixtureShape_s_aabb;
-        shape.ComputeAABB(aabb, transform, index);
-        this.m_contactManager.m_broadPhase.Query(aabb, (proxy) => {
-            const fixture_proxy = Verify(proxy.userData);
-            // DEBUG: Assert(fixture_proxy instanceof FixtureProxy);
+        shape.computeAABB(aabb, transform, index);
+        this.m_contactManager.m_broadPhase.query(aabb, (proxy) => {
+            const fixture_proxy = verify(proxy.userData);
+            // DEBUG: assert(fixture_proxy instanceof FixtureProxy);
             const { fixture } = fixture_proxy;
-            const overlap = TestOverlap(
+            const overlap = testOverlap(
                 shape,
                 index,
-                fixture.GetShape(),
+                fixture.getShape(),
                 fixture_proxy.childIndex,
                 transform,
-                fixture.GetBody().GetTransform(),
+                fixture.getBody().getTransform(),
             );
             return !overlap || callback(fixture);
         });
     }
 
-    public QueryAllFixtureShape(shape: Shape, index: number, transform: Transform, out: Fixture[] = []): Fixture[] {
-        this.QueryFixtureShape(shape, index, transform, (fixture) => {
+    public queryAllFixtureShape(shape: Shape, index: number, transform: Transform, out: Fixture[] = []): Fixture[] {
+        this.queryFixtureShape(shape, index, transform, (fixture) => {
             out.push(fixture);
             return true;
         });
         return out;
     }
 
-    public QueryFixturePoint(point: XY, callback: QueryCallback): void {
-        this.m_contactManager.m_broadPhase.QueryPoint(point, (proxy) => {
-            const fixture_proxy = Verify(proxy.userData);
-            // DEBUG: Assert(fixture_proxy instanceof FixtureProxy);
+    public queryFixturePoint(point: XY, callback: QueryCallback): void {
+        this.m_contactManager.m_broadPhase.queryPoint(point, (proxy) => {
+            const fixture_proxy = verify(proxy.userData);
+            // DEBUG: assert(fixture_proxy instanceof FixtureProxy);
             const { fixture } = fixture_proxy;
-            const overlap = fixture.TestPoint(point);
+            const overlap = fixture.testPoint(point);
             return !overlap || callback(fixture);
         });
     }
 
-    public QueryAllFixturePoint(point: XY, out: Fixture[] = []): Fixture[] {
-        this.QueryFixturePoint(point, (fixture) => {
+    public queryAllFixturePoint(point: XY, out: Fixture[] = []): Fixture[] {
+        this.queryFixturePoint(point, (fixture) => {
             out.push(fixture);
             return true;
         });
@@ -627,22 +627,22 @@ export class World {
      * @param point2 The ray ending point
      * @param callback A user implemented callback class or function.
      */
-    public RayCast(point1: XY, point2: XY, callback: RayCastCallback): void {
+    public rayCast(point1: XY, point2: XY, callback: RayCastCallback): void {
         const input = World.RayCast_s_input;
         input.maxFraction = 1;
-        input.p1.Copy(point1);
-        input.p2.Copy(point2);
-        this.m_contactManager.m_broadPhase.RayCast(input, (input2, proxy) => {
-            const fixture_proxy = Verify(proxy.userData);
-            // DEBUG: Assert(fixture_proxy instanceof FixtureProxy);
+        input.p1.copy(point1);
+        input.p2.copy(point2);
+        this.m_contactManager.m_broadPhase.rayCast(input, (input2, proxy) => {
+            const fixture_proxy = verify(proxy.userData);
+            // DEBUG: assert(fixture_proxy instanceof FixtureProxy);
             const { fixture } = fixture_proxy;
             const index = fixture_proxy.childIndex;
             const output = World.RayCast_s_output;
-            const hit = fixture.RayCast(output, input2, index);
+            const hit = fixture.rayCast(output, input2, index);
             if (hit) {
                 const { fraction } = output;
                 const point = World.RayCast_s_point;
-                point.Set(
+                point.set(
                     (1 - fraction) * point1.x + fraction * point2.x,
                     (1 - fraction) * point1.y + fraction * point2.y,
                 );
@@ -652,10 +652,10 @@ export class World {
         });
     }
 
-    public RayCastOne(point1: XY, point2: XY): Fixture | null {
+    public rayCastOne(point1: XY, point2: XY): Fixture | null {
         let result: Fixture | null = null;
         let min_fraction = 1;
-        this.RayCast(point1, point2, (fixture, _point, _normal, fraction) => {
+        this.rayCast(point1, point2, (fixture, _point, _normal, fraction) => {
             if (fraction < min_fraction) {
                 min_fraction = fraction;
                 result = fixture;
@@ -665,8 +665,8 @@ export class World {
         return result;
     }
 
-    public RayCastAll(point1: XY, point2: XY, out: Fixture[] = []): Fixture[] {
-        this.RayCast(point1, point2, (fixture) => {
+    public rayCastAll(point1: XY, point2: XY, out: Fixture[] = []): Fixture[] {
+        this.rayCast(point1, point2, (fixture) => {
             out.push(fixture);
             return 1;
         });
@@ -679,7 +679,7 @@ export class World {
      *
      * @returns The head of the world body list.
      */
-    public GetBodyList(): Body | null {
+    public getBodyList(): Body | null {
         return this.m_bodyList;
     }
 
@@ -689,7 +689,7 @@ export class World {
      *
      * @returns The head of the world joint list.
      */
-    public GetJointList(): Joint | null {
+    public getJointList(): Joint | null {
         return this.m_jointList;
     }
 
@@ -701,14 +701,14 @@ export class World {
      * @warning contacts are created and destroyed in the middle of a time step.
      * Use ContactListener to avoid missing contacts.
      */
-    public GetContactList(): Contact | null {
+    public getContactList(): Contact | null {
         return this.m_contactManager.m_contactList;
     }
 
     /**
      * Enable/disable sleep.
      */
-    public SetAllowSleeping(flag: boolean): void {
+    public setAllowSleeping(flag: boolean): void {
         if (flag === this.m_allowSleep) {
             return;
         }
@@ -716,130 +716,130 @@ export class World {
         this.m_allowSleep = flag;
         if (!this.m_allowSleep) {
             for (let b = this.m_bodyList; b; b = b.m_next) {
-                b.SetAwake(true);
+                b.setAwake(true);
             }
         }
     }
 
-    public GetAllowSleeping(): boolean {
+    public getAllowSleeping(): boolean {
         return this.m_allowSleep;
     }
 
     /**
      * Enable/disable warm starting. For testing.
      */
-    public SetWarmStarting(flag: boolean): void {
+    public setWarmStarting(flag: boolean): void {
         this.m_warmStarting = flag;
     }
 
-    public GetWarmStarting(): boolean {
+    public getWarmStarting(): boolean {
         return this.m_warmStarting;
     }
 
     /**
      * Enable/disable continuous physics. For testing.
      */
-    public SetContinuousPhysics(flag: boolean): void {
+    public setContinuousPhysics(flag: boolean): void {
         this.m_continuousPhysics = flag;
     }
 
-    public GetContinuousPhysics(): boolean {
+    public getContinuousPhysics(): boolean {
         return this.m_continuousPhysics;
     }
 
     /**
      * Enable/disable single stepped continuous physics. For testing.
      */
-    public SetSubStepping(flag: boolean): void {
+    public setSubStepping(flag: boolean): void {
         this.m_subStepping = flag;
     }
 
-    public GetSubStepping(): boolean {
+    public getSubStepping(): boolean {
         return this.m_subStepping;
     }
 
     /**
      * Get the number of broad-phase proxies.
      */
-    public GetProxyCount(): number {
-        return this.m_contactManager.m_broadPhase.GetProxyCount();
+    public getProxyCount(): number {
+        return this.m_contactManager.m_broadPhase.getProxyCount();
     }
 
     /**
      * Get the number of bodies.
      */
-    public GetBodyCount(): number {
+    public getBodyCount(): number {
         return this.m_bodyCount;
     }
 
     /**
      * Get the number of joints.
      */
-    public GetJointCount(): number {
+    public getJointCount(): number {
         return this.m_jointCount;
     }
 
     /**
      * Get the number of contacts (each may have 0 or more contact points).
      */
-    public GetContactCount(): number {
+    public getContactCount(): number {
         return this.m_contactManager.m_contactCount;
     }
 
     /**
      * Get the height of the dynamic tree.
      */
-    public GetTreeHeight(): number {
-        return this.m_contactManager.m_broadPhase.GetTreeHeight();
+    public getTreeHeight(): number {
+        return this.m_contactManager.m_broadPhase.getTreeHeight();
     }
 
     /**
      * Get the balance of the dynamic tree.
      */
-    public GetTreeBalance(): number {
-        return this.m_contactManager.m_broadPhase.GetTreeBalance();
+    public getTreeBalance(): number {
+        return this.m_contactManager.m_broadPhase.getTreeBalance();
     }
 
     /**
      * Get the quality metric of the dynamic tree. The smaller the better.
      * The minimum is 1.
      */
-    public GetTreeQuality(): number {
-        return this.m_contactManager.m_broadPhase.GetTreeQuality();
+    public getTreeQuality(): number {
+        return this.m_contactManager.m_broadPhase.getTreeQuality();
     }
 
     /**
      * Change the global gravity vector.
      */
-    public SetGravity(gravity: XY) {
-        this.m_gravity.Copy(gravity);
+    public setGravity(gravity: XY) {
+        this.m_gravity.copy(gravity);
     }
 
     /**
      * Get the global gravity vector.
      */
-    public GetGravity(): Readonly<Vec2> {
+    public getGravity(): Readonly<Vec2> {
         return this.m_gravity;
     }
 
     /**
      * Is the world locked (in the middle of a time step).
      */
-    public IsLocked(): boolean {
+    public isLocked(): boolean {
         return this.m_locked;
     }
 
     /**
      * Set flag to control automatic clearing of forces after each time step.
      */
-    public SetAutoClearForces(flag: boolean): void {
+    public setAutoClearForces(flag: boolean): void {
         this.m_clearForces = flag;
     }
 
     /**
      * Get the flag that controls automatic clearing of forces after each time step.
      */
-    public GetAutoClearForces(): boolean {
+    public getAutoClearForces(): boolean {
         return this.m_clearForces;
     }
 
@@ -849,45 +849,45 @@ export class World {
      *
      * @param newOrigin The new origin with respect to the old origin
      */
-    public ShiftOrigin(newOrigin: XY): void {
-        Assert(!this.IsLocked());
+    public shiftOrigin(newOrigin: XY): void {
+        assert(!this.isLocked());
 
         for (let b = this.m_bodyList; b; b = b.m_next) {
-            b.m_xf.p.Subtract(newOrigin);
-            b.m_sweep.c0.Subtract(newOrigin);
-            b.m_sweep.c.Subtract(newOrigin);
+            b.m_xf.p.subtract(newOrigin);
+            b.m_sweep.c0.subtract(newOrigin);
+            b.m_sweep.c.subtract(newOrigin);
         }
 
         for (let j = this.m_jointList; j; j = j.m_next) {
-            j.ShiftOrigin(newOrigin);
+            j.shiftOrigin(newOrigin);
         }
 
-        this.m_contactManager.m_broadPhase.ShiftOrigin(newOrigin);
+        this.m_contactManager.m_broadPhase.shiftOrigin(newOrigin);
     }
 
     /**
      * Get the contact manager for testing.
      */
-    public GetContactManager(): ContactManager {
+    public getContactManager(): ContactManager {
         return this.m_contactManager;
     }
 
     /**
      * Get the current profile.
      */
-    public GetProfile(): Profile {
+    public getProfile(): Profile {
         return this.m_profile;
     }
 
-    private Solve(step: TimeStep): void {
+    private solve(step: TimeStep): void {
         this.m_profile.solveInit = 0;
         this.m_profile.solveVelocity = 0;
         this.m_profile.solvePosition = 0;
 
         // Size the island for the worst case.
         const island = this.m_island;
-        island.Resize(this.m_bodyCount);
-        island.Clear();
+        island.resize(this.m_bodyCount);
+        island.clear();
 
         // Clear all the island flags.
         for (let b = this.m_bodyList; b; b = b.m_next) {
@@ -908,17 +908,17 @@ export class World {
                 continue;
             }
 
-            if (!seed.IsAwake() || !seed.IsEnabled()) {
+            if (!seed.isAwake() || !seed.isEnabled()) {
                 continue;
             }
 
             // The seed can be dynamic or kinematic.
-            if (seed.GetType() === BodyType.Static) {
+            if (seed.getType() === BodyType.Static) {
                 continue;
             }
 
             // Reset island and stack.
-            island.Clear();
+            island.clear();
             let stackCount = 0;
             stack[stackCount++] = seed;
             seed.m_islandFlag = true;
@@ -927,13 +927,13 @@ export class World {
             while (stackCount > 0) {
                 // Grab the next body off the stack and add it to the island.
                 const b = stack[--stackCount];
-                Assert(b !== null);
-                // DEBUG: Assert(b.IsEnabled());
-                island.AddBody(b);
+                assert(b !== null);
+                // DEBUG: assert(b.IsEnabled());
+                island.addBody(b);
 
                 // To keep islands as small as possible, we don't
                 // propagate islands across static bodies.
-                if (b.GetType() === BodyType.Static) {
+                if (b.getType() === BodyType.Static) {
                     continue;
                 }
 
@@ -950,7 +950,7 @@ export class World {
                     }
 
                     // Is this contact solid and touching?
-                    if (!contact.IsEnabled() || !contact.IsTouching()) {
+                    if (!contact.isEnabled() || !contact.isTouching()) {
                         continue;
                     }
 
@@ -961,7 +961,7 @@ export class World {
                         continue;
                     }
 
-                    island.AddContact(contact);
+                    island.addContact(contact);
                     contact.m_islandFlag = true;
 
                     const { other } = ce;
@@ -971,7 +971,7 @@ export class World {
                         continue;
                     }
 
-                    // DEBUG: Assert(stackCount < stackSize);
+                    // DEBUG: assert(stackCount < stackSize);
                     stack[stackCount++] = other;
                     other.m_islandFlag = true;
                 }
@@ -985,25 +985,25 @@ export class World {
                     const { other } = je;
 
                     // Don't simulate joints connected to disabled bodies.
-                    if (!other.IsEnabled()) {
+                    if (!other.isEnabled()) {
                         continue;
                     }
 
-                    island.AddJoint(je.joint);
+                    island.addJoint(je.joint);
                     je.joint.m_islandFlag = true;
 
                     if (other.m_islandFlag) {
                         continue;
                     }
 
-                    // DEBUG: Assert(stackCount < stackSize);
+                    // DEBUG: assert(stackCount < stackSize);
                     stack[stackCount++] = other;
                     other.m_islandFlag = true;
                 }
             }
 
             const profile = new Profile();
-            island.Solve(profile, step, this.m_gravity, this.m_allowSleep);
+            island.solve(profile, step, this.m_gravity, this.m_allowSleep);
             this.m_profile.solveInit += profile.solveInit;
             this.m_profile.solveVelocity += profile.solveVelocity;
             this.m_profile.solvePosition += profile.solvePosition;
@@ -1012,7 +1012,7 @@ export class World {
             for (let i = 0; i < island.m_bodyCount; ++i) {
                 // Allow static bodies to participate in other islands.
                 const b = island.m_bodies[i];
-                if (b.GetType() === BodyType.Static) {
+                if (b.getType() === BodyType.Static) {
                     b.m_islandFlag = false;
                 }
             }
@@ -1034,20 +1034,20 @@ export class World {
                 continue;
             }
 
-            if (b.GetType() === BodyType.Static) {
+            if (b.getType() === BodyType.Static) {
                 continue;
             }
 
             // Update fixtures (for broad-phase).
-            b.SynchronizeFixtures();
+            b.synchronizeFixtures();
         }
 
         // Look for new contacts.
-        this.m_contactManager.FindNewContacts();
-        this.m_profile.broadphase = timer.GetMilliseconds();
+        this.m_contactManager.findNewContacts();
+        this.m_profile.broadphase = timer.getMilliseconds();
     }
 
-    private static SolveTOI_s_subStep = TimeStep.Create();
+    private static SolveTOI_s_subStep = TimeStep.create();
 
     private static SolveTOI_s_backup = new Sweep();
 
@@ -1060,9 +1060,9 @@ export class World {
     private static SolveTOI_s_toi_output = new TOIOutput();
 
     /** @internal */
-    public SolveTOI(step: TimeStep): void {
+    public solveTOI(step: TimeStep): void {
         const island = this.m_island;
-        island.Clear();
+        island.clear();
 
         if (this.m_stepComplete) {
             for (let b = this.m_bodyList; b; b = b.m_next) {
@@ -1087,7 +1087,7 @@ export class World {
 
             for (let c = this.m_contactManager.m_contactList; c; c = c.m_next) {
                 // Is this contact disabled?
-                if (!c.IsEnabled()) {
+                if (!c.isEnabled()) {
                     continue;
                 }
 
@@ -1101,31 +1101,31 @@ export class World {
                     // This contact has a valid cached TOI.
                     alpha = c.m_toi;
                 } else {
-                    const fA = c.GetFixtureA();
-                    const fB = c.GetFixtureB();
+                    const fA = c.getFixtureA();
+                    const fB = c.getFixtureB();
 
                     // Is there a sensor?
-                    if (fA.IsSensor() || fB.IsSensor()) {
+                    if (fA.isSensor() || fB.isSensor()) {
                         continue;
                     }
 
-                    const bA = fA.GetBody();
-                    const bB = fB.GetBody();
+                    const bA = fA.getBody();
+                    const bB = fB.getBody();
 
                     const typeA = bA.m_type;
                     const typeB = bB.m_type;
-                    // DEBUG: Assert(typeA === BodyType.Dynamic || typeB === BodyType.Dynamic);
+                    // DEBUG: assert(typeA === BodyType.Dynamic || typeB === BodyType.Dynamic);
 
-                    const activeA = bA.IsAwake() && typeA !== BodyType.Static;
-                    const activeB = bB.IsAwake() && typeB !== BodyType.Static;
+                    const activeA = bA.isAwake() && typeA !== BodyType.Static;
+                    const activeB = bB.isAwake() && typeB !== BodyType.Static;
 
                     // Is at least one body active (awake and dynamic or kinematic)?
                     if (!activeA && !activeB) {
                         continue;
                     }
 
-                    const collideA = bA.IsBullet() || typeA !== BodyType.Dynamic;
-                    const collideB = bB.IsBullet() || typeB !== BodyType.Dynamic;
+                    const collideA = bA.isBullet() || typeA !== BodyType.Dynamic;
+                    const collideB = bB.isBullet() || typeB !== BodyType.Dynamic;
 
                     // Are these two non-bullet dynamic bodies?
                     if (!collideA && !collideB) {
@@ -1138,27 +1138,27 @@ export class World {
 
                     if (bA.m_sweep.alpha0 < bB.m_sweep.alpha0) {
                         alpha0 = bB.m_sweep.alpha0;
-                        bA.m_sweep.Advance(alpha0);
+                        bA.m_sweep.advance(alpha0);
                     } else if (bB.m_sweep.alpha0 < bA.m_sweep.alpha0) {
                         alpha0 = bA.m_sweep.alpha0;
-                        bB.m_sweep.Advance(alpha0);
+                        bB.m_sweep.advance(alpha0);
                     }
 
-                    // DEBUG: Assert(alpha0 < 1);
+                    // DEBUG: assert(alpha0 < 1);
 
-                    const indexA = c.GetChildIndexA();
-                    const indexB = c.GetChildIndexB();
+                    const indexA = c.getChildIndexA();
+                    const indexB = c.getChildIndexB();
 
                     // Compute the time of impact in interval [0, minTOI]
                     const input = World.SolveTOI_s_toi_input;
-                    input.proxyA.SetShape(fA.GetShape(), indexA);
-                    input.proxyB.SetShape(fB.GetShape(), indexB);
-                    input.sweepA.Copy(bA.m_sweep);
-                    input.sweepB.Copy(bB.m_sweep);
+                    input.proxyA.setShape(fA.getShape(), indexA);
+                    input.proxyB.setShape(fB.getShape(), indexB);
+                    input.sweepA.copy(bA.m_sweep);
+                    input.sweepB.copy(bB.m_sweep);
                     input.tMax = 1;
 
                     const output = World.SolveTOI_s_toi_output;
-                    TimeOfImpact(output, input);
+                    timeOfImpact(output, input);
 
                     // Beta is the fraction of the remaining portion of the .
                     const beta = output.t;
@@ -1186,41 +1186,41 @@ export class World {
             }
 
             // Advance the bodies to the TOI.
-            const fA = minContact.GetFixtureA();
-            const fB = minContact.GetFixtureB();
-            const bA = fA.GetBody();
-            const bB = fB.GetBody();
+            const fA = minContact.getFixtureA();
+            const fB = minContact.getFixtureB();
+            const bA = fA.getBody();
+            const bB = fB.getBody();
 
-            const backup1 = World.SolveTOI_s_backup1.Copy(bA.m_sweep);
-            const backup2 = World.SolveTOI_s_backup2.Copy(bB.m_sweep);
+            const backup1 = World.SolveTOI_s_backup1.copy(bA.m_sweep);
+            const backup2 = World.SolveTOI_s_backup2.copy(bB.m_sweep);
 
-            bA.Advance(minAlpha);
-            bB.Advance(minAlpha);
+            bA.advance(minAlpha);
+            bB.advance(minAlpha);
 
             // The TOI contact likely has some new contact points.
-            minContact.Update(this.m_contactManager.m_contactListener);
+            minContact.update(this.m_contactManager.m_contactListener);
             minContact.m_toiFlag = false;
             ++minContact.m_toiCount;
 
             // Is the contact solid?
-            if (!minContact.IsEnabled() || !minContact.IsTouching()) {
+            if (!minContact.isEnabled() || !minContact.isTouching()) {
                 // Restore the sweeps.
-                minContact.SetEnabled(false);
-                bA.m_sweep.Copy(backup1);
-                bB.m_sweep.Copy(backup2);
-                bA.SynchronizeTransform();
-                bB.SynchronizeTransform();
+                minContact.setEnabled(false);
+                bA.m_sweep.copy(backup1);
+                bB.m_sweep.copy(backup2);
+                bA.synchronizeTransform();
+                bB.synchronizeTransform();
                 continue;
             }
 
-            bA.SetAwake(true);
-            bB.SetAwake(true);
+            bA.setAwake(true);
+            bB.setAwake(true);
 
             // Build the island
-            island.Clear();
-            island.AddBody(bA);
-            island.AddBody(bB);
-            island.AddContact(minContact);
+            island.clear();
+            island.addBody(bA);
+            island.addBody(bB);
+            island.addContact(minContact);
 
             bA.m_islandFlag = true;
             bB.m_islandFlag = true;
@@ -1248,7 +1248,7 @@ export class World {
 
                         // Only add static, kinematic, or bullet bodies.
                         const { other } = ce;
-                        if (other.m_type === BodyType.Dynamic && !body.IsBullet() && !other.IsBullet()) {
+                        if (other.m_type === BodyType.Dynamic && !body.isBullet() && !other.isBullet()) {
                             continue;
                         }
 
@@ -1260,31 +1260,31 @@ export class World {
                         }
 
                         // Tentatively advance the body to the TOI.
-                        const backup = World.SolveTOI_s_backup.Copy(other.m_sweep);
+                        const backup = World.SolveTOI_s_backup.copy(other.m_sweep);
                         if (!other.m_islandFlag) {
-                            other.Advance(minAlpha);
+                            other.advance(minAlpha);
                         }
 
                         // Update the contact points
-                        contact.Update(this.m_contactManager.m_contactListener);
+                        contact.update(this.m_contactManager.m_contactListener);
 
                         // Was the contact disabled by the user?
-                        if (!contact.IsEnabled()) {
-                            other.m_sweep.Copy(backup);
-                            other.SynchronizeTransform();
+                        if (!contact.isEnabled()) {
+                            other.m_sweep.copy(backup);
+                            other.synchronizeTransform();
                             continue;
                         }
 
                         // Are there contact points?
-                        if (!contact.IsTouching()) {
-                            other.m_sweep.Copy(backup);
-                            other.SynchronizeTransform();
+                        if (!contact.isTouching()) {
+                            other.m_sweep.copy(backup);
+                            other.synchronizeTransform();
                             continue;
                         }
 
                         // Add the contact to the island
                         contact.m_islandFlag = true;
-                        island.AddContact(contact);
+                        island.addContact(contact);
 
                         // Has the other body already been added to the island?
                         if (other.m_islandFlag) {
@@ -1295,10 +1295,10 @@ export class World {
                         other.m_islandFlag = true;
 
                         if (other.m_type !== BodyType.Static) {
-                            other.SetAwake(true);
+                            other.setAwake(true);
                         }
 
-                        island.AddBody(other);
+                        island.addBody(other);
                     }
                 }
             }
@@ -1312,7 +1312,7 @@ export class World {
                 positionIterations: 20,
             };
             subStep.warmStarting = false;
-            island.SolveTOI(subStep, bA.m_islandIndex, bB.m_islandIndex);
+            island.solveTOI(subStep, bA.m_islandIndex, bB.m_islandIndex);
 
             // Reset island flags and synchronize broad-phase proxies.
             for (let i = 0; i < island.m_bodyCount; ++i) {
@@ -1323,7 +1323,7 @@ export class World {
                     continue;
                 }
 
-                body.SynchronizeFixtures();
+                body.synchronizeFixtures();
 
                 // Invalidate all contact TOIs on this displaced body.
                 for (let ce = body.m_contactList; ce; ce = ce.next) {
@@ -1334,7 +1334,7 @@ export class World {
 
             // Commit fixture proxy movements to the broad-phase so that new contacts are created.
             // Also, some contacts can be destroyed.
-            this.m_contactManager.FindNewContacts();
+            this.m_contactManager.findNewContacts();
 
             if (this.m_subStepping) {
                 this.m_stepComplete = false;

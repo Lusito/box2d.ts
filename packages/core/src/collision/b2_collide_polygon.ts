@@ -22,7 +22,7 @@
 
 import { LINEAR_SLOP, MAX_FLOAT, MAX_MANIFOLD_POINTS } from "../common/b2_common";
 import { Vec2, Transform, Rot } from "../common/b2_math";
-import { ContactFeatureType, Manifold, ManifoldType, ClipVertex, ClipSegmentToLine } from "./b2_collision";
+import { ContactFeatureType, Manifold, ManifoldType, ClipVertex, clipSegmentToLine } from "./b2_collision";
 import { PolygonShape } from "./b2_polygon_shape";
 
 const FindMaxSeparation_s_xf = new Transform();
@@ -30,7 +30,7 @@ const FindMaxSeparation_s_n = new Vec2();
 const FindMaxSeparation_s_v1 = new Vec2();
 
 /** Find the max separation between poly1 and poly2 using edge normals from poly1. */
-function FindMaxSeparation(
+function findMaxSeparation(
     edgeIndex: [number],
     poly1: PolygonShape,
     xf1: Transform,
@@ -42,20 +42,20 @@ function FindMaxSeparation(
     const n1s = poly1.m_normals;
     const v1s = poly1.m_vertices;
     const v2s = poly2.m_vertices;
-    const xf = Transform.TransposeMultiply(xf2, xf1, FindMaxSeparation_s_xf);
+    const xf = Transform.transposeMultiply(xf2, xf1, FindMaxSeparation_s_xf);
 
     let bestIndex = 0;
     let maxSeparation = -MAX_FLOAT;
 
     for (let i = 0; i < count1; ++i) {
         // Get poly1 normal in frame2.
-        const n = Rot.MultiplyVec2(xf.q, n1s[i], FindMaxSeparation_s_n);
-        const v1 = Transform.MultiplyVec2(xf, v1s[i], FindMaxSeparation_s_v1);
+        const n = Rot.multiplyVec2(xf.q, n1s[i], FindMaxSeparation_s_n);
+        const v1 = Transform.multiplyVec2(xf, v1s[i], FindMaxSeparation_s_v1);
 
         // Find deepest point for normal i.
         let si = MAX_FLOAT;
         for (let j = 0; j < count2; ++j) {
-            const sij = Vec2.Dot(n, Vec2.Subtract(v2s[j], v1, Vec2.s_t0));
+            const sij = Vec2.dot(n, Vec2.subtract(v2s[j], v1, Vec2.s_t0));
             if (sij < si) {
                 si = sij;
             }
@@ -73,7 +73,7 @@ function FindMaxSeparation(
 }
 
 const FindIncidentEdge_s_normal1 = new Vec2();
-function FindIncidentEdge(
+function findIncidentEdge(
     c: readonly [ClipVertex, ClipVertex],
     poly1: PolygonShape,
     xf1: Transform,
@@ -87,12 +87,12 @@ function FindIncidentEdge(
     const vertices2 = poly2.m_vertices;
     const normals2 = poly2.m_normals;
 
-    // DEBUG: Assert(0 <= edge1 && edge1 < poly1.m_count);
+    // DEBUG: assert(0 <= edge1 && edge1 < poly1.m_count);
 
     // Get the normal of the reference edge in poly2's frame.
-    const normal1 = Rot.TransposeMultiplyVec2(
+    const normal1 = Rot.transposeMultiplyVec2(
         xf2.q,
-        Rot.MultiplyVec2(xf1.q, normals1[edge1], Vec2.s_t0),
+        Rot.multiplyVec2(xf1.q, normals1[edge1], Vec2.s_t0),
         FindIncidentEdge_s_normal1,
     );
 
@@ -100,7 +100,7 @@ function FindIncidentEdge(
     let index = 0;
     let minDot = MAX_FLOAT;
     for (let i = 0; i < count2; ++i) {
-        const dot = Vec2.Dot(normal1, normals2[i]);
+        const dot = Vec2.dot(normal1, normals2[i]);
         if (dot < minDot) {
             minDot = dot;
             index = i;
@@ -112,7 +112,7 @@ function FindIncidentEdge(
     const i2 = i1 + 1 < count2 ? i1 + 1 : 0;
 
     const c0 = c[0];
-    Transform.MultiplyVec2(xf2, vertices2[i1], c0.v);
+    Transform.multiplyVec2(xf2, vertices2[i1], c0.v);
     const cf0 = c0.id.cf;
     cf0.indexA = edge1;
     cf0.indexB = i1;
@@ -120,7 +120,7 @@ function FindIncidentEdge(
     cf0.typeB = ContactFeatureType.Vertex;
 
     const c1 = c[1];
-    Transform.MultiplyVec2(xf2, vertices2[i2], c1.v);
+    Transform.multiplyVec2(xf2, vertices2[i2], c1.v);
     const cf1 = c1.id.cf;
     cf1.indexA = edge1;
     cf1.indexB = i2;
@@ -151,7 +151,7 @@ const CollidePolygons_s_v12 = new Vec2();
 
  * The normal points from 1 to 2
  */
-export function CollidePolygons(
+export function collidePolygons(
     manifold: Manifold,
     polyA: PolygonShape,
     xfA: Transform,
@@ -162,13 +162,13 @@ export function CollidePolygons(
     const totalRadius = polyA.m_radius + polyB.m_radius;
 
     const edgeIndexA = CollidePolygons_s_edgeA;
-    const separationA = FindMaxSeparation(edgeIndexA, polyA, xfA, polyB, xfB);
+    const separationA = findMaxSeparation(edgeIndexA, polyA, xfA, polyB, xfB);
     if (separationA > totalRadius) {
         return;
     }
 
     const edgeIndexB = CollidePolygons_s_edgeB;
-    const separationB = FindMaxSeparation(edgeIndexB, polyB, xfB, polyA, xfA);
+    const separationB = findMaxSeparation(edgeIndexB, polyB, xfB, polyA, xfA);
     if (separationB > totalRadius) {
         return;
     }
@@ -202,7 +202,7 @@ export function CollidePolygons(
     }
 
     const incidentEdge = CollidePolygons_s_incidentEdge;
-    FindIncidentEdge(incidentEdge, poly1, xf1, edge1, poly2, xf2);
+    findIncidentEdge(incidentEdge, poly1, xf1, edge1, poly2, xf2);
 
     const count1 = poly1.m_count;
     const vertices1 = poly1.m_vertices;
@@ -213,57 +213,57 @@ export function CollidePolygons(
     let v11 = vertices1[iv1];
     let v12 = vertices1[iv2];
 
-    const localTangent = Vec2.Subtract(v12, v11, CollidePolygons_s_localTangent);
-    localTangent.Normalize();
+    const localTangent = Vec2.subtract(v12, v11, CollidePolygons_s_localTangent);
+    localTangent.normalize();
 
-    const localNormal = Vec2.CrossVec2One(localTangent, CollidePolygons_s_localNormal);
-    const planePoint = Vec2.Mid(v11, v12, CollidePolygons_s_planePoint);
+    const localNormal = Vec2.crossVec2One(localTangent, CollidePolygons_s_localNormal);
+    const planePoint = Vec2.mid(v11, v12, CollidePolygons_s_planePoint);
 
-    const tangent = Rot.MultiplyVec2(xf1.q, localTangent, CollidePolygons_s_tangent);
-    const normal = Vec2.CrossVec2One(tangent, CollidePolygons_s_normal);
+    const tangent = Rot.multiplyVec2(xf1.q, localTangent, CollidePolygons_s_tangent);
+    const normal = Vec2.crossVec2One(tangent, CollidePolygons_s_normal);
 
-    v11 = Transform.MultiplyVec2(xf1, v11, CollidePolygons_s_v11);
-    v12 = Transform.MultiplyVec2(xf1, v12, CollidePolygons_s_v12);
+    v11 = Transform.multiplyVec2(xf1, v11, CollidePolygons_s_v11);
+    v12 = Transform.multiplyVec2(xf1, v12, CollidePolygons_s_v12);
 
     // Face offset.
-    const frontOffset = Vec2.Dot(normal, v11);
+    const frontOffset = Vec2.dot(normal, v11);
 
     // Side offsets, extended by polytope skin thickness.
-    const sideOffset1 = -Vec2.Dot(tangent, v11) + totalRadius;
-    const sideOffset2 = Vec2.Dot(tangent, v12) + totalRadius;
+    const sideOffset1 = -Vec2.dot(tangent, v11) + totalRadius;
+    const sideOffset2 = Vec2.dot(tangent, v12) + totalRadius;
 
     // Clip incident edge against extruded edge1 side edges.
     const clipPoints1 = CollidePolygons_s_clipPoints1;
     const clipPoints2 = CollidePolygons_s_clipPoints2;
 
     // Clip to box side 1
-    const ntangent = Vec2.Negate(tangent, CollidePolygons_s_ntangent);
-    let np = ClipSegmentToLine(clipPoints1, incidentEdge, ntangent, sideOffset1, iv1);
+    const ntangent = Vec2.negate(tangent, CollidePolygons_s_ntangent);
+    let np = clipSegmentToLine(clipPoints1, incidentEdge, ntangent, sideOffset1, iv1);
 
     if (np < 2) {
         return;
     }
 
     // Clip to negative box side 1
-    np = ClipSegmentToLine(clipPoints2, clipPoints1, tangent, sideOffset2, iv2);
+    np = clipSegmentToLine(clipPoints2, clipPoints1, tangent, sideOffset2, iv2);
 
     if (np < 2) {
         return;
     }
 
     // Now clipPoints2 contains the clipped points.
-    manifold.localNormal.Copy(localNormal);
-    manifold.localPoint.Copy(planePoint);
+    manifold.localNormal.copy(localNormal);
+    manifold.localPoint.copy(planePoint);
 
     let pointCount = 0;
     for (let i = 0; i < MAX_MANIFOLD_POINTS; ++i) {
         const cv = clipPoints2[i];
-        const separation = Vec2.Dot(normal, cv.v) - frontOffset;
+        const separation = Vec2.dot(normal, cv.v) - frontOffset;
 
         if (separation <= totalRadius) {
             const cp = manifold.points[pointCount];
-            Transform.TransposeMultiplyVec2(xf2, cv.v, cp.localPoint);
-            cp.id.Copy(cv.id);
+            Transform.transposeMultiplyVec2(xf2, cv.v, cp.localPoint);
+            cp.id.copy(cv.id);
             if (flip) {
                 // Swap features
                 const { cf } = cp.id;

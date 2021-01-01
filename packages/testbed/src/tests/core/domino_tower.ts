@@ -20,13 +20,13 @@ class DominoTowerTest extends Test {
         const world = this.m_world;
         function makeDomino(x: number, y: number, horizontal: boolean) {
             const sd = new PolygonShape();
-            sd.SetAsBox(0.5 * DOMINO_WIDTH, 0.5 * DOMINO_HEIGHT);
-            const myBody = world.CreateBody({
+            sd.setAsBox(0.5 * DOMINO_WIDTH, 0.5 * DOMINO_HEIGHT);
+            const myBody = world.createBody({
                 type: BodyType.Dynamic,
                 position: { x, y },
                 angle: horizontal ? Math.PI / 2 : 0,
             });
-            myBody.CreateFixture({
+            myBody.createFixture({
                 shape: sd,
                 density: dominoDensity,
                 friction: DOMINO_FRICTION,
@@ -37,43 +37,43 @@ class DominoTowerTest extends Test {
         // Create the floor
         {
             const sd = new PolygonShape();
-            sd.SetAsBox(50, 10);
+            sd.setAsBox(50, 10);
 
-            const body = world.CreateBody({
+            const body = world.createBody({
                 position: { x: 0, y: -10 },
             });
-            body.CreateFixture({ shape: sd, density: 0 });
+            body.createFixture({ shape: sd, density: 0 });
         }
 
         {
             dominoDensity = 10;
             // Make bullet
             const sd = new PolygonShape();
-            sd.SetAsBox(0.7, 0.7);
+            sd.setAsBox(0.7, 0.7);
             const fd: FixtureDef = {
                 density: 35,
                 shape: sd,
                 friction: 0,
                 restitution: 0.85,
             };
-            let b = world.CreateBody({
+            let b = world.createBody({
                 type: BodyType.Dynamic,
                 bullet: true,
                 position: { x: 30, y: 5 },
             });
-            b.CreateFixture(fd);
-            b.SetLinearVelocity(new Vec2(-25, -25));
-            b.SetAngularVelocity(6.7);
+            b.createFixture(fd);
+            b.setLinearVelocity(new Vec2(-25, -25));
+            b.setAngularVelocity(6.7);
 
             fd.density = 25;
-            b = world.CreateBody({
+            b = world.createBody({
                 type: BodyType.Dynamic,
                 bullet: true,
                 position: { x: -30, y: 25 },
             });
-            b.CreateFixture(fd);
-            b.SetLinearVelocity(new Vec2(35, -10));
-            b.SetAngularVelocity(-8.3);
+            b.createFixture(fd);
+            b.setLinearVelocity(new Vec2(35, -10));
+            b.setAngularVelocity(-8.3);
         }
 
         {

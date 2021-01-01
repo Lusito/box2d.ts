@@ -20,14 +20,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { Assert } from "../common/b2_common";
+// DEBUG: import { assert } from "../common/b2_common";
 import { Vec2, Rot, Transform, Sweep, XY } from "../common/b2_math";
 import { MassData } from "../collision/b2_shape";
 import type { ContactEdge } from "./b2_contact";
 import { JointEdge } from "./b2_joint";
 import { Fixture, FixtureDef } from "./b2_fixture";
 import type { World } from "./b2_world";
-import { Assert } from "../common/b2_common";
+import { assert } from "../common/b2_common";
 
 /**
  * The body type.
@@ -226,23 +226,23 @@ export class Body {
 
         this.m_world = world;
 
-        this.m_xf.p.Copy(bd.position ?? Vec2.ZERO);
-        this.m_xf.q.Set(bd.angle ?? 0);
+        this.m_xf.p.copy(bd.position ?? Vec2.ZERO);
+        this.m_xf.q.set(bd.angle ?? 0);
 
-        this.m_sweep.localCenter.SetZero();
-        this.m_sweep.c0.Copy(this.m_xf.p);
-        this.m_sweep.c.Copy(this.m_xf.p);
-        this.m_sweep.a0 = this.m_sweep.a = this.m_xf.q.GetAngle();
+        this.m_sweep.localCenter.setZero();
+        this.m_sweep.c0.copy(this.m_xf.p);
+        this.m_sweep.c.copy(this.m_xf.p);
+        this.m_sweep.a0 = this.m_sweep.a = this.m_xf.q.getAngle();
         this.m_sweep.alpha0 = 0;
 
-        this.m_linearVelocity.Copy(bd.linearVelocity ?? Vec2.ZERO);
+        this.m_linearVelocity.copy(bd.linearVelocity ?? Vec2.ZERO);
         this.m_angularVelocity = bd.angularVelocity ?? 0;
 
         this.m_linearDamping = bd.linearDamping ?? 0;
         this.m_angularDamping = bd.angularDamping ?? 0;
         this.m_gravityScale = bd.gravityScale ?? 1;
 
-        this.m_force.SetZero();
+        this.m_force.setZero();
         this.m_torque = 0;
 
         this.m_sleepTime = 0;
@@ -271,14 +271,14 @@ export class Body {
      * @param def The fixture definition.
      * @warning This function is locked during callbacks.
      */
-    public CreateFixture(def: FixtureDef): Fixture {
-        Assert(!this.m_world.IsLocked());
+    public createFixture(def: FixtureDef): Fixture {
+        assert(!this.m_world.isLocked());
 
         const fixture = new Fixture(this, def);
 
         if (this.m_enabledFlag) {
             const broadPhase = this.m_world.m_contactManager.m_broadPhase;
-            fixture.CreateProxies(broadPhase, this.m_xf);
+            fixture.createProxies(broadPhase, this.m_xf);
         }
 
         fixture.m_next = this.m_fixtureList;
@@ -287,7 +287,7 @@ export class Body {
 
         // Adjust mass properties if needed.
         if (fixture.m_density > 0) {
-            this.ResetMassData();
+            this.resetMassData();
         }
 
         // Let the world know we have a new fixture. This will cause new contacts
@@ -307,13 +307,13 @@ export class Body {
      * @param fixture The fixture to be removed.
      * @warning This function is locked during callbacks.
      */
-    public DestroyFixture(fixture: Fixture): void {
-        Assert(!this.m_world.IsLocked());
+    public destroyFixture(fixture: Fixture): void {
+        assert(!this.m_world.isLocked());
 
-        // DEBUG: Assert(fixture.m_body === this);
+        // DEBUG: assert(fixture.m_body === this);
 
         // Remove the fixture from this body's singly linked list.
-        // DEBUG: Assert(this.m_fixtureCount > 0);
+        // DEBUG: assert(this.m_fixtureCount > 0);
         let node: Fixture | null = this.m_fixtureList;
         let ppF: Fixture | null = null;
         // DEBUG: let found = false;
@@ -333,7 +333,7 @@ export class Body {
         }
 
         // You tried to remove a shape that is not attached to this body.
-        // DEBUG: Assert(found);
+        // DEBUG: assert(found);
 
         // Destroy any contacts associated with the fixture.
         let edge: ContactEdge | null = this.m_contactList;
@@ -341,19 +341,19 @@ export class Body {
             const c = edge.contact;
             edge = edge.next;
 
-            const fixtureA = c.GetFixtureA();
-            const fixtureB = c.GetFixtureB();
+            const fixtureA = c.getFixtureA();
+            const fixtureB = c.getFixtureB();
 
             if (fixture === fixtureA || fixture === fixtureB) {
                 // This destroys the contact and removes it from
                 // this body's contact list.
-                this.m_world.m_contactManager.Destroy(c);
+                this.m_world.m_contactManager.destroy(c);
             }
         }
 
         if (this.m_enabledFlag) {
             const broadPhase = this.m_world.m_contactManager.m_broadPhase;
-            fixture.DestroyProxies(broadPhase);
+            fixture.destroyProxies(broadPhase);
         }
 
         // fixture.m_body = null;
@@ -362,7 +362,7 @@ export class Body {
         --this.m_fixtureCount;
 
         // Reset the mass data.
-        this.ResetMassData();
+        this.resetMassData();
     }
 
     /**
@@ -373,33 +373,33 @@ export class Body {
      * @param position The world position of the body's local origin.
      * @param angle The world rotation in radians.
      */
-    public SetTransformVec(position: XY, angle: number): void {
-        this.SetTransformXY(position.x, position.y, angle);
+    public setTransformVec(position: XY, angle: number): void {
+        this.setTransformXY(position.x, position.y, angle);
     }
 
-    public SetTransformXY(x: number, y: number, angle: number): void {
-        Assert(!this.m_world.IsLocked());
+    public setTransformXY(x: number, y: number, angle: number): void {
+        assert(!this.m_world.isLocked());
 
-        this.m_xf.q.Set(angle);
-        this.m_xf.p.Set(x, y);
+        this.m_xf.q.set(angle);
+        this.m_xf.p.set(x, y);
 
-        Transform.MultiplyVec2(this.m_xf, this.m_sweep.localCenter, this.m_sweep.c);
+        Transform.multiplyVec2(this.m_xf, this.m_sweep.localCenter, this.m_sweep.c);
         this.m_sweep.a = angle;
 
-        this.m_sweep.c0.Copy(this.m_sweep.c);
+        this.m_sweep.c0.copy(this.m_sweep.c);
         this.m_sweep.a0 = angle;
 
         const broadPhase = this.m_world.m_contactManager.m_broadPhase;
         for (let f: Fixture | null = this.m_fixtureList; f; f = f.m_next) {
-            f.Synchronize(broadPhase, this.m_xf, this.m_xf);
+            f.synchronize(broadPhase, this.m_xf, this.m_xf);
         }
 
         // Check for new contacts the next step
         this.m_world.m_newContacts = true;
     }
 
-    public SetTransform(xf: Transform): void {
-        this.SetTransformVec(xf.p, xf.GetAngle());
+    public setTransform(xf: Transform): void {
+        this.setTransformVec(xf.p, xf.getAngle());
     }
 
     /**
@@ -407,7 +407,7 @@ export class Body {
      *
      * @returns The world transform of the body's origin.
      */
-    public GetTransform(): Readonly<Transform> {
+    public getTransform(): Readonly<Transform> {
         return this.m_xf;
     }
 
@@ -416,7 +416,7 @@ export class Body {
      *
      * @returns The world position of the body's origin.
      */
-    public GetPosition(): Readonly<Vec2> {
+    public getPosition(): Readonly<Vec2> {
         return this.m_xf.p;
     }
 
@@ -425,25 +425,25 @@ export class Body {
      *
      * @returns The current world rotation angle in radians.
      */
-    public GetAngle(): number {
+    public getAngle(): number {
         return this.m_sweep.a;
     }
 
-    public SetAngle(angle: number): void {
-        this.SetTransformVec(this.GetPosition(), angle);
+    public setAngle(angle: number): void {
+        this.setTransformVec(this.getPosition(), angle);
     }
 
     /**
      * Get the world position of the center of mass.
      */
-    public GetWorldCenter(): Readonly<Vec2> {
+    public getWorldCenter(): Readonly<Vec2> {
         return this.m_sweep.c;
     }
 
     /**
      * Get the local position of the center of mass.
      */
-    public GetLocalCenter(): Readonly<Vec2> {
+    public getLocalCenter(): Readonly<Vec2> {
         return this.m_sweep.localCenter;
     }
 
@@ -452,16 +452,16 @@ export class Body {
      *
      * @param v The new linear velocity of the center of mass.
      */
-    public SetLinearVelocity(v: XY): void {
+    public setLinearVelocity(v: XY): void {
         if (this.m_type === BodyType.Static) {
             return;
         }
 
-        if (Vec2.Dot(v, v) > 0) {
-            this.SetAwake(true);
+        if (Vec2.dot(v, v) > 0) {
+            this.setAwake(true);
         }
 
-        this.m_linearVelocity.Copy(v);
+        this.m_linearVelocity.copy(v);
     }
 
     /**
@@ -469,7 +469,7 @@ export class Body {
      *
      * @returns The linear velocity of the center of mass.
      */
-    public GetLinearVelocity(): Readonly<Vec2> {
+    public getLinearVelocity(): Readonly<Vec2> {
         return this.m_linearVelocity;
     }
 
@@ -478,13 +478,13 @@ export class Body {
      *
      * @param omega The new angular velocity in radians/second.
      */
-    public SetAngularVelocity(w: number): void {
+    public setAngularVelocity(w: number): void {
         if (this.m_type === BodyType.Static) {
             return;
         }
 
         if (w * w > 0) {
-            this.SetAwake(true);
+            this.setAwake(true);
         }
 
         this.m_angularVelocity = w;
@@ -495,7 +495,7 @@ export class Body {
      *
      * @returns The angular velocity in radians/second.
      */
-    public GetAngularVelocity(): number {
+    public getAngularVelocity(): number {
         return this.m_angularVelocity;
     }
 
@@ -508,13 +508,13 @@ export class Body {
      * @param point The world position of the point of application.
      * @param wake Also wake up the body
      */
-    public ApplyForce(force: XY, point: XY, wake = true): void {
+    public applyForce(force: XY, point: XY, wake = true): void {
         if (this.m_type !== BodyType.Dynamic) {
             return;
         }
 
         if (wake && !this.m_awakeFlag) {
-            this.SetAwake(true);
+            this.setAwake(true);
         }
 
         // Don't accumulate a force if the body is sleeping
@@ -531,13 +531,13 @@ export class Body {
      * @param force The world force vector, usually in Newtons (N).
      * @param wake Also wake up the body
      */
-    public ApplyForceToCenter(force: XY, wake = true): void {
+    public applyForceToCenter(force: XY, wake = true): void {
         if (this.m_type !== BodyType.Dynamic) {
             return;
         }
 
         if (wake && !this.m_awakeFlag) {
-            this.SetAwake(true);
+            this.setAwake(true);
         }
 
         // Don't accumulate a force if the body is sleeping
@@ -554,13 +554,13 @@ export class Body {
      * @param torque About the z-axis (out of the screen), usually in N-m.
      * @param wake Also wake up the body
      */
-    public ApplyTorque(torque: number, wake = true): void {
+    public applyTorque(torque: number, wake = true): void {
         if (this.m_type !== BodyType.Dynamic) {
             return;
         }
 
         if (wake && !this.m_awakeFlag) {
-            this.SetAwake(true);
+            this.setAwake(true);
         }
 
         // Don't accumulate a force if the body is sleeping
@@ -578,13 +578,13 @@ export class Body {
      * @param point The world position of the point of application.
      * @param wake Also wake up the body
      */
-    public ApplyLinearImpulse(impulse: XY, point: XY, wake = true): void {
+    public applyLinearImpulse(impulse: XY, point: XY, wake = true): void {
         if (this.m_type !== BodyType.Dynamic) {
             return;
         }
 
         if (wake && !this.m_awakeFlag) {
-            this.SetAwake(true);
+            this.setAwake(true);
         }
 
         // Don't accumulate velocity if the body is sleeping
@@ -602,13 +602,13 @@ export class Body {
      * @param impulse The world impulse vector, usually in N-seconds or kg-m/s.
      * @param wake Also wake up the body
      */
-    public ApplyLinearImpulseToCenter(impulse: XY, wake = true): void {
+    public applyLinearImpulseToCenter(impulse: XY, wake = true): void {
         if (this.m_type !== BodyType.Dynamic) {
             return;
         }
 
         if (wake && !this.m_awakeFlag) {
-            this.SetAwake(true);
+            this.setAwake(true);
         }
 
         // Don't accumulate velocity if the body is sleeping
@@ -624,13 +624,13 @@ export class Body {
      * @param impulse The angular impulse in units of kg*m*m/s
      * @param wake Also wake up the body
      */
-    public ApplyAngularImpulse(impulse: number, wake = true): void {
+    public applyAngularImpulse(impulse: number, wake = true): void {
         if (this.m_type !== BodyType.Dynamic) {
             return;
         }
 
         if (wake && !this.m_awakeFlag) {
-            this.SetAwake(true);
+            this.setAwake(true);
         }
 
         // Don't accumulate velocity if the body is sleeping
@@ -644,7 +644,7 @@ export class Body {
      *
      * @returns The mass, usually in kilograms (kg).
      */
-    public GetMass(): number {
+    public getMass(): number {
         return this.m_mass;
     }
 
@@ -653,8 +653,8 @@ export class Body {
      *
      * @returns The rotational inertia, usually in kg-m^2.
      */
-    public GetInertia(): number {
-        return this.m_I + this.m_mass * Vec2.Dot(this.m_sweep.localCenter, this.m_sweep.localCenter);
+    public getInertia(): number {
+        return this.m_I + this.m_mass * Vec2.dot(this.m_sweep.localCenter, this.m_sweep.localCenter);
     }
 
     /**
@@ -662,10 +662,10 @@ export class Body {
      *
      * @returns A struct containing the mass, inertia and center of the body.
      */
-    public GetMassData(data: MassData): MassData {
+    public getMassData(data: MassData): MassData {
         data.mass = this.m_mass;
-        data.I = this.m_I + this.m_mass * Vec2.Dot(this.m_sweep.localCenter, this.m_sweep.localCenter);
-        data.center.Copy(this.m_sweep.localCenter);
+        data.I = this.m_I + this.m_mass * Vec2.dot(this.m_sweep.localCenter, this.m_sweep.localCenter);
+        data.center.copy(this.m_sweep.localCenter);
         return data;
     }
 
@@ -679,8 +679,8 @@ export class Body {
      *
      * @param massData The mass properties.
      */
-    public SetMassData(massData: MassData): void {
-        Assert(!this.m_world.IsLocked());
+    public setMassData(massData: MassData): void {
+        assert(!this.m_world.isLocked());
 
         if (this.m_type !== BodyType.Dynamic) {
             return;
@@ -698,22 +698,22 @@ export class Body {
         this.m_invMass = 1 / this.m_mass;
 
         if (massData.I > 0 && !this.m_fixedRotationFlag) {
-            this.m_I = massData.I - this.m_mass * Vec2.Dot(massData.center, massData.center);
-            // DEBUG: Assert(this.m_I > 0);
+            this.m_I = massData.I - this.m_mass * Vec2.dot(massData.center, massData.center);
+            // DEBUG: assert(this.m_I > 0);
             this.m_invI = 1 / this.m_I;
         }
 
         // Move center of mass.
-        const oldCenter = Body.SetMassData_s_oldCenter.Copy(this.m_sweep.c);
-        this.m_sweep.localCenter.Copy(massData.center);
-        Transform.MultiplyVec2(this.m_xf, this.m_sweep.localCenter, this.m_sweep.c);
-        this.m_sweep.c0.Copy(this.m_sweep.c);
+        const oldCenter = Body.SetMassData_s_oldCenter.copy(this.m_sweep.c);
+        this.m_sweep.localCenter.copy(massData.center);
+        Transform.multiplyVec2(this.m_xf, this.m_sweep.localCenter, this.m_sweep.c);
+        this.m_sweep.c0.copy(this.m_sweep.c);
 
         // Update center of mass velocity.
-        Vec2.AddCrossScalarVec2(
+        Vec2.addCrossScalarVec2(
             this.m_linearVelocity,
             this.m_angularVelocity,
-            Vec2.Subtract(this.m_sweep.c, oldCenter, Vec2.s_t0),
+            Vec2.subtract(this.m_sweep.c, oldCenter, Vec2.s_t0),
             this.m_linearVelocity,
         );
     }
@@ -729,47 +729,47 @@ export class Body {
      * This normally does not need to be called unless you called SetMassData to override
      * the mass and you later want to reset the mass.
      */
-    public ResetMassData(): void {
+    public resetMassData(): void {
         // Compute mass data from shapes. Each shape has its own density.
         this.m_mass = 0;
         this.m_invMass = 0;
         this.m_I = 0;
         this.m_invI = 0;
-        this.m_sweep.localCenter.SetZero();
+        this.m_sweep.localCenter.setZero();
 
         // Static and kinematic bodies have zero mass.
         if (this.m_type === BodyType.Static || this.m_type === BodyType.Kinematic) {
-            this.m_sweep.c0.Copy(this.m_xf.p);
-            this.m_sweep.c.Copy(this.m_xf.p);
+            this.m_sweep.c0.copy(this.m_xf.p);
+            this.m_sweep.c.copy(this.m_xf.p);
             this.m_sweep.a0 = this.m_sweep.a;
             return;
         }
 
-        // DEBUG: Assert(this.m_type === BodyType.Dynamic);
+        // DEBUG: assert(this.m_type === BodyType.Dynamic);
 
         // Accumulate mass over all fixtures.
-        const localCenter = Body.ResetMassData_s_localCenter.SetZero();
+        const localCenter = Body.ResetMassData_s_localCenter.setZero();
         for (let f: Fixture | null = this.m_fixtureList; f; f = f.m_next) {
             if (f.m_density === 0) {
                 continue;
             }
 
-            const massData = f.GetMassData(Body.ResetMassData_s_massData);
+            const massData = f.getMassData(Body.ResetMassData_s_massData);
             this.m_mass += massData.mass;
-            localCenter.AddScaled(massData.mass, massData.center);
+            localCenter.addScaled(massData.mass, massData.center);
             this.m_I += massData.I;
         }
 
         // Compute center of mass.
         if (this.m_mass > 0) {
             this.m_invMass = 1 / this.m_mass;
-            localCenter.Scale(this.m_invMass);
+            localCenter.scale(this.m_invMass);
         }
 
         if (this.m_I > 0 && !this.m_fixedRotationFlag) {
             // Center the inertia about the center of mass.
-            this.m_I -= this.m_mass * Vec2.Dot(localCenter, localCenter);
-            // DEBUG: Assert(this.m_I > 0);
+            this.m_I -= this.m_mass * Vec2.dot(localCenter, localCenter);
+            // DEBUG: assert(this.m_I > 0);
             this.m_invI = 1 / this.m_I;
         } else {
             this.m_I = 0;
@@ -777,16 +777,16 @@ export class Body {
         }
 
         // Move center of mass.
-        const oldCenter = Body.ResetMassData_s_oldCenter.Copy(this.m_sweep.c);
-        this.m_sweep.localCenter.Copy(localCenter);
-        Transform.MultiplyVec2(this.m_xf, this.m_sweep.localCenter, this.m_sweep.c);
-        this.m_sweep.c0.Copy(this.m_sweep.c);
+        const oldCenter = Body.ResetMassData_s_oldCenter.copy(this.m_sweep.c);
+        this.m_sweep.localCenter.copy(localCenter);
+        Transform.multiplyVec2(this.m_xf, this.m_sweep.localCenter, this.m_sweep.c);
+        this.m_sweep.c0.copy(this.m_sweep.c);
 
         // Update center of mass velocity.
-        Vec2.AddCrossScalarVec2(
+        Vec2.addCrossScalarVec2(
             this.m_linearVelocity,
             this.m_angularVelocity,
-            Vec2.Subtract(this.m_sweep.c, oldCenter, Vec2.s_t0),
+            Vec2.subtract(this.m_sweep.c, oldCenter, Vec2.s_t0),
             this.m_linearVelocity,
         );
     }
@@ -797,8 +797,8 @@ export class Body {
      * @param localPoint A point on the body measured relative the the body's origin.
      * @returns The same point expressed in world coordinates.
      */
-    public GetWorldPoint<T extends XY>(localPoint: Readonly<XY>, out: T): T {
-        return Transform.MultiplyVec2(this.m_xf, localPoint, out);
+    public getWorldPoint<T extends XY>(localPoint: Readonly<XY>, out: T): T {
+        return Transform.multiplyVec2(this.m_xf, localPoint, out);
     }
 
     /**
@@ -807,8 +807,8 @@ export class Body {
      * @param localVector A vector fixed in the body.
      * @returns The same vector expressed in world coordinates.
      */
-    public GetWorldVector<T extends XY>(localVector: Readonly<XY>, out: T): T {
-        return Rot.MultiplyVec2(this.m_xf.q, localVector, out);
+    public getWorldVector<T extends XY>(localVector: Readonly<XY>, out: T): T {
+        return Rot.multiplyVec2(this.m_xf.q, localVector, out);
     }
 
     /**
@@ -817,8 +817,8 @@ export class Body {
      * @param a Point in world coordinates.
      * @returns The corresponding local point relative to the body's origin.
      */
-    public GetLocalPoint<T extends XY>(worldPoint: Readonly<XY>, out: T): T {
-        return Transform.TransposeMultiplyVec2(this.m_xf, worldPoint, out);
+    public getLocalPoint<T extends XY>(worldPoint: Readonly<XY>, out: T): T {
+        return Transform.transposeMultiplyVec2(this.m_xf, worldPoint, out);
     }
 
     /**
@@ -827,8 +827,8 @@ export class Body {
      * @param a Vector in world coordinates.
      * @returns The corresponding local vector.
      */
-    public GetLocalVector<T extends XY>(worldVector: Readonly<XY>, out: T): T {
-        return Rot.TransposeMultiplyVec2(this.m_xf.q, worldVector, out);
+    public getLocalVector<T extends XY>(worldVector: Readonly<XY>, out: T): T {
+        return Rot.transposeMultiplyVec2(this.m_xf.q, worldVector, out);
     }
 
     /**
@@ -837,11 +837,11 @@ export class Body {
      * @param a Point in world coordinates.
      * @returns The world velocity of a point.
      */
-    public GetLinearVelocityFromWorldPoint<T extends XY>(worldPoint: Readonly<XY>, out: T): T {
-        return Vec2.AddCrossScalarVec2(
+    public getLinearVelocityFromWorldPoint<T extends XY>(worldPoint: Readonly<XY>, out: T): T {
+        return Vec2.addCrossScalarVec2(
             this.m_linearVelocity,
             this.m_angularVelocity,
-            Vec2.Subtract(worldPoint, this.m_sweep.c, Vec2.s_t0),
+            Vec2.subtract(worldPoint, this.m_sweep.c, Vec2.s_t0),
             out,
         );
     }
@@ -852,57 +852,57 @@ export class Body {
      * @param a Point in local coordinates.
      * @returns The world velocity of a point.
      */
-    public GetLinearVelocityFromLocalPoint<T extends XY>(localPoint: Readonly<XY>, out: T): T {
-        return this.GetLinearVelocityFromWorldPoint(this.GetWorldPoint(localPoint, out), out);
+    public getLinearVelocityFromLocalPoint<T extends XY>(localPoint: Readonly<XY>, out: T): T {
+        return this.getLinearVelocityFromWorldPoint(this.getWorldPoint(localPoint, out), out);
     }
 
     /**
      * Get the linear damping of the body.
      */
-    public GetLinearDamping(): number {
+    public getLinearDamping(): number {
         return this.m_linearDamping;
     }
 
     /**
      * Set the linear damping of the body.
      */
-    public SetLinearDamping(linearDamping: number): void {
+    public setLinearDamping(linearDamping: number): void {
         this.m_linearDamping = linearDamping;
     }
 
     /**
      * Get the angular damping of the body.
      */
-    public GetAngularDamping(): number {
+    public getAngularDamping(): number {
         return this.m_angularDamping;
     }
 
     /**
      * Set the angular damping of the body.
      */
-    public SetAngularDamping(angularDamping: number): void {
+    public setAngularDamping(angularDamping: number): void {
         this.m_angularDamping = angularDamping;
     }
 
     /**
      * Get the gravity scale of the body.
      */
-    public GetGravityScale(): number {
+    public getGravityScale(): number {
         return this.m_gravityScale;
     }
 
     /**
      * Set the gravity scale of the body.
      */
-    public SetGravityScale(scale: number): void {
+    public setGravityScale(scale: number): void {
         this.m_gravityScale = scale;
     }
 
     /**
      * Set the type of this body. This may alter the mass and velocity.
      */
-    public SetType(type: BodyType): void {
-        Assert(!this.m_world.IsLocked());
+    public setType(type: BodyType): void {
+        assert(!this.m_world.isLocked());
 
         if (this.m_type === type) {
             return;
@@ -910,20 +910,20 @@ export class Body {
 
         this.m_type = type;
 
-        this.ResetMassData();
+        this.resetMassData();
 
         if (this.m_type === BodyType.Static) {
-            this.m_linearVelocity.SetZero();
+            this.m_linearVelocity.setZero();
             this.m_angularVelocity = 0;
             this.m_sweep.a0 = this.m_sweep.a;
-            this.m_sweep.c0.Copy(this.m_sweep.c);
+            this.m_sweep.c0.copy(this.m_sweep.c);
             this.m_awakeFlag = false;
-            this.SynchronizeFixtures();
+            this.synchronizeFixtures();
         }
 
-        this.SetAwake(true);
+        this.setAwake(true);
 
-        this.m_force.SetZero();
+        this.m_force.setZero();
         this.m_torque = 0;
 
         // Delete the attached contacts.
@@ -931,7 +931,7 @@ export class Body {
         while (ce) {
             const ce0 = ce;
             ce = ce.next;
-            this.m_world.m_contactManager.Destroy(ce0.contact);
+            this.m_world.m_contactManager.destroy(ce0.contact);
         }
         this.m_contactList = null;
 
@@ -939,7 +939,7 @@ export class Body {
         const broadPhase = this.m_world.m_contactManager.m_broadPhase;
         for (let f: Fixture | null = this.m_fixtureList; f; f = f.m_next) {
             for (const proxy of f.m_proxies) {
-                broadPhase.TouchProxy(proxy.treeNode);
+                broadPhase.touchProxy(proxy.treeNode);
             }
         }
     }
@@ -947,21 +947,21 @@ export class Body {
     /**
      * Get the type of this body.
      */
-    public GetType(): BodyType {
+    public getType(): BodyType {
         return this.m_type;
     }
 
     /**
      * Should this body be treated like a bullet for continuous collision detection?
      */
-    public SetBullet(flag: boolean): void {
+    public setBullet(flag: boolean): void {
         this.m_bulletFlag = flag;
     }
 
     /**
      * Is this body treated like a bullet for continuous collision detection?
      */
-    public IsBullet(): boolean {
+    public isBullet(): boolean {
         return this.m_bulletFlag;
     }
 
@@ -969,17 +969,17 @@ export class Body {
      * You can disable sleeping on this body. If you disable sleeping, the
      * body will be woken.
      */
-    public SetSleepingAllowed(flag: boolean): void {
+    public setSleepingAllowed(flag: boolean): void {
         this.m_autoSleepFlag = flag;
         if (!flag) {
-            this.SetAwake(true);
+            this.setAwake(true);
         }
     }
 
     /**
      * Is this body allowed to sleep
      */
-    public IsSleepingAllowed(): boolean {
+    public isSleepingAllowed(): boolean {
         return this.m_autoSleepFlag;
     }
 
@@ -989,7 +989,7 @@ export class Body {
      *
      * @param flag Set to true to wake the body, false to put it to sleep.
      */
-    public SetAwake(flag: boolean): void {
+    public setAwake(flag: boolean): void {
         if (this.m_type === BodyType.Static) {
             return;
         }
@@ -999,9 +999,9 @@ export class Body {
         } else {
             this.m_awakeFlag = false;
             this.m_sleepTime = 0;
-            this.m_linearVelocity.SetZero();
+            this.m_linearVelocity.setZero();
             this.m_angularVelocity = 0;
-            this.m_force.SetZero();
+            this.m_force.setZero();
             this.m_torque = 0;
         }
     }
@@ -1011,7 +1011,7 @@ export class Body {
      *
      * @returns true if the body is sleeping.
      */
-    public IsAwake(): boolean {
+    public isAwake(): boolean {
         return this.m_awakeFlag;
     }
 
@@ -1029,10 +1029,10 @@ export class Body {
      * An disabled body is still owned by a World object and remains
      * in the body list.
      */
-    public SetEnabled(flag: boolean): void {
-        Assert(!this.m_world.IsLocked());
+    public setEnabled(flag: boolean): void {
+        assert(!this.m_world.isLocked());
 
-        if (flag === this.IsEnabled()) {
+        if (flag === this.isEnabled()) {
             return;
         }
 
@@ -1042,21 +1042,21 @@ export class Body {
         if (flag) {
             // Create all proxies.
             for (let f: Fixture | null = this.m_fixtureList; f; f = f.m_next) {
-                f.CreateProxies(broadPhase, this.m_xf);
+                f.createProxies(broadPhase, this.m_xf);
             }
             // Contacts are created at the beginning of the next
             this.m_world.m_newContacts = true;
         } else {
             // Destroy all proxies.
             for (let f: Fixture | null = this.m_fixtureList; f; f = f.m_next) {
-                f.DestroyProxies(broadPhase);
+                f.destroyProxies(broadPhase);
             }
             // Destroy the attached contacts.
             let ce: ContactEdge | null = this.m_contactList;
             while (ce) {
                 const ce0 = ce;
                 ce = ce.next;
-                this.m_world.m_contactManager.Destroy(ce0.contact);
+                this.m_world.m_contactManager.destroy(ce0.contact);
             }
             this.m_contactList = null;
         }
@@ -1065,7 +1065,7 @@ export class Body {
     /**
      * Get the active state of the body.
      */
-    public IsEnabled(): boolean {
+    public isEnabled(): boolean {
         return this.m_enabledFlag;
     }
 
@@ -1073,7 +1073,7 @@ export class Body {
      * Set this body to have fixed rotation. This causes the mass
      * to be reset.
      */
-    public SetFixedRotation(flag: boolean): void {
+    public setFixedRotation(flag: boolean): void {
         if (this.m_fixedRotationFlag === flag) {
             return;
         }
@@ -1082,27 +1082,27 @@ export class Body {
 
         this.m_angularVelocity = 0;
 
-        this.ResetMassData();
+        this.resetMassData();
     }
 
     /**
      * Does this body have fixed rotation?
      */
-    public IsFixedRotation(): boolean {
+    public isFixedRotation(): boolean {
         return this.m_fixedRotationFlag;
     }
 
     /**
      * Get the list of all fixtures attached to this body.
      */
-    public GetFixtureList(): Fixture | null {
+    public getFixtureList(): Fixture | null {
         return this.m_fixtureList;
     }
 
     /**
      * Get the list of all joints attached to this body.
      */
-    public GetJointList(): JointEdge | null {
+    public getJointList(): JointEdge | null {
         return this.m_jointList;
     }
 
@@ -1112,64 +1112,64 @@ export class Body {
      * @warning this list changes during the time step and you may
      * miss some collisions if you don't use ContactListener.
      */
-    public GetContactList(): ContactEdge | null {
+    public getContactList(): ContactEdge | null {
         return this.m_contactList;
     }
 
     /**
      * Get the next body in the world's body list.
      */
-    public GetNext(): Body | null {
+    public getNext(): Body | null {
         return this.m_next;
     }
 
     /**
      * Get the user data pointer that was provided in the body definition.
      */
-    public GetUserData(): any {
+    public getUserData(): any {
         return this.m_userData;
     }
 
     /**
      * Set the user data. Use this to store your application specific data.
      */
-    public SetUserData(data: any): void {
+    public setUserData(data: any): void {
         this.m_userData = data;
     }
 
     /**
      * Get the parent world of this body.
      */
-    public GetWorld(): World {
+    public getWorld(): World {
         return this.m_world;
     }
 
     private static SynchronizeFixtures_s_xf1 = new Transform();
 
     /** @internal */
-    public SynchronizeFixtures(): void {
+    public synchronizeFixtures(): void {
         const broadPhase = this.m_world.m_contactManager.m_broadPhase;
         if (this.m_awakeFlag) {
             const xf1 = Body.SynchronizeFixtures_s_xf1;
-            xf1.q.Set(this.m_sweep.a0);
-            Rot.MultiplyVec2(xf1.q, this.m_sweep.localCenter, xf1.p);
-            Vec2.Subtract(this.m_sweep.c0, xf1.p, xf1.p);
+            xf1.q.set(this.m_sweep.a0);
+            Rot.multiplyVec2(xf1.q, this.m_sweep.localCenter, xf1.p);
+            Vec2.subtract(this.m_sweep.c0, xf1.p, xf1.p);
 
             for (let f: Fixture | null = this.m_fixtureList; f; f = f.m_next) {
-                f.Synchronize(broadPhase, xf1, this.m_xf);
+                f.synchronize(broadPhase, xf1, this.m_xf);
             }
         } else {
             for (let f: Fixture | null = this.m_fixtureList; f; f = f.m_next) {
-                f.Synchronize(broadPhase, this.m_xf, this.m_xf);
+                f.synchronize(broadPhase, this.m_xf, this.m_xf);
             }
         }
     }
 
     /** @internal */
-    public SynchronizeTransform(): void {
-        this.m_xf.q.Set(this.m_sweep.a);
-        Rot.MultiplyVec2(this.m_xf.q, this.m_sweep.localCenter, this.m_xf.p);
-        Vec2.Subtract(this.m_sweep.c, this.m_xf.p, this.m_xf.p);
+    public synchronizeTransform(): void {
+        this.m_xf.q.set(this.m_sweep.a);
+        Rot.multiplyVec2(this.m_xf.q, this.m_sweep.localCenter, this.m_xf.p);
+        Vec2.subtract(this.m_sweep.c, this.m_xf.p, this.m_xf.p);
     }
 
     /**
@@ -1178,15 +1178,15 @@ export class Body {
      *
      * @internal
      */
-    public ShouldCollide(other: Body): boolean {
+    public shouldCollide(other: Body): boolean {
         // At least one body should be dynamic.
         if (this.m_type !== BodyType.Dynamic && other.m_type !== BodyType.Dynamic) {
             return false;
         }
-        return this.ShouldCollideConnected(other);
+        return this.shouldCollideConnected(other);
     }
 
-    private ShouldCollideConnected(other: Body): boolean {
+    private shouldCollideConnected(other: Body): boolean {
         // Does a joint prevent collision?
         for (let jn: JointEdge | null = this.m_jointList; jn; jn = jn.next) {
             if (jn.other === other) {
@@ -1200,13 +1200,13 @@ export class Body {
     }
 
     /** @internal */
-    public Advance(alpha: number): void {
+    public advance(alpha: number): void {
         // Advance to the new safe time. This doesn't sync the broad-phase.
-        this.m_sweep.Advance(alpha);
-        this.m_sweep.c.Copy(this.m_sweep.c0);
+        this.m_sweep.advance(alpha);
+        this.m_sweep.c.copy(this.m_sweep.c0);
         this.m_sweep.a = this.m_sweep.a0;
-        this.m_xf.q.Set(this.m_sweep.a);
-        Rot.MultiplyVec2(this.m_xf.q, this.m_sweep.localCenter, this.m_xf.p);
-        Vec2.Subtract(this.m_sweep.c, this.m_xf.p, this.m_xf.p);
+        this.m_xf.q.set(this.m_sweep.a);
+        Rot.multiplyVec2(this.m_xf.q, this.m_sweep.localCenter, this.m_xf.p);
+        Vec2.subtract(this.m_sweep.c, this.m_xf.p, this.m_xf.p);
     }
 }

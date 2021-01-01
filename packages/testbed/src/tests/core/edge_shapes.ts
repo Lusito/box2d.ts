@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { Fixture, Vec2, Body, PolygonShape, CircleShape, EdgeShape, RandomFloat, BodyType, Color } from "@box2d/core";
+import { Fixture, Vec2, Body, PolygonShape, CircleShape, EdgeShape, randomFloat, BodyType, Color } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -47,7 +47,7 @@ class EdgeShapesTest extends Test {
 
         // Ground body
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             let x1 = -20;
             let y1 = 2 * Math.cos((x1 / 10) * Math.PI);
@@ -56,8 +56,8 @@ class EdgeShapesTest extends Test {
                 const y2 = 2 * Math.cos((x2 / 10) * Math.PI);
 
                 const shape = new EdgeShape();
-                shape.SetTwoSided(new Vec2(x1, y1), new Vec2(x2, y2));
-                ground.CreateFixture({ shape });
+                shape.setTwoSided(new Vec2(x1, y1), new Vec2(x2, y2));
+                ground.createFixture({ shape });
 
                 x1 = x2;
                 y1 = y2;
@@ -69,7 +69,7 @@ class EdgeShapesTest extends Test {
             vertices[0] = new Vec2(-0.5, 0);
             vertices[1] = new Vec2(0.5, 0);
             vertices[2] = new Vec2(0, 1.5);
-            this.m_polygons[0].Set(vertices, 3);
+            this.m_polygons[0].set(vertices, 3);
         }
 
         {
@@ -77,7 +77,7 @@ class EdgeShapesTest extends Test {
             vertices[0] = new Vec2(-0.1, 0);
             vertices[1] = new Vec2(0.1, 0);
             vertices[2] = new Vec2(0, 1.5);
-            this.m_polygons[1].Set(vertices, 3);
+            this.m_polygons[1].set(vertices, 3);
         }
 
         {
@@ -95,10 +95,10 @@ class EdgeShapesTest extends Test {
             vertices[6] = new Vec2(-0.5 * w, b);
             vertices[7] = new Vec2(-0.5 * s, 0);
 
-            this.m_polygons[2].Set(vertices, 8);
+            this.m_polygons[2].set(vertices, 8);
         }
 
-        this.m_polygons[3].SetAsBox(0.5, 0.5);
+        this.m_polygons[3].setAsBox(0.5, 0.5);
         this.m_circle.m_radius = 0.5;
 
         for (let i = 0; i < EdgeShapesTest.e_maxBodies; ++i) {
@@ -106,28 +106,28 @@ class EdgeShapesTest extends Test {
         }
     }
 
-    public CreateBody(index: number) {
+    public createBody(index: number) {
         const old_body = this.m_bodies[this.m_bodyIndex];
         if (old_body !== null) {
-            this.m_world.DestroyBody(old_body);
+            this.m_world.destroyBody(old_body);
             this.m_bodies[this.m_bodyIndex] = null;
         }
 
-        const new_body = (this.m_bodies[this.m_bodyIndex] = this.m_world.CreateBody({
-            position: { x: RandomFloat(-10, 10), y: RandomFloat(10, 20) },
-            angle: RandomFloat(-Math.PI, Math.PI),
+        const new_body = (this.m_bodies[this.m_bodyIndex] = this.m_world.createBody({
+            position: { x: randomFloat(-10, 10), y: randomFloat(10, 20) },
+            angle: randomFloat(-Math.PI, Math.PI),
             type: BodyType.Dynamic,
             angularDamping: index === 4 ? 0.02 : 0,
         }));
 
         if (index < 4) {
-            new_body.CreateFixture({
+            new_body.createFixture({
                 shape: this.m_polygons[index],
                 friction: 0.3,
                 density: 20,
             });
         } else {
-            new_body.CreateFixture({
+            new_body.createFixture({
                 shape: this.m_circle,
                 friction: 0.3,
                 density: 20,
@@ -137,11 +137,11 @@ class EdgeShapesTest extends Test {
         this.m_bodyIndex = (this.m_bodyIndex + 1) % EdgeShapesTest.e_maxBodies;
     }
 
-    public DestroyBody() {
+    public destroyBody() {
         for (let i = 0; i < EdgeShapesTest.e_maxBodies; ++i) {
             const body = this.m_bodies[i];
             if (body !== null) {
-                this.m_world.DestroyBody(body);
+                this.m_world.destroyBody(body);
                 this.m_bodies[i] = null;
                 return;
             }
@@ -150,41 +150,41 @@ class EdgeShapesTest extends Test {
 
     public getHotkeys(): HotKey[] {
         return [
-            hotKeyPress("1", "Create Triangle", () => this.CreateBody(0)),
-            hotKeyPress("2", "Create Flat Triangle", () => this.CreateBody(1)),
-            hotKeyPress("3", "Create Octagon", () => this.CreateBody(2)),
-            hotKeyPress("4", "Create Box", () => this.CreateBody(3)),
-            hotKeyPress("5", "Create Circle", () => this.CreateBody(4)),
-            hotKeyPress("d", "Destroy Body", () => this.DestroyBody()),
+            hotKeyPress("1", "Create Triangle", () => this.createBody(0)),
+            hotKeyPress("2", "Create Flat Triangle", () => this.createBody(1)),
+            hotKeyPress("3", "Create Octagon", () => this.createBody(2)),
+            hotKeyPress("4", "Create Box", () => this.createBody(3)),
+            hotKeyPress("5", "Create Circle", () => this.createBody(4)),
+            hotKeyPress("d", "Destroy Body", () => this.destroyBody()),
         ];
     }
 
-    public Step(settings: Settings, timeStep: number): void {
+    public step(settings: Settings, timeStep: number): void {
         const advanceRay = !settings.m_pause || settings.m_singleStep;
-        super.Step(settings, timeStep);
+        super.step(settings, timeStep);
 
         const L = 25;
         const point1 = new Vec2(0, 10);
         const d = new Vec2(L * Math.cos(this.m_angle), -L * Math.abs(Math.sin(this.m_angle)));
-        const point2 = Vec2.Add(point1, d, new Vec2());
+        const point2 = Vec2.add(point1, d, new Vec2());
 
         let resultFixture: Fixture | null = null;
         const resultPoint = new Vec2();
         const resultNormal = new Vec2();
-        this.m_world.RayCast(point1, point2, (fixture, point, normal, fraction) => {
+        this.m_world.rayCast(point1, point2, (fixture, point, normal, fraction) => {
             resultFixture = fixture;
-            resultPoint.Copy(point);
-            resultNormal.Copy(normal);
+            resultPoint.copy(point);
+            resultNormal.copy(normal);
             return fraction;
         });
 
         if (resultFixture) {
-            g_debugDraw.DrawPoint(resultPoint, 5, new Color(0.4, 0.9, 0.4));
-            g_debugDraw.DrawSegment(point1, resultPoint, new Color(0.8, 0.8, 0.8));
-            const head = Vec2.Add(resultPoint, Vec2.Scale(0.5, resultNormal, Vec2.s_t0), new Vec2());
-            g_debugDraw.DrawSegment(resultPoint, head, new Color(0.9, 0.9, 0.4));
+            g_debugDraw.drawPoint(resultPoint, 5, new Color(0.4, 0.9, 0.4));
+            g_debugDraw.drawSegment(point1, resultPoint, new Color(0.8, 0.8, 0.8));
+            const head = Vec2.add(resultPoint, Vec2.scale(0.5, resultNormal, Vec2.s_t0), new Vec2());
+            g_debugDraw.drawSegment(resultPoint, head, new Color(0.9, 0.9, 0.4));
         } else {
-            g_debugDraw.DrawSegment(point1, point2, new Color(0.8, 0.8, 0.8));
+            g_debugDraw.drawSegment(point1, point2, new Color(0.8, 0.8, 0.8));
         }
 
         if (advanceRay) {

@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { PolygonShape, Sweep, TOIInput, TOIOutput, TimeOfImpact, Transform, Vec2, Color, Toi, XY } from "@box2d/core";
+import { PolygonShape, Sweep, TOIInput, TOIOutput, timeOfImpact, Transform, Vec2, Color, Toi, XY } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -30,40 +30,40 @@ class TimeOfImpactTest extends Test {
     public constructor() {
         super();
 
-        this.m_shapeA.SetAsBox(25, 5);
-        this.m_shapeB.SetAsBox(2.5, 2.5);
+        this.m_shapeA.setAsBox(25, 5);
+        this.m_shapeB.setAsBox(2.5, 2.5);
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
 
         const sweepA = new Sweep();
-        sweepA.c0.Set(0, 20 + 8 * Math.cos(Date.now() / 1000)); // (24, -60);
+        sweepA.c0.set(0, 20 + 8 * Math.cos(Date.now() / 1000)); // (24, -60);
         sweepA.a0 = 2.95;
-        sweepA.c.Copy(sweepA.c0);
+        sweepA.c.copy(sweepA.c0);
         sweepA.a = sweepA.a0;
-        sweepA.localCenter.SetZero();
+        sweepA.localCenter.setZero();
 
         const sweepB = new Sweep();
-        sweepB.c0.Set(20, 40); // (53.474274, -50.252514);
+        sweepB.c0.set(20, 40); // (53.474274, -50.252514);
         sweepB.a0 = 0.1; // 513.36676; // - 162 * Math.PI;
-        sweepB.c.Set(-20, 0); // (54.595478, -51.083473);
+        sweepB.c.set(-20, 0); // (54.595478, -51.083473);
         sweepB.a = 3.1; // 513.62781; //  - 162 * Math.PI;
-        sweepB.localCenter.SetZero();
+        sweepB.localCenter.setZero();
 
         // sweepB.a0 -= 300 * Math.PI;
         // sweepB.a -= 300 * Math.PI;
 
         const input = new TOIInput();
-        input.proxyA.SetShape(this.m_shapeA, 0);
-        input.proxyB.SetShape(this.m_shapeB, 0);
-        input.sweepA.Copy(sweepA);
-        input.sweepB.Copy(sweepB);
+        input.proxyA.setShape(this.m_shapeA, 0);
+        input.proxyB.setShape(this.m_shapeB, 0);
+        input.sweepA.copy(sweepA);
+        input.sweepB.copy(sweepB);
         input.tMax = 1;
 
         const output = new TOIOutput();
 
-        TimeOfImpact(output, input);
+        timeOfImpact(output, input);
 
         this.addDebug("Toi", output.t.toFixed(3));
 
@@ -73,50 +73,50 @@ class TimeOfImpactTest extends Test {
         const vertices = [];
 
         const transformA = new Transform();
-        sweepA.GetTransform(transformA, 0);
+        sweepA.getTransform(transformA, 0);
         for (let i = 0; i < this.m_shapeA.m_count; ++i) {
-            vertices[i] = Transform.MultiplyVec2(transformA, this.m_shapeA.m_vertices[i], new Vec2());
+            vertices[i] = Transform.multiplyVec2(transformA, this.m_shapeA.m_vertices[i], new Vec2());
         }
-        g_debugDraw.DrawPolygon(vertices, this.m_shapeA.m_count, new Color(0.9, 0.9, 0.9));
+        g_debugDraw.drawPolygon(vertices, this.m_shapeA.m_count, new Color(0.9, 0.9, 0.9));
 
         const transformB = new Transform();
-        sweepB.GetTransform(transformB, 0);
+        sweepB.getTransform(transformB, 0);
 
         // Vec2 localPoint(2, -0.1 );
 
         for (let i = 0; i < this.m_shapeB.m_count; ++i) {
-            vertices[i] = Transform.MultiplyVec2(transformB, this.m_shapeB.m_vertices[i], new Vec2());
+            vertices[i] = Transform.multiplyVec2(transformB, this.m_shapeB.m_vertices[i], new Vec2());
         }
-        g_debugDraw.DrawPolygon(vertices, this.m_shapeB.m_count, new Color(0.5, 0.9, 0.5));
-        g_debugDraw.DrawStringWorld(transformB.p.x, transformB.p.y, `${(0).toFixed(1)}`);
+        g_debugDraw.drawPolygon(vertices, this.m_shapeB.m_count, new Color(0.5, 0.9, 0.5));
+        g_debugDraw.drawStringWorld(transformB.p.x, transformB.p.y, `${(0).toFixed(1)}`);
 
-        sweepB.GetTransform(transformB, output.t);
+        sweepB.getTransform(transformB, output.t);
         for (let i = 0; i < this.m_shapeB.m_count; ++i) {
-            vertices[i] = Transform.MultiplyVec2(transformB, this.m_shapeB.m_vertices[i], new Vec2());
+            vertices[i] = Transform.multiplyVec2(transformB, this.m_shapeB.m_vertices[i], new Vec2());
         }
-        g_debugDraw.DrawPolygon(vertices, this.m_shapeB.m_count, new Color(0.5, 0.7, 0.9));
-        g_debugDraw.DrawStringWorld(transformB.p.x, transformB.p.y, `${output.t.toFixed(3)}`);
+        g_debugDraw.drawPolygon(vertices, this.m_shapeB.m_count, new Color(0.5, 0.7, 0.9));
+        g_debugDraw.drawStringWorld(transformB.p.x, transformB.p.y, `${output.t.toFixed(3)}`);
 
-        sweepB.GetTransform(transformB, 1);
+        sweepB.getTransform(transformB, 1);
         for (let i = 0; i < this.m_shapeB.m_count; ++i) {
-            vertices[i] = Transform.MultiplyVec2(transformB, this.m_shapeB.m_vertices[i], new Vec2());
+            vertices[i] = Transform.multiplyVec2(transformB, this.m_shapeB.m_vertices[i], new Vec2());
         }
-        g_debugDraw.DrawPolygon(vertices, this.m_shapeB.m_count, new Color(0.9, 0.5, 0.5));
-        g_debugDraw.DrawStringWorld(transformB.p.x, transformB.p.y, `${(1).toFixed(1)}`);
+        g_debugDraw.drawPolygon(vertices, this.m_shapeB.m_count, new Color(0.9, 0.5, 0.5));
+        g_debugDraw.drawStringWorld(transformB.p.x, transformB.p.y, `${(1).toFixed(1)}`);
 
         // #if 0
         for (let t = 0; t < 1; t += 0.1) {
-            sweepB.GetTransform(transformB, t);
+            sweepB.getTransform(transformB, t);
             for (let i = 0; i < this.m_shapeB.m_count; ++i) {
-                vertices[i] = Transform.MultiplyVec2(transformB, this.m_shapeB.m_vertices[i], new Vec2());
+                vertices[i] = Transform.multiplyVec2(transformB, this.m_shapeB.m_vertices[i], new Vec2());
             }
-            g_debugDraw.DrawPolygon(vertices, this.m_shapeB.m_count, new Color(0.5, 0.5, 0.5));
-            g_debugDraw.DrawStringWorld(transformB.p.x, transformB.p.y, `${t.toFixed(1)}`);
+            g_debugDraw.drawPolygon(vertices, this.m_shapeB.m_count, new Color(0.5, 0.5, 0.5));
+            g_debugDraw.drawStringWorld(transformB.p.x, transformB.p.y, `${t.toFixed(1)}`);
         }
         // #endif
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 20;
     }
 

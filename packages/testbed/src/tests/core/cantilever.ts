@@ -23,7 +23,7 @@ import {
     FixtureDef,
     WeldJointDef,
     BodyType,
-    AngularStiffness,
+    angularStiffness,
     CircleShape,
 } from "@box2d/core";
 
@@ -42,16 +42,16 @@ class CantileverTest extends Test {
         let ground = null;
 
         {
-            ground = this.m_world.CreateBody();
+            ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape });
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.5, 0.125);
+            shape.setAsBox(0.5, 0.125);
 
             const fd: FixtureDef = {
                 shape,
@@ -62,15 +62,15 @@ class CantileverTest extends Test {
 
             let prevBody = ground;
             for (let i = 0; i < CantileverTest.e_count; ++i) {
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: -14.5 + 1 * i, y: 5 },
                 });
-                body.CreateFixture(fd);
+                body.createFixture(fd);
 
                 const anchor = new Vec2(-15 + 1 * i, 5);
-                jd.Initialize(prevBody, body, anchor);
-                this.m_world.CreateJoint(jd);
+                jd.initialize(prevBody, body, anchor);
+                this.m_world.createJoint(jd);
 
                 prevBody = body;
             }
@@ -78,7 +78,7 @@ class CantileverTest extends Test {
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(1, 0.125);
+            shape.setAsBox(1, 0.125);
 
             const fd: FixtureDef = {
                 shape,
@@ -91,16 +91,16 @@ class CantileverTest extends Test {
 
             let prevBody = ground;
             for (let i = 0; i < 3; ++i) {
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: -14 + 2 * i, y: 15 },
                 });
-                body.CreateFixture(fd);
+                body.createFixture(fd);
 
                 const anchor = new Vec2(-15 + 2 * i, 15);
-                jd.Initialize(prevBody, body, anchor);
-                AngularStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-                this.m_world.CreateJoint(jd);
+                jd.initialize(prevBody, body, anchor);
+                angularStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+                this.m_world.createJoint(jd);
 
                 prevBody = body;
             }
@@ -108,7 +108,7 @@ class CantileverTest extends Test {
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.5, 0.125);
+            shape.setAsBox(0.5, 0.125);
 
             const fd: FixtureDef = {
                 shape,
@@ -119,16 +119,16 @@ class CantileverTest extends Test {
 
             let prevBody = ground;
             for (let i = 0; i < CantileverTest.e_count; ++i) {
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: -4.5 + 1 * i, y: 5 },
                 });
-                body.CreateFixture(fd);
+                body.createFixture(fd);
 
                 if (i > 0) {
                     const anchor = new Vec2(-5 + 1 * i, 5);
-                    jd.Initialize(prevBody, body, anchor);
-                    this.m_world.CreateJoint(jd);
+                    jd.initialize(prevBody, body, anchor);
+                    this.m_world.createJoint(jd);
                 }
 
                 prevBody = body;
@@ -137,7 +137,7 @@ class CantileverTest extends Test {
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.5, 0.125);
+            shape.setAsBox(0.5, 0.125);
 
             const fd: FixtureDef = {
                 shape,
@@ -150,17 +150,17 @@ class CantileverTest extends Test {
 
             let prevBody = ground;
             for (let i = 0; i < CantileverTest.e_count; ++i) {
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: 5.5 + 1 * i, y: 10 },
                 });
-                body.CreateFixture(fd);
+                body.createFixture(fd);
 
                 if (i > 0) {
                     const anchor = new Vec2(5 + 1 * i, 10);
-                    jd.Initialize(prevBody, body, anchor);
-                    AngularStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-                    this.m_world.CreateJoint(jd);
+                    jd.initialize(prevBody, body, anchor);
+                    angularStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+                    this.m_world.createJoint(jd);
                 }
 
                 prevBody = body;
@@ -174,13 +174,13 @@ class CantileverTest extends Test {
             vertices[2] = new Vec2(0, 1.5);
 
             const shape = new PolygonShape();
-            shape.Set(vertices);
+            shape.set(vertices);
 
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -8 + 8 * i, y: 12 },
             });
-            body.CreateFixture({
+            body.createFixture({
                 shape,
                 density: 1,
             });
@@ -190,11 +190,11 @@ class CantileverTest extends Test {
             const shape = new CircleShape();
             shape.m_radius = 0.5;
 
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -6 + 6 * i, y: 10 },
             });
-            body.CreateFixture({
+            body.createFixture({
                 shape,
                 density: 1,
             });

@@ -42,8 +42,8 @@ export class DirectionalLight extends Light {
         super(rayHandler, rays, color, Infinity, directionDegree);
 
         this.vertexNum = (this.vertexNum - 1) * 2;
-        this.start = Vector2.MakeArray(this.rayNum);
-        this.end = Vector2.MakeArray(this.rayNum);
+        this.start = Vector2.makeArray(this.rayNum);
+        this.end = Vector2.makeArray(this.rayNum);
 
         this.setMesh();
     }

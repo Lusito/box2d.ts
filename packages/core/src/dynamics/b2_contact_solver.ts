@@ -20,27 +20,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { Assert } from "../common/b2_common";
+// DEBUG: import { assert } from "../common/b2_common";
 import {
     LINEAR_SLOP,
     MAX_MANIFOLD_POINTS,
     MAX_LINEAR_CORRECTION,
     BAUMGARTE,
     TOI_BAUMGARTE,
-    MakeArray,
+    makeArray,
 } from "../common/b2_common";
-import { Clamp, Vec2, Mat22, Rot, Transform } from "../common/b2_math";
+import { clamp, Vec2, Mat22, Rot, Transform } from "../common/b2_math";
 import { WorldManifold, ManifoldType } from "../collision/b2_collision";
 import { Contact } from "./b2_contact";
 import { TimeStep, Position, Velocity } from "./b2_time_step";
 
 let g_blockSolve = true;
 
-export function SetBlockSolve(value: boolean) {
+export function setBlockSolve(value: boolean) {
     g_blockSolve = value;
 }
 
-export function GetBlockSolve() {
+export function getBlockSolve() {
     return g_blockSolve;
 }
 
@@ -62,7 +62,7 @@ class VelocityConstraintPoint {
 
 /** @internal */
 export class ContactVelocityConstraint {
-    public readonly points = MakeArray(MAX_MANIFOLD_POINTS, VelocityConstraintPoint);
+    public readonly points = makeArray(MAX_MANIFOLD_POINTS, VelocityConstraintPoint);
 
     public readonly normal = new Vec2();
 
@@ -98,7 +98,7 @@ export class ContactVelocityConstraint {
 }
 
 class ContactPositionConstraint {
-    public readonly localPoints = MakeArray(MAX_MANIFOLD_POINTS, Vec2);
+    public readonly localPoints = makeArray(MAX_MANIFOLD_POINTS, Vec2);
 
     public readonly localNormal = new Vec2();
 
@@ -131,7 +131,7 @@ class ContactPositionConstraint {
 
 /** @internal */
 export class ContactSolverDef {
-    public readonly step = TimeStep.Create();
+    public readonly step = TimeStep.create();
 
     public contacts!: Contact[];
 
@@ -157,45 +157,45 @@ class PositionSolverManifold {
 
     private static Initialize_s_clipPoint = new Vec2();
 
-    public Initialize(pc: ContactPositionConstraint, xfA: Transform, xfB: Transform, index: number): void {
+    public initialize(pc: ContactPositionConstraint, xfA: Transform, xfB: Transform, index: number): void {
         const pointA = PositionSolverManifold.Initialize_s_pointA;
         const pointB = PositionSolverManifold.Initialize_s_pointB;
         const planePoint = PositionSolverManifold.Initialize_s_planePoint;
         const clipPoint = PositionSolverManifold.Initialize_s_clipPoint;
 
-        // DEBUG: Assert(pc.pointCount > 0);
+        // DEBUG: assert(pc.pointCount > 0);
 
         switch (pc.type) {
             case ManifoldType.Circles:
-                Transform.MultiplyVec2(xfA, pc.localPoint, pointA);
-                Transform.MultiplyVec2(xfB, pc.localPoints[0], pointB);
-                Vec2.Subtract(pointB, pointA, this.normal).Normalize();
-                Vec2.Mid(pointA, pointB, this.point);
+                Transform.multiplyVec2(xfA, pc.localPoint, pointA);
+                Transform.multiplyVec2(xfB, pc.localPoints[0], pointB);
+                Vec2.subtract(pointB, pointA, this.normal).normalize();
+                Vec2.mid(pointA, pointB, this.point);
                 this.separation =
-                    Vec2.Dot(Vec2.Subtract(pointB, pointA, Vec2.s_t0), this.normal) - pc.radiusA - pc.radiusB;
+                    Vec2.dot(Vec2.subtract(pointB, pointA, Vec2.s_t0), this.normal) - pc.radiusA - pc.radiusB;
                 break;
 
             case ManifoldType.FaceA:
-                Rot.MultiplyVec2(xfA.q, pc.localNormal, this.normal);
-                Transform.MultiplyVec2(xfA, pc.localPoint, planePoint);
+                Rot.multiplyVec2(xfA.q, pc.localNormal, this.normal);
+                Transform.multiplyVec2(xfA, pc.localPoint, planePoint);
 
-                Transform.MultiplyVec2(xfB, pc.localPoints[index], clipPoint);
+                Transform.multiplyVec2(xfB, pc.localPoints[index], clipPoint);
                 this.separation =
-                    Vec2.Dot(Vec2.Subtract(clipPoint, planePoint, Vec2.s_t0), this.normal) - pc.radiusA - pc.radiusB;
-                this.point.Copy(clipPoint);
+                    Vec2.dot(Vec2.subtract(clipPoint, planePoint, Vec2.s_t0), this.normal) - pc.radiusA - pc.radiusB;
+                this.point.copy(clipPoint);
                 break;
 
             case ManifoldType.FaceB:
-                Rot.MultiplyVec2(xfB.q, pc.localNormal, this.normal);
-                Transform.MultiplyVec2(xfB, pc.localPoint, planePoint);
+                Rot.multiplyVec2(xfB.q, pc.localNormal, this.normal);
+                Transform.multiplyVec2(xfB, pc.localPoint, planePoint);
 
-                Transform.MultiplyVec2(xfA, pc.localPoints[index], clipPoint);
+                Transform.multiplyVec2(xfA, pc.localPoints[index], clipPoint);
                 this.separation =
-                    Vec2.Dot(Vec2.Subtract(clipPoint, planePoint, Vec2.s_t0), this.normal) - pc.radiusA - pc.radiusB;
-                this.point.Copy(clipPoint);
+                    Vec2.dot(Vec2.subtract(clipPoint, planePoint, Vec2.s_t0), this.normal) - pc.radiusA - pc.radiusB;
+                this.point.copy(clipPoint);
 
                 // Ensure normal points from A to B
-                this.normal.Negate();
+                this.normal.negate();
                 break;
         }
     }
@@ -203,22 +203,22 @@ class PositionSolverManifold {
 
 /** @internal */
 export class ContactSolver {
-    public readonly m_step = TimeStep.Create();
+    public readonly m_step = TimeStep.create();
 
     public m_positions!: Position[];
 
     public m_velocities!: Velocity[];
 
-    public readonly m_positionConstraints = MakeArray(1024, ContactPositionConstraint); // TODO: Settings
+    public readonly m_positionConstraints = makeArray(1024, ContactPositionConstraint); // TODO: Settings
 
-    public readonly m_velocityConstraints = MakeArray(1024, ContactVelocityConstraint); // TODO: Settings
+    public readonly m_velocityConstraints = makeArray(1024, ContactVelocityConstraint); // TODO: Settings
 
     public m_contacts!: Contact[];
 
     public m_count = 0;
 
-    public Initialize(def: ContactSolverDef): ContactSolver {
-        this.m_step.Copy(def.step);
+    public initialize(def: ContactSolverDef): ContactSolver {
+        this.m_step.copy(def.step);
         this.m_count = def.count;
         // TODO:
         if (this.m_positionConstraints.length < this.m_count) {
@@ -244,16 +244,16 @@ export class ContactSolver {
 
             const fixtureA = contact.m_fixtureA;
             const fixtureB = contact.m_fixtureB;
-            const shapeA = fixtureA.GetShape();
-            const shapeB = fixtureB.GetShape();
+            const shapeA = fixtureA.getShape();
+            const shapeB = fixtureB.getShape();
             const radiusA = shapeA.m_radius;
             const radiusB = shapeB.m_radius;
-            const bodyA = fixtureA.GetBody();
-            const bodyB = fixtureB.GetBody();
-            const manifold = contact.GetManifold();
+            const bodyA = fixtureA.getBody();
+            const bodyB = fixtureB.getBody();
+            const manifold = contact.getManifold();
 
             const { pointCount } = manifold;
-            // DEBUG: Assert(pointCount > 0);
+            // DEBUG: assert(pointCount > 0);
 
             const vc = this.m_velocityConstraints[i];
             vc.friction = contact.m_friction;
@@ -268,20 +268,20 @@ export class ContactSolver {
             vc.invIB = bodyB.m_invI;
             vc.contactIndex = i;
             vc.pointCount = pointCount;
-            vc.K.SetZero();
-            vc.normalMass.SetZero();
+            vc.K.setZero();
+            vc.normalMass.setZero();
 
             const pc = this.m_positionConstraints[i];
             pc.indexA = bodyA.m_islandIndex;
             pc.indexB = bodyB.m_islandIndex;
             pc.invMassA = bodyA.m_invMass;
             pc.invMassB = bodyB.m_invMass;
-            pc.localCenterA.Copy(bodyA.m_sweep.localCenter);
-            pc.localCenterB.Copy(bodyB.m_sweep.localCenter);
+            pc.localCenterA.copy(bodyA.m_sweep.localCenter);
+            pc.localCenterB.copy(bodyB.m_sweep.localCenter);
             pc.invIA = bodyA.m_invI;
             pc.invIB = bodyB.m_invI;
-            pc.localNormal.Copy(manifold.localNormal);
-            pc.localPoint.Copy(manifold.localPoint);
+            pc.localNormal.copy(manifold.localNormal);
+            pc.localPoint.copy(manifold.localPoint);
             pc.pointCount = pointCount;
             pc.radiusA = radiusA;
             pc.radiusB = radiusB;
@@ -299,13 +299,13 @@ export class ContactSolver {
                     vcp.tangentImpulse = 0;
                 }
 
-                vcp.rA.SetZero();
-                vcp.rB.SetZero();
+                vcp.rA.setZero();
+                vcp.rB.setZero();
                 vcp.normalMass = 0;
                 vcp.tangentMass = 0;
                 vcp.velocityBias = 0;
 
-                pc.localPoints[j].Copy(cp.localPoint);
+                pc.localPoints[j].copy(cp.localPoint);
             }
         }
 
@@ -318,7 +318,7 @@ export class ContactSolver {
 
     private static InitializeVelocityConstraints_s_worldManifold = new WorldManifold();
 
-    public InitializeVelocityConstraints(): void {
+    public initializeVelocityConstraints(): void {
         const xfA = ContactSolver.InitializeVelocityConstraints_s_xfA;
         const xfB = ContactSolver.InitializeVelocityConstraints_s_xfB;
         const worldManifold = ContactSolver.InitializeVelocityConstraints_s_worldManifold;
@@ -330,7 +330,7 @@ export class ContactSolver {
             const pc = this.m_positionConstraints[i];
 
             const { radiusA, radiusB, localCenterA, localCenterB } = pc;
-            const manifold = this.m_contacts[vc.contactIndex].GetManifold();
+            const manifold = this.m_contacts[vc.contactIndex].getManifold();
 
             const { indexA, indexB, tangent, pointCount } = vc;
 
@@ -349,33 +349,33 @@ export class ContactSolver {
             const vB = this.m_velocities[indexB].v;
             const wB = this.m_velocities[indexB].w;
 
-            // DEBUG: Assert(manifold.pointCount > 0);
+            // DEBUG: assert(manifold.pointCount > 0);
 
-            xfA.q.Set(aA);
-            xfB.q.Set(aB);
-            Vec2.Subtract(cA, Rot.MultiplyVec2(xfA.q, localCenterA, Vec2.s_t0), xfA.p);
-            Vec2.Subtract(cB, Rot.MultiplyVec2(xfB.q, localCenterB, Vec2.s_t0), xfB.p);
+            xfA.q.set(aA);
+            xfB.q.set(aB);
+            Vec2.subtract(cA, Rot.multiplyVec2(xfA.q, localCenterA, Vec2.s_t0), xfA.p);
+            Vec2.subtract(cB, Rot.multiplyVec2(xfB.q, localCenterB, Vec2.s_t0), xfB.p);
 
-            worldManifold.Initialize(manifold, xfA, radiusA, xfB, radiusB);
+            worldManifold.initialize(manifold, xfA, radiusA, xfB, radiusB);
 
-            vc.normal.Copy(worldManifold.normal);
-            Vec2.CrossVec2One(vc.normal, tangent); // compute from normal
+            vc.normal.copy(worldManifold.normal);
+            Vec2.crossVec2One(vc.normal, tangent); // compute from normal
 
             for (let j = 0; j < pointCount; ++j) {
                 const vcp = vc.points[j];
 
-                Vec2.Subtract(worldManifold.points[j], cA, vcp.rA);
-                Vec2.Subtract(worldManifold.points[j], cB, vcp.rB);
+                Vec2.subtract(worldManifold.points[j], cA, vcp.rA);
+                Vec2.subtract(worldManifold.points[j], cB, vcp.rB);
 
-                const rnA = Vec2.Cross(vcp.rA, vc.normal);
-                const rnB = Vec2.Cross(vcp.rB, vc.normal);
+                const rnA = Vec2.cross(vcp.rA, vc.normal);
+                const rnB = Vec2.cross(vcp.rB, vc.normal);
 
                 const kNormal = mA + mB + iA * rnA * rnA + iB * rnB * rnB;
 
                 vcp.normalMass = kNormal > 0 ? 1 / kNormal : 0;
 
-                const rtA = Vec2.Cross(vcp.rA, tangent);
-                const rtB = Vec2.Cross(vcp.rB, tangent);
+                const rtA = Vec2.cross(vcp.rA, tangent);
+                const rtB = Vec2.cross(vcp.rB, tangent);
 
                 const kTangent = mA + mB + iA * rtA * rtA + iB * rtB * rtB;
 
@@ -383,11 +383,11 @@ export class ContactSolver {
 
                 // Setup a velocity bias for restitution.
                 vcp.velocityBias = 0;
-                const vRel = Vec2.Dot(
+                const vRel = Vec2.dot(
                     vc.normal,
-                    Vec2.Subtract(
-                        Vec2.AddCrossScalarVec2(vB, wB, vcp.rB, Vec2.s_t0),
-                        Vec2.AddCrossScalarVec2(vA, wA, vcp.rA, Vec2.s_t1),
+                    Vec2.subtract(
+                        Vec2.addCrossScalarVec2(vB, wB, vcp.rB, Vec2.s_t0),
+                        Vec2.addCrossScalarVec2(vA, wA, vcp.rA, Vec2.s_t1),
                         Vec2.s_t0,
                     ),
                 );
@@ -402,10 +402,10 @@ export class ContactSolver {
                 const vcp1 = vc.points[0];
                 const vcp2 = vc.points[1];
 
-                const rn1A = Vec2.Cross(vcp1.rA, vc.normal);
-                const rn1B = Vec2.Cross(vcp1.rB, vc.normal);
-                const rn2A = Vec2.Cross(vcp2.rA, vc.normal);
-                const rn2B = Vec2.Cross(vcp2.rB, vc.normal);
+                const rn1A = Vec2.cross(vcp1.rA, vc.normal);
+                const rn1B = Vec2.cross(vcp1.rB, vc.normal);
+                const rn2A = Vec2.cross(vcp2.rA, vc.normal);
+                const rn2B = Vec2.cross(vcp2.rB, vc.normal);
 
                 const k11 = mA + mB + iA * rn1A * rn1A + iB * rn1B * rn1B;
                 const k22 = mA + mB + iA * rn2A * rn2A + iB * rn2B * rn2B;
@@ -414,9 +414,9 @@ export class ContactSolver {
                 // Ensure a reasonable condition number.
                 if (k11 * k11 < k_maxConditionNumber * (k11 * k22 - k12 * k12)) {
                     // K is safe to invert.
-                    vc.K.ex.Set(k11, k12);
-                    vc.K.ey.Set(k12, k22);
-                    vc.K.GetInverse(vc.normalMass);
+                    vc.K.ex.set(k11, k12);
+                    vc.K.ey.set(k12, k22);
+                    vc.K.getInverse(vc.normalMass);
                 } else {
                     // The constraints are redundant, just use one.
                     // TODO_ERIN use deepest?
@@ -428,7 +428,7 @@ export class ContactSolver {
 
     private static WarmStart_s_P = new Vec2();
 
-    public WarmStart(): void {
+    public warmStart(): void {
         const P = ContactSolver.WarmStart_s_P;
 
         // Warm start.
@@ -448,15 +448,15 @@ export class ContactSolver {
 
             for (let j = 0; j < pointCount; ++j) {
                 const vcp = vc.points[j];
-                Vec2.Add(
-                    Vec2.Scale(vcp.normalImpulse, normal, Vec2.s_t0),
-                    Vec2.Scale(vcp.tangentImpulse, tangent, Vec2.s_t1),
+                Vec2.add(
+                    Vec2.scale(vcp.normalImpulse, normal, Vec2.s_t0),
+                    Vec2.scale(vcp.tangentImpulse, tangent, Vec2.s_t1),
                     P,
                 );
-                wA -= iA * Vec2.Cross(vcp.rA, P);
-                vA.SubtractScaled(mA, P);
-                wB += iB * Vec2.Cross(vcp.rB, P);
-                vB.AddScaled(mB, P);
+                wA -= iA * Vec2.cross(vcp.rA, P);
+                vA.subtractScaled(mA, P);
+                wB += iB * Vec2.cross(vcp.rB, P);
+                vB.addScaled(mB, P);
             }
 
             this.m_velocities[indexA].w = wA;
@@ -486,7 +486,7 @@ export class ContactSolver {
 
     private static SolveVelocityConstraints_s_P1P2 = new Vec2();
 
-    public SolveVelocityConstraints(): void {
+    public solveVelocityConstraints(): void {
         const dv = ContactSolver.SolveVelocityConstraints_s_dv;
         const dv1 = ContactSolver.SolveVelocityConstraints_s_dv1;
         const dv2 = ContactSolver.SolveVelocityConstraints_s_dv2;
@@ -513,7 +513,7 @@ export class ContactSolver {
             const vB = this.m_velocities[indexB].v;
             let wB = this.m_velocities[indexB].w;
 
-            // DEBUG: Assert(pointCount === 1 || pointCount === 2);
+            // DEBUG: assert(pointCount === 1 || pointCount === 2);
 
             // Solve tangent constraints first because non-penetration is more important
             // than friction.
@@ -521,30 +521,30 @@ export class ContactSolver {
                 const vcp = vc.points[j];
 
                 // Relative velocity at contact
-                Vec2.Subtract(
-                    Vec2.AddCrossScalarVec2(vB, wB, vcp.rB, Vec2.s_t0),
-                    Vec2.AddCrossScalarVec2(vA, wA, vcp.rA, Vec2.s_t1),
+                Vec2.subtract(
+                    Vec2.addCrossScalarVec2(vB, wB, vcp.rB, Vec2.s_t0),
+                    Vec2.addCrossScalarVec2(vA, wA, vcp.rA, Vec2.s_t1),
                     dv,
                 );
 
                 // Compute tangent force
-                const vt = Vec2.Dot(dv, tangent) - vc.tangentSpeed;
+                const vt = Vec2.dot(dv, tangent) - vc.tangentSpeed;
                 let lambda = vcp.tangentMass * -vt;
 
                 // Clamp the accumulated force
                 const maxFriction = friction * vcp.normalImpulse;
-                const newImpulse = Clamp(vcp.tangentImpulse + lambda, -maxFriction, maxFriction);
+                const newImpulse = clamp(vcp.tangentImpulse + lambda, -maxFriction, maxFriction);
                 lambda = newImpulse - vcp.tangentImpulse;
                 vcp.tangentImpulse = newImpulse;
 
                 // Apply contact impulse
-                Vec2.Scale(lambda, tangent, P);
+                Vec2.scale(lambda, tangent, P);
 
-                vA.SubtractScaled(mA, P);
-                wA -= iA * Vec2.Cross(vcp.rA, P);
+                vA.subtractScaled(mA, P);
+                wA -= iA * Vec2.cross(vcp.rA, P);
 
-                vB.AddScaled(mB, P);
-                wB += iB * Vec2.Cross(vcp.rB, P);
+                vB.addScaled(mB, P);
+                wB += iB * Vec2.cross(vcp.rB, P);
             }
 
             // Solve normal constraints
@@ -553,14 +553,14 @@ export class ContactSolver {
                     const vcp = vc.points[j];
 
                     // Relative velocity at contact
-                    Vec2.Subtract(
-                        Vec2.AddCrossScalarVec2(vB, wB, vcp.rB, Vec2.s_t0),
-                        Vec2.AddCrossScalarVec2(vA, wA, vcp.rA, Vec2.s_t1),
+                    Vec2.subtract(
+                        Vec2.addCrossScalarVec2(vB, wB, vcp.rB, Vec2.s_t0),
+                        Vec2.addCrossScalarVec2(vA, wA, vcp.rA, Vec2.s_t1),
                         dv,
                     );
 
                     // Compute normal impulse
-                    const vn = Vec2.Dot(dv, normal);
+                    const vn = Vec2.dot(dv, normal);
                     let lambda = -vcp.normalMass * (vn - vcp.velocityBias);
 
                     // Clamp the accumulated impulse
@@ -569,12 +569,12 @@ export class ContactSolver {
                     vcp.normalImpulse = newImpulse;
 
                     // Apply contact impulse
-                    Vec2.Scale(lambda, normal, P);
-                    vA.SubtractScaled(mA, P);
-                    wA -= iA * Vec2.Cross(vcp.rA, P);
+                    Vec2.scale(lambda, normal, P);
+                    vA.subtractScaled(mA, P);
+                    wA -= iA * Vec2.cross(vcp.rA, P);
 
-                    vB.AddScaled(mB, P);
-                    wB += iB * Vec2.Cross(vcp.rB, P);
+                    vB.addScaled(mB, P);
+                    wB += iB * Vec2.cross(vcp.rB, P);
                 }
             } else {
                 // Block solver developed in collaboration with Dirk Gregorius (back in 01/07 on Box2D_Lite).
@@ -613,30 +613,30 @@ export class ContactSolver {
                 const cp1 = vc.points[0];
                 const cp2 = vc.points[1];
 
-                a.Set(cp1.normalImpulse, cp2.normalImpulse);
-                // DEBUG: Assert(a.x >= 0 && a.y >= 0);
+                a.set(cp1.normalImpulse, cp2.normalImpulse);
+                // DEBUG: assert(a.x >= 0 && a.y >= 0);
 
                 // Relative velocity at contact
-                Vec2.Subtract(
-                    Vec2.AddCrossScalarVec2(vB, wB, cp1.rB, Vec2.s_t0),
-                    Vec2.AddCrossScalarVec2(vA, wA, cp1.rA, Vec2.s_t1),
+                Vec2.subtract(
+                    Vec2.addCrossScalarVec2(vB, wB, cp1.rB, Vec2.s_t0),
+                    Vec2.addCrossScalarVec2(vA, wA, cp1.rA, Vec2.s_t1),
                     dv1,
                 );
-                Vec2.Subtract(
-                    Vec2.AddCrossScalarVec2(vB, wB, cp2.rB, Vec2.s_t0),
-                    Vec2.AddCrossScalarVec2(vA, wA, cp2.rA, Vec2.s_t1),
+                Vec2.subtract(
+                    Vec2.addCrossScalarVec2(vB, wB, cp2.rB, Vec2.s_t0),
+                    Vec2.addCrossScalarVec2(vA, wA, cp2.rA, Vec2.s_t1),
                     dv2,
                 );
 
                 // Compute normal velocity
-                let vn1 = Vec2.Dot(dv1, normal);
-                let vn2 = Vec2.Dot(dv2, normal);
+                let vn1 = Vec2.dot(dv1, normal);
+                let vn2 = Vec2.dot(dv2, normal);
 
                 b.x = vn1 - cp1.velocityBias;
                 b.y = vn2 - cp2.velocityBias;
 
                 // Compute b'
-                b.Subtract(Mat22.MultiplyVec2(vc.K, a, Vec2.s_t0));
+                b.subtract(Mat22.multiplyVec2(vc.K, a, Vec2.s_t0));
 
                 for (;;) {
                     //
@@ -649,22 +649,22 @@ export class ContactSolver {
                     // x = - inv(A) * b'
                     //
                     // Vec2 x = - Mul(vc->normalMass, b);
-                    Mat22.MultiplyVec2(vc.normalMass, b, x).Negate();
+                    Mat22.multiplyVec2(vc.normalMass, b, x).negate();
 
                     if (x.x >= 0 && x.y >= 0) {
                         // Get the incremental impulse
                         // Vec2 d = x - a;
-                        Vec2.Subtract(x, a, d);
+                        Vec2.subtract(x, a, d);
 
                         // Apply incremental impulse
-                        Vec2.Scale(d.x, normal, P1);
-                        Vec2.Scale(d.y, normal, P2);
-                        Vec2.Add(P1, P2, P1P2);
-                        vA.SubtractScaled(mA, P1P2);
-                        wA -= iA * (Vec2.Cross(cp1.rA, P1) + Vec2.Cross(cp2.rA, P2));
+                        Vec2.scale(d.x, normal, P1);
+                        Vec2.scale(d.y, normal, P2);
+                        Vec2.add(P1, P2, P1P2);
+                        vA.subtractScaled(mA, P1P2);
+                        wA -= iA * (Vec2.cross(cp1.rA, P1) + Vec2.cross(cp2.rA, P2));
 
-                        vB.AddScaled(mB, P1P2);
-                        wB += iB * (Vec2.Cross(cp1.rB, P1) + Vec2.Cross(cp2.rB, P2));
+                        vB.addScaled(mB, P1P2);
+                        wB += iB * (Vec2.cross(cp1.rB, P1) + Vec2.cross(cp2.rB, P2));
 
                         // Accumulate
                         cp1.normalImpulse = x.x;
@@ -686,17 +686,17 @@ export class ContactSolver {
                     if (x.x >= 0 && vn2 >= 0) {
                         // Get the incremental impulse
                         // Vec2 d = x - a;
-                        Vec2.Subtract(x, a, d);
+                        Vec2.subtract(x, a, d);
 
                         // Apply incremental impulse
-                        Vec2.Scale(d.x, normal, P1);
-                        Vec2.Scale(d.y, normal, P2);
-                        Vec2.Add(P1, P2, P1P2);
-                        vA.SubtractScaled(mA, P1P2);
-                        wA -= iA * (Vec2.Cross(cp1.rA, P1) + Vec2.Cross(cp2.rA, P2));
+                        Vec2.scale(d.x, normal, P1);
+                        Vec2.scale(d.y, normal, P2);
+                        Vec2.add(P1, P2, P1P2);
+                        vA.subtractScaled(mA, P1P2);
+                        wA -= iA * (Vec2.cross(cp1.rA, P1) + Vec2.cross(cp2.rA, P2));
 
-                        vB.AddScaled(mB, P1P2);
-                        wB += iB * (Vec2.Cross(cp1.rB, P1) + Vec2.Cross(cp2.rB, P2));
+                        vB.addScaled(mB, P1P2);
+                        wB += iB * (Vec2.cross(cp1.rB, P1) + Vec2.cross(cp2.rB, P2));
 
                         // Accumulate
                         cp1.normalImpulse = x.x;
@@ -717,17 +717,17 @@ export class ContactSolver {
 
                     if (x.y >= 0 && vn1 >= 0) {
                         // Resubstitute for the incremental impulse
-                        Vec2.Subtract(x, a, d);
+                        Vec2.subtract(x, a, d);
 
                         // Apply incremental impulse
-                        Vec2.Scale(d.x, normal, P1);
-                        Vec2.Scale(d.y, normal, P2);
-                        Vec2.Add(P1, P2, P1P2);
-                        vA.SubtractScaled(mA, P1P2);
-                        wA -= iA * (Vec2.Cross(cp1.rA, P1) + Vec2.Cross(cp2.rA, P2));
+                        Vec2.scale(d.x, normal, P1);
+                        Vec2.scale(d.y, normal, P2);
+                        Vec2.add(P1, P2, P1P2);
+                        vA.subtractScaled(mA, P1P2);
+                        wA -= iA * (Vec2.cross(cp1.rA, P1) + Vec2.cross(cp2.rA, P2));
 
-                        vB.AddScaled(mB, P1P2);
-                        wB += iB * (Vec2.Cross(cp1.rB, P1) + Vec2.Cross(cp2.rB, P2));
+                        vB.addScaled(mB, P1P2);
+                        wB += iB * (Vec2.cross(cp1.rB, P1) + Vec2.cross(cp2.rB, P2));
 
                         // Accumulate
                         cp1.normalImpulse = x.x;
@@ -747,17 +747,17 @@ export class ContactSolver {
 
                     if (vn1 >= 0 && vn2 >= 0) {
                         // Resubstitute for the incremental impulse
-                        Vec2.Subtract(x, a, d);
+                        Vec2.subtract(x, a, d);
 
                         // Apply incremental impulse
-                        Vec2.Scale(d.x, normal, P1);
-                        Vec2.Scale(d.y, normal, P2);
-                        Vec2.Add(P1, P2, P1P2);
-                        vA.SubtractScaled(mA, P1P2);
-                        wA -= iA * (Vec2.Cross(cp1.rA, P1) + Vec2.Cross(cp2.rA, P2));
+                        Vec2.scale(d.x, normal, P1);
+                        Vec2.scale(d.y, normal, P2);
+                        Vec2.add(P1, P2, P1P2);
+                        vA.subtractScaled(mA, P1P2);
+                        wA -= iA * (Vec2.cross(cp1.rA, P1) + Vec2.cross(cp2.rA, P2));
 
-                        vB.AddScaled(mB, P1P2);
-                        wB += iB * (Vec2.Cross(cp1.rB, P1) + Vec2.Cross(cp2.rB, P2));
+                        vB.addScaled(mB, P1P2);
+                        wB += iB * (Vec2.cross(cp1.rB, P1) + Vec2.cross(cp2.rB, P2));
 
                         // Accumulate
                         cp1.normalImpulse = x.x;
@@ -776,10 +776,10 @@ export class ContactSolver {
         }
     }
 
-    public StoreImpulses(): void {
+    public storeImpulses(): void {
         for (let i = 0; i < this.m_count; ++i) {
             const vc = this.m_velocityConstraints[i];
-            const manifold = this.m_contacts[vc.contactIndex].GetManifold();
+            const manifold = this.m_contacts[vc.contactIndex].getManifold();
 
             for (let j = 0; j < vc.pointCount; ++j) {
                 manifold.points[j].normalImpulse = vc.points[j].normalImpulse;
@@ -800,7 +800,7 @@ export class ContactSolver {
 
     private static SolvePositionConstraints_s_P = new Vec2();
 
-    public SolvePositionConstraints(): boolean {
+    public solvePositionConstraints(): boolean {
         const xfA = ContactSolver.SolvePositionConstraints_s_xfA;
         const xfB = ContactSolver.SolvePositionConstraints_s_xfB;
         const psm = ContactSolver.SolvePositionConstraints_s_psm;
@@ -827,44 +827,44 @@ export class ContactSolver {
 
             // Solve normal constraints
             for (let j = 0; j < pointCount; ++j) {
-                xfA.q.Set(aA);
-                xfB.q.Set(aB);
-                Vec2.Subtract(cA, Rot.MultiplyVec2(xfA.q, localCenterA, Vec2.s_t0), xfA.p);
-                Vec2.Subtract(cB, Rot.MultiplyVec2(xfB.q, localCenterB, Vec2.s_t0), xfB.p);
+                xfA.q.set(aA);
+                xfB.q.set(aB);
+                Vec2.subtract(cA, Rot.multiplyVec2(xfA.q, localCenterA, Vec2.s_t0), xfA.p);
+                Vec2.subtract(cB, Rot.multiplyVec2(xfB.q, localCenterB, Vec2.s_t0), xfB.p);
 
-                psm.Initialize(pc, xfA, xfB, j);
+                psm.initialize(pc, xfA, xfB, j);
                 const { normal, point, separation } = psm;
 
-                Vec2.Subtract(point, cA, rA);
-                Vec2.Subtract(point, cB, rB);
+                Vec2.subtract(point, cA, rA);
+                Vec2.subtract(point, cB, rB);
 
                 // Track max constraint error.
                 minSeparation = Math.min(minSeparation, separation);
 
                 // Prevent large corrections and allow slop.
-                const C = Clamp(BAUMGARTE * (separation + LINEAR_SLOP), -MAX_LINEAR_CORRECTION, 0);
+                const C = clamp(BAUMGARTE * (separation + LINEAR_SLOP), -MAX_LINEAR_CORRECTION, 0);
 
                 // Compute the effective mass.
-                const rnA = Vec2.Cross(rA, normal);
-                const rnB = Vec2.Cross(rB, normal);
+                const rnA = Vec2.cross(rA, normal);
+                const rnB = Vec2.cross(rB, normal);
                 const K = mA + mB + iA * rnA * rnA + iB * rnB * rnB;
 
                 // Compute normal impulse
                 const impulse = K > 0 ? -C / K : 0;
 
-                Vec2.Scale(impulse, normal, P);
+                Vec2.scale(impulse, normal, P);
 
-                cA.SubtractScaled(mA, P);
-                aA -= iA * Vec2.Cross(rA, P);
+                cA.subtractScaled(mA, P);
+                aA -= iA * Vec2.cross(rA, P);
 
-                cB.AddScaled(mB, P);
-                aB += iB * Vec2.Cross(rB, P);
+                cB.addScaled(mB, P);
+                aB += iB * Vec2.cross(rB, P);
             }
 
-            this.m_positions[indexA].c.Copy(cA);
+            this.m_positions[indexA].c.copy(cA);
             this.m_positions[indexA].a = aA;
 
-            this.m_positions[indexB].c.Copy(cB);
+            this.m_positions[indexB].c.copy(cB);
             this.m_positions[indexB].a = aB;
         }
 
@@ -885,7 +885,7 @@ export class ContactSolver {
 
     private static SolveTOIPositionConstraints_s_P = new Vec2();
 
-    public SolveTOIPositionConstraints(toiIndexA: number, toiIndexB: number): boolean {
+    public solveTOIPositionConstraints(toiIndexA: number, toiIndexB: number): boolean {
         const xfA = ContactSolver.SolveTOIPositionConstraints_s_xfA;
         const xfB = ContactSolver.SolveTOIPositionConstraints_s_xfB;
         const psm = ContactSolver.SolveTOIPositionConstraints_s_psm;
@@ -922,38 +922,38 @@ export class ContactSolver {
 
             // Solve normal constraints
             for (let j = 0; j < pointCount; ++j) {
-                xfA.q.Set(aA);
-                xfB.q.Set(aB);
-                Vec2.Subtract(cA, Rot.MultiplyVec2(xfA.q, localCenterA, Vec2.s_t0), xfA.p);
-                Vec2.Subtract(cB, Rot.MultiplyVec2(xfB.q, localCenterB, Vec2.s_t0), xfB.p);
+                xfA.q.set(aA);
+                xfB.q.set(aB);
+                Vec2.subtract(cA, Rot.multiplyVec2(xfA.q, localCenterA, Vec2.s_t0), xfA.p);
+                Vec2.subtract(cB, Rot.multiplyVec2(xfB.q, localCenterB, Vec2.s_t0), xfB.p);
 
-                psm.Initialize(pc, xfA, xfB, j);
+                psm.initialize(pc, xfA, xfB, j);
                 const { normal, point, separation } = psm;
 
-                Vec2.Subtract(point, cA, rA);
-                Vec2.Subtract(point, cB, rB);
+                Vec2.subtract(point, cA, rA);
+                Vec2.subtract(point, cB, rB);
 
                 // Track max constraint error.
                 minSeparation = Math.min(minSeparation, separation);
 
                 // Prevent large corrections and allow slop.
-                const C = Clamp(TOI_BAUMGARTE * (separation + LINEAR_SLOP), -MAX_LINEAR_CORRECTION, 0);
+                const C = clamp(TOI_BAUMGARTE * (separation + LINEAR_SLOP), -MAX_LINEAR_CORRECTION, 0);
 
                 // Compute the effective mass.
-                const rnA = Vec2.Cross(rA, normal);
-                const rnB = Vec2.Cross(rB, normal);
+                const rnA = Vec2.cross(rA, normal);
+                const rnB = Vec2.cross(rB, normal);
                 const K = mA + mB + iA * rnA * rnA + iB * rnB * rnB;
 
                 // Compute normal impulse
                 const impulse = K > 0 ? -C / K : 0;
 
-                Vec2.Scale(impulse, normal, P);
+                Vec2.scale(impulse, normal, P);
 
-                cA.SubtractScaled(mA, P);
-                aA -= iA * Vec2.Cross(rA, P);
+                cA.subtractScaled(mA, P);
+                aA -= iA * Vec2.cross(rA, P);
 
-                cB.AddScaled(mB, P);
-                aB += iB * Vec2.Cross(rB, P);
+                cB.addScaled(mB, P);
+                aB += iB * Vec2.cross(rB, P);
             }
 
             this.m_positions[indexA].a = aA;

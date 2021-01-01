@@ -22,26 +22,26 @@ import { ParticleSystem } from "./b2_particle_system";
 
 declare module "@box2d/core" {
     interface Draw {
-        DrawParticles(centers: XY[], radius: number, colors: RGBA[] | null, count: number): void;
+        drawParticles(centers: XY[], radius: number, colors: RGBA[] | null, count: number): void;
     }
 }
 
-function DrawParticleSystem(draw: Draw, system: ParticleSystem): void {
-    const particleCount = system.GetParticleCount();
+function drawParticleSystem(draw: Draw, system: ParticleSystem): void {
+    const particleCount = system.getParticleCount();
     if (particleCount) {
-        const radius = system.GetRadius();
-        const positionBuffer = system.GetPositionBuffer();
+        const radius = system.getRadius();
+        const positionBuffer = system.getPositionBuffer();
         if (system.m_colorBuffer.data) {
-            const colorBuffer = system.GetColorBuffer();
-            draw.DrawParticles(positionBuffer, radius, colorBuffer, particleCount);
+            const colorBuffer = system.getColorBuffer();
+            draw.drawParticles(positionBuffer, radius, colorBuffer, particleCount);
         } else {
-            draw.DrawParticles(positionBuffer, radius, null, particleCount);
+            draw.drawParticles(positionBuffer, radius, null, particleCount);
         }
     }
 }
 
-export function DrawParticleSystems(draw: Draw, world: World) {
-    for (let p = world.GetParticleSystemList(); p; p = p.m_next) {
-        DrawParticleSystem(draw, p);
+export function drawParticleSystems(draw: Draw, world: World) {
+    for (let p = world.getParticleSystemList(); p; p = p.m_next) {
+        drawParticleSystem(draw, p);
     }
 }

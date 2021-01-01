@@ -19,7 +19,7 @@
 import { Vec2, TimeStep, EPSILON } from "@box2d/core";
 
 import { Controller, ControllerEdge } from "./b2_controller";
-import { SubmergedAreaForShape } from "./b2_submerged_area";
+import { submergedAreaForShape } from "./b2_submerged_area";
 
 const temp = {
     buoyancyForce: new Vec2(),
@@ -76,17 +76,17 @@ export class BuoyancyController extends Controller {
      */
     public readonly gravity = new Vec2();
 
-    public Step(_step: TimeStep) {
+    public step(_step: TimeStep) {
         if (!this.m_bodyList) {
             return;
         }
         if (this.useWorldGravity) {
-            this.gravity.Copy(this.m_bodyList.body.GetWorld().GetGravity());
+            this.gravity.copy(this.m_bodyList.body.getWorld().getGravity());
         }
         const { buoyancyForce } = temp;
         for (let i: ControllerEdge | null = this.m_bodyList; i; i = i.nextBody) {
             const { body } = i;
-            if (!body.IsAwake()) {
+            if (!body.isAwake()) {
                 // Buoyancy force is just a function of position,
                 // so unlike most forces, it is safe to ignore sleeping bodes
                 continue;
@@ -95,13 +95,13 @@ export class BuoyancyController extends Controller {
             const massc = new Vec2();
             let area = 0;
             let mass = 0;
-            for (let fixture = body.GetFixtureList(); fixture; fixture = fixture.GetNext()) {
+            for (let fixture = body.getFixtureList(); fixture; fixture = fixture.getNext()) {
                 const sc = new Vec2();
-                const sarea = SubmergedAreaForShape(
-                    fixture.GetShape(),
+                const sarea = submergedAreaForShape(
+                    fixture.getShape(),
                     this.normal,
                     this.offset,
-                    body.GetTransform(),
+                    body.getTransform(),
                     sc,
                 );
                 area += sarea;
@@ -110,7 +110,7 @@ export class BuoyancyController extends Controller {
                 let shapeDensity = 0;
                 if (this.useDensity) {
                     // TODO: Expose density publicly
-                    shapeDensity = fixture.GetDensity();
+                    shapeDensity = fixture.getDensity();
                 } else {
                     shapeDensity = 1;
                 }
@@ -127,18 +127,18 @@ export class BuoyancyController extends Controller {
                 continue;
             }
             // Buoyancy
-            Vec2.Negate(this.gravity, buoyancyForce);
-            buoyancyForce.Scale(this.density * area);
-            body.ApplyForce(buoyancyForce, massc);
+            Vec2.negate(this.gravity, buoyancyForce);
+            buoyancyForce.scale(this.density * area);
+            body.applyForce(buoyancyForce, massc);
             // Linear drag
-            const dragForce = body.GetLinearVelocityFromWorldPoint(areac, new Vec2());
-            dragForce.Subtract(this.velocity);
-            dragForce.Scale(-this.linearDrag * area);
-            body.ApplyForce(dragForce, areac);
+            const dragForce = body.getLinearVelocityFromWorldPoint(areac, new Vec2());
+            dragForce.subtract(this.velocity);
+            dragForce.scale(-this.linearDrag * area);
+            body.applyForce(dragForce, areac);
             // Angular drag
             // TODO: Something that makes more physical sense?
-            body.ApplyTorque(
-                (-body.GetInertia() / body.GetMass()) * area * body.GetAngularVelocity() * this.angularDrag,
+            body.applyTorque(
+                (-body.getInertia() / body.getMass()) * area * body.getAngularVelocity() * this.angularDrag,
             );
         }
     }

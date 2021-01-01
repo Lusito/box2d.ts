@@ -26,59 +26,59 @@ class ParticlesTest extends AbstractParticleTestWithControls {
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter);
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(-4, -1), new Vec2(4, -1), new Vec2(4, 0), new Vec2(-4, 0)];
-                shape.Set(vertices, 4);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 4);
+                ground.createFixture({ shape });
             }
 
             {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(-4, -0.1), new Vec2(-2, -0.1), new Vec2(-2, 2), new Vec2(-4, 3)];
-                shape.Set(vertices, 4);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 4);
+                ground.createFixture({ shape });
             }
 
             {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(2, -0.1), new Vec2(4, -0.1), new Vec2(4, 3), new Vec2(2, 2)];
-                shape.Set(vertices, 4);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 4);
+                ground.createFixture({ shape });
             }
         }
 
-        this.m_particleSystem.SetRadius(0.035 * 2); // HACK: increase particle radius
-        const particleType = particleParameter.GetValue();
-        this.m_particleSystem.SetDamping(0.2);
+        this.m_particleSystem.setRadius(0.035 * 2); // HACK: increase particle radius
+        const particleType = particleParameter.getValue();
+        this.m_particleSystem.setDamping(0.2);
 
         {
             const shape = new CircleShape();
-            shape.m_p.Set(0, 3);
+            shape.m_p.set(0, 3);
             shape.m_radius = 2;
             const pd = new ParticleGroupDef();
             pd.flags = particleType;
             pd.shape = shape;
-            const group = this.m_particleSystem.CreateParticleGroup(pd);
+            const group = this.m_particleSystem.createParticleGroup(pd);
             if (pd.flags & ParticleFlag.ColorMixing) {
-                this.ColorParticleGroup(group, 0);
+                this.colorParticleGroup(group, 0);
             }
         }
 
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
             });
             const shape = new CircleShape();
-            shape.m_p.Set(0, 8);
+            shape.m_p.set(0, 8);
             shape.m_radius = 0.5;
-            body.CreateFixture({ shape, density: 0.5 });
+            body.createFixture({ shape, density: 0.5 });
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 250;
     }
 

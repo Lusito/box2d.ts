@@ -25,14 +25,14 @@ import { ParticleParameter } from "../../utils/particles/particle_parameter";
 import { checkboxDef } from "../../ui/controls/Checkbox";
 
 export const particleColors = [
-    new Color().SetByteRGBA(0xff, 0x00, 0x00, 0xff), // red
-    new Color().SetByteRGBA(0x00, 0xff, 0x00, 0xff), // green
-    new Color().SetByteRGBA(0x00, 0x00, 0xff, 0xff), // blue
-    new Color().SetByteRGBA(0xff, 0x8c, 0x00, 0xff), // orange
-    new Color().SetByteRGBA(0x00, 0xce, 0xd1, 0xff), // turquoise
-    new Color().SetByteRGBA(0xff, 0x00, 0xff, 0xff), // magenta
-    new Color().SetByteRGBA(0xff, 0xd7, 0x00, 0xff), // gold
-    new Color().SetByteRGBA(0x00, 0xff, 0xff, 0xff), // cyan
+    new Color().setByteRGBA(0xff, 0x00, 0x00, 0xff), // red
+    new Color().setByteRGBA(0x00, 0xff, 0x00, 0xff), // green
+    new Color().setByteRGBA(0x00, 0x00, 0xff, 0xff), // blue
+    new Color().setByteRGBA(0xff, 0x8c, 0x00, 0xff), // orange
+    new Color().setByteRGBA(0x00, 0xce, 0xd1, 0xff), // turquoise
+    new Color().setByteRGBA(0xff, 0x00, 0xff, 0xff), // magenta
+    new Color().setByteRGBA(0xff, 0xd7, 0x00, 0xff), // gold
+    new Color().setByteRGBA(0x00, 0xff, 0xff, 0xff), // cyan
 ];
 
 export class AbstractParticleTest extends Test {
@@ -45,10 +45,10 @@ export class AbstractParticleTest extends Test {
 
         const particleSystemDef = new ParticleSystemDef();
 
-        this.m_particleSystem = this.m_world.CreateParticleSystem(particleSystemDef);
+        this.m_particleSystem = this.m_world.createParticleSystem(particleSystemDef);
 
-        this.m_particleSystem.SetGravityScale(0.4);
-        this.m_particleSystem.SetDensity(1.2);
+        this.m_particleSystem.setGravityScale(0.4);
+        this.m_particleSystem.setDensity(1.2);
     }
 
     public setupControls() {
@@ -61,31 +61,31 @@ export class AbstractParticleTest extends Test {
         });
     }
 
-    public Step(settings: Settings, timeStep: number) {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number) {
+        super.step(settings, timeStep);
 
-        this.m_particleSystem.SetStrictContactCheck(AbstractParticleTest.m_strictContacts);
+        this.m_particleSystem.setStrictContactCheck(AbstractParticleTest.m_strictContacts);
 
         if (settings.m_drawStats) {
-            this.addStatistic("Particles", this.m_particleSystem.GetParticleCount());
-            this.addStatistic("Groups", this.m_particleSystem.GetParticleGroupCount());
-            this.addStatistic("Pairs", this.m_particleSystem.GetPairCount());
-            this.addStatistic("Triads", this.m_particleSystem.GetTriadCount());
+            this.addStatistic("Particles", this.m_particleSystem.getParticleCount());
+            this.addStatistic("Groups", this.m_particleSystem.getParticleGroupCount());
+            this.addStatistic("Pairs", this.m_particleSystem.getPairCount());
+            this.addStatistic("Triads", this.m_particleSystem.getTriadCount());
         }
 
         if (this.m_mouseTracing && !this.m_mouseJoint) {
             const shape = new CircleShape();
-            shape.m_p.Copy(this.m_mouseTracerPosition);
+            shape.m_p.copy(this.m_mouseTracerPosition);
             shape.m_radius = this.getParticleSelectionRadius();
             const aabb = new AABB();
             const xf = new Transform();
-            xf.SetIdentity();
-            shape.ComputeAABB(aabb, xf, 0);
-            this.m_particleSystem.QueryAABB(aabb, (index) => {
-                const p = this.m_particleSystem.GetPositionBuffer()[index];
-                if (shape.TestPoint(Transform.IDENTITY, p)) {
-                    const v = this.m_particleSystem.GetVelocityBuffer()[index];
-                    v.Copy(this.m_mouseTracerVelocity);
+            xf.setIdentity();
+            shape.computeAABB(aabb, xf, 0);
+            this.m_particleSystem.queryAABB(aabb, (index) => {
+                const p = this.m_particleSystem.getPositionBuffer()[index];
+                if (shape.testPoint(Transform.IDENTITY, p)) {
+                    const v = this.m_particleSystem.getVelocityBuffer()[index];
+                    v.copy(this.m_mouseTracerVelocity);
                 }
                 return true;
             });
@@ -102,11 +102,11 @@ export class AbstractParticleTest extends Test {
      * divided into particleColors.length equal sets of colored
      * particles.
      */
-    public ColorParticleGroup(group: ParticleGroup, particlesPerColor: number) {
-        // DEBUG: Assert(group !== null);
-        const colorBuffer = this.m_particleSystem.GetColorBuffer();
-        const particleCount = group.GetParticleCount();
-        const groupStart = group.GetBufferIndex();
+    public colorParticleGroup(group: ParticleGroup, particlesPerColor: number) {
+        // DEBUG: assert(group !== null);
+        const colorBuffer = this.m_particleSystem.getColorBuffer();
+        const particleCount = group.getParticleCount();
+        const groupStart = group.getBufferIndex();
         const groupEnd = particleCount + groupStart;
         const colorCount = particleColors.length;
         if (!particlesPerColor) {
@@ -116,12 +116,12 @@ export class AbstractParticleTest extends Test {
             }
         }
         for (let i = groupStart; i < groupEnd; i++) {
-            colorBuffer[i] = particleColors[Math.floor(i / particlesPerColor) % colorCount].Clone();
+            colorBuffer[i] = particleColors[Math.floor(i / particlesPerColor) % colorCount].clone();
         }
     }
 
     public getParticleSelectionRadius() {
-        return 40 / this.GetDefaultViewZoom();
+        return 40 / this.getDefaultViewZoom();
     }
 }
 
@@ -136,7 +136,7 @@ export class AbstractParticleTestWithControls extends AbstractParticleTest {
     public setupControls() {
         this.addTestControlGroup("Particles", [
             this.createStrictContactsCheckbox(),
-            this.particleParameter.GetControl(),
+            this.particleParameter.getControl(),
         ]);
     }
 }

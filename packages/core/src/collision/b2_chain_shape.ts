@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { Assert, LINEAR_SLOP } from "../common/b2_common";
+// DEBUG: import { assert, LINEAR_SLOP } from "../common/b2_common";
 import { POLYGON_RADIUS } from "../common/b2_common";
 import { Vec2, Transform, XY } from "../common/b2_math";
 import { AABB, RayCastInput, RayCastOutput } from "./b2_collision";
@@ -54,8 +54,8 @@ export class ChainShape extends Shape {
      * @param vertices An array of vertices, these are copied
      * @param count The vertex count
      */
-    public CreateLoop(vertices: XY[], count = vertices.length): ChainShape {
-        // DEBUG: Assert(count >= 3);
+    public createLoop(vertices: XY[], count = vertices.length): ChainShape {
+        // DEBUG: assert(count >= 3);
         if (count < 3) {
             return this;
         }
@@ -63,7 +63,7 @@ export class ChainShape extends Shape {
         // DEBUG:   const v1 = vertices[i - 1];
         // DEBUG:   const v2 = vertices[i];
         // DEBUG:   // If the code crashes here, it means your vertices are too close together.
-        // DEBUG:   Assert(Vec2.DistanceSquared(v1, v2) > LINEAR_SLOP * LINEAR_SLOP);
+        // DEBUG:   assert(Vec2.DistanceSquared(v1, v2) > LINEAR_SLOP * LINEAR_SLOP);
         // DEBUG: }
 
         this.m_vertices.length = count + 1;
@@ -72,9 +72,9 @@ export class ChainShape extends Shape {
             this.m_vertices[i] = new Vec2(x, y);
         }
 
-        this.m_vertices[count] = this.m_vertices[0].Clone();
-        this.m_prevVertex.Copy(this.m_vertices[this.m_vertices.length - 2]);
-        this.m_nextVertex.Copy(this.m_vertices[1]);
+        this.m_vertices[count] = this.m_vertices[0].clone();
+        this.m_prevVertex.copy(this.m_vertices[this.m_vertices.length - 2]);
+        this.m_nextVertex.copy(this.m_vertices[1]);
         return this;
     }
 
@@ -86,11 +86,11 @@ export class ChainShape extends Shape {
      * @param prevVertex Previous vertex from chain that connects to the start
      * @param nextVertex Next vertex from chain that connects to the end
      */
-    public CreateChain(vertices: XY[], count: number, prevVertex: Readonly<XY>, nextVertex: Readonly<XY>): ChainShape {
-        // DEBUG: Assert(count >= 2);
+    public createChain(vertices: XY[], count: number, prevVertex: Readonly<XY>, nextVertex: Readonly<XY>): ChainShape {
+        // DEBUG: assert(count >= 2);
         // DEBUG: for (let i =  1; i < count; ++i) {
         // DEBUG:   // If the code crashes here, it means your vertices are too close together.
-        // DEBUG:   Assert(Vec2.DistanceSquared(vertices[i-1], vertices[i]) > LINEAR_SLOP * LINEAR_SLOP);
+        // DEBUG:   assert(Vec2.DistanceSquared(vertices[i-1], vertices[i]) > LINEAR_SLOP * LINEAR_SLOP);
         // DEBUG: }
 
         this.m_vertices.length = count;
@@ -99,8 +99,8 @@ export class ChainShape extends Shape {
             this.m_vertices[i] = new Vec2(x, y);
         }
 
-        this.m_prevVertex.Copy(prevVertex);
-        this.m_nextVertex.Copy(nextVertex);
+        this.m_prevVertex.copy(prevVertex);
+        this.m_nextVertex.copy(nextVertex);
 
         return this;
     }
@@ -108,22 +108,22 @@ export class ChainShape extends Shape {
     /**
      * Implement Shape. Vertices are cloned using Alloc.
      */
-    public Clone(): ChainShape {
-        return new ChainShape().Copy(this);
+    public clone(): ChainShape {
+        return new ChainShape().copy(this);
     }
 
-    public Copy(other: ChainShape): ChainShape {
-        super.Copy(other);
+    public copy(other: ChainShape): ChainShape {
+        super.copy(other);
 
-        // DEBUG: Assert(other instanceof ChainShape);
+        // DEBUG: assert(other instanceof ChainShape);
 
-        return this.CreateChain(other.m_vertices, other.m_vertices.length, other.m_prevVertex, other.m_nextVertex);
+        return this.createChain(other.m_vertices, other.m_vertices.length, other.m_prevVertex, other.m_nextVertex);
     }
 
     /**
      * @see Shape::GetChildCount
      */
-    public GetChildCount(): number {
+    public getChildCount(): number {
         // edge count = vertex count - 1
         return this.m_vertices.length - 1;
     }
@@ -131,24 +131,24 @@ export class ChainShape extends Shape {
     /**
      * Get a child edge.
      */
-    public GetChildEdge(edge: EdgeShape, index: number): void {
-        // DEBUG: Assert(0 <= index && index < this.m_vertices.length - 1);
+    public getChildEdge(edge: EdgeShape, index: number): void {
+        // DEBUG: assert(0 <= index && index < this.m_vertices.length - 1);
         edge.m_radius = this.m_radius;
 
-        edge.m_vertex1.Copy(this.m_vertices[index]);
-        edge.m_vertex2.Copy(this.m_vertices[index + 1]);
+        edge.m_vertex1.copy(this.m_vertices[index]);
+        edge.m_vertex2.copy(this.m_vertices[index + 1]);
         edge.m_oneSided = true;
 
         if (index > 0) {
-            edge.m_vertex0.Copy(this.m_vertices[index - 1]);
+            edge.m_vertex0.copy(this.m_vertices[index - 1]);
         } else {
-            edge.m_vertex0.Copy(this.m_prevVertex);
+            edge.m_vertex0.copy(this.m_prevVertex);
         }
 
         if (index < this.m_vertices.length - 2) {
-            edge.m_vertex3.Copy(this.m_vertices[index + 2]);
+            edge.m_vertex3.copy(this.m_vertices[index + 2]);
         } else {
-            edge.m_vertex3.Copy(this.m_nextVertex);
+            edge.m_vertex3.copy(this.m_nextVertex);
         }
     }
 
@@ -157,7 +157,7 @@ export class ChainShape extends Shape {
      *
      * @see Shape::TestPoint
      */
-    public TestPoint(_xf: Transform, _p: XY): boolean {
+    public testPoint(_xf: Transform, _p: XY): boolean {
         return false;
     }
 
@@ -166,8 +166,8 @@ export class ChainShape extends Shape {
     /**
      * Implement Shape.
      */
-    public RayCast(output: RayCastOutput, input: RayCastInput, xf: Transform, childIndex: number): boolean {
-        // DEBUG: Assert(childIndex < this.m_vertices.length);
+    public rayCast(output: RayCastOutput, input: RayCastInput, xf: Transform, childIndex: number): boolean {
+        // DEBUG: assert(childIndex < this.m_vertices.length);
 
         const edgeShape = ChainShape.RayCast_s_edgeShape;
 
@@ -177,10 +177,10 @@ export class ChainShape extends Shape {
             i2 = 0;
         }
 
-        edgeShape.m_vertex1.Copy(this.m_vertices[i1]);
-        edgeShape.m_vertex2.Copy(this.m_vertices[i2]);
+        edgeShape.m_vertex1.copy(this.m_vertices[i1]);
+        edgeShape.m_vertex2.copy(this.m_vertices[i2]);
 
-        return edgeShape.RayCast(output, input, xf, 0);
+        return edgeShape.rayCast(output, input, xf, 0);
     }
 
     private static ComputeAABB_s_v1 = new Vec2();
@@ -194,8 +194,8 @@ export class ChainShape extends Shape {
     /**
      * @see Shape::ComputeAABB
      */
-    public ComputeAABB(aabb: AABB, xf: Transform, childIndex: number): void {
-        // DEBUG: Assert(childIndex < this.m_vertices.length);
+    public computeAABB(aabb: AABB, xf: Transform, childIndex: number): void {
+        // DEBUG: assert(childIndex < this.m_vertices.length);
 
         const i1 = childIndex;
         let i2 = childIndex + 1;
@@ -203,11 +203,11 @@ export class ChainShape extends Shape {
             i2 = 0;
         }
 
-        const v1 = Transform.MultiplyVec2(xf, this.m_vertices[i1], ChainShape.ComputeAABB_s_v1);
-        const v2 = Transform.MultiplyVec2(xf, this.m_vertices[i2], ChainShape.ComputeAABB_s_v2);
+        const v1 = Transform.multiplyVec2(xf, this.m_vertices[i1], ChainShape.ComputeAABB_s_v1);
+        const v2 = Transform.multiplyVec2(xf, this.m_vertices[i2], ChainShape.ComputeAABB_s_v2);
 
-        const lower = Vec2.Min(v1, v2, ChainShape.ComputeAABB_s_lower);
-        const upper = Vec2.Max(v1, v2, ChainShape.ComputeAABB_s_upper);
+        const lower = Vec2.min(v1, v2, ChainShape.ComputeAABB_s_lower);
+        const upper = Vec2.max(v1, v2, ChainShape.ComputeAABB_s_upper);
 
         aabb.lowerBound.x = lower.x - this.m_radius;
         aabb.lowerBound.y = lower.y - this.m_radius;
@@ -220,32 +220,32 @@ export class ChainShape extends Shape {
      *
      * @see Shape::ComputeMass
      */
-    public ComputeMass(massData: MassData, _density: number): void {
+    public computeMass(massData: MassData, _density: number): void {
         massData.mass = 0;
-        massData.center.SetZero();
+        massData.center.setZero();
         massData.I = 0;
     }
 
-    public SetupDistanceProxy(proxy: DistanceProxy, index: number): void {
-        // DEBUG: Assert(0 <= index && index < this.m_vertices.length);
+    public setupDistanceProxy(proxy: DistanceProxy, index: number): void {
+        // DEBUG: assert(0 <= index && index < this.m_vertices.length);
 
         proxy.m_vertices = proxy.m_buffer;
-        proxy.m_vertices[0].Copy(this.m_vertices[index]);
+        proxy.m_vertices[0].copy(this.m_vertices[index]);
         if (index + 1 < this.m_vertices.length) {
-            proxy.m_vertices[1].Copy(this.m_vertices[index + 1]);
+            proxy.m_vertices[1].copy(this.m_vertices[index + 1]);
         } else {
-            proxy.m_vertices[1].Copy(this.m_vertices[0]);
+            proxy.m_vertices[1].copy(this.m_vertices[0]);
         }
         proxy.m_count = 2;
         proxy.m_radius = this.m_radius;
     }
 
-    public Draw(draw: Draw, color: Color): void {
+    public draw(draw: Draw, color: Color): void {
         const vertices = this.m_vertices;
         let v1 = vertices[0];
         for (let i = 1; i < vertices.length; ++i) {
             const v2 = vertices[i];
-            draw.DrawSegment(v1, v2, color);
+            draw.drawSegment(v1, v2, color);
             v1 = v2;
         }
     }

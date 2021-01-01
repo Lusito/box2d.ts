@@ -80,7 +80,7 @@ const TestMain = ({ entry: { name, TestClass }, setTestControlGroups }: TestComp
         if (glCanvas && debugCanvas && wrapper) {
             const loop = () => {
                 try {
-                    manager.SimulationLoop();
+                    manager.simulationLoop();
                     window.requestAnimationFrame(loop);
                 } catch (e) {
                     console.error("Error during simulation loop", e);

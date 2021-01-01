@@ -44,7 +44,7 @@ export class TensorDampingController extends Controller {
     /**
      * @see Controller::Step
      */
-    public Step(step: TimeStep) {
+    public step(step: TimeStep) {
         let timestep = step.dt;
         if (timestep <= EPSILON) {
             return;
@@ -54,16 +54,16 @@ export class TensorDampingController extends Controller {
         }
         for (let i = this.m_bodyList; i; i = i.nextBody) {
             const { body } = i;
-            if (!body.IsAwake()) {
+            if (!body.isAwake()) {
                 continue;
             }
-            body.GetWorldVector(
-                Mat22.MultiplyVec2(this.T, body.GetLocalVector(body.GetLinearVelocity(), Vec2.s_t0), Vec2.s_t1),
+            body.getWorldVector(
+                Mat22.multiplyVec2(this.T, body.getLocalVector(body.getLinearVelocity(), Vec2.s_t0), Vec2.s_t1),
                 tempDamping,
             );
             //    body->SetLinearVelocity(body->GetLinearVelocity() + timestep * damping);
-            body.SetLinearVelocity(
-                Vec2.Add(body.GetLinearVelocity(), Vec2.Scale(timestep, tempDamping, Vec2.s_t0), Vec2.s_t1),
+            body.setLinearVelocity(
+                Vec2.add(body.getLinearVelocity(), Vec2.scale(timestep, tempDamping, Vec2.s_t0), Vec2.s_t1),
             );
         }
     }
@@ -71,7 +71,7 @@ export class TensorDampingController extends Controller {
     /**
      * Sets damping independantly along the x and y axes
      */
-    public SetAxisAligned(xDamping: number, yDamping: number) {
+    public setAxisAligned(xDamping: number, yDamping: number) {
         this.T.ex.x = -xDamping;
         this.T.ex.y = 0;
         this.T.ey.x = 0;

@@ -24,9 +24,9 @@ import {
     FixtureDef,
     BodyType,
     CircleShape,
-    MakeNumberArray,
-    SetBlockSolve,
-    GetBlockSolve,
+    makeNumberArray,
+    setBlockSolve,
+    getBlockSolve,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
@@ -42,27 +42,27 @@ class BoxStackTest extends Test {
 
     public m_bodies = new Array<Body>(BoxStackTest.e_rowCount * BoxStackTest.e_columnCount);
 
-    public m_indices = MakeNumberArray(BoxStackTest.e_rowCount * BoxStackTest.e_columnCount);
+    public m_indices = makeNumberArray(BoxStackTest.e_rowCount * BoxStackTest.e_columnCount);
 
     public constructor() {
         super();
 
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape });
 
-            shape.SetTwoSided(new Vec2(20, 0), new Vec2(20, 20));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(20, 0), new Vec2(20, 20));
+            ground.createFixture({ shape });
         }
 
         const xs = [0, -10, -5, 5, 10];
 
         for (let j = 0; j < BoxStackTest.e_columnCount; ++j) {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.5, 0.5);
+            shape.setAsBox(0.5, 0.5);
 
             const fd: FixtureDef = {
                 shape,
@@ -72,13 +72,13 @@ class BoxStackTest extends Test {
 
             for (let i = 0; i < BoxStackTest.e_rowCount; ++i) {
                 const n = j * BoxStackTest.e_rowCount + i;
-                // DEBUG: Assert(n < VerticalStack.e_rowCount * VerticalStack.e_columnCount);
+                // DEBUG: assert(n < VerticalStack.e_rowCount * VerticalStack.e_columnCount);
                 this.m_indices[n] = n;
 
                 const x = 0;
-                // const x = RandomFloat(-0.02, 0.02);
+                // const x = randomFloat(-0.02, 0.02);
                 // const x = i % 2 === 0 ? -0.01 : 0.01;
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: xs[j] + x, y: 0.55 + 1.1 * i },
                     userData: this.m_indices[n],
@@ -86,25 +86,25 @@ class BoxStackTest extends Test {
 
                 this.m_bodies[n] = body;
 
-                body.CreateFixture(fd);
+                body.createFixture(fd);
             }
         }
     }
 
     public getHotkeys(): HotKey[] {
         return [
-            hotKeyPress("Enter", "Launch a bullet", () => this.LaunchBullet()),
-            hotKeyPress("b", "Toggle Block solving", () => SetBlockSolve(!GetBlockSolve())),
+            hotKeyPress("Enter", "Launch a bullet", () => this.launchBullet()),
+            hotKeyPress("b", "Toggle Block solving", () => setBlockSolve(!getBlockSolve())),
         ];
     }
 
-    public Destroy() {
-        SetBlockSolve(true);
+    public destroy() {
+        setBlockSolve(true);
     }
 
-    private LaunchBullet() {
+    private launchBullet() {
         if (this.m_bullet) {
-            this.m_world.DestroyBody(this.m_bullet);
+            this.m_world.destroyBody(this.m_bullet);
             this.m_bullet = null;
         }
 
@@ -118,23 +118,23 @@ class BoxStackTest extends Test {
                 restitution: 0.05,
             };
 
-            this.m_bullet = this.m_world.CreateBody({
+            this.m_bullet = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 bullet: true,
                 position: { x: -31, y: 5 },
             });
-            this.m_bullet.CreateFixture(fd);
+            this.m_bullet.createFixture(fd);
 
-            this.m_bullet.SetLinearVelocity(new Vec2(400, 0));
+            this.m_bullet.setLinearVelocity(new Vec2(400, 0));
         }
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
-        this.addDebug("Blocksolve", GetBlockSolve());
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
+        this.addDebug("Blocksolve", getBlockSolve());
         // if (this.m_stepCount === 300) {
         //     if (this.m_bullet !== null) {
-        //         this.m_world.DestroyBody(this.m_bullet);
+        //         this.m_world.destroyBody(this.m_bullet);
         //         this.m_bullet = null;
         //     }
 
@@ -142,18 +142,18 @@ class BoxStackTest extends Test {
         //         const shape = new CircleShape();
         //         shape.m_radius = 0.25;
 
-        //         this.m_bullet = this.m_world.CreateBody({
+        //         this.m_bullet = this.m_world.createBody({
         //             type: BodyType.Dynamic,
         //             bullet: true,
         //             position: { x: -31, y: 5 },
         //         });
-        //         this.m_bullet.CreateFixture({
+        //         this.m_bullet.createFixture({
         //             shape,
         //             density: 20,
         //             restitution: 0.05,
         //         });
 
-        //         this.m_bullet.SetLinearVelocity(new Vec2(400, 0));
+        //         this.m_bullet.setLinearVelocity(new Vec2(400, 0));
         //     }
         // }
     }

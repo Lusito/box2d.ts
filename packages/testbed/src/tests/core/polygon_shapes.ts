@@ -19,14 +19,14 @@
 import {
     CircleShape,
     Transform,
-    TestOverlap,
+    testOverlap,
     Color,
     Body,
     PolygonShape,
     EdgeShape,
     Vec2,
     BodyType,
-    RandomFloat,
+    randomFloat,
     AABB,
 } from "@box2d/core";
 
@@ -46,7 +46,7 @@ const temp = {
 
 /**
  * This tests stacking. It also shows how to use World::Query
- * and TestOverlap.
+ * and testOverlap.
  */
 class PolygonShapesTest extends Test {
     public static readonly e_maxBodies = 256;
@@ -64,11 +64,11 @@ class PolygonShapesTest extends Test {
 
         // Ground body
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape });
         }
 
         {
@@ -76,7 +76,7 @@ class PolygonShapesTest extends Test {
             vertices[0] = new Vec2(-0.5, 0);
             vertices[1] = new Vec2(0.5, 0);
             vertices[2] = new Vec2(0, 1.5);
-            this.m_polygons[0].Set(vertices, 3);
+            this.m_polygons[0].set(vertices, 3);
         }
 
         {
@@ -84,7 +84,7 @@ class PolygonShapesTest extends Test {
             vertices[0] = new Vec2(-0.1, 0);
             vertices[1] = new Vec2(0.1, 0);
             vertices[2] = new Vec2(0, 1.5);
-            this.m_polygons[1].Set(vertices, 3);
+            this.m_polygons[1].set(vertices, 3);
         }
 
         {
@@ -102,10 +102,10 @@ class PolygonShapesTest extends Test {
             vertices[6] = new Vec2(-0.5 * w, b);
             vertices[7] = new Vec2(-0.5 * s, 0);
 
-            this.m_polygons[2].Set(vertices, 8);
+            this.m_polygons[2].set(vertices, 8);
         }
 
-        this.m_polygons[3].SetAsBox(0.5, 0.5);
+        this.m_polygons[3].setAsBox(0.5, 0.5);
         this.m_circle.m_radius = 0.5;
 
         for (let i = 0; i < PolygonShapesTest.e_maxBodies; ++i) {
@@ -113,28 +113,28 @@ class PolygonShapesTest extends Test {
         }
     }
 
-    public CreateBody(index: number) {
+    public createBody(index: number) {
         let body = this.m_bodies[this.m_bodyIndex];
         if (body) {
-            this.m_world.DestroyBody(body);
+            this.m_world.destroyBody(body);
             this.m_bodies[this.m_bodyIndex] = null;
         }
 
-        body = this.m_bodies[this.m_bodyIndex] = this.m_world.CreateBody({
+        body = this.m_bodies[this.m_bodyIndex] = this.m_world.createBody({
             type: BodyType.Dynamic,
-            position: { x: RandomFloat(-2, 2), y: 10 },
-            angle: RandomFloat(-Math.PI, Math.PI),
+            position: { x: randomFloat(-2, 2), y: 10 },
+            angle: randomFloat(-Math.PI, Math.PI),
             angularDamping: index === 4 ? 0.02 : 0,
         });
 
         if (index < 4) {
-            body.CreateFixture({
+            body.createFixture({
                 shape: this.m_polygons[index],
                 density: 1,
                 friction: 0.3,
             });
         } else {
-            body.CreateFixture({
+            body.createFixture({
                 shape: this.m_circle,
                 density: 1,
                 friction: 0.3,
@@ -144,11 +144,11 @@ class PolygonShapesTest extends Test {
         this.m_bodyIndex = (this.m_bodyIndex + 1) % PolygonShapesTest.e_maxBodies;
     }
 
-    public DestroyBody() {
+    public destroyBody() {
         for (let i = 0; i < PolygonShapesTest.e_maxBodies; ++i) {
             const body = this.m_bodies[i];
             if (body) {
-                this.m_world.DestroyBody(body);
+                this.m_world.destroyBody(body);
                 this.m_bodies[i] = null;
                 return;
             }
@@ -157,53 +157,53 @@ class PolygonShapesTest extends Test {
 
     public getHotkeys(): HotKey[] {
         return [
-            hotKeyPress("1", "Create Triangle", () => this.CreateBody(0)),
-            hotKeyPress("2", "Create Flat Triangle", () => this.CreateBody(1)),
-            hotKeyPress("3", "Create Octagon", () => this.CreateBody(2)),
-            hotKeyPress("4", "Create Box", () => this.CreateBody(3)),
-            hotKeyPress("5", "Create Circle", () => this.CreateBody(4)),
+            hotKeyPress("1", "Create Triangle", () => this.createBody(0)),
+            hotKeyPress("2", "Create Flat Triangle", () => this.createBody(1)),
+            hotKeyPress("3", "Create Octagon", () => this.createBody(2)),
+            hotKeyPress("4", "Create Box", () => this.createBody(3)),
+            hotKeyPress("5", "Create Circle", () => this.createBody(4)),
             hotKeyPress("a", "Toggle Enabled of Even Bodies", () => {
                 for (let i = 0; i < PolygonShapesTest.e_maxBodies; i += 2) {
                     const body = this.m_bodies[i];
                     if (body) {
-                        body.SetEnabled(!body.IsEnabled());
+                        body.setEnabled(!body.isEnabled());
                     }
                 }
             }),
-            hotKeyPress("d", "Destroy Body", () => this.DestroyBody()),
+            hotKeyPress("d", "Destroy Body", () => this.destroyBody()),
         ];
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
 
         let count = 0;
         const { circle, transform } = temp.Step;
         circle.m_radius = 2;
-        circle.m_p.Set(0, 1.1);
-        transform.SetIdentity();
+        circle.m_p.set(0, 1.1);
+        transform.setIdentity();
 
         const aabb = new AABB();
-        circle.ComputeAABB(aabb, transform, 0);
+        circle.computeAABB(aabb, transform, 0);
 
         /**
          * We find all the fixtures that overlap an AABB. Of those, we use
-         * TestOverlap to determine which fixtures overlap a circle.
+         * testOverlap to determine which fixtures overlap a circle.
          * Up to 4 overlapped fixtures will be highlighted with a yellow
          * border.
          */
-        this.m_world.QueryAABB(aabb, (fixture) => {
+        this.m_world.queryAABB(aabb, (fixture) => {
             if (count === queryCallbackMaxCount) return false;
 
-            const body = fixture.GetBody();
-            const shape = fixture.GetShape();
+            const body = fixture.getBody();
+            const shape = fixture.getShape();
 
-            const overlap = TestOverlap(shape, 0, circle, 0, body.GetTransform(), transform);
+            const overlap = testOverlap(shape, 0, circle, 0, body.getTransform(), transform);
 
             if (overlap) {
                 const color = new Color(0.95, 0.95, 0.6);
-                const center = body.GetWorldCenter();
-                g_debugDraw.DrawPoint(center, 5, color);
+                const center = body.getWorldCenter();
+                g_debugDraw.drawPoint(center, 5, color);
                 ++count;
             }
 
@@ -211,7 +211,7 @@ class PolygonShapesTest extends Test {
         });
 
         const color = new Color(0.4, 0.7, 0.8);
-        g_debugDraw.DrawCircle(circle.m_p, circle.m_radius, color);
+        g_debugDraw.drawCircle(circle.m_p, circle.m_radius, color);
     }
 }
 

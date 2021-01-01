@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { Vec2, CircleShape, BodyType, RandomFloat, PolygonShape, XY } from "@box2d/core";
+import { Vec2, CircleShape, BodyType, randomFloat, PolygonShape, XY } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
@@ -26,7 +26,7 @@ class AddPairTest extends Test {
 
         {
             const shape = new CircleShape();
-            shape.m_p.SetZero();
+            shape.m_p.setZero();
             shape.m_radius = 0.1;
 
             const minX = -6;
@@ -35,21 +35,21 @@ class AddPairTest extends Test {
             const maxY = 6;
 
             for (let i = 0; i < 400; ++i) {
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     position: {
-                        x: RandomFloat(minX, maxX),
-                        y: RandomFloat(minY, maxY),
+                        x: randomFloat(minX, maxX),
+                        y: randomFloat(minY, maxY),
                     },
                 });
-                body.CreateFixture({ shape, density: 0.01 });
+                body.createFixture({ shape, density: 0.01 });
             }
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(1.5, 1.5);
-            const body = this.m_world.CreateBody({
+            shape.setAsBox(1.5, 1.5);
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: {
                     x: -40,
@@ -57,12 +57,12 @@ class AddPairTest extends Test {
                 },
                 bullet: true,
             });
-            body.CreateFixture({ shape, density: 1 });
-            body.SetLinearVelocity(new Vec2(10, 0));
+            body.createFixture({ shape, density: 1 });
+            body.setLinearVelocity(new Vec2(10, 0));
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 65;
     }
 

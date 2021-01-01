@@ -21,14 +21,14 @@
 // SOFTWARE.
 
 import { Transform } from "../common/b2_math";
-import { CollideCircles } from "../collision/b2_collide_circle";
+import { collideCircles } from "../collision/b2_collide_circle";
 import { Manifold } from "../collision/b2_collision";
 import { CircleShape } from "../collision/b2_circle_shape";
 import { Contact } from "./b2_contact";
 
 /** @internal */
 export class CircleContact extends Contact<CircleShape, CircleShape> {
-    public Evaluate(manifold: Manifold, xfA: Transform, xfB: Transform): void {
-        CollideCircles(manifold, this.GetShapeA(), xfA, this.GetShapeB(), xfB);
+    public evaluate(manifold: Manifold, xfA: Transform, xfB: Transform): void {
+        collideCircles(manifold, this.getShapeA(), xfA, this.getShapeB(), xfB);
     }
 }

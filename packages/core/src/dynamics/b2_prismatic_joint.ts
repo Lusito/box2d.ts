@@ -22,7 +22,7 @@
 
 import { LINEAR_SLOP, ANGULAR_SLOP } from "../common/b2_common";
 import { Draw, debugColors } from "../common/b2_draw";
-import { Clamp, Vec2, Mat22, Vec3, Mat33, Rot, XY, Transform } from "../common/b2_math";
+import { clamp, Vec2, Mat22, Vec3, Mat33, Rot, XY, Transform } from "../common/b2_math";
 import { Body } from "./b2_body";
 import { Joint, JointDef, JointType, IJointDef } from "./b2_joint";
 import { SolverData } from "./b2_time_step";
@@ -133,13 +133,13 @@ export class PrismaticJointDef extends JointDef implements IPrismaticJointDef {
         super(JointType.Prismatic);
     }
 
-    public Initialize(bA: Body, bB: Body, anchor: XY, axis: XY): void {
+    public initialize(bA: Body, bB: Body, anchor: XY, axis: XY): void {
         this.bodyA = bA;
         this.bodyB = bB;
-        this.bodyA.GetLocalPoint(anchor, this.localAnchorA);
-        this.bodyB.GetLocalPoint(anchor, this.localAnchorB);
-        this.bodyA.GetLocalVector(axis, this.localAxisA);
-        this.referenceAngle = this.bodyB.GetAngle() - this.bodyA.GetAngle();
+        this.bodyA.getLocalPoint(anchor, this.localAnchorA);
+        this.bodyB.getLocalPoint(anchor, this.localAnchorB);
+        this.bodyA.getLocalVector(axis, this.localAxisA);
+        this.referenceAngle = this.bodyB.getAngle() - this.bodyA.getAngle();
     }
 }
 
@@ -268,14 +268,14 @@ export class PrismaticJoint extends Joint {
     public constructor(def: IPrismaticJointDef) {
         super(def);
 
-        this.m_localAnchorA.Copy(def.localAnchorA ?? Vec2.ZERO);
-        this.m_localAnchorB.Copy(def.localAnchorB ?? Vec2.ZERO);
-        Vec2.Normalize(def.localAxisA ?? Vec2.UNITX, this.m_localXAxisA);
-        Vec2.CrossOneVec2(this.m_localXAxisA, this.m_localYAxisA);
+        this.m_localAnchorA.copy(def.localAnchorA ?? Vec2.ZERO);
+        this.m_localAnchorB.copy(def.localAnchorB ?? Vec2.ZERO);
+        Vec2.normalize(def.localAxisA ?? Vec2.UNITX, this.m_localXAxisA);
+        Vec2.crossOneVec2(this.m_localXAxisA, this.m_localYAxisA);
         this.m_referenceAngle = def.referenceAngle ?? 0;
         this.m_lowerTranslation = def.lowerTranslation ?? 0;
         this.m_upperTranslation = def.upperTranslation ?? 0;
-        // Assert(this.m_lowerTranslation <= this.m_upperTranslation);
+        // assert(this.m_lowerTranslation <= this.m_upperTranslation);
         this.m_maxMotorForce = def.maxMotorForce ?? 0;
         this.m_motorSpeed = def.motorSpeed ?? 0;
         this.m_enableLimit = def.enableLimit ?? false;
@@ -283,11 +283,11 @@ export class PrismaticJoint extends Joint {
     }
 
     /** @internal protected */
-    public InitVelocityConstraints(data: SolverData): void {
+    public initVelocityConstraints(data: SolverData): void {
         this.m_indexA = this.m_bodyA.m_islandIndex;
         this.m_indexB = this.m_bodyB.m_islandIndex;
-        this.m_localCenterA.Copy(this.m_bodyA.m_sweep.localCenter);
-        this.m_localCenterB.Copy(this.m_bodyB.m_sweep.localCenter);
+        this.m_localCenterA.copy(this.m_bodyA.m_sweep.localCenter);
+        this.m_localCenterB.copy(this.m_bodyB.m_sweep.localCenter);
         this.m_invMassA = this.m_bodyA.m_invMass;
         this.m_invMassB = this.m_bodyB.m_invMass;
         this.m_invIA = this.m_bodyA.m_invI;
@@ -304,13 +304,13 @@ export class PrismaticJoint extends Joint {
         let wB = data.velocities[this.m_indexB].w;
 
         const { qA, qB, lalcA, lalcB, rA, rB } = temp;
-        qA.Set(aA);
-        qB.Set(aB);
+        qA.set(aA);
+        qB.set(aB);
 
         // Compute the effective masses.
-        Rot.MultiplyVec2(qA, Vec2.Subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), rA);
-        Rot.MultiplyVec2(qB, Vec2.Subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), rB);
-        const d = Vec2.Subtract(cB, cA, temp.InitVelocityConstraints.d).Add(rB).Subtract(rA);
+        Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), rA);
+        Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), rB);
+        const d = Vec2.subtract(cB, cA, temp.InitVelocityConstraints.d).add(rB).subtract(rA);
 
         const mA = this.m_invMassA;
         const mB = this.m_invMassB;
@@ -318,9 +318,9 @@ export class PrismaticJoint extends Joint {
         const iB = this.m_invIB;
 
         // Compute motor Jacobian and effective mass.
-        Rot.MultiplyVec2(qA, this.m_localXAxisA, this.m_axis);
-        this.m_a1 = Vec2.Cross(Vec2.Add(d, rA, Vec2.s_t0), this.m_axis);
-        this.m_a2 = Vec2.Cross(rB, this.m_axis);
+        Rot.multiplyVec2(qA, this.m_localXAxisA, this.m_axis);
+        this.m_a1 = Vec2.cross(Vec2.add(d, rA, Vec2.s_t0), this.m_axis);
+        this.m_a2 = Vec2.cross(rB, this.m_axis);
 
         this.m_axialMass = mA + mB + iA * this.m_a1 * this.m_a1 + iB * this.m_a2 * this.m_a2;
         if (this.m_axialMass > 0) {
@@ -328,10 +328,10 @@ export class PrismaticJoint extends Joint {
         }
 
         // Prismatic constraint.
-        Rot.MultiplyVec2(qA, this.m_localYAxisA, this.m_perp);
+        Rot.multiplyVec2(qA, this.m_localYAxisA, this.m_perp);
 
-        this.m_s1 = Vec2.Cross(Vec2.Add(d, rA, Vec2.s_t0), this.m_perp);
-        this.m_s2 = Vec2.Cross(rB, this.m_perp);
+        this.m_s1 = Vec2.cross(Vec2.add(d, rA, Vec2.s_t0), this.m_perp);
+        this.m_s2 = Vec2.cross(rB, this.m_perp);
 
         const k11 = mA + mB + iA * this.m_s1 * this.m_s1 + iB * this.m_s2 * this.m_s2;
         const k12 = iA * this.m_s1 + iB * this.m_s2;
@@ -341,11 +341,11 @@ export class PrismaticJoint extends Joint {
             k22 = 1;
         }
 
-        this.m_K.ex.Set(k11, k12);
-        this.m_K.ey.Set(k12, k22);
+        this.m_K.ex.set(k11, k12);
+        this.m_K.ey.set(k12, k22);
 
         if (this.m_enableLimit) {
-            this.m_translation = Vec2.Dot(this.m_axis, d);
+            this.m_translation = Vec2.dot(this.m_axis, d);
         } else {
             this.m_lowerImpulse = 0;
             this.m_upperImpulse = 0;
@@ -357,24 +357,24 @@ export class PrismaticJoint extends Joint {
 
         if (data.step.warmStarting) {
             // Account for variable time step.
-            this.m_impulse.Scale(data.step.dtRatio);
+            this.m_impulse.scale(data.step.dtRatio);
             this.m_motorImpulse *= data.step.dtRatio;
             this.m_lowerImpulse *= data.step.dtRatio;
             this.m_upperImpulse *= data.step.dtRatio;
 
             const axialImpulse = this.m_motorImpulse + this.m_lowerImpulse - this.m_upperImpulse;
             const { P } = temp.InitVelocityConstraints;
-            Vec2.Scale(this.m_impulse.x, this.m_perp, P).AddScaled(axialImpulse, this.m_axis);
+            Vec2.scale(this.m_impulse.x, this.m_perp, P).addScaled(axialImpulse, this.m_axis);
             const LA = this.m_impulse.x * this.m_s1 + this.m_impulse.y + axialImpulse * this.m_a1;
             const LB = this.m_impulse.x * this.m_s2 + this.m_impulse.y + axialImpulse * this.m_a2;
 
-            vA.SubtractScaled(mA, P);
+            vA.subtractScaled(mA, P);
             wA -= iA * LA;
 
-            vB.AddScaled(mB, P);
+            vB.addScaled(mB, P);
             wB += iB * LB;
         } else {
-            this.m_impulse.SetZero();
+            this.m_impulse.setZero();
             this.m_motorImpulse = 0;
             this.m_lowerImpulse = 0;
             this.m_upperImpulse = 0;
@@ -385,7 +385,7 @@ export class PrismaticJoint extends Joint {
     }
 
     /** @internal protected */
-    public SolveVelocityConstraints(data: SolverData): void {
+    public solveVelocityConstraints(data: SolverData): void {
         const vA = data.velocities[this.m_indexA].v;
         let wA = data.velocities[this.m_indexA].w;
         const vB = data.velocities[this.m_indexB].v;
@@ -400,20 +400,20 @@ export class PrismaticJoint extends Joint {
 
         // Solve linear motor constraint.
         if (this.m_enableMotor) {
-            const Cdot = Vec2.Dot(this.m_axis, Vec2.Subtract(vB, vA, Vec2.s_t0)) + this.m_a2 * wB - this.m_a1 * wA;
+            const Cdot = Vec2.dot(this.m_axis, Vec2.subtract(vB, vA, Vec2.s_t0)) + this.m_a2 * wB - this.m_a1 * wA;
             let impulse = this.m_axialMass * (this.m_motorSpeed - Cdot);
             const oldImpulse = this.m_motorImpulse;
             const maxImpulse = data.step.dt * this.m_maxMotorForce;
-            this.m_motorImpulse = Clamp(this.m_motorImpulse + impulse, -maxImpulse, maxImpulse);
+            this.m_motorImpulse = clamp(this.m_motorImpulse + impulse, -maxImpulse, maxImpulse);
             impulse = this.m_motorImpulse - oldImpulse;
 
-            Vec2.Scale(impulse, this.m_axis, P);
+            Vec2.scale(impulse, this.m_axis, P);
             const LA = impulse * this.m_a1;
             const LB = impulse * this.m_a2;
 
-            vA.SubtractScaled(mA, P);
+            vA.subtractScaled(mA, P);
             wA -= iA * LA;
-            vB.AddScaled(mB, P);
+            vB.addScaled(mB, P);
             wB += iB * LB;
         }
 
@@ -421,19 +421,19 @@ export class PrismaticJoint extends Joint {
             // Lower limit
             {
                 const C = this.m_translation - this.m_lowerTranslation;
-                const Cdot = Vec2.Dot(this.m_axis, Vec2.Subtract(vB, vA, Vec2.s_t0)) + this.m_a2 * wB - this.m_a1 * wA;
+                const Cdot = Vec2.dot(this.m_axis, Vec2.subtract(vB, vA, Vec2.s_t0)) + this.m_a2 * wB - this.m_a1 * wA;
                 let impulse = -this.m_axialMass * (Cdot + Math.max(C, 0) * data.step.inv_dt);
                 const oldImpulse = this.m_lowerImpulse;
                 this.m_lowerImpulse = Math.max(this.m_lowerImpulse + impulse, 0);
                 impulse = this.m_lowerImpulse - oldImpulse;
 
-                Vec2.Scale(impulse, this.m_axis, P);
+                Vec2.scale(impulse, this.m_axis, P);
                 const LA = impulse * this.m_a1;
                 const LB = impulse * this.m_a2;
 
-                vA.SubtractScaled(mA, P);
+                vA.subtractScaled(mA, P);
                 wA -= iA * LA;
-                vB.AddScaled(mB, P);
+                vB.addScaled(mB, P);
                 wB += iB * LB;
             }
 
@@ -442,39 +442,39 @@ export class PrismaticJoint extends Joint {
             // This also keeps the impulse positive when the limit is active.
             {
                 const C = this.m_upperTranslation - this.m_translation;
-                const Cdot = Vec2.Dot(this.m_axis, Vec2.Subtract(vA, vB, Vec2.s_t0)) + this.m_a1 * wA - this.m_a2 * wB;
+                const Cdot = Vec2.dot(this.m_axis, Vec2.subtract(vA, vB, Vec2.s_t0)) + this.m_a1 * wA - this.m_a2 * wB;
                 let impulse = -this.m_axialMass * (Cdot + Math.max(C, 0) * data.step.inv_dt);
                 const oldImpulse = this.m_upperImpulse;
                 this.m_upperImpulse = Math.max(this.m_upperImpulse + impulse, 0);
                 impulse = this.m_upperImpulse - oldImpulse;
 
-                Vec2.Scale(impulse, this.m_axis, P);
+                Vec2.scale(impulse, this.m_axis, P);
                 const LA = impulse * this.m_a1;
                 const LB = impulse * this.m_a2;
 
-                vA.AddScaled(mA, P);
+                vA.addScaled(mA, P);
                 wA += iA * LA;
-                vB.SubtractScaled(mB, P);
+                vB.subtractScaled(mB, P);
                 wB -= iB * LB;
             }
         }
 
         // Solve the prismatic constraint in block form.
         {
-            const Cdot_x = Vec2.Dot(this.m_perp, Vec2.Subtract(vB, vA, Vec2.s_t0)) + this.m_s2 * wB - this.m_s1 * wA;
+            const Cdot_x = Vec2.dot(this.m_perp, Vec2.subtract(vB, vA, Vec2.s_t0)) + this.m_s2 * wB - this.m_s1 * wA;
             const Cdot_y = wB - wA;
 
-            this.m_K.Solve(-Cdot_x, -Cdot_y, df);
-            this.m_impulse.Add(df);
+            this.m_K.solve(-Cdot_x, -Cdot_y, df);
+            this.m_impulse.add(df);
 
-            Vec2.Scale(df.x, this.m_perp, P);
+            Vec2.scale(df.x, this.m_perp, P);
             const LA = df.x * this.m_s1 + df.y;
             const LB = df.x * this.m_s2 + df.y;
 
-            vA.SubtractScaled(mA, P);
+            vA.subtractScaled(mA, P);
             wA -= iA * LA;
 
-            vB.AddScaled(mB, P);
+            vB.addScaled(mB, P);
             wB += iB * LB;
         }
 
@@ -493,15 +493,15 @@ export class PrismaticJoint extends Joint {
      *
      * @internal protected
      */
-    public SolvePositionConstraints(data: SolverData): boolean {
+    public solvePositionConstraints(data: SolverData): boolean {
         const cA = data.positions[this.m_indexA].c;
         let aA = data.positions[this.m_indexA].a;
         const cB = data.positions[this.m_indexB].c;
         let aB = data.positions[this.m_indexB].a;
 
         const { qA, qB, lalcA, lalcB, rA, rB } = temp;
-        qA.Set(aA);
-        qB.Set(aB);
+        qA.set(aA);
+        qB.set(aB);
 
         const mA = this.m_invMassA;
         const mB = this.m_invMassB;
@@ -510,19 +510,19 @@ export class PrismaticJoint extends Joint {
 
         // Compute fresh Jacobians
         const { d, impulse, P } = temp.SolvePositionConstraints;
-        Rot.MultiplyVec2(qA, Vec2.Subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), rA);
-        Rot.MultiplyVec2(qB, Vec2.Subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), rB);
-        Vec2.Add(cB, rB, d).Subtract(cA).Subtract(rA);
+        Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), rA);
+        Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), rB);
+        Vec2.add(cB, rB, d).subtract(cA).subtract(rA);
 
-        const axis = Rot.MultiplyVec2(qA, this.m_localXAxisA, this.m_axis);
-        const a1 = Vec2.Cross(Vec2.Add(d, rA, Vec2.s_t0), axis);
-        const a2 = Vec2.Cross(rB, axis);
-        const perp = Rot.MultiplyVec2(qA, this.m_localYAxisA, this.m_perp);
+        const axis = Rot.multiplyVec2(qA, this.m_localXAxisA, this.m_axis);
+        const a1 = Vec2.cross(Vec2.add(d, rA, Vec2.s_t0), axis);
+        const a2 = Vec2.cross(rB, axis);
+        const perp = Rot.multiplyVec2(qA, this.m_localYAxisA, this.m_perp);
 
-        const s1 = Vec2.Cross(Vec2.Add(d, rA, Vec2.s_t0), perp);
-        const s2 = Vec2.Cross(rB, perp);
+        const s1 = Vec2.cross(Vec2.add(d, rA, Vec2.s_t0), perp);
+        const s2 = Vec2.cross(rB, perp);
 
-        const C1_x = Vec2.Dot(perp, d);
+        const C1_x = Vec2.dot(perp, d);
         const C1_y = aB - aA - this.m_referenceAngle;
 
         let linearError = Math.abs(C1_x);
@@ -531,7 +531,7 @@ export class PrismaticJoint extends Joint {
         let active = false;
         let C2 = 0;
         if (this.m_enableLimit) {
-            const translation = Vec2.Dot(axis, d);
+            const translation = Vec2.dot(axis, d);
             if (Math.abs(this.m_upperTranslation - this.m_lowerTranslation) < 2 * LINEAR_SLOP) {
                 C2 = translation;
                 linearError = Math.max(linearError, Math.abs(translation));
@@ -560,11 +560,11 @@ export class PrismaticJoint extends Joint {
             const k33 = mA + mB + iA * a1 * a1 + iB * a2 * a2;
 
             const K = temp.K3;
-            K.ex.Set(k11, k12, k13);
-            K.ey.Set(k12, k22, k23);
-            K.ez.Set(k13, k23, k33);
+            K.ex.set(k11, k12, k13);
+            K.ey.set(k12, k22, k23);
+            K.ez.set(k13, k23, k33);
 
-            K.Solve33(-C1_x, -C1_y, -C2, impulse);
+            K.solve33(-C1_x, -C1_y, -C2, impulse);
         } else {
             const k11 = mA + mB + iA * s1 * s1 + iB * s2 * s2;
             const k12 = iA * s1 + iB * s2;
@@ -574,22 +574,22 @@ export class PrismaticJoint extends Joint {
             }
 
             const K = temp.K2;
-            K.ex.Set(k11, k12);
-            K.ey.Set(k12, k22);
+            K.ex.set(k11, k12);
+            K.ey.set(k12, k22);
 
-            const impulse1 = K.Solve(-C1_x, -C1_y, temp.SolvePositionConstraints.impulse1);
+            const impulse1 = K.solve(-C1_x, -C1_y, temp.SolvePositionConstraints.impulse1);
             impulse.x = impulse1.x;
             impulse.y = impulse1.y;
             impulse.z = 0;
         }
 
-        Vec2.Scale(impulse.x, perp, P).AddScaled(impulse.z, axis);
+        Vec2.scale(impulse.x, perp, P).addScaled(impulse.z, axis);
         const LA = impulse.x * s1 + impulse.y + impulse.z * a1;
         const LB = impulse.x * s2 + impulse.y + impulse.z * a2;
 
-        cA.SubtractScaled(mA, P);
+        cA.subtractScaled(mA, P);
         aA -= iA * LA;
-        cB.AddScaled(mB, P);
+        cB.addScaled(mB, P);
         aB += iB * LB;
 
         data.positions[this.m_indexA].a = aA;
@@ -598,63 +598,63 @@ export class PrismaticJoint extends Joint {
         return linearError <= LINEAR_SLOP && angularError <= ANGULAR_SLOP;
     }
 
-    public GetAnchorA<T extends XY>(out: T): T {
-        return this.m_bodyA.GetWorldPoint(this.m_localAnchorA, out);
+    public getAnchorA<T extends XY>(out: T): T {
+        return this.m_bodyA.getWorldPoint(this.m_localAnchorA, out);
     }
 
-    public GetAnchorB<T extends XY>(out: T): T {
-        return this.m_bodyB.GetWorldPoint(this.m_localAnchorB, out);
+    public getAnchorB<T extends XY>(out: T): T {
+        return this.m_bodyB.getWorldPoint(this.m_localAnchorB, out);
     }
 
-    public GetReactionForce<T extends XY>(inv_dt: number, out: T): T {
+    public getReactionForce<T extends XY>(inv_dt: number, out: T): T {
         const f = this.m_motorImpulse + this.m_lowerImpulse - this.m_upperImpulse;
         out.x = inv_dt * (this.m_impulse.x * this.m_perp.x + f * this.m_axis.x);
         out.y = inv_dt * (this.m_impulse.x * this.m_perp.y + f * this.m_axis.y);
         return out;
     }
 
-    public GetReactionTorque(inv_dt: number): number {
+    public getReactionTorque(inv_dt: number): number {
         return inv_dt * this.m_impulse.y;
     }
 
-    public GetLocalAnchorA(): Readonly<Vec2> {
+    public getLocalAnchorA(): Readonly<Vec2> {
         return this.m_localAnchorA;
     }
 
-    public GetLocalAnchorB(): Readonly<Vec2> {
+    public getLocalAnchorB(): Readonly<Vec2> {
         return this.m_localAnchorB;
     }
 
-    public GetLocalAxisA(): Readonly<Vec2> {
+    public getLocalAxisA(): Readonly<Vec2> {
         return this.m_localXAxisA;
     }
 
-    public GetReferenceAngle() {
+    public getReferenceAngle() {
         return this.m_referenceAngle;
     }
 
-    public GetJointTranslation(): number {
+    public getJointTranslation(): number {
         const { pA, pB, axis, d } = temp.GetJointTranslation;
-        this.m_bodyA.GetWorldPoint(this.m_localAnchorA, pA);
-        this.m_bodyB.GetWorldPoint(this.m_localAnchorB, pB);
-        Vec2.Subtract(pB, pA, d);
-        this.m_bodyA.GetWorldVector(this.m_localXAxisA, axis);
+        this.m_bodyA.getWorldPoint(this.m_localAnchorA, pA);
+        this.m_bodyB.getWorldPoint(this.m_localAnchorB, pB);
+        Vec2.subtract(pB, pA, d);
+        this.m_bodyA.getWorldVector(this.m_localXAxisA, axis);
 
-        const translation = Vec2.Dot(d, axis);
+        const translation = Vec2.dot(d, axis);
         return translation;
     }
 
-    public GetJointSpeed(): number {
+    public getJointSpeed(): number {
         const bA = this.m_bodyA;
         const bB = this.m_bodyB;
 
         const { lalcA, lalcB, rA, rB } = temp;
-        Rot.MultiplyVec2(bA.m_xf.q, Vec2.Subtract(this.m_localAnchorA, bA.m_sweep.localCenter, lalcA), rA);
-        Rot.MultiplyVec2(bB.m_xf.q, Vec2.Subtract(this.m_localAnchorB, bB.m_sweep.localCenter, lalcB), rB);
-        const p1 = Vec2.Add(bA.m_sweep.c, rA, Vec2.s_t0);
-        const p2 = Vec2.Add(bB.m_sweep.c, rB, Vec2.s_t1);
-        const d = Vec2.Subtract(p2, p1, Vec2.s_t2);
-        const axis = Rot.MultiplyVec2(bA.m_xf.q, this.m_localXAxisA, this.m_axis);
+        Rot.multiplyVec2(bA.m_xf.q, Vec2.subtract(this.m_localAnchorA, bA.m_sweep.localCenter, lalcA), rA);
+        Rot.multiplyVec2(bB.m_xf.q, Vec2.subtract(this.m_localAnchorB, bB.m_sweep.localCenter, lalcB), rB);
+        const p1 = Vec2.add(bA.m_sweep.c, rA, Vec2.s_t0);
+        const p2 = Vec2.add(bB.m_sweep.c, rB, Vec2.s_t1);
+        const d = Vec2.subtract(p2, p1, Vec2.s_t2);
+        const axis = Rot.multiplyVec2(bA.m_xf.q, this.m_localXAxisA, this.m_axis);
 
         const vA = bA.m_linearVelocity;
         const vB = bB.m_linearVelocity;
@@ -662,26 +662,26 @@ export class PrismaticJoint extends Joint {
         const wB = bB.m_angularVelocity;
 
         const speed =
-            Vec2.Dot(d, Vec2.CrossScalarVec2(wA, axis, Vec2.s_t0)) +
-            Vec2.Dot(
+            Vec2.dot(d, Vec2.crossScalarVec2(wA, axis, Vec2.s_t0)) +
+            Vec2.dot(
                 axis,
-                Vec2.Subtract(
-                    Vec2.AddCrossScalarVec2(vB, wB, rB, Vec2.s_t0),
-                    Vec2.AddCrossScalarVec2(vA, wA, rA, Vec2.s_t1),
+                Vec2.subtract(
+                    Vec2.addCrossScalarVec2(vB, wB, rB, Vec2.s_t0),
+                    Vec2.addCrossScalarVec2(vA, wA, rA, Vec2.s_t1),
                     Vec2.s_t0,
                 ),
             );
         return speed;
     }
 
-    public IsLimitEnabled() {
+    public isLimitEnabled() {
         return this.m_enableLimit;
     }
 
-    public EnableLimit(flag: boolean): boolean {
+    public enableLimit(flag: boolean): boolean {
         if (flag !== this.m_enableLimit) {
-            this.m_bodyA.SetAwake(true);
-            this.m_bodyB.SetAwake(true);
+            this.m_bodyA.setAwake(true);
+            this.m_bodyB.setAwake(true);
             this.m_enableLimit = flag;
             this.m_lowerImpulse = 0;
             this.m_upperImpulse = 0;
@@ -689,19 +689,19 @@ export class PrismaticJoint extends Joint {
         return flag;
     }
 
-    public GetLowerLimit() {
+    public getLowerLimit() {
         return this.m_lowerTranslation;
     }
 
-    public GetUpperLimit() {
+    public getUpperLimit() {
         return this.m_upperTranslation;
     }
 
-    public SetLimits(lower: number, upper: number): void {
-        // DEBUG: Assert(lower <= upper);
+    public setLimits(lower: number, upper: number): void {
+        // DEBUG: assert(lower <= upper);
         if (lower !== this.m_lowerTranslation || upper !== this.m_upperTranslation) {
-            this.m_bodyA.SetAwake(true);
-            this.m_bodyB.SetAwake(true);
+            this.m_bodyA.setAwake(true);
+            this.m_bodyB.setAwake(true);
             this.m_lowerTranslation = lower;
             this.m_upperTranslation = upper;
             this.m_lowerImpulse = 0;
@@ -709,80 +709,80 @@ export class PrismaticJoint extends Joint {
         }
     }
 
-    public IsMotorEnabled(): boolean {
+    public isMotorEnabled(): boolean {
         return this.m_enableMotor;
     }
 
-    public EnableMotor(flag: boolean): boolean {
+    public enableMotor(flag: boolean): boolean {
         if (flag !== this.m_enableMotor) {
-            this.m_bodyA.SetAwake(true);
-            this.m_bodyB.SetAwake(true);
+            this.m_bodyA.setAwake(true);
+            this.m_bodyB.setAwake(true);
             this.m_enableMotor = flag;
         }
         return flag;
     }
 
-    public SetMotorSpeed(speed: number): number {
+    public setMotorSpeed(speed: number): number {
         if (speed !== this.m_motorSpeed) {
-            this.m_bodyA.SetAwake(true);
-            this.m_bodyB.SetAwake(true);
+            this.m_bodyA.setAwake(true);
+            this.m_bodyB.setAwake(true);
             this.m_motorSpeed = speed;
         }
         return speed;
     }
 
-    public GetMotorSpeed() {
+    public getMotorSpeed() {
         return this.m_motorSpeed;
     }
 
-    public SetMaxMotorForce(force: number): void {
+    public setMaxMotorForce(force: number): void {
         if (force !== this.m_maxMotorForce) {
-            this.m_bodyA.SetAwake(true);
-            this.m_bodyB.SetAwake(true);
+            this.m_bodyA.setAwake(true);
+            this.m_bodyB.setAwake(true);
             this.m_maxMotorForce = force;
         }
     }
 
-    public GetMaxMotorForce(): number {
+    public getMaxMotorForce(): number {
         return this.m_maxMotorForce;
     }
 
-    public GetMotorForce(inv_dt: number): number {
+    public getMotorForce(inv_dt: number): number {
         return inv_dt * this.m_motorImpulse;
     }
 
-    public Draw(draw: Draw): void {
+    public draw(draw: Draw): void {
         const { p1, p2, pA, pB, axis } = temp.Draw;
-        const xfA = this.m_bodyA.GetTransform();
-        const xfB = this.m_bodyB.GetTransform();
-        Transform.MultiplyVec2(xfA, this.m_localAnchorA, pA);
-        Transform.MultiplyVec2(xfB, this.m_localAnchorB, pB);
+        const xfA = this.m_bodyA.getTransform();
+        const xfB = this.m_bodyB.getTransform();
+        Transform.multiplyVec2(xfA, this.m_localAnchorA, pA);
+        Transform.multiplyVec2(xfB, this.m_localAnchorB, pB);
 
-        Rot.MultiplyVec2(xfA.q, this.m_localXAxisA, axis);
+        Rot.multiplyVec2(xfA.q, this.m_localXAxisA, axis);
 
-        draw.DrawSegment(pA, pB, debugColors.joint5);
+        draw.drawSegment(pA, pB, debugColors.joint5);
 
         if (this.m_enableLimit) {
             const { lower, upper, perp } = temp.Draw;
-            Vec2.AddScaled(pA, this.m_lowerTranslation, axis, lower);
-            Vec2.AddScaled(pA, this.m_upperTranslation, axis, upper);
-            Rot.MultiplyVec2(xfA.q, this.m_localYAxisA, perp);
-            draw.DrawSegment(lower, upper, debugColors.joint1);
-            draw.DrawSegment(
-                Vec2.SubtractScaled(lower, 0.5, perp, p1),
-                Vec2.AddScaled(lower, 0.5, perp, p2),
+            Vec2.addScaled(pA, this.m_lowerTranslation, axis, lower);
+            Vec2.addScaled(pA, this.m_upperTranslation, axis, upper);
+            Rot.multiplyVec2(xfA.q, this.m_localYAxisA, perp);
+            draw.drawSegment(lower, upper, debugColors.joint1);
+            draw.drawSegment(
+                Vec2.subtractScaled(lower, 0.5, perp, p1),
+                Vec2.addScaled(lower, 0.5, perp, p2),
                 debugColors.joint2,
             );
-            draw.DrawSegment(
-                Vec2.SubtractScaled(upper, 0.5, perp, p1),
-                Vec2.AddScaled(upper, 0.5, perp, p2),
+            draw.drawSegment(
+                Vec2.subtractScaled(upper, 0.5, perp, p1),
+                Vec2.addScaled(upper, 0.5, perp, p2),
                 debugColors.joint3,
             );
         } else {
-            draw.DrawSegment(Vec2.Subtract(pA, axis, p1), Vec2.Add(pA, axis, p2), debugColors.joint1);
+            draw.drawSegment(Vec2.subtract(pA, axis, p1), Vec2.add(pA, axis, p2), debugColors.joint1);
         }
 
-        draw.DrawPoint(pA, 5, debugColors.joint1);
-        draw.DrawPoint(pB, 5, debugColors.joint4);
+        draw.drawPoint(pA, 5, debugColors.joint1);
+        draw.drawPoint(pB, 5, debugColors.joint4);
     }
 }

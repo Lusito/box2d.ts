@@ -29,11 +29,11 @@ class CircleStackTest extends Test {
         super();
 
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape });
         }
 
         {
@@ -41,14 +41,14 @@ class CircleStackTest extends Test {
             shape.m_radius = 1;
 
             for (let i = 0; i < CircleStackTest.e_count; ++i) {
-                this.m_bodies[i] = this.m_world.CreateBody({
+                this.m_bodies[i] = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: 0, y: 4 + 3 * i },
                 });
 
-                this.m_bodies[i].CreateFixture({ shape, density: 1 });
+                this.m_bodies[i].createFixture({ shape, density: 1 });
 
-                this.m_bodies[i].SetLinearVelocity(new Vec2(0, -50));
+                this.m_bodies[i].setLinearVelocity(new Vec2(0, -50));
             }
         }
     }

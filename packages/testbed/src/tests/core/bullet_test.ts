@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { Body, EdgeShape, Vec2, PolygonShape, BodyType, RandomFloat, Gjk, Toi } from "@box2d/core";
+import { Body, EdgeShape, Vec2, PolygonShape, BodyType, randomFloat, Gjk, Toi } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -36,37 +36,37 @@ class BulletTest extends Test {
         super();
 
         {
-            const body = this.m_world.CreateBody();
+            const body = this.m_world.createBody();
 
             const edge = new EdgeShape();
 
-            edge.SetTwoSided(new Vec2(-10, 0), new Vec2(10, 0));
-            body.CreateFixture({ shape: edge });
+            edge.setTwoSided(new Vec2(-10, 0), new Vec2(10, 0));
+            body.createFixture({ shape: edge });
 
             const shape = new PolygonShape();
-            shape.SetAsBox(0.2, 1, new Vec2(0.5, 1), 0);
-            body.CreateFixture({ shape });
+            shape.setAsBox(0.2, 1, new Vec2(0.5, 1), 0);
+            body.createFixture({ shape });
         }
 
         {
             const box = new PolygonShape();
-            box.SetAsBox(2, 0.1);
+            box.setAsBox(2, 0.1);
 
-            this.m_body = this.m_world.CreateBody({
+            this.m_body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: {
                     x: 0,
                     y: 4,
                 },
             });
-            this.m_body.CreateFixture({ shape: box, density: 1 });
+            this.m_body.createFixture({ shape: box, density: 1 });
 
-            box.SetAsBox(0.25, 0.25);
+            box.setAsBox(0.25, 0.25);
 
-            // this.m_x = RandomFloat(-1, 1);
+            // this.m_x = randomFloat(-1, 1);
             this.m_x = 0.20352793;
 
-            this.m_bullet = this.m_world.CreateBody({
+            this.m_bullet = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 bullet: true,
                 position: {
@@ -74,32 +74,32 @@ class BulletTest extends Test {
                     y: 10,
                 },
             });
-            this.m_bullet.CreateFixture({ shape: box, density: 100 });
+            this.m_bullet.createFixture({ shape: box, density: 100 });
 
-            this.m_bullet.SetLinearVelocity(new Vec2(0, -50));
+            this.m_bullet.setLinearVelocity(new Vec2(0, -50));
         }
     }
 
-    public Launch() {
-        this.m_body.SetTransformVec(new Vec2(0, 4), 0);
-        this.m_body.SetLinearVelocity(Vec2.ZERO);
-        this.m_body.SetAngularVelocity(0);
+    public launch() {
+        this.m_body.setTransformVec(new Vec2(0, 4), 0);
+        this.m_body.setLinearVelocity(Vec2.ZERO);
+        this.m_body.setAngularVelocity(0);
 
-        this.m_x = RandomFloat(-1, 1);
-        this.m_bullet.SetTransformVec(new Vec2(this.m_x, 10), 0);
-        this.m_bullet.SetLinearVelocity(new Vec2(0, -50));
-        this.m_bullet.SetAngularVelocity(0);
+        this.m_x = randomFloat(-1, 1);
+        this.m_bullet.setTransformVec(new Vec2(this.m_x, 10), 0);
+        this.m_bullet.setLinearVelocity(new Vec2(0, -50));
+        this.m_bullet.setAngularVelocity(0);
 
         Gjk.reset();
         Toi.reset();
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 50;
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
 
         this.addDebug(
             "GJK Calls [ave Iters] (max Iters)",
@@ -117,7 +117,7 @@ class BulletTest extends Test {
         );
 
         if (this.m_stepCount % 60 === 0) {
-            this.Launch();
+            this.launch();
         }
     }
 }

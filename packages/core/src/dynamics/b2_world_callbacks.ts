@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { MAX_MANIFOLD_POINTS, MakeNumberArray } from "../common/b2_common";
+import { MAX_MANIFOLD_POINTS, makeNumberArray } from "../common/b2_common";
 import { Vec2 } from "../common/b2_math";
 import { Manifold } from "../collision/b2_collision";
 import { Contact } from "./b2_contact";
@@ -37,13 +37,13 @@ export class DestructionListener {
      * Called when any joint is about to be destroyed due
      * to the destruction of one of its attached bodies.
      */
-    public SayGoodbyeJoint(_joint: Joint): void {}
+    public sayGoodbyeJoint(_joint: Joint): void {}
 
     /**
      * Called when any fixture is about to be destroyed due
      * to the destruction of its parent body.
      */
-    public SayGoodbyeFixture(_fixture: Fixture): void {}
+    public sayGoodbyeFixture(_fixture: Fixture): void {}
 }
 
 /**
@@ -56,9 +56,9 @@ export class ContactFilter {
      *
      * @warning for performance reasons this is only called when the AABBs begin to overlap.
      */
-    public ShouldCollide(fixtureA: Fixture, fixtureB: Fixture): boolean {
-        const filterA = fixtureA.GetFilterData();
-        const filterB = fixtureB.GetFilterData();
+    public shouldCollide(fixtureA: Fixture, fixtureB: Fixture): boolean {
+        const filterA = fixtureA.getFilterData();
+        const filterB = fixtureB.getFilterData();
 
         if (filterA.groupIndex === filterB.groupIndex && filterA.groupIndex !== 0) {
             return filterA.groupIndex > 0;
@@ -76,9 +76,9 @@ export class ContactFilter {
  * match up one-to-one with the contact points in Manifold.
  */
 export class ContactImpulse {
-    public normalImpulses = MakeNumberArray(MAX_MANIFOLD_POINTS);
+    public normalImpulses = makeNumberArray(MAX_MANIFOLD_POINTS);
 
-    public tangentImpulses = MakeNumberArray(MAX_MANIFOLD_POINTS);
+    public tangentImpulses = makeNumberArray(MAX_MANIFOLD_POINTS);
 
     public count = 0;
 }
@@ -99,12 +99,12 @@ export class ContactListener {
     /**
      * Called when two fixtures begin to touch.
      */
-    public BeginContact(_contact: Contact): void {}
+    public beginContact(_contact: Contact): void {}
 
     /**
      * Called when two fixtures cease to touch.
      */
-    public EndContact(_contact: Contact): void {}
+    public endContact(_contact: Contact): void {}
 
     /**
      * This is called after a contact is updated. This allows you to inspect a
@@ -118,7 +118,7 @@ export class ContactListener {
      * get an EndContact callback. However, you may get a BeginContact callback
      * the next step.
      */
-    public PreSolve(_contact: Contact, _oldManifold: Manifold): void {}
+    public preSolve(_contact: Contact, _oldManifold: Manifold): void {}
 
     /**
      * This lets you inspect a contact after the solver is finished. This is useful
@@ -128,7 +128,7 @@ export class ContactListener {
      * in a separate data structure.
      * Note: this is only called for contacts that are touching, solid, and awake.
      */
-    public PostSolve(_contact: Contact, _impulse: ContactImpulse): void {}
+    public postSolve(_contact: Contact, _impulse: ContactImpulse): void {}
 
     public static readonly defaultListener = new ContactListener();
 }

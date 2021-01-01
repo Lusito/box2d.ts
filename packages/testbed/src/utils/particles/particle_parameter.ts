@@ -54,33 +54,33 @@ export class ParticleParameter {
         this.manager = manager;
     }
 
-    public SetValues<T extends Record<string, number>>(types: T, defaultKey: keyof T) {
+    public setValues<T extends Record<string, number>>(types: T, defaultKey: keyof T) {
         this.types = types;
         this.defaultKey = defaultKey as string;
     }
 
-    public SetRestartOnChange(restartOnChange = true) {
+    public setRestartOnChange(restartOnChange = true) {
         this.restartOnChange = restartOnChange;
     }
 
-    public Reset() {
+    public reset() {
         this.types = defaultParticleTypes;
         this.selectedKey = "";
         this.defaultKey = "water";
         this.restartOnChange = true;
     }
 
-    public GetSelectedKey() {
+    public getSelectedKey() {
         return this.selectedKey || this.defaultKey;
     }
 
-    public GetValue(): number {
-        return this.types[this.GetSelectedKey()];
+    public getValue(): number {
+        return this.types[this.getSelectedKey()];
     }
 
-    public GetControl(): TestControl {
+    public getControl(): TestControl {
         const names = Object.keys(this.types);
-        return selectDef("Particle Type", names, this.GetSelectedKey(), (value) => {
+        return selectDef("Particle Type", names, this.getSelectedKey(), (value) => {
             if (!this.selectedKey && value === this.defaultKey) this.selectedKey = value;
             else if (this.selectedKey !== value) {
                 this.selectedKey = value;

@@ -1,4 +1,4 @@
-import { Vec2, Clamp, Color } from "@box2d/core";
+import { Vec2, clamp, Color } from "@box2d/core";
 import { createContext, useContext } from "react";
 import { Signal } from "typed-signals";
 
@@ -86,14 +86,14 @@ export class TestManager {
         }
 
         this.ownHotKeys = [
-            hotKeyPress("0", "Reset Camera", () => this.HomeCamera()),
-            hotKeyPress("+", "Zoom In", () => this.ZoomCamera(1.1)),
-            hotKeyPress("-", "Zoom Out", () => this.ZoomCamera(0.9)),
-            hotKeyPress("r", "Reload Test", () => this.LoadTest()),
-            hotKeyPress("o", "Single Step", () => this.SingleStep()),
-            hotKeyPress("p", "Pause/Continue", () => this.SetPause(!this.m_settings.m_pause)),
-            hotKeyPress("PageUp", "Previous Test", () => this.DecrementTest()),
-            hotKeyPress("PageDown", "Next Test", () => this.IncrementTest()),
+            hotKeyPress("0", "Reset Camera", () => this.homeCamera()),
+            hotKeyPress("+", "Zoom In", () => this.zoomCamera(1.1)),
+            hotKeyPress("-", "Zoom Out", () => this.zoomCamera(0.9)),
+            hotKeyPress("r", "Reload Test", () => this.loadTest()),
+            hotKeyPress("o", "Single Step", () => this.singleStep()),
+            hotKeyPress("p", "Pause/Continue", () => this.setPause(!this.m_settings.m_pause)),
+            hotKeyPress("PageUp", "Previous Test", () => this.decrementTest()),
+            hotKeyPress("PageDown", "Next Test", () => this.incrementTest()),
         ];
     }
 
@@ -110,10 +110,10 @@ export class TestManager {
         this.setRightTable = setRightTables;
         this.activateTest = activateTest;
         this.setTestControlGroups = setTestControlGroups;
-        debugCanvas.addEventListener("mousedown", (e) => this.HandleMouseDown(e));
-        debugCanvas.addEventListener("mouseup", (e) => this.HandleMouseUp(e));
-        debugCanvas.addEventListener("mousemove", (e) => this.HandleMouseMove(e));
-        debugCanvas.addEventListener("wheel", (e) => this.HandleMouseWheel(e));
+        debugCanvas.addEventListener("mousedown", (e) => this.handleMouseDown(e));
+        debugCanvas.addEventListener("mouseup", (e) => this.handleMouseUp(e));
+        debugCanvas.addEventListener("mousemove", (e) => this.handleMouseMove(e));
+        debugCanvas.addEventListener("wheel", (e) => this.handleMouseWheel(e));
         debugCanvas.addEventListener("mouseenter", () => {
             this.m_hoveringCanvas = true;
         });
@@ -127,7 +127,7 @@ export class TestManager {
                 debugCanvas.width = glCanvas.width = clientWidth;
                 debugCanvas.height = glCanvas.height = clientHeight;
                 g_camera.resize(clientWidth, clientHeight);
-                this.m_test?.Resize(clientWidth, clientHeight);
+                this.m_test?.resize(clientWidth, clientHeight);
                 this.gl && resizeGlCanvas(glCanvas, this.gl, clientWidth, wrapper.clientHeight);
             }
         };
@@ -148,10 +148,10 @@ export class TestManager {
             true,
         );
 
-        window.addEventListener("keydown", (e: KeyboardEvent): void => this.HandleKey(e, true));
-        window.addEventListener("keyup", (e: KeyboardEvent): void => this.HandleKey(e, false));
+        window.addEventListener("keydown", (e: KeyboardEvent): void => this.handleKey(e, true));
+        window.addEventListener("keyup", (e: KeyboardEvent): void => this.handleKey(e, false));
 
-        this.LoadTest();
+        this.loadTest();
 
         this.prepareGl(glCanvas);
     }
@@ -160,32 +160,32 @@ export class TestManager {
         this.gl = initGlCanvas(glCanvas);
         this.textures = await preloadTextures(this.gl);
         this.defaultShader = createDefaultShader(this.gl);
-        this.LoadTest();
+        this.loadTest();
     }
 
     public setTest(title: string, constructor: TestConstructor) {
         this.testTitle = title;
         this.testConstructor = constructor;
-        this.LoadTest();
+        this.loadTest();
     }
 
-    public HomeCamera(): void {
-        const zoom = this.m_test ? this.m_test.GetDefaultViewZoom() : 25;
+    public homeCamera(): void {
+        const zoom = this.m_test ? this.m_test.getDefaultViewZoom() : 25;
         const center = this.m_test ? this.m_test.getCenter() : Vec2.ZERO;
         g_camera.setPositionAndZoom(center.x, center.y, zoom);
     }
 
-    public ZoomCamera(zoom: number): void {
-        g_camera.setZoom(Clamp(g_camera.getZoom() * zoom, 0.5, 500));
+    public zoomCamera(zoom: number): void {
+        g_camera.setZoom(clamp(g_camera.getZoom() * zoom, 0.5, 500));
     }
 
-    public HandleMouseMove(e: MouseEvent): void {
+    public handleMouseMove(e: MouseEvent): void {
         const element = new Vec2(e.offsetX, e.offsetY);
         const world = g_camera.unproject(element, new Vec2());
 
-        this.m_mouse.Copy(element);
+        this.m_mouse.copy(element);
 
-        this.m_test?.MouseMove(world, this.m_lMouseDown);
+        this.m_test?.mouseMove(world, this.m_lMouseDown);
 
         if (this.m_rMouseDown) {
             const { x, y } = g_camera.getCenter();
@@ -194,7 +194,7 @@ export class TestManager {
         }
     }
 
-    public HandleMouseDown(e: MouseEvent): void {
+    public handleMouseDown(e: MouseEvent): void {
         const element = new Vec2(e.offsetX, e.offsetY);
         const world = g_camera.unproject(element, new Vec2());
 
@@ -202,9 +202,9 @@ export class TestManager {
             case 0: // left mouse button
                 this.m_lMouseDown = true;
                 if (e.shiftKey) {
-                    this.m_test?.ShiftMouseDown(world);
+                    this.m_test?.shiftMouseDown(world);
                 } else {
-                    this.m_test?.MouseDown(world);
+                    this.m_test?.mouseDown(world);
                 }
                 break;
             case 2: // right mouse button
@@ -213,14 +213,14 @@ export class TestManager {
         }
     }
 
-    public HandleMouseUp(e: MouseEvent): void {
+    public handleMouseUp(e: MouseEvent): void {
         const element = new Vec2(e.offsetX, e.offsetY);
         const world = g_camera.unproject(element, new Vec2());
 
         switch (e.button) {
             case 0: // left mouse button
                 this.m_lMouseDown = false;
-                this.m_test?.MouseUp(world);
+                this.m_test?.mouseUp(world);
                 break;
             case 2: // right mouse button
                 this.m_rMouseDown = false;
@@ -228,18 +228,18 @@ export class TestManager {
         }
     }
 
-    public HandleMouseWheel(e: WheelEvent): void {
+    public handleMouseWheel(e: WheelEvent): void {
         if (this.m_hoveringCanvas) {
             if (e.deltaY < 0) {
-                this.ZoomCamera(1.1);
+                this.zoomCamera(1.1);
             } else if (e.deltaY > 0) {
-                this.ZoomCamera(1 / 1.1);
+                this.zoomCamera(1 / 1.1);
             }
             e.preventDefault();
         }
     }
 
-    private HandleKey(e: KeyboardEvent, down: boolean): void {
+    private handleKey(e: KeyboardEvent, down: boolean): void {
         if (this.m_hoveringCanvas || !down) {
             const { key } = e;
             const hotKey = this.allHotKeys.find((hk) => hk.key === key);
@@ -254,7 +254,7 @@ export class TestManager {
         }
     }
 
-    public DecrementTest(): void {
+    public decrementTest(): void {
         const index = this.flatTests.findIndex((e) => e.name === this.testTitle) - 1;
         if (index < 0) {
             this.activateTest(this.flatTests[this.flatTests.length - 1]);
@@ -263,7 +263,7 @@ export class TestManager {
         }
     }
 
-    public IncrementTest(): void {
+    public incrementTest(): void {
         const index = this.flatTests.findIndex((e) => e.name === this.testTitle) + 1;
         if (index >= this.flatTests.length) {
             this.activateTest(this.flatTests[0]);
@@ -272,15 +272,15 @@ export class TestManager {
         }
     }
 
-    public LoadTest(restartTest = false): void {
+    public loadTest(restartTest = false): void {
         const TestClass = this.testConstructor;
         if (!TestClass || !this.m_ctx || !this.gl || !this.defaultShader || !this.textures) return;
 
         if (!restartTest) {
-            this.particleParameter.Reset();
+            this.particleParameter.reset();
         }
 
-        this.m_test?.Destroy();
+        this.m_test?.destroy();
 
         this.m_test = new TestClass({
             gl: this.gl,
@@ -300,19 +300,19 @@ export class TestManager {
             }
         }
         if (!restartTest) {
-            this.HomeCamera();
+            this.homeCamera();
         }
 
         // Slice to force an update (and thus a reset) of the UI
         this.setTestControlGroups(this.m_test.m_testControlGroups.slice());
     }
 
-    public SetPause(pause: boolean): void {
+    public setPause(pause: boolean): void {
         this.m_settings.m_pause = pause;
         this.onPauseChanged.emit(pause);
     }
 
-    public SingleStep(): void {
+    public singleStep(): void {
         if (!this.m_settings.m_pause) {
             this.m_settings.m_pause = true;
             this.onPauseChanged.emit(true);
@@ -324,7 +324,7 @@ export class TestManager {
         this.shouldRestart = true;
     }
 
-    public SimulationLoop(): void {
+    public simulationLoop(): void {
         if (this.m_fpsCalculator.addFrame() <= 0 || !this.gl || !this.defaultShader || !this.m_ctx) return;
         const ctx = this.m_ctx;
 
@@ -348,7 +348,7 @@ export class TestManager {
         const center = g_camera.getCenter();
         ctx.translate(-center.x, -center.y);
 
-        this.m_test?.RunStep(this.m_settings);
+        this.m_test?.runStep(this.m_settings);
         if (this.m_hoveringCanvas) {
             for (const hk of this.stepHotKeys) {
                 if (this.m_keyMap[hk.key]) hk.callback(true);
@@ -357,21 +357,21 @@ export class TestManager {
 
         ctx.restore();
 
-        if (this.m_settings.m_drawFpsMeter) this.DrawFpsMeter(ctx);
+        if (this.m_settings.m_drawFpsMeter) this.drawFpsMeter(ctx);
 
-        this.UpdateText();
+        this.updateText();
 
         if (this.shouldRestart) {
             this.shouldRestart = false;
-            this.LoadTest(true);
+            this.loadTest(true);
         }
     }
 
-    private DrawFpsMeter(ctx: CanvasRenderingContext2D) {
+    private drawFpsMeter(ctx: CanvasRenderingContext2D) {
         ctx.save();
         ctx.translate(0, g_camera.getHeight());
         ctx.scale(1, -1);
-        ctx.fillStyle = DebugDraw.MakeStyleString(Color.GREEN);
+        ctx.fillStyle = DebugDraw.makeStyleString(Color.GREEN);
         let x = 5;
         for (const frameTime of this.m_fpsCalculator.getFrames()) {
             ctx.fillRect(x, 5, 1, frameTime);
@@ -380,7 +380,7 @@ export class TestManager {
         ctx.restore();
     }
 
-    private UpdateText() {
+    private updateText() {
         const leftTable: TextTable = [];
         const fps = this.m_fpsCalculator.getFps();
         const rightTable: TextTable = [

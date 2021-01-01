@@ -47,130 +47,130 @@ class EdgeTest extends Test {
             new Vec2(-10, -4),
         ];
 
-        this.m_offset1.Set(0, 8);
-        this.m_offset2.Set(0, 16);
+        this.m_offset1.set(0, 8);
+        this.m_offset2.set(0, 16);
 
         {
-            const v1 = vertices[0].Clone().Add(this.m_offset1);
-            const v2 = vertices[1].Clone().Add(this.m_offset1);
-            const v3 = vertices[2].Clone().Add(this.m_offset1);
-            const v4 = vertices[3].Clone().Add(this.m_offset1);
-            const v5 = vertices[4].Clone().Add(this.m_offset1);
-            const v6 = vertices[5].Clone().Add(this.m_offset1);
-            const v7 = vertices[6].Clone().Add(this.m_offset1);
-            const v8 = vertices[7].Clone().Add(this.m_offset1);
-            const v9 = vertices[8].Clone().Add(this.m_offset1);
-            const v10 = vertices[9].Clone().Add(this.m_offset1);
+            const v1 = vertices[0].clone().add(this.m_offset1);
+            const v2 = vertices[1].clone().add(this.m_offset1);
+            const v3 = vertices[2].clone().add(this.m_offset1);
+            const v4 = vertices[3].clone().add(this.m_offset1);
+            const v5 = vertices[4].clone().add(this.m_offset1);
+            const v6 = vertices[5].clone().add(this.m_offset1);
+            const v7 = vertices[6].clone().add(this.m_offset1);
+            const v8 = vertices[7].clone().add(this.m_offset1);
+            const v9 = vertices[8].clone().add(this.m_offset1);
+            const v10 = vertices[9].clone().add(this.m_offset1);
 
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
 
-            shape.SetOneSided(v10, v1, v2, v3);
-            ground.CreateFixture({ shape });
+            shape.setOneSided(v10, v1, v2, v3);
+            ground.createFixture({ shape });
 
-            shape.SetOneSided(v1, v2, v3, v4);
-            ground.CreateFixture({ shape });
+            shape.setOneSided(v1, v2, v3, v4);
+            ground.createFixture({ shape });
 
-            shape.SetOneSided(v2, v3, v4, v5);
-            ground.CreateFixture({ shape });
+            shape.setOneSided(v2, v3, v4, v5);
+            ground.createFixture({ shape });
 
-            shape.SetOneSided(v3, v4, v5, v6);
-            ground.CreateFixture({ shape });
+            shape.setOneSided(v3, v4, v5, v6);
+            ground.createFixture({ shape });
 
-            shape.SetOneSided(v4, v5, v6, v7);
-            ground.CreateFixture({ shape });
+            shape.setOneSided(v4, v5, v6, v7);
+            ground.createFixture({ shape });
 
-            shape.SetOneSided(v5, v6, v7, v8);
-            ground.CreateFixture({ shape });
+            shape.setOneSided(v5, v6, v7, v8);
+            ground.createFixture({ shape });
 
-            shape.SetOneSided(v6, v7, v8, v9);
-            ground.CreateFixture({ shape });
+            shape.setOneSided(v6, v7, v8, v9);
+            ground.createFixture({ shape });
 
-            shape.SetOneSided(v7, v8, v9, v10);
-            ground.CreateFixture({ shape });
+            shape.setOneSided(v7, v8, v9, v10);
+            ground.createFixture({ shape });
 
-            shape.SetOneSided(v8, v9, v10, v1);
-            ground.CreateFixture({ shape });
+            shape.setOneSided(v8, v9, v10, v1);
+            ground.createFixture({ shape });
 
-            shape.SetOneSided(v9, v10, v1, v2);
-            ground.CreateFixture({ shape });
+            shape.setOneSided(v9, v10, v1, v2);
+            ground.createFixture({ shape });
         }
 
         {
-            const v1 = vertices[0].Clone().Add(this.m_offset2);
-            const v2 = vertices[1].Clone().Add(this.m_offset2);
-            const v3 = vertices[2].Clone().Add(this.m_offset2);
-            const v4 = vertices[3].Clone().Add(this.m_offset2);
-            const v5 = vertices[4].Clone().Add(this.m_offset2);
-            const v6 = vertices[5].Clone().Add(this.m_offset2);
-            const v7 = vertices[6].Clone().Add(this.m_offset2);
-            const v8 = vertices[7].Clone().Add(this.m_offset2);
-            const v9 = vertices[8].Clone().Add(this.m_offset2);
-            const v10 = vertices[9].Clone().Add(this.m_offset2);
+            const v1 = vertices[0].clone().add(this.m_offset2);
+            const v2 = vertices[1].clone().add(this.m_offset2);
+            const v3 = vertices[2].clone().add(this.m_offset2);
+            const v4 = vertices[3].clone().add(this.m_offset2);
+            const v5 = vertices[4].clone().add(this.m_offset2);
+            const v6 = vertices[5].clone().add(this.m_offset2);
+            const v7 = vertices[6].clone().add(this.m_offset2);
+            const v8 = vertices[7].clone().add(this.m_offset2);
+            const v9 = vertices[8].clone().add(this.m_offset2);
+            const v10 = vertices[9].clone().add(this.m_offset2);
 
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
 
-            shape.SetTwoSided(v1, v2);
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(v1, v2);
+            ground.createFixture({ shape });
 
-            shape.SetTwoSided(v2, v3);
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(v2, v3);
+            ground.createFixture({ shape });
 
-            shape.SetTwoSided(v3, v4);
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(v3, v4);
+            ground.createFixture({ shape });
 
-            shape.SetTwoSided(v4, v5);
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(v4, v5);
+            ground.createFixture({ shape });
 
-            shape.SetTwoSided(v5, v6);
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(v5, v6);
+            ground.createFixture({ shape });
 
-            shape.SetTwoSided(v6, v7);
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(v6, v7);
+            ground.createFixture({ shape });
 
-            shape.SetTwoSided(v7, v8);
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(v7, v8);
+            ground.createFixture({ shape });
 
-            shape.SetTwoSided(v8, v9);
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(v8, v9);
+            ground.createFixture({ shape });
 
-            shape.SetTwoSided(v9, v10);
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(v9, v10);
+            ground.createFixture({ shape });
 
-            shape.SetTwoSided(v10, v1);
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(v10, v1);
+            ground.createFixture({ shape });
         }
 
         this.m_body1 = null;
         this.m_body2 = null;
-        this.CreateBoxes();
+        this.createBoxes();
     }
 
     public setupControls() {
         this.addTestControlGroup("Custom", [
             radioDef("Type", ["Boxes", "Circles"], "Boxes", (value: string) => {
-                if (value === "Boxes") this.CreateBoxes();
-                else this.CreateCircles();
+                if (value === "Boxes") this.createBoxes();
+                else this.createCircles();
             }),
         ]);
     }
 
-    public CreateBoxes(): void {
+    public createBoxes(): void {
         if (this.m_body1) {
-            this.m_world.DestroyBody(this.m_body1);
+            this.m_world.destroyBody(this.m_body1);
             this.m_body1 = null;
         }
 
         if (this.m_body2) {
-            this.m_world.DestroyBody(this.m_body2);
+            this.m_world.destroyBody(this.m_body2);
             this.m_body2 = null;
         }
 
         {
-            this.m_body1 = this.m_world.CreateBody({
+            this.m_body1 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: {
                     x: 8 + this.m_offset1.x,
@@ -180,38 +180,38 @@ class EdgeTest extends Test {
             });
 
             const shape = new PolygonShape();
-            shape.SetAsBox(0.5, 1);
+            shape.setAsBox(0.5, 1);
 
-            this.m_body1.CreateFixture({ shape, density: 1 });
+            this.m_body1.createFixture({ shape, density: 1 });
         }
 
         {
-            this.m_body2 = this.m_world.CreateBody({
+            this.m_body2 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 8 + this.m_offset2.x, y: 2.6 + this.m_offset2.y },
                 allowSleep: false,
             });
 
             const shape = new PolygonShape();
-            shape.SetAsBox(0.5, 1);
+            shape.setAsBox(0.5, 1);
 
-            this.m_body2.CreateFixture({ shape, density: 1 });
+            this.m_body2.createFixture({ shape, density: 1 });
         }
     }
 
-    public CreateCircles(): void {
+    public createCircles(): void {
         if (this.m_body1) {
-            this.m_world.DestroyBody(this.m_body1);
+            this.m_world.destroyBody(this.m_body1);
             this.m_body1 = null;
         }
 
         if (this.m_body2) {
-            this.m_world.DestroyBody(this.m_body2);
+            this.m_world.destroyBody(this.m_body2);
             this.m_body2 = null;
         }
 
         {
-            this.m_body1 = this.m_world.CreateBody({
+            this.m_body1 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: this.m_offset1.x - 0.5, y: this.m_offset1.y + 0.6 },
                 allowSleep: false,
@@ -219,11 +219,11 @@ class EdgeTest extends Test {
 
             const shape = new CircleShape(0.5);
 
-            this.m_body1.CreateFixture({ shape, density: 1 });
+            this.m_body1.createFixture({ shape, density: 1 });
         }
 
         {
-            this.m_body2 = this.m_world.CreateBody({
+            this.m_body2 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: this.m_offset2.x - 0.5, y: this.m_offset2.y + 0.6 },
                 allowSleep: false,
@@ -231,19 +231,19 @@ class EdgeTest extends Test {
 
             const shape = new CircleShape(0.5);
 
-            this.m_body2.CreateFixture({ shape, density: 1 });
+            this.m_body2.createFixture({ shape, density: 1 });
         }
     }
 
     public getHotkeys(): HotKey[] {
         return [
             hotKeyStep("a", "Apply Force Left", () => {
-                this.m_body1?.ApplyForceToCenter(new Vec2(-10, 0), true);
-                this.m_body2?.ApplyForceToCenter(new Vec2(-10, 0), true);
+                this.m_body1?.applyForceToCenter(new Vec2(-10, 0), true);
+                this.m_body2?.applyForceToCenter(new Vec2(-10, 0), true);
             }),
             hotKeyStep("d", "Apply Force Right", () => {
-                this.m_body1?.ApplyForceToCenter(new Vec2(10, 0), true);
-                this.m_body2?.ApplyForceToCenter(new Vec2(10, 0), true);
+                this.m_body1?.applyForceToCenter(new Vec2(10, 0), true);
+                this.m_body2?.applyForceToCenter(new Vec2(10, 0), true);
             }),
         ];
     }

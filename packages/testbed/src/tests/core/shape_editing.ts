@@ -35,21 +35,21 @@ class ShapeEditingTest extends Test {
         super();
 
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape });
         }
 
-        this.m_body = this.m_world.CreateBody({
+        this.m_body = this.m_world.createBody({
             type: BodyType.Dynamic,
             position: { x: 0, y: 10 },
         });
 
         const shape = new PolygonShape();
-        shape.SetAsBox(4, 4, new Vec2(), 0);
-        this.m_fixture1 = this.m_body.CreateFixture({ shape, density: 10 });
+        shape.setAsBox(4, 4, new Vec2(), 0);
+        this.m_fixture1 = this.m_body.createFixture({ shape, density: 10 });
     }
 
     public getHotkeys(): HotKey[] {
@@ -58,29 +58,29 @@ class ShapeEditingTest extends Test {
                 if (this.m_fixture2 === null) {
                     const shape = new CircleShape();
                     shape.m_radius = 3;
-                    shape.m_p.Set(0.5, -4);
-                    this.m_fixture2 = this.m_body.CreateFixture({ shape, density: 10 });
-                    this.m_body.SetAwake(true);
+                    shape.m_p.set(0.5, -4);
+                    this.m_fixture2 = this.m_body.createFixture({ shape, density: 10 });
+                    this.m_body.setAwake(true);
                 }
             }),
             hotKeyPress("d", "Destroy a Shape", () => {
                 if (this.m_fixture2 !== null) {
-                    this.m_body.DestroyFixture(this.m_fixture2);
+                    this.m_body.destroyFixture(this.m_fixture2);
                     this.m_fixture2 = null;
-                    this.m_body.SetAwake(true);
+                    this.m_body.setAwake(true);
                 }
             }),
             hotKeyPress("s", "Toggle Sensor", () => {
                 if (this.m_fixture2 !== null) {
                     this.m_sensor = !this.m_sensor;
-                    this.m_fixture2.SetSensor(this.m_sensor);
+                    this.m_fixture2.setSensor(this.m_sensor);
                 }
             }),
         ];
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
         this.addDebug("Sensor", this.m_sensor);
     }
 }

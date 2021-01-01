@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { EdgeShape, Vec2, FixtureDef, PolygonShape, BodyType, RandomFloat, CircleShape, Body } from "@box2d/core";
+import { EdgeShape, Vec2, FixtureDef, PolygonShape, BodyType, randomFloat, CircleShape, Body } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -30,10 +30,10 @@ class CollisionProcessingTest extends Test {
         // Ground body
         {
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-50, 0), new Vec2(50, 0));
+            shape.setTwoSided(new Vec2(-50, 0), new Vec2(50, 0));
 
-            const ground = this.m_world.CreateBody();
-            ground.CreateFixture({ shape });
+            const ground = this.m_world.createBody();
+            ground.createFixture({ shape });
         }
 
         const xLo = -5;
@@ -45,53 +45,53 @@ class CollisionProcessingTest extends Test {
         const vertices = [new Vec2(-1, 0), new Vec2(1, 0), new Vec2(0, 2)];
 
         const polygon = new PolygonShape();
-        polygon.Set(vertices, 3);
+        polygon.set(vertices, 3);
 
         const triangleShapeDef: FixtureDef = {
             shape: polygon,
             density: 1,
         };
 
-        const body1 = this.m_world.CreateBody({
+        const body1 = this.m_world.createBody({
             type: BodyType.Dynamic,
-            position: { x: RandomFloat(xLo, xHi), y: RandomFloat(yLo, yHi) },
+            position: { x: randomFloat(xLo, xHi), y: randomFloat(yLo, yHi) },
         });
-        body1.CreateFixture(triangleShapeDef);
+        body1.createFixture(triangleShapeDef);
 
         // Large triangle (recycle definitions)
-        vertices[0].Scale(2);
-        vertices[1].Scale(2);
-        vertices[2].Scale(2);
-        polygon.Set(vertices, 3);
+        vertices[0].scale(2);
+        vertices[1].scale(2);
+        vertices[2].scale(2);
+        polygon.set(vertices, 3);
 
-        const body2 = this.m_world.CreateBody({
+        const body2 = this.m_world.createBody({
             type: BodyType.Dynamic,
-            position: { x: RandomFloat(xLo, xHi), y: RandomFloat(yLo, yHi) },
+            position: { x: randomFloat(xLo, xHi), y: randomFloat(yLo, yHi) },
         });
-        body2.CreateFixture(triangleShapeDef);
+        body2.createFixture(triangleShapeDef);
 
         // Small box
-        polygon.SetAsBox(1, 0.5);
+        polygon.setAsBox(1, 0.5);
 
         const boxShapeDef: FixtureDef = {
             shape: polygon,
             density: 1,
         };
 
-        const body3 = this.m_world.CreateBody({
+        const body3 = this.m_world.createBody({
             type: BodyType.Dynamic,
-            position: { x: RandomFloat(xLo, xHi), y: RandomFloat(yLo, yHi) },
+            position: { x: randomFloat(xLo, xHi), y: randomFloat(yLo, yHi) },
         });
-        body3.CreateFixture(boxShapeDef);
+        body3.createFixture(boxShapeDef);
 
         // Large box (recycle definitions)
-        polygon.SetAsBox(2, 1);
+        polygon.setAsBox(2, 1);
 
-        const body4 = this.m_world.CreateBody({
+        const body4 = this.m_world.createBody({
             type: BodyType.Dynamic,
-            position: { x: RandomFloat(xLo, xHi), y: RandomFloat(yLo, yHi) },
+            position: { x: randomFloat(xLo, xHi), y: randomFloat(yLo, yHi) },
         });
-        body4.CreateFixture(boxShapeDef);
+        body4.createFixture(boxShapeDef);
 
         // Small circle
         const circle = new CircleShape();
@@ -102,24 +102,24 @@ class CollisionProcessingTest extends Test {
             density: 1,
         };
 
-        const body5 = this.m_world.CreateBody({
+        const body5 = this.m_world.createBody({
             type: BodyType.Dynamic,
-            position: { x: RandomFloat(xLo, xHi), y: RandomFloat(yLo, yHi) },
+            position: { x: randomFloat(xLo, xHi), y: randomFloat(yLo, yHi) },
         });
-        body5.CreateFixture(circleShapeDef);
+        body5.createFixture(circleShapeDef);
 
         // Large circle
         circle.m_radius *= 2;
 
-        const body6 = this.m_world.CreateBody({
+        const body6 = this.m_world.createBody({
             type: BodyType.Dynamic,
-            position: { x: RandomFloat(xLo, xHi), y: RandomFloat(yLo, yHi) },
+            position: { x: randomFloat(xLo, xHi), y: randomFloat(yLo, yHi) },
         });
-        body6.CreateFixture(circleShapeDef);
+        body6.createFixture(circleShapeDef);
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
 
         // We are going to destroy some bodies according to contact
         // points. We must buffer the bodies that should be destroyed
@@ -133,10 +133,10 @@ class CollisionProcessingTest extends Test {
         for (let i = 0; i < this.m_pointCount; ++i) {
             const point = this.m_points[i];
 
-            const body1 = point.fixtureA.GetBody();
-            const body2 = point.fixtureB.GetBody();
-            const mass1 = body1.GetMass();
-            const mass2 = body2.GetMass();
+            const body1 = point.fixtureA.getBody();
+            const body2 = point.fixtureB.getBody();
+            const mass1 = body1.getMass();
+            const mass2 = body2.getMass();
 
             if (mass1 > 0 && mass2 > 0) {
                 if (mass2 > mass1) {
@@ -155,7 +155,7 @@ class CollisionProcessingTest extends Test {
         for (let i = 0; i < nukeCount; i++) {
             const b = nuke[i];
             if (nuke.indexOf(b) === i && b !== this.m_bomb) {
-                this.m_world.DestroyBody(b);
+                this.m_world.destroyBody(b);
             }
         }
     }

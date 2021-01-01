@@ -25,8 +25,8 @@ import {
     CircleShape,
     RevoluteJointDef,
     EdgeShape,
-    Clamp,
-    DegToRad,
+    clamp,
+    degToRad,
     XY,
     Vec2,
 } from "@box2d/core";
@@ -93,13 +93,13 @@ class SegwayTest extends Test {
         this.positionController.gainI = 0;
         this.positionController.gainD = 1.5;
 
-        // pendulumBody = new p2.Body({
+        // pendulumBody = new p2.body({
         //     mass: 1,
         //     position: [0, 2 + 0.5 * PENDULUM_LENGTH]
         // });
-        // pendulumBody.addShape(new p2.Box({ width: 1, height: PENDULUM_LENGTH }));
+        // pendulumBody.addShape(new p2.box({ width: 1, height: PENDULUM_LENGTH }));
         // world.addBody(pendulumBody);
-        this.pendulumBody = this.m_world.CreateBody({
+        this.pendulumBody = this.m_world.createBody({
             type: BodyType.Dynamic,
             position: {
                 x: 0,
@@ -107,21 +107,21 @@ class SegwayTest extends Test {
             },
         });
         const pendulumShape = new PolygonShape();
-        pendulumShape.SetAsBox(0.5, 0.5 * SegwayTest.PENDULUM_LENGTH);
+        pendulumShape.setAsBox(0.5, 0.5 * SegwayTest.PENDULUM_LENGTH);
         const fd: FixtureDef = {
             shape: pendulumShape,
             density: 1 / (1 * SegwayTest.PENDULUM_LENGTH), // TODO: specify mass
             // mass: 1,
         };
-        this.pendulumBody.CreateFixture(fd);
+        this.pendulumBody.createFixture(fd);
 
-        // wheelBody = new p2.Body({
+        // wheelBody = new p2.body({
         //     mass: 1,
         //     position: [0,1]
         // });
-        // wheelBody.addShape(new p2.Circle({ radius: 0.6 }));
+        // wheelBody.addShape(new p2.circle({ radius: 0.6 }));
         // world.addBody(wheelBody);
-        this.wheelBody = this.m_world.CreateBody({
+        this.wheelBody = this.m_world.createBody({
             type: BodyType.Dynamic,
             position: Vec2.UNITY,
         });
@@ -131,9 +131,9 @@ class SegwayTest extends Test {
         fd.density = 1 / (Math.PI * 0.6 * 0.6); // TODO: specify mass
         // fd.mass = 1;
         fd.friction = 10;
-        this.wheelBody.CreateFixture(fd);
+        this.wheelBody.createFixture(fd);
 
-        // var wheelJoint = new p2.RevoluteConstraint(wheelBody, pendulumBody, {
+        // var wheelJoint = new p2.revoluteConstraint(wheelBody, pendulumBody, {
         //     localPivotA: [0, 0],
         //     localPivotB: [0, -0.5 * PENDULUM_LENGTH],
         //     collideConnected: false
@@ -144,30 +144,30 @@ class SegwayTest extends Test {
         // wheelJoint.motorEquation.maxForce = m;
         // wheelJoint.motorEquation.minForce = -m;
         const jd = new RevoluteJointDef();
-        jd.Initialize(this.wheelBody, this.pendulumBody, { x: 0, y: 0 });
-        jd.localAnchorA.Set(0, 0);
-        jd.localAnchorB.Set(0, -0.5 * SegwayTest.PENDULUM_LENGTH);
+        jd.initialize(this.wheelBody, this.pendulumBody, { x: 0, y: 0 });
+        jd.localAnchorA.set(0, 0);
+        jd.localAnchorB.set(0, -0.5 * SegwayTest.PENDULUM_LENGTH);
         jd.collideConnected = false;
         jd.enableMotor = true;
         jd.maxMotorTorque = 40;
-        this.wheelJoint = this.m_world.CreateJoint(jd);
+        this.wheelJoint = this.m_world.createJoint(jd);
 
         // Create ground
-        // var groundShape = new p2.Plane();
-        // var groundBody = new p2.Body({
+        // var groundShape = new p2.plane();
+        // var groundBody = new p2.body({
         //     position:[0,0],
         // });
         // groundBody.addShape(groundShape);
         // world.addBody(groundBody);
-        this.groundBody = this.m_world.CreateBody({
+        this.groundBody = this.m_world.createBody({
             type: BodyType.Static,
             position: Vec2.ZERO,
         });
         const groundShape = new EdgeShape();
-        groundShape.SetTwoSided({ x: -100, y: 0 }, { x: 100, y: 0 });
+        groundShape.setTwoSided({ x: -100, y: 0 }, { x: 100, y: 0 });
         fd.shape = groundShape;
         fd.friction = 10;
-        this.groundBody.CreateFixture(fd);
+        this.groundBody.createFixture(fd);
     }
 
     public getCenter(): XY {
@@ -177,14 +177,14 @@ class SegwayTest extends Test {
         };
     }
 
-    public Step(settings: Settings, timeStep: number): void {
+    public step(settings: Settings, timeStep: number): void {
         let dt = settings.m_hertz > 0 ? 1 / settings.m_hertz : 0;
 
         if (settings.m_pause && !settings.m_singleStep) {
             dt = 0;
         }
 
-        super.Step(settings, timeStep);
+        super.step(settings, timeStep);
 
         this.targetPositionInterval += dt;
         if (this.targetPositionInterval >= 8) {
@@ -197,20 +197,20 @@ class SegwayTest extends Test {
         if (true) {
             const alpha = 0.4;
             // posAvg = (1 - alpha) * posAvg + alpha * pendulumBody.position[0];
-            this.posAvg = (1 - alpha) * this.posAvg + alpha * this.pendulumBody.GetPosition().x;
+            this.posAvg = (1 - alpha) * this.posAvg + alpha * this.pendulumBody.getPosition().x;
             this.positionController.currentError = this.targetPosition - this.posAvg;
             // positionController.step(world.lastTimeStep);
             this.positionController.step(dt);
             let targetLinAccel = this.positionController.output;
             // targetLinAccel = clamp(targetLinAccel, -10, 10);
-            targetLinAccel = Clamp(targetLinAccel, -10, 10);
+            targetLinAccel = clamp(targetLinAccel, -10, 10);
             // targetAngle = targetLinAccel / world.gravity[1];
-            targetAngle = targetLinAccel / this.m_world.GetGravity().y;
+            targetAngle = targetLinAccel / this.m_world.getGravity().y;
             // targetAngle = clamp(targetAngle, -15 * DEGTORAD, 15 * DEGTORAD);
-            targetAngle = Clamp(targetAngle, DegToRad(-15), DegToRad(15));
+            targetAngle = clamp(targetAngle, degToRad(-15), degToRad(15));
         }
         // var currentAngle = pendulumBody.angle;
-        let currentAngle = this.pendulumBody.GetAngle();
+        let currentAngle = this.pendulumBody.getAngle();
         currentAngle = normalizeAngle(currentAngle);
         this.angleController.currentError = targetAngle - currentAngle;
         // angleController.step(world.lastTimeStep);
@@ -224,7 +224,7 @@ class SegwayTest extends Test {
         // var targetAngularVelocity = -targetSpeed / (2 * Math.PI * wheelBody.shapes[0].radius); // wheel circumference = 2*pi*r
         const targetAngularVelocity = targetSpeed / (2 * Math.PI * 0.6); // wheel circumference = 2*pi*r
         // wheelJoint.motorSpeed = targetAngularVelocity;
-        this.wheelJoint.SetMotorSpeed(targetAngularVelocity);
+        this.wheelJoint.setMotorSpeed(targetAngularVelocity);
     }
 }
 
@@ -247,25 +247,25 @@ class SegwayTest extends Test {
 // positionController.gainI = 0;
 // positionController.gainD = 1.5;
 // // Create demo application
-// var app = new p2.WebGLRenderer(function(){
-//     var world = new p2.World({
+// var app = new p2.webGLRenderer(function(){
+//     var world = new p2.world({
 //         gravity : [0,-30]
 //     });
 //     this.setWorld(world);
 //     world.defaultContactMaterial.friction = 10;
-//     pendulumBody = new p2.Body({
+//     pendulumBody = new p2.body({
 //         mass: 1,
 //         position: [0, 2 + 0.5 * PENDULUM_LENGTH]
 //     });
-//     pendulumBody.addShape(new p2.Box({ width: 1, height: PENDULUM_LENGTH }));
+//     pendulumBody.addShape(new p2.box({ width: 1, height: PENDULUM_LENGTH }));
 //     world.addBody(pendulumBody);
-//     wheelBody = new p2.Body({
+//     wheelBody = new p2.body({
 //         mass: 1,
 //         position: [0,1]
 //     });
-//     wheelBody.addShape(new p2.Circle({ radius: 0.6 }));
+//     wheelBody.addShape(new p2.circle({ radius: 0.6 }));
 //     world.addBody(wheelBody);
-//     var wheelJoint = new p2.RevoluteConstraint(wheelBody, pendulumBody, {
+//     var wheelJoint = new p2.revoluteConstraint(wheelBody, pendulumBody, {
 //         localPivotA: [0, 0],
 //         localPivotB: [0, -0.5 * PENDULUM_LENGTH],
 //         collideConnected: false
@@ -276,8 +276,8 @@ class SegwayTest extends Test {
 //     wheelJoint.motorEquation.maxForce = m;
 //     wheelJoint.motorEquation.minForce = -m;
 //     // Create ground
-//     var groundShape = new p2.Plane();
-//     var groundBody = new p2.Body({
+//     var groundShape = new p2.plane();
+//     var groundBody = new p2.body({
 //         position:[0,0],
 //     });
 //     groundBody.addShape(groundShape);
@@ -331,11 +331,11 @@ class SegwayTest extends Test {
 //     return Math.min(Math.max(num, min), max);
 // };
 function normalizeAngle(angle: number): number {
-    while (angle > DegToRad(180)) {
-        angle -= DegToRad(360);
+    while (angle > degToRad(180)) {
+        angle -= degToRad(360);
     }
-    while (angle < DegToRad(-180)) {
-        angle += DegToRad(360);
+    while (angle < degToRad(-180)) {
+        angle += degToRad(360);
     }
     return angle;
 }

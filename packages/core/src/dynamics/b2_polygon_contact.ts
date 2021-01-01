@@ -21,14 +21,14 @@
 // SOFTWARE.
 
 import { Transform } from "../common/b2_math";
-import { CollidePolygons } from "../collision/b2_collide_polygon";
+import { collidePolygons } from "../collision/b2_collide_polygon";
 import { Manifold } from "../collision/b2_collision";
 import { PolygonShape } from "../collision/b2_polygon_shape";
 import { Contact } from "./b2_contact";
 
 /** @internal */
 export class PolygonContact extends Contact<PolygonShape, PolygonShape> {
-    public Evaluate(manifold: Manifold, xfA: Transform, xfB: Transform): void {
-        CollidePolygons(manifold, this.GetShapeA(), xfA, this.GetShapeB(), xfB);
+    public evaluate(manifold: Manifold, xfA: Transform, xfB: Transform): void {
+        collidePolygons(manifold, this.getShapeA(), xfA, this.getShapeB(), xfB);
     }
 }

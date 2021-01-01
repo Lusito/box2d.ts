@@ -27,7 +27,7 @@ class RampTest extends AbstractParticleTestWithControls {
         super(particleParameter);
 
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             // Construct a ramp out of many polygons to ensure there's no
             // issue with particles moving across vertices
@@ -38,34 +38,34 @@ class RampTest extends AbstractParticleTestWithControls {
             for (let y = 30; y > 0; y -= ystep) {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(-25, y), new Vec2(-25, y - ystep), new Vec2(0, 15)];
-                shape.Set(vertices, 3);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 3);
+                ground.createFixture({ shape });
             }
 
             for (let x = -25; x < 25; x += xstep) {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(x, 0), new Vec2(x + xstep, 0), new Vec2(0, 15)];
-                shape.Set(vertices, 3);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 3);
+                ground.createFixture({ shape });
             }
         }
 
-        this.m_particleSystem.SetRadius(0.25);
-        const particleType = particleParameter.GetValue();
+        this.m_particleSystem.setRadius(0.25);
+        const particleType = particleParameter.getValue();
         if (particleType === ParticleFlag.Water) {
-            this.m_particleSystem.SetDamping(0.2);
+            this.m_particleSystem.setDamping(0.2);
         }
 
         {
             const shape = new CircleShape();
-            shape.m_p.Set(-20, 33);
+            shape.m_p.set(-20, 33);
             shape.m_radius = 3;
             const pd = new ParticleGroupDef();
             pd.flags = particleType;
             pd.shape = shape;
-            const group = this.m_particleSystem.CreateParticleGroup(pd);
+            const group = this.m_particleSystem.createParticleGroup(pd);
             if (pd.flags & ParticleFlag.ColorMixing) {
-                this.ColorParticleGroup(group, 0);
+                this.colorParticleGroup(group, 0);
             }
         }
     }

@@ -27,52 +27,52 @@ class RigidParticlesTest extends AbstractParticleTest {
         super();
 
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(-4, -1), new Vec2(4, -1), new Vec2(4, 0), new Vec2(-4, 0)];
-                shape.Set(vertices, 4);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 4);
+                ground.createFixture({ shape });
             }
 
             {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(-4, -0.1), new Vec2(-2, -0.1), new Vec2(-2, 2), new Vec2(-4, 2)];
-                shape.Set(vertices, 4);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 4);
+                ground.createFixture({ shape });
             }
 
             {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(2, -0.1), new Vec2(4, -0.1), new Vec2(4, 2), new Vec2(2, 2)];
-                shape.Set(vertices, 4);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 4);
+                ground.createFixture({ shape });
             }
         }
 
-        this.m_particleSystem.SetRadius(0.035 * 2); // HACK: increase particle radius
+        this.m_particleSystem.setRadius(0.035 * 2); // HACK: increase particle radius
 
         {
             const shape = new CircleShape();
-            shape.m_p.Set(0, 3);
+            shape.m_p.set(0, 3);
             shape.m_radius = 0.5;
             const pd = new ParticleGroupDef();
             pd.groupFlags = ParticleGroupFlag.Rigid | ParticleGroupFlag.Solid;
             pd.shape = shape;
-            pd.color.SetByteRGBA(255, 0, 0, 255);
-            this.m_particleSystem.CreateParticleGroup(pd);
+            pd.color.setByteRGBA(255, 0, 0, 255);
+            this.m_particleSystem.createParticleGroup(pd);
         }
 
         {
             const shape = new CircleShape();
-            shape.m_p.Set(-1, 3);
+            shape.m_p.set(-1, 3);
             shape.m_radius = 0.5;
             const pd = new ParticleGroupDef();
             pd.groupFlags = ParticleGroupFlag.Rigid | ParticleGroupFlag.Solid;
             pd.shape = shape;
-            pd.color.SetByteRGBA(0, 255, 0, 255);
-            this.m_particleSystem.CreateParticleGroup(pd);
+            pd.color.setByteRGBA(0, 255, 0, 255);
+            this.m_particleSystem.createParticleGroup(pd);
         }
 
         {
@@ -83,30 +83,30 @@ class RigidParticlesTest extends AbstractParticleTest {
             //  new Vec2(2, 3.5),
             //  new Vec2(0, 3.5)
             // ];
-            // shape.Set(vertices, 4);
-            shape.SetAsBox(1, 0.5);
+            // shape.set(vertices, 4);
+            shape.setAsBox(1, 0.5);
             const pd = new ParticleGroupDef();
             pd.groupFlags = ParticleGroupFlag.Rigid | ParticleGroupFlag.Solid;
-            pd.position.Set(1, 4);
+            pd.position.set(1, 4);
             pd.angle = -0.5;
             pd.angularVelocity = 2;
             pd.shape = shape;
-            pd.color.SetByteRGBA(0, 0, 255, 255);
-            this.m_particleSystem.CreateParticleGroup(pd);
+            pd.color.setByteRGBA(0, 0, 255, 255);
+            this.m_particleSystem.createParticleGroup(pd);
         }
 
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
             });
             const shape = new CircleShape();
-            shape.m_p.Set(0, 8);
+            shape.m_p.set(0, 8);
             shape.m_radius = 0.5;
-            body.CreateFixture({ shape, density: 0.5 });
+            body.createFixture({ shape, density: 0.5 });
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 250;
     }
 

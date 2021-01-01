@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { BodyType, DistanceJoint, DistanceJointDef, EdgeShape, LinearStiffness, PolygonShape, Vec2 } from "@box2d/core";
+import { BodyType, DistanceJoint, DistanceJointDef, EdgeShape, linearStiffness, PolygonShape, Vec2 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { sliderDef } from "../../ui/controls/Slider";
@@ -42,65 +42,65 @@ class DistanceJointTest extends Test {
     public constructor() {
         super();
 
-        const ground = this.m_world.CreateBody();
+        const ground = this.m_world.createBody();
         const edgeShape = new EdgeShape();
-        edgeShape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-        ground.CreateFixture({ shape: edgeShape });
+        edgeShape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+        ground.createFixture({ shape: edgeShape });
 
         const position = {
             x: 0,
             y: 5,
         };
-        const body = this.m_world.CreateBody({
+        const body = this.m_world.createBody({
             type: BodyType.Dynamic,
             angularDamping: 0.1,
             position,
         });
 
         const shape = new PolygonShape();
-        shape.SetAsBox(0.5, 0.5);
-        body.CreateFixture({ shape, density: 5 });
+        shape.setAsBox(0.5, 0.5);
+        body.createFixture({ shape, density: 5 });
 
         this.m_hertz = 1;
         this.m_dampingRatio = 0.7;
 
         const jd = new DistanceJointDef();
-        jd.Initialize(ground, body, new Vec2(0, 15), position);
+        jd.initialize(ground, body, new Vec2(0, 15), position);
         jd.collideConnected = true;
         this.m_length = jd.length;
         this.m_minLength = this.m_length;
         this.m_maxLength = this.m_length;
-        LinearStiffness(jd, this.m_hertz, this.m_dampingRatio, jd.bodyA, jd.bodyB);
-        this.m_joint = this.m_world.CreateJoint(jd);
+        linearStiffness(jd, this.m_hertz, this.m_dampingRatio, jd.bodyA, jd.bodyB);
+        this.m_joint = this.m_world.createJoint(jd);
     }
 
     public setupControls() {
         this.addTestControlGroup("Joint", [
             sliderDef("Length", 0, 20, 1, this.m_length, (value: number) => {
-                this.m_length = this.m_joint.SetLength(value);
+                this.m_length = this.m_joint.setLength(value);
             }),
             sliderDef("Min Length", 0, 20, 1, this.m_minLength, (value: number) => {
-                this.m_minLength = this.m_joint.SetMinLength(value);
+                this.m_minLength = this.m_joint.setMinLength(value);
             }),
             sliderDef("Max Length", 0, 20, 1, this.m_maxLength, (value: number) => {
-                this.m_maxLength = this.m_joint.SetMaxLength(value);
+                this.m_maxLength = this.m_joint.setMaxLength(value);
             }),
             sliderDef("Hertz", 0, 10, 0.1, this.m_hertz, (value: number) => {
                 this.m_hertz = value;
-                this.UpdateStiffness();
+                this.updateStiffness();
             }),
             sliderDef("Damping Ratio", 0, 2, 0.1, this.m_dampingRatio, (value: number) => {
                 this.m_dampingRatio = value;
-                this.UpdateStiffness();
+                this.updateStiffness();
             }),
         ]);
     }
 
-    private UpdateStiffness() {
+    private updateStiffness() {
         const def = { stiffness: 0, damping: 0 };
-        LinearStiffness(def, this.m_hertz, this.m_dampingRatio, this.m_joint.GetBodyA(), this.m_joint.GetBodyB());
-        this.m_joint.SetStiffness(def.stiffness);
-        this.m_joint.SetDamping(def.damping);
+        linearStiffness(def, this.m_hertz, this.m_dampingRatio, this.m_joint.getBodyA(), this.m_joint.getBodyB());
+        this.m_joint.setStiffness(def.stiffness);
+        this.m_joint.setDamping(def.damping);
     }
 }
 

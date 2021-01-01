@@ -25,7 +25,7 @@ class SliderCrank1Test extends Test {
     public constructor() {
         super();
 
-        const ground = this.m_world.CreateBody({
+        const ground = this.m_world.createBody({
             position: {
                 x: 0,
                 y: 17,
@@ -38,20 +38,20 @@ class SliderCrank1Test extends Test {
             // Define crank.
             {
                 const shape = new PolygonShape();
-                shape.SetAsBox(4, 1);
+                shape.setAsBox(4, 1);
 
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     position: {
                         x: -8,
                         y: 20,
                     },
                 });
-                body.CreateFixture({ shape, density: 2 });
+                body.createFixture({ shape, density: 2 });
 
                 const rjd = new RevoluteJointDef();
-                rjd.Initialize(prevBody, body, new Vec2(-12, 20));
-                this.m_world.CreateJoint(rjd);
+                rjd.initialize(prevBody, body, new Vec2(-12, 20));
+                this.m_world.createJoint(rjd);
 
                 prevBody = body;
             }
@@ -59,20 +59,20 @@ class SliderCrank1Test extends Test {
             // Define connecting rod
             {
                 const shape = new PolygonShape();
-                shape.SetAsBox(8, 1);
+                shape.setAsBox(8, 1);
 
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     position: {
                         x: 4,
                         y: 20,
                     },
                 });
-                body.CreateFixture({ shape, density: 2 });
+                body.createFixture({ shape, density: 2 });
 
                 const rjd = new RevoluteJointDef();
-                rjd.Initialize(prevBody, body, new Vec2(-4, 20));
-                this.m_world.CreateJoint(rjd);
+                rjd.initialize(prevBody, body, new Vec2(-4, 20));
+                this.m_world.createJoint(rjd);
 
                 prevBody = body;
             }
@@ -80,9 +80,9 @@ class SliderCrank1Test extends Test {
             // Define piston
             {
                 const shape = new PolygonShape();
-                shape.SetAsBox(3, 3);
+                shape.setAsBox(3, 3);
 
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     fixedRotation: true,
                     position: {
@@ -90,15 +90,15 @@ class SliderCrank1Test extends Test {
                         y: 20,
                     },
                 });
-                body.CreateFixture({ shape, density: 2 });
+                body.createFixture({ shape, density: 2 });
 
                 const rjd = new RevoluteJointDef();
-                rjd.Initialize(prevBody, body, new Vec2(12, 20));
-                this.m_world.CreateJoint(rjd);
+                rjd.initialize(prevBody, body, new Vec2(12, 20));
+                this.m_world.createJoint(rjd);
 
                 const pjd = new PrismaticJointDef();
-                pjd.Initialize(ground, body, new Vec2(12, 17), new Vec2(1, 0));
-                this.m_world.CreateJoint(pjd);
+                pjd.initialize(ground, body, new Vec2(12, 17), new Vec2(1, 0));
+                this.m_world.createJoint(pjd);
             }
         }
     }

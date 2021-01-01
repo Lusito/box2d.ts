@@ -33,102 +33,102 @@ class LiquidTimerTest extends AbstractParticleTestWithControls {
         super(particleParameter);
 
         // Setup particle parameters.
-        particleParameter.SetValues(particleTypes, "tensile + viscous");
+        particleParameter.setValues(particleTypes, "tensile + viscous");
 
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new ChainShape();
             const vertices = [new Vec2(-2, 0), new Vec2(2, 0), new Vec2(2, 4), new Vec2(-2, 4)];
-            shape.CreateLoop(vertices, 4);
-            ground.CreateFixture({ shape });
+            shape.createLoop(vertices, 4);
+            ground.createFixture({ shape });
         }
 
-        this.m_particleSystem.SetRadius(0.025);
+        this.m_particleSystem.setRadius(0.025);
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(2, 0.4, new Vec2(0, 3.6), 0);
+            shape.setAsBox(2, 0.4, new Vec2(0, 3.6), 0);
             const pd = new ParticleGroupDef();
-            pd.flags = particleParameter.GetValue();
+            pd.flags = particleParameter.getValue();
             pd.shape = shape;
-            const group = this.m_particleSystem.CreateParticleGroup(pd);
+            const group = this.m_particleSystem.createParticleGroup(pd);
             if (pd.flags & ParticleFlag.ColorMixing) {
-                this.ColorParticleGroup(group, 0);
+                this.colorParticleGroup(group, 0);
             }
         }
 
         {
-            const body = this.m_world.CreateBody();
+            const body = this.m_world.createBody();
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-2, 3.2), new Vec2(-1.2, 3.2));
-            body.CreateFixture({ shape, density: 0.1 });
+            shape.setTwoSided(new Vec2(-2, 3.2), new Vec2(-1.2, 3.2));
+            body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.CreateBody();
+            const body = this.m_world.createBody();
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-1.1, 3.2), new Vec2(2, 3.2));
-            body.CreateFixture({ shape, density: 0.1 });
+            shape.setTwoSided(new Vec2(-1.1, 3.2), new Vec2(2, 3.2));
+            body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.CreateBody();
+            const body = this.m_world.createBody();
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-1.2, 3.2), new Vec2(-1.2, 2.8));
-            body.CreateFixture({ shape, density: 0.1 });
+            shape.setTwoSided(new Vec2(-1.2, 3.2), new Vec2(-1.2, 2.8));
+            body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.CreateBody();
+            const body = this.m_world.createBody();
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-1.1, 3.2), new Vec2(-1.1, 2.8));
-            body.CreateFixture({ shape, density: 0.1 });
+            shape.setTwoSided(new Vec2(-1.1, 3.2), new Vec2(-1.1, 2.8));
+            body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.CreateBody();
+            const body = this.m_world.createBody();
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-1.6, 2.4), new Vec2(0.8, 2));
-            body.CreateFixture({ shape, density: 0.1 });
+            shape.setTwoSided(new Vec2(-1.6, 2.4), new Vec2(0.8, 2));
+            body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.CreateBody();
+            const body = this.m_world.createBody();
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(1.6, 1.6), new Vec2(-0.8, 1.2));
-            body.CreateFixture({ shape, density: 0.1 });
+            shape.setTwoSided(new Vec2(1.6, 1.6), new Vec2(-0.8, 1.2));
+            body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.CreateBody();
+            const body = this.m_world.createBody();
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-1.2, 0.8), new Vec2(-1.2, 0));
-            body.CreateFixture({ shape, density: 0.1 });
+            shape.setTwoSided(new Vec2(-1.2, 0.8), new Vec2(-1.2, 0));
+            body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.CreateBody();
+            const body = this.m_world.createBody();
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-0.4, 0.8), new Vec2(-0.4, 0));
-            body.CreateFixture({ shape, density: 0.1 });
+            shape.setTwoSided(new Vec2(-0.4, 0.8), new Vec2(-0.4, 0));
+            body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.CreateBody();
+            const body = this.m_world.createBody();
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(0.4, 0.8), new Vec2(0.4, 0));
-            body.CreateFixture({ shape, density: 0.1 });
+            shape.setTwoSided(new Vec2(0.4, 0.8), new Vec2(0.4, 0));
+            body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.CreateBody();
+            const body = this.m_world.createBody();
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(1.2, 0.8), new Vec2(1.2, 0));
-            body.CreateFixture({ shape, density: 0.1 });
+            shape.setTwoSided(new Vec2(1.2, 0.8), new Vec2(1.2, 0));
+            body.createFixture({ shape, density: 0.1 });
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 250;
     }
 

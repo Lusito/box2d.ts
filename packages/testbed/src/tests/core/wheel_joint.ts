@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { WheelJoint, EdgeShape, Vec2, BodyType, CircleShape, WheelJointDef, LinearStiffness } from "@box2d/core";
+import { WheelJoint, EdgeShape, Vec2, BodyType, CircleShape, WheelJointDef, linearStiffness } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -40,28 +40,28 @@ class WheelJointTest extends Test {
     public constructor() {
         super();
 
-        const ground = this.m_world.CreateBody();
+        const ground = this.m_world.createBody();
         {
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape, density: 0 });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape, density: 0 });
         }
 
         {
             const shape = new CircleShape(2);
 
             const position = new Vec2(0, 10);
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position,
                 allowSleep: false,
             });
-            body.CreateFixture({ shape, density: 5 });
+            body.createFixture({ shape, density: 5 });
 
             const jd = new WheelJointDef();
 
             // Horizontal
-            jd.Initialize(ground, body, position, new Vec2(0, 1));
+            jd.initialize(ground, body, position, new Vec2(0, 1));
 
             jd.motorSpeed = this.m_motorSpeed;
             jd.maxMotorTorque = 10000;
@@ -72,31 +72,31 @@ class WheelJointTest extends Test {
 
             const hertz = 1;
             const dampingRatio = 0.7;
-            LinearStiffness(jd, hertz, dampingRatio, ground, body);
+            linearStiffness(jd, hertz, dampingRatio, ground, body);
 
-            this.m_joint = this.m_world.CreateJoint(jd);
+            this.m_joint = this.m_world.createJoint(jd);
         }
 
         this.addTestControlGroup("Joint", [
             checkboxDef("Limit", this.m_enableLimit, (value: boolean) => {
-                this.m_enableLimit = this.m_joint.EnableLimit(value);
+                this.m_enableLimit = this.m_joint.enableLimit(value);
             }),
             checkboxDef("Motor", this.m_enableMotor, (value: boolean) => {
-                this.m_enableMotor = this.m_joint.EnableMotor(value);
+                this.m_enableMotor = this.m_joint.enableMotor(value);
             }),
             sliderDef("Speed", -100, 100, 1, this.m_motorSpeed, (value: number) => {
-                this.m_motorSpeed = this.m_joint.SetMotorSpeed(value);
+                this.m_motorSpeed = this.m_joint.setMotorSpeed(value);
             }),
         ]);
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
 
-        const torque = this.m_joint.GetMotorTorque(settings.m_hertz);
+        const torque = this.m_joint.getMotorTorque(settings.m_hertz);
         this.addDebug("Motor Torque", torque);
 
-        const F = this.m_joint.GetReactionForce(settings.m_hertz, new Vec2());
+        const F = this.m_joint.getReactionForce(settings.m_hertz, new Vec2());
         this.addDebug("Reaction Force", `(${F.x.toFixed(1)}, ${F.y.toFixed(1)})`);
     }
 }

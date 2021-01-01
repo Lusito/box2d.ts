@@ -22,13 +22,13 @@ import {
     Transform,
     ShapeCastInput,
     ShapeCastOutput,
-    ShapeCast,
+    shapeCast,
     DistanceInput,
     SimplexCache,
     DistanceOutput,
-    Distance,
+    distance,
     Color,
-    MakeArray,
+    makeArray,
     MAX_POLYGON_VERTICES,
 } from "@box2d/core";
 
@@ -44,13 +44,13 @@ const colorHit = new Color(0.9, 0.3, 0.3);
 class ShapeCastTest extends Test {
     public static e_vertexCount = 8;
 
-    public m_vAs = MakeArray(MAX_POLYGON_VERTICES, Vec2);
+    public m_vAs = makeArray(MAX_POLYGON_VERTICES, Vec2);
 
     public m_countA = 0;
 
     public m_radiusA = 0;
 
-    public m_vBs = MakeArray(MAX_POLYGON_VERTICES, Vec2);
+    public m_vBs = makeArray(MAX_POLYGON_VERTICES, Vec2);
 
     public m_countB = 0;
 
@@ -66,128 +66,128 @@ class ShapeCastTest extends Test {
         super();
 
         // #if 1
-        this.m_vAs[0].Set(-0.5, 1);
-        this.m_vAs[1].Set(0.5, 1);
-        this.m_vAs[2].Set(0, 0);
+        this.m_vAs[0].set(-0.5, 1);
+        this.m_vAs[1].set(0.5, 1);
+        this.m_vAs[2].set(0, 0);
         this.m_countA = 3;
         this.m_radiusA = POLYGON_RADIUS;
 
-        this.m_vBs[0].Set(-0.5, -0.5);
-        this.m_vBs[1].Set(0.5, -0.5);
-        this.m_vBs[2].Set(0.5, 0.5);
-        this.m_vBs[3].Set(-0.5, 0.5);
+        this.m_vBs[0].set(-0.5, -0.5);
+        this.m_vBs[1].set(0.5, -0.5);
+        this.m_vBs[2].set(0.5, 0.5);
+        this.m_vBs[3].set(-0.5, 0.5);
         this.m_countB = 4;
         this.m_radiusB = POLYGON_RADIUS;
 
-        this.m_transformA.p.Set(0, 0.25);
-        this.m_transformA.q.SetIdentity();
-        this.m_transformB.p.Set(-4, 0);
-        this.m_transformB.q.SetIdentity();
-        this.m_translationB.Set(8, 0);
+        this.m_transformA.p.set(0, 0.25);
+        this.m_transformA.q.setIdentity();
+        this.m_transformB.p.set(-4, 0);
+        this.m_transformB.q.setIdentity();
+        this.m_translationB.set(8, 0);
         // #elif 0
-        // this.m_vAs[0].Set(0, 0);
+        // this.m_vAs[0].set(0, 0);
         // this.m_countA = 1;
         // this.m_radiusA = 0.5;
 
-        // this.m_vBs[0].Set(0, 0);
+        // this.m_vBs[0].set(0, 0);
         // this.m_countB = 1;
         // this.m_radiusB = 0.5;
 
-        // this.m_transformA.p.Set(0, 0.25);
-        // this.m_transformA.q.SetIdentity();
-        // this.m_transformB.p.Set(-4, 0);
-        // this.m_transformB.q.SetIdentity();
-        // this.m_translationB.Set(8, 0);
+        // this.m_transformA.p.set(0, 0.25);
+        // this.m_transformA.q.setIdentity();
+        // this.m_transformB.p.set(-4, 0);
+        // this.m_transformB.q.setIdentity();
+        // this.m_translationB.set(8, 0);
         // #else
-        // this.m_vAs[0].Set(0, 0);
-        // this.m_vAs[1].Set(2, 0);
+        // this.m_vAs[0].set(0, 0);
+        // this.m_vAs[1].set(2, 0);
         // this.m_countA = 2;
         // this.m_radiusA = POLYGON_RADIUS;
 
-        // this.m_vBs[0].Set(0, 0);
+        // this.m_vBs[0].set(0, 0);
         // this.m_countB = 1;
         // this.m_radiusB = 0.25;
 
         // // Initial overlap
-        // this.m_transformA.p.Set(0, 0);
-        // this.m_transformA.q.SetIdentity();
-        // this.m_transformB.p.Set(-0.244360745, 0.05999358);
-        // this.m_transformB.q.SetIdentity();
-        // this.m_translationB.Set(0, 0.0399999991);
+        // this.m_transformA.p.set(0, 0);
+        // this.m_transformA.q.setIdentity();
+        // this.m_transformB.p.set(-0.244360745, 0.05999358);
+        // this.m_transformB.q.setIdentity();
+        // this.m_translationB.set(0, 0.0399999991);
         // #endif
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
 
         const input = new ShapeCastInput();
-        input.proxyA.SetVerticesRadius(this.m_vAs, this.m_countA, this.m_radiusA);
-        input.proxyB.SetVerticesRadius(this.m_vBs, this.m_countB, this.m_radiusB);
-        input.transformA.Copy(this.m_transformA);
-        input.transformB.Copy(this.m_transformB);
-        input.translationB.Copy(this.m_translationB);
+        input.proxyA.setVerticesRadius(this.m_vAs, this.m_countA, this.m_radiusA);
+        input.proxyB.setVerticesRadius(this.m_vBs, this.m_countB, this.m_radiusB);
+        input.transformA.copy(this.m_transformA);
+        input.transformB.copy(this.m_transformB);
+        input.translationB.copy(this.m_translationB);
 
         const output = new ShapeCastOutput();
-        const hit = ShapeCast(output, input);
+        const hit = shapeCast(output, input);
 
         const transformB2 = new Transform();
-        transformB2.q.Copy(this.m_transformB.q);
-        transformB2.p.Copy(this.m_transformB.p).AddScaled(output.lambda, input.translationB);
+        transformB2.q.copy(this.m_transformB.q);
+        transformB2.p.copy(this.m_transformB.p).addScaled(output.lambda, input.translationB);
 
         const distanceInput = new DistanceInput();
-        distanceInput.proxyA.SetVerticesRadius(this.m_vAs, this.m_countA, this.m_radiusA);
-        distanceInput.proxyB.SetVerticesRadius(this.m_vBs, this.m_countB, this.m_radiusB);
-        distanceInput.transformA.Copy(this.m_transformA);
-        distanceInput.transformB.Copy(transformB2);
+        distanceInput.proxyA.setVerticesRadius(this.m_vAs, this.m_countA, this.m_radiusA);
+        distanceInput.proxyB.setVerticesRadius(this.m_vBs, this.m_countB, this.m_radiusB);
+        distanceInput.transformA.copy(this.m_transformA);
+        distanceInput.transformB.copy(transformB2);
         distanceInput.useRadii = false;
         const simplexCache = new SimplexCache();
         simplexCache.count = 0;
         const distanceOutput = new DistanceOutput();
 
-        Distance(distanceOutput, simplexCache, distanceInput);
+        distance(distanceOutput, simplexCache, distanceInput);
 
         this.addDebug("Hit", hit);
         this.addDebug("Iters", output.iterations);
         this.addDebug("Lambda", output.lambda.toFixed(6));
-        this.addDebug("Distance", distanceOutput.distance.toFixed(6));
+        this.addDebug("distance", distanceOutput.distance.toFixed(6));
 
-        const vertices = MakeArray(MAX_POLYGON_VERTICES, Vec2);
+        const vertices = makeArray(MAX_POLYGON_VERTICES, Vec2);
 
         for (let i = 0; i < this.m_countA; ++i) {
-            Transform.MultiplyVec2(this.m_transformA, this.m_vAs[i], vertices[i]);
+            Transform.multiplyVec2(this.m_transformA, this.m_vAs[i], vertices[i]);
         }
 
         if (this.m_countA === 1) {
-            g_debugDraw.DrawCircle(vertices[0], this.m_radiusA, colorA);
+            g_debugDraw.drawCircle(vertices[0], this.m_radiusA, colorA);
         } else {
-            g_debugDraw.DrawPolygon(vertices, this.m_countA, colorA);
+            g_debugDraw.drawPolygon(vertices, this.m_countA, colorA);
         }
 
         for (let i = 0; i < this.m_countB; ++i) {
-            Transform.MultiplyVec2(this.m_transformB, this.m_vBs[i], vertices[i]);
+            Transform.multiplyVec2(this.m_transformB, this.m_vBs[i], vertices[i]);
         }
 
         if (this.m_countB === 1) {
-            g_debugDraw.DrawCircle(vertices[0], this.m_radiusB, colorB);
+            g_debugDraw.drawCircle(vertices[0], this.m_radiusB, colorB);
         } else {
-            g_debugDraw.DrawPolygon(vertices, this.m_countB, colorB);
+            g_debugDraw.drawPolygon(vertices, this.m_countB, colorB);
         }
 
         for (let i = 0; i < this.m_countB; ++i) {
-            Transform.MultiplyVec2(transformB2, this.m_vBs[i], vertices[i]);
+            Transform.multiplyVec2(transformB2, this.m_vBs[i], vertices[i]);
         }
 
         if (this.m_countB === 1) {
-            g_debugDraw.DrawCircle(vertices[0], this.m_radiusB, colorB2);
+            g_debugDraw.drawCircle(vertices[0], this.m_radiusB, colorB2);
         } else {
-            g_debugDraw.DrawPolygon(vertices, this.m_countB, colorB2);
+            g_debugDraw.drawPolygon(vertices, this.m_countB, colorB2);
         }
 
         if (hit) {
             const p1 = output.point;
-            g_debugDraw.DrawPoint(p1, 10, colorHit);
-            const p2 = Vec2.Add(p1, output.normal, Vec2.s_t0);
-            g_debugDraw.DrawSegment(p1, p2, colorHit);
+            g_debugDraw.drawPoint(p1, 10, colorHit);
+            const p2 = Vec2.add(p1, output.normal, Vec2.s_t0);
+            g_debugDraw.drawSegment(p1, p2, colorHit);
         }
     }
 }

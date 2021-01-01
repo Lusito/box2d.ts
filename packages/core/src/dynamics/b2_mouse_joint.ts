@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { Assert, EPSILON } from "../common/b2_common";
+// DEBUG: import { assert, EPSILON } from "../common/b2_common";
 import { Draw, debugColors } from "../common/b2_draw";
 import { Vec2, Mat22, Rot, Transform, XY } from "../common/b2_math";
 import { Joint, JointDef, JointType, IJointDef } from "./b2_joint";
@@ -121,8 +121,8 @@ export class MouseJoint extends Joint {
     public constructor(def: IMouseJointDef) {
         super(def);
 
-        this.m_targetA.Copy(def.target ?? Vec2.ZERO);
-        Transform.TransposeMultiplyVec2(this.m_bodyB.GetTransform(), this.m_targetA, this.m_localAnchorB);
+        this.m_targetA.copy(def.target ?? Vec2.ZERO);
+        Transform.transposeMultiplyVec2(this.m_bodyB.getTransform(), this.m_targetA, this.m_localAnchorB);
         this.m_maxForce = def.maxForce ?? 0;
         this.m_stiffness = def.stiffness ?? 0;
         this.m_damping = def.damping ?? 0;
@@ -131,45 +131,45 @@ export class MouseJoint extends Joint {
         this.m_gamma = 0;
     }
 
-    public SetTarget(target: XY): void {
-        if (!Vec2.Equals(target, this.m_targetA)) {
-            this.m_bodyB.SetAwake(true);
-            this.m_targetA.Copy(target);
+    public setTarget(target: XY): void {
+        if (!Vec2.equals(target, this.m_targetA)) {
+            this.m_bodyB.setAwake(true);
+            this.m_targetA.copy(target);
         }
     }
 
-    public GetTarget() {
+    public getTarget() {
         return this.m_targetA;
     }
 
-    public SetMaxForce(force: number): void {
+    public setMaxForce(force: number): void {
         this.m_maxForce = force;
     }
 
-    public GetMaxForce() {
+    public getMaxForce() {
         return this.m_maxForce;
     }
 
-    public SetStiffness(stiffness: number): void {
+    public setStiffness(stiffness: number): void {
         this.m_stiffness = stiffness;
     }
 
-    public GetStiffness() {
+    public getStiffness() {
         return this.m_stiffness;
     }
 
-    public SetDamping(damping: number) {
+    public setDamping(damping: number) {
         this.m_damping = damping;
     }
 
-    public GetDamping() {
+    public getDamping() {
         return this.m_damping;
     }
 
     /** @internal protected */
-    public InitVelocityConstraints(data: SolverData): void {
+    public initVelocityConstraints(data: SolverData): void {
         this.m_indexB = this.m_bodyB.m_islandIndex;
-        this.m_localCenterB.Copy(this.m_bodyB.m_sweep.localCenter);
+        this.m_localCenterB.copy(this.m_bodyB.m_sweep.localCenter);
         this.m_invMassB = this.m_bodyB.m_invMass;
         this.m_invIB = this.m_bodyB.m_invI;
 
@@ -180,7 +180,7 @@ export class MouseJoint extends Joint {
 
         const { qB, lalcB } = temp;
 
-        qB.Set(aB);
+        qB.set(aB);
 
         const d = this.m_damping;
         const k = this.m_stiffness;
@@ -196,7 +196,7 @@ export class MouseJoint extends Joint {
         this.m_beta = h * k * this.m_gamma;
 
         // Compute the effective mass matrix.
-        Rot.MultiplyVec2(qB, Vec2.Subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
+        Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
 
         // K    = [(1/m1 + 1/m2) * eye(2) - skew(r1) * invI1 * skew(r1) - skew(r2) * invI2 * skew(r2)]
         //      = [1/m1+1/m2     0    ] + invI1 * [r1.y*r1.y -r1.x*r1.y] + invI2 * [r1.y*r1.y -r1.x*r1.y]
@@ -207,84 +207,84 @@ export class MouseJoint extends Joint {
         K.ey.x = K.ex.y;
         K.ey.y = this.m_invMassB + this.m_invIB * this.m_rB.x * this.m_rB.x + this.m_gamma;
 
-        K.Inverse();
+        K.inverse();
 
-        Vec2.Add(cB, this.m_rB, this.m_C).Subtract(this.m_targetA);
-        this.m_C.Scale(this.m_beta);
+        Vec2.add(cB, this.m_rB, this.m_C).subtract(this.m_targetA);
+        this.m_C.scale(this.m_beta);
 
         // Cheat with some damping
         wB *= 0.98;
 
         if (data.step.warmStarting) {
-            this.m_impulse.Scale(data.step.dtRatio);
-            vB.AddScaled(this.m_invMassB, this.m_impulse);
-            wB += this.m_invIB * Vec2.Cross(this.m_rB, this.m_impulse);
+            this.m_impulse.scale(data.step.dtRatio);
+            vB.addScaled(this.m_invMassB, this.m_impulse);
+            wB += this.m_invIB * Vec2.cross(this.m_rB, this.m_impulse);
         } else {
-            this.m_impulse.SetZero();
+            this.m_impulse.setZero();
         }
         data.velocities[this.m_indexB].w = wB;
     }
 
     /** @internal protected */
-    public SolveVelocityConstraints(data: SolverData): void {
+    public solveVelocityConstraints(data: SolverData): void {
         const vB = data.velocities[this.m_indexB].v;
         let wB = data.velocities[this.m_indexB].w;
 
         // Cdot = v + cross(w, r)
         const { Cdot, impulse, oldImpulse } = temp;
-        Vec2.AddCrossScalarVec2(vB, wB, this.m_rB, Cdot);
-        Mat22.MultiplyVec2(
+        Vec2.addCrossScalarVec2(vB, wB, this.m_rB, Cdot);
+        Mat22.multiplyVec2(
             this.m_mass,
-            Vec2.Add(Cdot, this.m_C, impulse).AddScaled(this.m_gamma, this.m_impulse).Negate(),
+            Vec2.add(Cdot, this.m_C, impulse).addScaled(this.m_gamma, this.m_impulse).negate(),
             impulse,
         );
 
-        oldImpulse.Copy(this.m_impulse);
-        this.m_impulse.Add(impulse);
+        oldImpulse.copy(this.m_impulse);
+        this.m_impulse.add(impulse);
         const maxImpulse = data.step.dt * this.m_maxForce;
-        if (this.m_impulse.LengthSquared() > maxImpulse * maxImpulse) {
-            this.m_impulse.Scale(maxImpulse / this.m_impulse.Length());
+        if (this.m_impulse.lengthSquared() > maxImpulse * maxImpulse) {
+            this.m_impulse.scale(maxImpulse / this.m_impulse.length());
         }
-        Vec2.Subtract(this.m_impulse, oldImpulse, impulse);
+        Vec2.subtract(this.m_impulse, oldImpulse, impulse);
 
-        vB.AddScaled(this.m_invMassB, impulse);
-        wB += this.m_invIB * Vec2.Cross(this.m_rB, impulse);
+        vB.addScaled(this.m_invMassB, impulse);
+        wB += this.m_invIB * Vec2.cross(this.m_rB, impulse);
 
         data.velocities[this.m_indexB].w = wB;
     }
 
     /** @internal protected */
-    public SolvePositionConstraints(_data: SolverData): boolean {
+    public solvePositionConstraints(_data: SolverData): boolean {
         return true;
     }
 
-    public GetAnchorA<T extends XY>(out: T): T {
+    public getAnchorA<T extends XY>(out: T): T {
         out.x = this.m_targetA.x;
         out.y = this.m_targetA.y;
         return out;
     }
 
-    public GetAnchorB<T extends XY>(out: T): T {
-        return this.m_bodyB.GetWorldPoint(this.m_localAnchorB, out);
+    public getAnchorB<T extends XY>(out: T): T {
+        return this.m_bodyB.getWorldPoint(this.m_localAnchorB, out);
     }
 
-    public GetReactionForce<T extends XY>(inv_dt: number, out: T): T {
-        return Vec2.Scale(inv_dt, this.m_impulse, out);
+    public getReactionForce<T extends XY>(inv_dt: number, out: T): T {
+        return Vec2.scale(inv_dt, this.m_impulse, out);
     }
 
-    public GetReactionTorque(_inv_dt: number): number {
+    public getReactionTorque(_inv_dt: number): number {
         return 0;
     }
 
-    public ShiftOrigin(newOrigin: XY) {
-        this.m_targetA.Subtract(newOrigin);
+    public shiftOrigin(newOrigin: XY) {
+        this.m_targetA.subtract(newOrigin);
     }
 
-    public Draw(draw: Draw): void {
-        const p1 = this.GetAnchorA(temp.pA);
-        const p2 = this.GetAnchorB(temp.pB);
-        draw.DrawPoint(p1, 4, debugColors.joint7);
-        draw.DrawPoint(p2, 4, debugColors.joint7);
-        draw.DrawSegment(p1, p2, debugColors.joint8);
+    public draw(draw: Draw): void {
+        const p1 = this.getAnchorA(temp.pA);
+        const p2 = this.getAnchorB(temp.pB);
+        draw.drawPoint(p1, 4, debugColors.joint7);
+        draw.drawPoint(p2, 4, debugColors.joint7);
+        draw.drawSegment(p1, p2, debugColors.joint8);
     }
 }

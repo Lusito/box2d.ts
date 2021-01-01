@@ -29,13 +29,13 @@ export class ConstantForceController extends Controller {
      */
     public readonly F = new Vec2();
 
-    public Step(_step: TimeStep) {
+    public step(_step: TimeStep) {
         for (let i = this.m_bodyList; i; i = i.nextBody) {
             const { body } = i;
-            if (!body.IsAwake()) {
+            if (!body.isAwake()) {
                 continue;
             }
-            body.ApplyForce(this.F, body.GetWorldCenter());
+            body.applyForce(this.F, body.getWorldCenter());
         }
     }
 }

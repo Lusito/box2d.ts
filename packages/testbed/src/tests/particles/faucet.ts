@@ -48,8 +48,8 @@ class ParticleLifetimeRandomizer extends EmittedParticleCallback {
     /**
      * Called for each created particle.
      */
-    public ParticleCreated(system: ParticleSystem, particleIndex: number): void {
-        system.SetParticleLifetime(
+    public particleCreated(system: ParticleSystem, particleIndex: number): void {
+        system.setParticleLifetime(
             particleIndex,
             Math.random() * (this.m_maxLifetime - this.m_minLifetime) + this.m_minLifetime,
         );
@@ -135,55 +135,55 @@ class FaucetTest extends AbstractParticleTestWithControls {
         );
 
         // Configure particle system parameters.
-        this.m_particleSystem.SetRadius(0.035);
-        this.m_particleSystem.SetMaxParticleCount(FaucetTest.k_maxParticleCount);
-        this.m_particleSystem.SetDestructionByAge(true);
+        this.m_particleSystem.setRadius(0.035);
+        this.m_particleSystem.setMaxParticleCount(FaucetTest.k_maxParticleCount);
+        this.m_particleSystem.setDestructionByAge(true);
 
-        const ground = this.m_world.CreateBody();
+        const ground = this.m_world.createBody();
 
         // Create the container / trough style sink.
         {
             const shape = new PolygonShape();
             const height = FaucetTest.k_containerHeight + FaucetTest.k_containerThickness;
-            shape.SetAsBox(
+            shape.setAsBox(
                 FaucetTest.k_containerWidth - FaucetTest.k_containerThickness,
                 FaucetTest.k_containerThickness,
                 new Vec2(),
                 0,
             );
-            ground.CreateFixture({ shape });
-            shape.SetAsBox(
+            ground.createFixture({ shape });
+            shape.setAsBox(
                 FaucetTest.k_containerThickness,
                 height,
                 new Vec2(-FaucetTest.k_containerWidth, FaucetTest.k_containerHeight),
                 0,
             );
-            ground.CreateFixture({ shape });
-            shape.SetAsBox(
+            ground.createFixture({ shape });
+            shape.setAsBox(
                 FaucetTest.k_containerThickness,
                 height,
                 new Vec2(FaucetTest.k_containerWidth, FaucetTest.k_containerHeight),
                 0,
             );
-            ground.CreateFixture({ shape });
+            ground.createFixture({ shape });
         }
 
         // Create ground under the container to catch overflow.
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(
+            shape.setAsBox(
                 FaucetTest.k_containerWidth * 5,
                 FaucetTest.k_containerThickness,
                 new Vec2(0, FaucetTest.k_containerThickness * -2),
                 0,
             );
-            ground.CreateFixture({ shape });
+            ground.createFixture({ shape });
         }
 
         // Create the faucet spout.
         {
             const shape = new PolygonShape();
-            const particleDiameter = this.m_particleSystem.GetRadius() * 2;
+            const particleDiameter = this.m_particleSystem.getRadius() * 2;
             const faucetLength = FaucetTest.k_faucetLength * particleDiameter;
             // Dimensions of the faucet in world units.
             const length = faucetLength * FaucetTest.k_spoutLength;
@@ -191,51 +191,51 @@ class FaucetTest extends AbstractParticleTestWithControls {
             // Height from the bottom of the container.
             const height = FaucetTest.k_containerHeight * FaucetTest.k_faucetHeight + length * 0.5;
 
-            shape.SetAsBox(particleDiameter, length, new Vec2(-width, height), 0);
-            ground.CreateFixture({ shape });
-            shape.SetAsBox(particleDiameter, length, new Vec2(width, height), 0);
-            ground.CreateFixture({ shape });
-            shape.SetAsBox(
+            shape.setAsBox(particleDiameter, length, new Vec2(-width, height), 0);
+            ground.createFixture({ shape });
+            shape.setAsBox(particleDiameter, length, new Vec2(width, height), 0);
+            ground.createFixture({ shape });
+            shape.setAsBox(
                 width - particleDiameter,
                 particleDiameter,
                 new Vec2(0, height + length - particleDiameter),
                 0,
             );
-            ground.CreateFixture({ shape });
+            ground.createFixture({ shape });
         }
 
         // Initialize the particle emitter.
         {
-            const faucetLength = this.m_particleSystem.GetRadius() * 2 * FaucetTest.k_faucetLength;
-            this.m_emitter.SetParticleSystem(this.m_particleSystem);
-            this.m_emitter.SetCallback(this.m_lifetimeRandomizer);
-            this.m_emitter.SetPosition(
+            const faucetLength = this.m_particleSystem.getRadius() * 2 * FaucetTest.k_faucetLength;
+            this.m_emitter.setParticleSystem(this.m_particleSystem);
+            this.m_emitter.setCallback(this.m_lifetimeRandomizer);
+            this.m_emitter.setPosition(
                 new Vec2(
                     FaucetTest.k_containerWidth * FaucetTest.k_faucetWidth,
                     FaucetTest.k_containerHeight * FaucetTest.k_faucetHeight + faucetLength * 0.5,
                 ),
             );
-            this.m_emitter.SetVelocity(new Vec2());
-            this.m_emitter.SetSize(new Vec2(0, faucetLength));
-            this.m_emitter.SetColor(new Color(1, 1, 1, 1));
-            this.m_emitter.SetEmitRate(120);
-            this.m_emitter.SetParticleFlags(particleParameter.GetValue());
+            this.m_emitter.setVelocity(new Vec2());
+            this.m_emitter.setSize(new Vec2(0, faucetLength));
+            this.m_emitter.setColor(new Color(1, 1, 1, 1));
+            this.m_emitter.setEmitRate(120);
+            this.m_emitter.setParticleFlags(particleParameter.getValue());
         }
 
         // Don't restart the test when changing particle types.
-        particleParameter.SetRestartOnChange(false);
+        particleParameter.setRestartOnChange(false);
         // Limit the set of particle types.
-        particleParameter.SetValues(particleTypes, "water");
+        particleParameter.setValues(particleTypes, "water");
     }
 
-    public Step(settings: Settings, timeStep: number): void {
+    public step(settings: Settings, timeStep: number): void {
         let dt = settings.m_hertz > 0 ? 1 / settings.m_hertz : 0;
 
         if (settings.m_pause && !settings.m_singleStep) {
             dt = 0;
         }
 
-        super.Step(settings, timeStep);
+        super.step(settings, timeStep);
         this.m_particleColorOffset += dt;
         // Keep m_particleColorOffset in the range 0..k_ParticleColorsCount.
         if (this.m_particleColorOffset >= particleColors.length) {
@@ -243,42 +243,42 @@ class FaucetTest extends AbstractParticleTestWithControls {
         }
 
         // Propagate the currently selected particle flags.
-        this.m_emitter.SetParticleFlags(this.particleParameter.GetValue());
+        this.m_emitter.setParticleFlags(this.particleParameter.getValue());
 
         // If this is a color mixing particle, add some color.
-        if (this.m_emitter.GetParticleFlags() & ParticleFlag.ColorMixing) {
+        if (this.m_emitter.getParticleFlags() & ParticleFlag.ColorMixing) {
             // Each second, select a different color.
-            this.m_emitter.SetColor(particleColors[Math.floor(this.m_particleColorOffset) % particleColors.length]);
+            this.m_emitter.setColor(particleColors[Math.floor(this.m_particleColorOffset) % particleColors.length]);
         } else {
-            this.m_emitter.SetColor(new Color(1, 1, 1, 1));
+            this.m_emitter.setColor(new Color(1, 1, 1, 1));
         }
 
         // Create the particles.
-        this.m_emitter.Step(dt);
+        this.m_emitter.step(dt);
     }
 
     public getHotkeys(): HotKey[] {
         return [
             hotKeyPress("m", "Increase Flow", () =>
-                this.m_emitter.SetEmitRate(
+                this.m_emitter.setEmitRate(
                     Math.max(
                         FaucetTest.k_emitRateMin,
-                        this.m_emitter.GetEmitRate() * FaucetTest.k_emitRateChangeFactor,
+                        this.m_emitter.getEmitRate() * FaucetTest.k_emitRateChangeFactor,
                     ),
                 ),
             ),
             hotKeyPress("n", "Decrease Flow", () =>
-                this.m_emitter.SetEmitRate(
+                this.m_emitter.setEmitRate(
                     Math.min(
                         FaucetTest.k_emitRateMax,
-                        this.m_emitter.GetEmitRate() / FaucetTest.k_emitRateChangeFactor,
+                        this.m_emitter.getEmitRate() / FaucetTest.k_emitRateChangeFactor,
                     ),
                 ),
             ),
         ];
     }
 
-    public GetDefaultViewZoom(): number {
+    public getDefaultViewZoom(): number {
         return 250;
     }
 

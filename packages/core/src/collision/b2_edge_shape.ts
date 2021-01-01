@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { Assert } from "../common/b2_common";
+// DEBUG: import { assert } from "../common/b2_common";
 import { POLYGON_RADIUS } from "../common/b2_common";
 import { Color, Draw } from "../common/b2_draw";
 import { Vec2, Rot, Transform, XY } from "../common/b2_math";
@@ -57,11 +57,11 @@ export class EdgeShape extends Shape {
      * across junctions. This also makes the collision one-sided. The edge
      * normal points to the right looking from v1 to v2.
      */
-    public SetOneSided(v0: XY, v1: XY, v2: XY, v3: XY): EdgeShape {
-        this.m_vertex0.Copy(v0);
-        this.m_vertex1.Copy(v1);
-        this.m_vertex2.Copy(v2);
-        this.m_vertex3.Copy(v3);
+    public setOneSided(v0: XY, v1: XY, v2: XY, v3: XY): EdgeShape {
+        this.m_vertex0.copy(v0);
+        this.m_vertex1.copy(v1);
+        this.m_vertex2.copy(v2);
+        this.m_vertex3.copy(v3);
         this.m_oneSided = true;
         return this;
     }
@@ -69,9 +69,9 @@ export class EdgeShape extends Shape {
     /**
      * Set this as an isolated edge. Collision is two-sided.
      */
-    public SetTwoSided(v1: XY, v2: XY): EdgeShape {
-        this.m_vertex1.Copy(v1);
-        this.m_vertex2.Copy(v2);
+    public setTwoSided(v1: XY, v2: XY): EdgeShape {
+        this.m_vertex1.copy(v1);
+        this.m_vertex2.copy(v2);
         this.m_oneSided = false;
         return this;
     }
@@ -79,19 +79,19 @@ export class EdgeShape extends Shape {
     /**
      * Implement Shape.
      */
-    public Clone(): EdgeShape {
-        return new EdgeShape().Copy(this);
+    public clone(): EdgeShape {
+        return new EdgeShape().copy(this);
     }
 
-    public Copy(other: EdgeShape): EdgeShape {
-        super.Copy(other);
+    public copy(other: EdgeShape): EdgeShape {
+        super.copy(other);
 
-        // DEBUG: Assert(other instanceof EdgeShape);
+        // DEBUG: assert(other instanceof EdgeShape);
 
-        this.m_vertex1.Copy(other.m_vertex1);
-        this.m_vertex2.Copy(other.m_vertex2);
-        this.m_vertex0.Copy(other.m_vertex0);
-        this.m_vertex3.Copy(other.m_vertex3);
+        this.m_vertex1.copy(other.m_vertex1);
+        this.m_vertex2.copy(other.m_vertex2);
+        this.m_vertex0.copy(other.m_vertex0);
+        this.m_vertex3.copy(other.m_vertex3);
         this.m_oneSided = other.m_oneSided;
 
         return this;
@@ -100,14 +100,14 @@ export class EdgeShape extends Shape {
     /**
      * @see Shape::GetChildCount
      */
-    public GetChildCount(): number {
+    public getChildCount(): number {
         return 1;
     }
 
     /**
      * @see Shape::TestPoint
      */
-    public TestPoint(_xf: Transform, _p: XY): boolean {
+    public testPoint(_xf: Transform, _p: XY): boolean {
         return false;
     }
 
@@ -131,29 +131,29 @@ export class EdgeShape extends Shape {
      * p1 + t * d = v1 + s * e
      * s * e - t * d = p1 - v1
      */
-    public RayCast(output: RayCastOutput, input: RayCastInput, xf: Transform, _childIndex: number): boolean {
+    public rayCast(output: RayCastOutput, input: RayCastInput, xf: Transform, _childIndex: number): boolean {
         // Put the ray into the edge's frame of reference.
-        const p1 = Transform.TransposeMultiplyVec2(xf, input.p1, EdgeShape.RayCast_s_p1);
-        const p2 = Transform.TransposeMultiplyVec2(xf, input.p2, EdgeShape.RayCast_s_p2);
-        const d = Vec2.Subtract(p2, p1, EdgeShape.RayCast_s_d);
+        const p1 = Transform.transposeMultiplyVec2(xf, input.p1, EdgeShape.RayCast_s_p1);
+        const p2 = Transform.transposeMultiplyVec2(xf, input.p2, EdgeShape.RayCast_s_p2);
+        const d = Vec2.subtract(p2, p1, EdgeShape.RayCast_s_d);
 
         const v1 = this.m_vertex1;
         const v2 = this.m_vertex2;
-        const e = Vec2.Subtract(v2, v1, EdgeShape.RayCast_s_e);
+        const e = Vec2.subtract(v2, v1, EdgeShape.RayCast_s_e);
 
         // Normal points to the right, looking from v1 at v2
         const { normal } = output;
-        normal.Set(e.y, -e.x).Normalize();
+        normal.set(e.y, -e.x).normalize();
 
         // q = p1 + t * d
         // dot(normal, q - v1) = 0
         // dot(normal, p1 - v1) + t * dot(normal, d) = 0
-        const numerator = Vec2.Dot(normal, Vec2.Subtract(v1, p1, Vec2.s_t0));
+        const numerator = Vec2.dot(normal, Vec2.subtract(v1, p1, Vec2.s_t0));
         if (this.m_oneSided && numerator > 0) {
             return false;
         }
 
-        const denominator = Vec2.Dot(normal, d);
+        const denominator = Vec2.dot(normal, d);
 
         if (denominator === 0) {
             return false;
@@ -164,25 +164,25 @@ export class EdgeShape extends Shape {
             return false;
         }
 
-        const q = Vec2.AddScaled(p1, t, d, EdgeShape.RayCast_s_q);
+        const q = Vec2.addScaled(p1, t, d, EdgeShape.RayCast_s_q);
 
         // q = v1 + s * r
         // s = dot(q - v1, r) / dot(r, r)
-        const r = Vec2.Subtract(v2, v1, EdgeShape.RayCast_s_r);
-        const rr = Vec2.Dot(r, r);
+        const r = Vec2.subtract(v2, v1, EdgeShape.RayCast_s_r);
+        const rr = Vec2.dot(r, r);
         if (rr === 0) {
             return false;
         }
 
-        const s = Vec2.Dot(Vec2.Subtract(q, v1, Vec2.s_t0), r) / rr;
+        const s = Vec2.dot(Vec2.subtract(q, v1, Vec2.s_t0), r) / rr;
         if (s < 0 || s > 1) {
             return false;
         }
 
         output.fraction = t;
-        Rot.MultiplyVec2(xf.q, output.normal, output.normal);
+        Rot.multiplyVec2(xf.q, output.normal, output.normal);
         if (numerator > 0) {
-            output.normal.Negate();
+            output.normal.negate();
         }
         return true;
     }
@@ -194,43 +194,43 @@ export class EdgeShape extends Shape {
     /**
      * @see Shape::ComputeAABB
      */
-    public ComputeAABB(aabb: AABB, xf: Transform, _childIndex: number): void {
-        const v1 = Transform.MultiplyVec2(xf, this.m_vertex1, EdgeShape.ComputeAABB_s_v1);
-        const v2 = Transform.MultiplyVec2(xf, this.m_vertex2, EdgeShape.ComputeAABB_s_v2);
+    public computeAABB(aabb: AABB, xf: Transform, _childIndex: number): void {
+        const v1 = Transform.multiplyVec2(xf, this.m_vertex1, EdgeShape.ComputeAABB_s_v1);
+        const v2 = Transform.multiplyVec2(xf, this.m_vertex2, EdgeShape.ComputeAABB_s_v2);
 
-        Vec2.Min(v1, v2, aabb.lowerBound);
-        Vec2.Max(v1, v2, aabb.upperBound);
+        Vec2.min(v1, v2, aabb.lowerBound);
+        Vec2.max(v1, v2, aabb.upperBound);
 
         const r = this.m_radius;
-        aabb.lowerBound.SubtractXY(r, r);
-        aabb.upperBound.AddXY(r, r);
+        aabb.lowerBound.subtractXY(r, r);
+        aabb.upperBound.addXY(r, r);
     }
 
     /**
      * @see Shape::ComputeMass
      */
-    public ComputeMass(massData: MassData, _density: number): void {
+    public computeMass(massData: MassData, _density: number): void {
         massData.mass = 0;
-        Vec2.Mid(this.m_vertex1, this.m_vertex2, massData.center);
+        Vec2.mid(this.m_vertex1, this.m_vertex2, massData.center);
         massData.I = 0;
     }
 
-    public SetupDistanceProxy(proxy: DistanceProxy, _index: number): void {
+    public setupDistanceProxy(proxy: DistanceProxy, _index: number): void {
         proxy.m_vertices = proxy.m_buffer;
-        proxy.m_vertices[0].Copy(this.m_vertex1);
-        proxy.m_vertices[1].Copy(this.m_vertex2);
+        proxy.m_vertices[0].copy(this.m_vertex1);
+        proxy.m_vertices[1].copy(this.m_vertex2);
         proxy.m_count = 2;
         proxy.m_radius = this.m_radius;
     }
 
-    public Draw(draw: Draw, color: Color): void {
+    public draw(draw: Draw, color: Color): void {
         const v1 = this.m_vertex1;
         const v2 = this.m_vertex2;
-        draw.DrawSegment(v1, v2, color);
+        draw.drawSegment(v1, v2, color);
 
         if (this.m_oneSided === false) {
-            draw.DrawPoint(v1, 4, color);
-            draw.DrawPoint(v2, 4, color);
+            draw.drawPoint(v1, 4, color);
+            draw.drawPoint(v2, 4, color);
         }
     }
 }

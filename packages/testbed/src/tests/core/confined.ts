@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { EdgeShape, Vec2, CircleShape, FixtureDef, BodyType, Random, XY } from "@box2d/core";
+import { EdgeShape, Vec2, CircleShape, FixtureDef, BodyType, random, XY } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -31,30 +31,30 @@ class ConfinedTest extends Test {
         super(Vec2.ZERO);
 
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
 
             // Floor
-            shape.SetTwoSided(new Vec2(-10, 0), new Vec2(10, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-10, 0), new Vec2(10, 0));
+            ground.createFixture({ shape });
 
             // Left wall
-            shape.SetTwoSided(new Vec2(-10, 0), new Vec2(-10, 20));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-10, 0), new Vec2(-10, 20));
+            ground.createFixture({ shape });
 
             // Right wall
-            shape.SetTwoSided(new Vec2(10, 0), new Vec2(10, 20));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(10, 0), new Vec2(10, 20));
+            ground.createFixture({ shape });
 
             // Roof
-            shape.SetTwoSided(new Vec2(-10, 20), new Vec2(10, 20));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-10, 20), new Vec2(10, 20));
+            ground.createFixture({ shape });
         }
 
         const radius = 0.5;
         const shape = new CircleShape();
-        shape.m_p.SetZero();
+        shape.m_p.setZero();
         shape.m_radius = radius;
 
         const fd: FixtureDef = {
@@ -65,17 +65,17 @@ class ConfinedTest extends Test {
 
         for (let j = 0; j < ConfinedTest.e_columnCount; ++j) {
             for (let i = 0; i < ConfinedTest.e_rowCount; ++i) {
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: -10 + (2.1 * j + 1 + 0.01 * i) * radius, y: (2 * i + 1) * radius },
                 });
 
-                body.CreateFixture(fd);
+                body.createFixture(fd);
             }
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 40;
     }
 
@@ -86,22 +86,22 @@ class ConfinedTest extends Test {
         };
     }
 
-    public CreateCircle() {
+    public createCircle() {
         const radius = 2;
         const shape = new CircleShape();
-        shape.m_p.SetZero();
+        shape.m_p.setZero();
         shape.m_radius = radius;
 
         // bd.allowSleep = false;
-        const body = this.m_world.CreateBody({
+        const body = this.m_world.createBody({
             type: BodyType.Dynamic,
             position: {
-                x: Random(),
-                y: 3 + Random(),
+                x: random(),
+                y: 3 + random(),
             },
         });
 
-        body.CreateFixture({
+        body.createFixture({
             shape,
             density: 1,
             friction: 0,
@@ -109,17 +109,17 @@ class ConfinedTest extends Test {
     }
 
     public getHotkeys(): HotKey[] {
-        return [hotKeyPress("c", "Create Circle", () => this.CreateCircle())];
+        return [hotKeyPress("c", "Create Circle", () => this.createCircle())];
     }
 
-    public Step(settings: Settings, timeStep: number): void {
+    public step(settings: Settings, timeStep: number): void {
         // let sleeping = true;
-        for (let b = this.m_world.GetBodyList(); b; b = b.GetNext()) {
-            if (b.GetType() !== BodyType.Dynamic) {
+        for (let b = this.m_world.getBodyList(); b; b = b.getNext()) {
+            if (b.getType() !== BodyType.Dynamic) {
                 continue;
             }
 
-            // if (b.IsAwake()) {
+            // if (b.isAwake()) {
             //     sleeping = false;
             // }
         }
@@ -129,17 +129,17 @@ class ConfinedTest extends Test {
         }
 
         // if (sleeping) {
-        //     this.CreateCircle();
+        //     this.createCircle();
         // }
 
-        super.Step(settings, timeStep);
+        super.step(settings, timeStep);
 
-        for (let b = this.m_world.GetBodyList(); b; b = b.GetNext()) {
-            if (b.GetType() !== BodyType.Dynamic) {
+        for (let b = this.m_world.getBodyList(); b; b = b.getNext()) {
+            if (b.getType() !== BodyType.Dynamic) {
                 continue;
             }
 
-            // const p = b.GetPosition();
+            // const p = b.getPosition();
             // if (p.x <= -10 || 10 <= p.x || p.y <= 0 || 20 <= p.y) {
             //   p.x += 0;
             // }

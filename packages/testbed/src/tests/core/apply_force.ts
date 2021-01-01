@@ -51,7 +51,7 @@ class ApplyForceTest extends Test {
 
         const k_restitution = 0.4;
 
-        const ground = this.m_world.CreateBody({
+        const ground = this.m_world.createBody({
             position: {
                 x: 0,
                 y: 20,
@@ -67,65 +67,65 @@ class ApplyForceTest extends Test {
             };
 
             // Left vertical
-            shape.SetTwoSided(new Vec2(-20, -20), new Vec2(-20, 20));
-            ground.CreateFixture(sd);
+            shape.setTwoSided(new Vec2(-20, -20), new Vec2(-20, 20));
+            ground.createFixture(sd);
 
             // Right vertical
-            shape.SetTwoSided(new Vec2(20, -20), new Vec2(20, 20));
-            ground.CreateFixture(sd);
+            shape.setTwoSided(new Vec2(20, -20), new Vec2(20, 20));
+            ground.createFixture(sd);
 
             // Top horizontal
-            shape.SetTwoSided(new Vec2(-20, 20), new Vec2(20, 20));
-            ground.CreateFixture(sd);
+            shape.setTwoSided(new Vec2(-20, 20), new Vec2(20, 20));
+            ground.createFixture(sd);
 
             // Bottom horizontal
-            shape.SetTwoSided(new Vec2(-20, -20), new Vec2(20, -20));
-            ground.CreateFixture(sd);
+            shape.setTwoSided(new Vec2(-20, -20), new Vec2(20, -20));
+            ground.createFixture(sd);
         }
 
         {
             const xf1 = new Transform();
-            xf1.q.Set(0.3524 * Math.PI);
-            xf1.q.GetXAxis(xf1.p);
+            xf1.q.set(0.3524 * Math.PI);
+            xf1.q.getXAxis(xf1.p);
 
             const vertices = [];
-            vertices[0] = Transform.MultiplyVec2(xf1, new Vec2(-1, 0), new Vec2());
-            vertices[1] = Transform.MultiplyVec2(xf1, new Vec2(1, 0), new Vec2());
-            vertices[2] = Transform.MultiplyVec2(xf1, new Vec2(0, 0.5), new Vec2());
+            vertices[0] = Transform.multiplyVec2(xf1, new Vec2(-1, 0), new Vec2());
+            vertices[1] = Transform.multiplyVec2(xf1, new Vec2(1, 0), new Vec2());
+            vertices[2] = Transform.multiplyVec2(xf1, new Vec2(0, 0.5), new Vec2());
 
             const poly1 = new PolygonShape();
-            poly1.Set(vertices, 3);
+            poly1.set(vertices, 3);
 
             const xf2 = new Transform();
-            xf2.q.Set(-0.3524 * Math.PI);
-            xf2.q.GetXAxis(xf2.p).Negate();
-            xf2.p.Copy(Rot.MultiplyVec2(xf2.q, new Vec2(-1, 0), new Vec2()));
+            xf2.q.set(-0.3524 * Math.PI);
+            xf2.q.getXAxis(xf2.p).negate();
+            xf2.p.copy(Rot.multiplyVec2(xf2.q, new Vec2(-1, 0), new Vec2()));
 
-            vertices[0] = Transform.MultiplyVec2(xf2, new Vec2(-1, 0), new Vec2());
-            vertices[1] = Transform.MultiplyVec2(xf2, new Vec2(1, 0), new Vec2());
-            vertices[2] = Transform.MultiplyVec2(xf2, new Vec2(0, 0.5), new Vec2());
+            vertices[0] = Transform.multiplyVec2(xf2, new Vec2(-1, 0), new Vec2());
+            vertices[1] = Transform.multiplyVec2(xf2, new Vec2(1, 0), new Vec2());
+            vertices[2] = Transform.multiplyVec2(xf2, new Vec2(0, 0.5), new Vec2());
 
             const poly2 = new PolygonShape();
-            poly2.Set(vertices, 3);
+            poly2.set(vertices, 3);
 
-            this.m_body = this.m_world.CreateBody({
+            this.m_body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 0, y: 3 },
                 angle: Math.PI,
                 allowSleep: false,
             });
-            this.m_body.CreateFixture({
+            this.m_body.createFixture({
                 shape: poly1,
                 density: 2,
             });
-            this.m_body.CreateFixture({
+            this.m_body.createFixture({
                 shape: poly2,
                 density: 2,
             });
 
             const gravity = 10;
-            const I = this.m_body.GetInertia();
-            const mass = this.m_body.GetMass();
+            const I = this.m_body.getInertia();
+            const mass = this.m_body.getMass();
 
             // Compute an effective radius that can be used to
             // set the max torque for a friction joint
@@ -135,18 +135,18 @@ class ApplyForceTest extends Test {
             const jd = new FrictionJointDef();
             jd.bodyA = ground;
             jd.bodyB = this.m_body;
-            jd.localAnchorA.SetZero();
-            jd.localAnchorB.Copy(this.m_body.GetLocalCenter());
+            jd.localAnchorA.setZero();
+            jd.localAnchorB.copy(this.m_body.getLocalCenter());
             jd.collideConnected = true;
             jd.maxForce = 0.5 * mass * gravity;
             jd.maxTorque = 0.2 * mass * radius * gravity;
 
-            this.m_world.CreateJoint(jd);
+            this.m_world.createJoint(jd);
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.5, 0.5);
+            shape.setAsBox(0.5, 0.5);
 
             const fd: FixtureDef = {
                 shape,
@@ -155,7 +155,7 @@ class ApplyForceTest extends Test {
             };
 
             for (let i = 0; i < 10; ++i) {
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
 
                     position: {
@@ -164,42 +164,42 @@ class ApplyForceTest extends Test {
                     },
                 });
 
-                body.CreateFixture(fd);
+                body.createFixture(fd);
 
                 const gravity = 10;
-                const I = body.GetInertia();
-                const mass = body.GetMass();
+                const I = body.getInertia();
+                const mass = body.getMass();
 
                 // For a circle: I = 0.5 * m * r * r ==> r = sqrt(2 * I / m)
                 const radius = Math.sqrt((2 * I) / mass);
 
                 const jd = new FrictionJointDef();
-                jd.localAnchorA.SetZero();
-                jd.localAnchorB.SetZero();
+                jd.localAnchorA.setZero();
+                jd.localAnchorB.setZero();
                 jd.bodyA = ground;
                 jd.bodyB = body;
                 jd.collideConnected = true;
                 jd.maxForce = mass * gravity;
                 jd.maxTorque = 0.1 * mass * radius * gravity;
 
-                this.m_world.CreateJoint(jd);
+                this.m_world.createJoint(jd);
             }
         }
     }
 
     public getHotkeys(): HotKey[] {
         return [
-            hotKeyStep("w", "Apply Force", () => this.ApplyForce(-50)),
-            hotKeyStep("s", "Apply Backward Force", () => this.ApplyForce(50)),
-            hotKeyStep("a", "Apply Torque Counter-Clockwise", () => this.m_body.ApplyTorque(10)),
-            hotKeyStep("d", "Apply Torque Clockwise", () => this.m_body.ApplyTorque(-10)),
+            hotKeyStep("w", "Apply Force", () => this.applyForce(-50)),
+            hotKeyStep("s", "Apply Backward Force", () => this.applyForce(50)),
+            hotKeyStep("a", "Apply Torque Counter-Clockwise", () => this.m_body.applyTorque(10)),
+            hotKeyStep("d", "Apply Torque Clockwise", () => this.m_body.applyTorque(-10)),
         ];
     }
 
-    private ApplyForce(value: number) {
-        const f = this.m_body.GetWorldVector(new Vec2(0, value), new Vec2());
-        const p = this.m_body.GetWorldPoint(new Vec2(0, 3), new Vec2());
-        this.m_body.ApplyForce(f, p);
+    private applyForce(value: number) {
+        const f = this.m_body.getWorldVector(new Vec2(0, value), new Vec2());
+        const p = this.m_body.getWorldPoint(new Vec2(0, 3), new Vec2());
+        this.m_body.applyForce(f, p);
     }
 
     public getCenter(): XY {

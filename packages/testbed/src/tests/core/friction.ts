@@ -25,67 +25,67 @@ class FrictionTest extends Test {
         super();
 
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape });
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(13, 0.25);
+            shape.setAsBox(13, 0.25);
 
-            const ground = this.m_world.CreateBody({
+            const ground = this.m_world.createBody({
                 position: { x: -4, y: 22 },
                 angle: -0.25,
             });
-            ground.CreateFixture({ shape });
+            ground.createFixture({ shape });
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.25, 1);
+            shape.setAsBox(0.25, 1);
 
-            const ground = this.m_world.CreateBody({
+            const ground = this.m_world.createBody({
                 position: { x: 10.5, y: 19 },
             });
-            ground.CreateFixture({ shape });
+            ground.createFixture({ shape });
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(13, 0.25);
-            const ground = this.m_world.CreateBody({
+            shape.setAsBox(13, 0.25);
+            const ground = this.m_world.createBody({
                 position: { x: 4, y: 14 },
                 angle: 0.25,
             });
-            ground.CreateFixture({ shape });
+            ground.createFixture({ shape });
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.25, 1);
+            shape.setAsBox(0.25, 1);
 
-            const ground = this.m_world.CreateBody({
+            const ground = this.m_world.createBody({
                 position: { x: -10.5, y: 11 },
             });
-            ground.CreateFixture({ shape });
+            ground.createFixture({ shape });
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(13, 0.25);
-            const ground = this.m_world.CreateBody({
+            shape.setAsBox(13, 0.25);
+            const ground = this.m_world.createBody({
                 position: { x: -4, y: 6 },
                 angle: -0.25,
             });
-            ground.CreateFixture({ shape });
+            ground.createFixture({ shape });
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.5, 0.5);
+            shape.setAsBox(0.5, 0.5);
 
             const fd: FixtureDef = {
                 shape,
@@ -95,13 +95,13 @@ class FrictionTest extends Test {
             const friction = [0.75, 0.5, 0.35, 0.1, 0];
 
             for (let i = 0; i < 5; ++i) {
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: -15 + 4 * i, y: 28 },
                 });
 
                 fd.friction = friction[i];
-                body.CreateFixture(fd);
+                body.createFixture(fd);
             }
         }
     }

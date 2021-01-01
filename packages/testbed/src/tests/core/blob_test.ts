@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { EdgeShape, Vec2, AreaJointDef, BodyType, CircleShape, LinearStiffness, XY } from "@box2d/core";
+import { EdgeShape, Vec2, AreaJointDef, BodyType, CircleShape, linearStiffness, XY } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
@@ -24,16 +24,16 @@ class BlobTest extends Test {
     public constructor() {
         super();
 
-        const ground = this.m_world.CreateBody();
+        const ground = this.m_world.createBody();
 
         {
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape });
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(-40, 25));
-            ground.CreateFixture({ shape });
-            shape.SetTwoSided(new Vec2(40, 0), new Vec2(40, 25));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(-40, 25));
+            ground.createFixture({ shape });
+            shape.setTwoSided(new Vec2(40, 0), new Vec2(40, 25));
+            ground.createFixture({ shape });
         }
 
         {
@@ -48,29 +48,29 @@ class BlobTest extends Test {
             for (let i = 0; i < nBodies; ++i) {
                 const angle = (i * 2 * Math.PI) / nBodies;
 
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     // isBullet: true,
                     fixedRotation: true,
                     position: { x: cx + rx * Math.cos(angle), y: cy + ry * Math.sin(angle) },
                 });
 
-                body.CreateFixture({
+                body.createFixture({
                     shape: new CircleShape(bodyRadius),
                     density: 1,
                 });
 
-                ajd.AddBody(body);
+                ajd.addBody(body);
             }
 
             const frequencyHz = 10;
             const dampingRatio = 1;
-            LinearStiffness(ajd, frequencyHz, dampingRatio, ajd.bodyA, ajd.bodyB);
-            this.m_world.CreateJoint(ajd);
+            linearStiffness(ajd, frequencyHz, dampingRatio, ajd.bodyA, ajd.bodyB);
+            this.m_world.createJoint(ajd);
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 15;
     }
 

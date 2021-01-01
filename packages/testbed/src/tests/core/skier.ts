@@ -2,7 +2,7 @@
 Test case for collision/jerking issue.
 */
 
-import { Body, Vec2, ChainShape, BodyType, PolygonShape, MakeArray } from "@box2d/core";
+import { Body, Vec2, ChainShape, BodyType, PolygonShape, makeArray } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -19,7 +19,7 @@ class SkierTest extends Test {
     public constructor() {
         super();
 
-        const ground = this.m_world.CreateBody();
+        const ground = this.m_world.createBody();
 
         const PlatformWidth = 8;
 
@@ -57,8 +57,8 @@ class SkierTest extends Test {
         const vertices = [v5, v4, v3, v2, v1];
 
         const shape = new ChainShape();
-        shape.CreateLoop(vertices);
-        ground.CreateFixture({
+        shape.createLoop(vertices);
+        ground.createFixture({
             shape,
             density: 0,
             friction: SurfaceFriction,
@@ -78,27 +78,27 @@ class SkierTest extends Test {
             const SkiRestitution = 0.15;
 
             const initial_y = BodyHeight / 2 + SkiThickness;
-            const skier = this.m_world.CreateBody({
+            const skier = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -this.m_platform_width / 2, y: initial_y },
             });
 
             const ski = new PolygonShape();
-            const verts = MakeArray(4, Vec2);
-            verts[0].Set(-SkiLength / 2 - SkiThickness, -BodyHeight / 2);
-            verts[1].Set(-SkiLength / 2, -BodyHeight / 2 - SkiThickness);
-            verts[2].Set(SkiLength / 2, -BodyHeight / 2 - SkiThickness);
-            verts[3].Set(SkiLength / 2 + SkiThickness, -BodyHeight / 2);
-            ski.Set(verts);
+            const verts = makeArray(4, Vec2);
+            verts[0].set(-SkiLength / 2 - SkiThickness, -BodyHeight / 2);
+            verts[1].set(-SkiLength / 2, -BodyHeight / 2 - SkiThickness);
+            verts[2].set(SkiLength / 2, -BodyHeight / 2 - SkiThickness);
+            verts[3].set(SkiLength / 2 + SkiThickness, -BodyHeight / 2);
+            ski.set(verts);
 
-            skier.CreateFixture({
+            skier.createFixture({
                 density: 1,
                 friction: SkiFriction,
                 restitution: SkiRestitution,
                 shape: ski,
             });
 
-            skier.SetLinearVelocity(new Vec2(0.5, 0));
+            skier.setLinearVelocity(new Vec2(0.5, 0));
 
             this.m_skier = skier;
         }
@@ -107,7 +107,7 @@ class SkierTest extends Test {
         this.m_fixed_camera = true;
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 50;
     }
 
@@ -122,12 +122,12 @@ class SkierTest extends Test {
         ];
     }
 
-    public Step(settings: Settings, timeStep: number): void {
+    public step(settings: Settings, timeStep: number): void {
         if (!this.m_fixed_camera) {
-            const pos = this.m_skier.GetPosition();
+            const pos = this.m_skier.getPosition();
             g_camera.setPosition(pos.x, pos.y);
         }
-        super.Step(settings, timeStep);
+        super.step(settings, timeStep);
     }
 }
 

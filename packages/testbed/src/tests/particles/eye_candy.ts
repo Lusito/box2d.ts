@@ -13,60 +13,60 @@ class EyeCandyTest extends AbstractParticleTest {
     public constructor() {
         super();
 
-        this.m_particleSystem.SetDamping(0.2);
-        this.m_particleSystem.SetRadius(0.3 * 2);
-        this.m_particleSystem.SetGravityScale(0.4);
-        this.m_particleSystem.SetDensity(1.2);
+        this.m_particleSystem.setDamping(0.2);
+        this.m_particleSystem.setRadius(0.3 * 2);
+        this.m_particleSystem.setGravityScale(0.4);
+        this.m_particleSystem.setDensity(1.2);
 
-        const ground = this.m_world.CreateBody();
+        const ground = this.m_world.createBody();
 
-        const body = this.m_world.CreateBody({
+        const body = this.m_world.createBody({
             type: BodyType.Static, // BodyType.Dynamic
             allowSleep: false,
         });
 
         const shape = new PolygonShape();
-        shape.SetAsBox(0.5, 10, new Vec2(20, 0), 0);
-        body.CreateFixture({ shape, density: 5 });
-        shape.SetAsBox(0.5, 10, new Vec2(-20, 0), 0);
-        body.CreateFixture({ shape, density: 5 });
-        shape.SetAsBox(0.5, 20, new Vec2(0, 10), Math.PI / 2);
-        body.CreateFixture({ shape, density: 5 });
-        shape.SetAsBox(0.5, 20, new Vec2(0, -10), Math.PI / 2);
-        body.CreateFixture({ shape, density: 5 });
+        shape.setAsBox(0.5, 10, new Vec2(20, 0), 0);
+        body.createFixture({ shape, density: 5 });
+        shape.setAsBox(0.5, 10, new Vec2(-20, 0), 0);
+        body.createFixture({ shape, density: 5 });
+        shape.setAsBox(0.5, 20, new Vec2(0, 10), Math.PI / 2);
+        body.createFixture({ shape, density: 5 });
+        shape.setAsBox(0.5, 20, new Vec2(0, -10), Math.PI / 2);
+        body.createFixture({ shape, density: 5 });
 
-        this.m_mover = this.m_world.CreateBody({
+        this.m_mover = this.m_world.createBody({
             type: BodyType.Dynamic,
         });
-        shape.SetAsBox(1, 5, new Vec2(0, 2), 0);
-        this.m_mover.CreateFixture({ shape, density: 5 });
+        shape.setAsBox(1, 5, new Vec2(0, 2), 0);
+        this.m_mover.createFixture({ shape, density: 5 });
 
         const jd = new RevoluteJointDef();
         jd.bodyA = ground;
         jd.bodyB = this.m_mover;
-        jd.localAnchorA.Set(0, 0);
-        jd.localAnchorB.Set(0, 5);
+        jd.localAnchorA.set(0, 0);
+        jd.localAnchorB.set(0, 5);
         jd.referenceAngle = 0;
         jd.motorSpeed = 0;
         jd.maxMotorTorque = 1e7;
         jd.enableMotor = true;
-        this.m_joint = this.m_world.CreateJoint(jd);
+        this.m_joint = this.m_world.createJoint(jd);
 
         const pd = new ParticleGroupDef();
         pd.flags = ParticleFlag.Water;
 
         const shape2 = new PolygonShape();
-        shape2.SetAsBox(9, 9, new Vec2(), 0);
+        shape2.setAsBox(9, 9, new Vec2(), 0);
 
         pd.shape = shape2;
-        this.m_particleSystem.CreateParticleGroup(pd);
+        this.m_particleSystem.createParticleGroup(pd);
     }
 
-    public Step(settings: Settings, timeStep: number) {
+    public step(settings: Settings, timeStep: number) {
         const time = new Date().getTime();
-        this.m_joint.SetMotorSpeed(0.7 * Math.cos(time / 1000));
+        this.m_joint.setMotorSpeed(0.7 * Math.cos(time / 1000));
 
-        super.Step(settings, timeStep);
+        super.step(settings, timeStep);
     }
 }
 

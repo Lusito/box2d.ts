@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { Body, EdgeShape, Vec2, ChainShape, PolygonShape, BodyType, CircleShape, XY, MakeArray } from "@box2d/core";
+import { Body, EdgeShape, Vec2, ChainShape, PolygonShape, BodyType, CircleShape, XY, makeArray } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -34,101 +34,101 @@ class CharacterCollisionTest extends Test {
 
         // Ground body
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
+            ground.createFixture({ shape });
         }
 
         // Collinear edges with no adjacency information.
         // This shows the problematic case where a box shape can hit
         // an internal vertex.
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-8, 1), new Vec2(-6, 1));
-            ground.CreateFixture({ shape });
-            shape.SetTwoSided(new Vec2(-6, 1), new Vec2(-4, 1));
-            ground.CreateFixture({ shape });
-            shape.SetTwoSided(new Vec2(-4, 1), new Vec2(-2, 1));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-8, 1), new Vec2(-6, 1));
+            ground.createFixture({ shape });
+            shape.setTwoSided(new Vec2(-6, 1), new Vec2(-4, 1));
+            ground.createFixture({ shape });
+            shape.setTwoSided(new Vec2(-4, 1), new Vec2(-2, 1));
+            ground.createFixture({ shape });
         }
 
         // Chain shape
         {
-            const ground = this.m_world.CreateBody({
+            const ground = this.m_world.createBody({
                 angle: 0.25 * Math.PI,
             });
 
-            const vs = MakeArray(4, Vec2);
-            vs[0].Set(5, 7);
-            vs[1].Set(8, 7);
-            vs[2].Set(7, 8);
-            vs[3].Set(6, 8);
+            const vs = makeArray(4, Vec2);
+            vs[0].set(5, 7);
+            vs[1].set(8, 7);
+            vs[2].set(7, 8);
+            vs[3].set(6, 8);
 
             const shape = new ChainShape();
-            shape.CreateLoop(vs, 4);
-            ground.CreateFixture({ shape });
+            shape.createLoop(vs, 4);
+            ground.createFixture({ shape });
         }
 
         // Square tiles. This shows that adjacency shapes may
         // have non-smooth collision. There is no solution
         // to this problem.
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new PolygonShape();
-            shape.SetAsBox(1, 1, new Vec2(4, 3), 0);
-            ground.CreateFixture({ shape });
-            shape.SetAsBox(1, 1, new Vec2(6, 3), 0);
-            ground.CreateFixture({ shape });
-            shape.SetAsBox(1, 1, new Vec2(8, 3), 0);
-            ground.CreateFixture({ shape });
+            shape.setAsBox(1, 1, new Vec2(4, 3), 0);
+            ground.createFixture({ shape });
+            shape.setAsBox(1, 1, new Vec2(6, 3), 0);
+            ground.createFixture({ shape });
+            shape.setAsBox(1, 1, new Vec2(8, 3), 0);
+            ground.createFixture({ shape });
         }
 
         // Square made from an edge loop. Collision should be smooth.
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
-            const vs = MakeArray(4, Vec2);
-            vs[0].Set(-1, 3);
-            vs[1].Set(1, 3);
-            vs[2].Set(1, 5);
-            vs[3].Set(-1, 5);
+            const vs = makeArray(4, Vec2);
+            vs[0].set(-1, 3);
+            vs[1].set(1, 3);
+            vs[2].set(1, 5);
+            vs[3].set(-1, 5);
 
             const shape = new ChainShape();
-            shape.CreateLoop(vs, 4);
-            ground.CreateFixture({ shape });
+            shape.createLoop(vs, 4);
+            ground.createFixture({ shape });
         }
 
         // Edge loop. Collision should be smooth.
         {
-            const ground = this.m_world.CreateBody({
+            const ground = this.m_world.createBody({
                 position: { x: -10, y: 4 },
             });
 
-            const vs = MakeArray(10, Vec2);
-            vs[0].Set(0, 0);
-            vs[1].Set(6, 0);
-            vs[2].Set(6, 2);
-            vs[3].Set(4, 1);
-            vs[4].Set(2, 2);
-            vs[5].Set(0, 2);
-            vs[6].Set(-2, 2);
-            vs[7].Set(-4, 3);
-            vs[8].Set(-6, 2);
-            vs[9].Set(-6, 0);
+            const vs = makeArray(10, Vec2);
+            vs[0].set(0, 0);
+            vs[1].set(6, 0);
+            vs[2].set(6, 2);
+            vs[3].set(4, 1);
+            vs[4].set(2, 2);
+            vs[5].set(0, 2);
+            vs[6].set(-2, 2);
+            vs[7].set(-4, 3);
+            vs[8].set(-6, 2);
+            vs[9].set(-6, 0);
 
             const shape = new ChainShape();
-            shape.CreateLoop(vs, 10);
-            ground.CreateFixture({ shape });
+            shape.createLoop(vs, 10);
+            ground.createFixture({ shape });
         }
 
         // Square character 1
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 position: { x: -3, y: 8 },
                 type: BodyType.Dynamic,
                 fixedRotation: true,
@@ -136,9 +136,9 @@ class CharacterCollisionTest extends Test {
             });
 
             const shape = new PolygonShape();
-            shape.SetAsBox(0.5, 0.5);
+            shape.setAsBox(0.5, 0.5);
 
-            body.CreateFixture({
+            body.createFixture({
                 shape,
                 density: 20,
             });
@@ -146,7 +146,7 @@ class CharacterCollisionTest extends Test {
 
         // Square character 2
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 position: { x: -5, y: 5 },
                 type: BodyType.Dynamic,
                 fixedRotation: true,
@@ -154,9 +154,9 @@ class CharacterCollisionTest extends Test {
             });
 
             const shape = new PolygonShape();
-            shape.SetAsBox(0.25, 0.25);
+            shape.setAsBox(0.25, 0.25);
 
-            body.CreateFixture({
+            body.createFixture({
                 shape,
                 density: 20,
             });
@@ -164,7 +164,7 @@ class CharacterCollisionTest extends Test {
 
         // Hexagon character
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 position: { x: -5, y: 8 },
                 type: BodyType.Dynamic,
                 fixedRotation: true,
@@ -173,16 +173,16 @@ class CharacterCollisionTest extends Test {
 
             let angle = 0;
             const delta = Math.PI / 3;
-            const vertices = MakeArray(6, Vec2);
+            const vertices = makeArray(6, Vec2);
             for (let i = 0; i < 6; ++i) {
-                vertices[i].Set(0.5 * Math.cos(angle), 0.5 * Math.sin(angle));
+                vertices[i].set(0.5 * Math.cos(angle), 0.5 * Math.sin(angle));
                 angle += delta;
             }
 
             const shape = new PolygonShape();
-            shape.Set(vertices, 6);
+            shape.set(vertices, 6);
 
-            body.CreateFixture({
+            body.createFixture({
                 shape,
                 density: 20,
             });
@@ -190,7 +190,7 @@ class CharacterCollisionTest extends Test {
 
         // Circle character
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 position: { x: 3, y: 5 },
                 type: BodyType.Dynamic,
                 fixedRotation: true,
@@ -200,7 +200,7 @@ class CharacterCollisionTest extends Test {
             const shape = new CircleShape();
             shape.m_radius = 0.5;
 
-            body.CreateFixture({
+            body.createFixture({
                 shape,
                 density: 20,
             });
@@ -208,7 +208,7 @@ class CharacterCollisionTest extends Test {
 
         // Circle character
         {
-            this.m_character = this.m_world.CreateBody({
+            this.m_character = this.m_world.createBody({
                 position: { x: -7, y: 6 },
                 type: BodyType.Dynamic,
                 allowSleep: false,
@@ -217,7 +217,7 @@ class CharacterCollisionTest extends Test {
             const shape = new CircleShape();
             shape.m_radius = 0.25;
 
-            this.m_character.CreateFixture({
+            this.m_character.createFixture({
                 shape,
                 density: 20,
                 friction: 1,
@@ -225,7 +225,7 @@ class CharacterCollisionTest extends Test {
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 30;
     }
 
@@ -236,14 +236,14 @@ class CharacterCollisionTest extends Test {
         };
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        const v = this.m_character.GetLinearVelocity();
-        this.m_character.SetLinearVelocity({
+    public step(settings: Settings, timeStep: number): void {
+        const v = this.m_character.getLinearVelocity();
+        this.m_character.setLinearVelocity({
             x: -5,
             y: v.y,
         });
 
-        super.Step(settings, timeStep);
+        super.step(settings, timeStep);
         this.addText("This tests various character collision shapes");
         this.addText("Limitation: square and hexagon can snag on aligned boxes.");
         this.addText("Feature: edge chains have smooth collision inside and out.");

@@ -22,11 +22,11 @@
 
 import { LENGTH_UNITS_PER_METER } from "./b2_settings";
 
-export function Assert(condition: boolean, message?: string): asserts condition {
+export function assert(condition: boolean, message?: string): asserts condition {
     if (!condition) throw new Error(message);
 }
 
-export function Verify<T>(value: T | null): T {
+export function verify<T>(value: T | null): T {
     if (value === null) throw new Error();
     return value;
 }
@@ -131,13 +131,13 @@ export const LINEAR_SLEEP_TOLERANCE = 0.01 * LENGTH_UNITS_PER_METER;
 /** A body cannot sleep if its angular velocity is above this tolerance. */
 export const ANGULAR_SLEEP_TOLERANCE = (2 / 180) * Math.PI;
 
-export function MakeNumberArray(length: number, init = 0): number[] {
+export function makeNumberArray(length: number, init = 0): number[] {
     const result = new Array<number>(length);
     for (let i = 0; i < length; i++) result[i] = init;
     return result;
 }
 
-export function MakeBooleanArray(length: number, init = false): boolean[] {
+export function makeBooleanArray(length: number, init = false): boolean[] {
     const result = new Array<boolean>(length);
     for (let i = 0; i < length; i++) result[i] = init;
     return result;
@@ -147,7 +147,7 @@ export interface NoArgsConstructor<T> {
     new (): T;
 }
 
-export function MakeArray<T>(length: number, Class: NoArgsConstructor<T>): T[] {
+export function makeArray<T>(length: number, Class: NoArgsConstructor<T>): T[] {
     const result = new Array<T>(length);
     for (let i = 0; i < length; i++) result[i] = new Class();
     return result;

@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { XY, RGBA, Shape, Vec2, Color, Transform, Assert } from "@box2d/core";
+import { XY, RGBA, Shape, Vec2, Color, Transform, assert } from "@box2d/core";
 
 import { ParticleFlag } from "./b2_particle";
 import type { ParticleSystem } from "./b2_particle_system";
@@ -137,28 +137,28 @@ export class ParticleGroup {
         this.m_system = system;
     }
 
-    public GetNext(): ParticleGroup | null {
+    public getNext(): ParticleGroup | null {
         return this.m_next;
     }
 
-    public GetParticleSystem(): ParticleSystem {
+    public getParticleSystem(): ParticleSystem {
         return this.m_system;
     }
 
-    public GetParticleCount(): number {
+    public getParticleCount(): number {
         return this.m_lastIndex - this.m_firstIndex;
     }
 
-    public GetBufferIndex(): number {
+    public getBufferIndex(): number {
         return this.m_firstIndex;
     }
 
-    public ContainsParticle(index: number): boolean {
+    public containsParticle(index: number): boolean {
         return this.m_firstIndex <= index && index < this.m_lastIndex;
     }
 
-    public GetAllParticleFlags(): ParticleFlag {
-        Assert(this.m_system.m_flagsBuffer.data !== null);
+    public getAllParticleFlags(): ParticleFlag {
+        assert(this.m_system.m_flagsBuffer.data !== null);
         let flags = 0;
         for (let i = this.m_firstIndex; i < this.m_lastIndex; i++) {
             flags |= this.m_system.m_flagsBuffer.data[i];
@@ -166,117 +166,117 @@ export class ParticleGroup {
         return flags;
     }
 
-    public GetGroupFlags(): ParticleGroupFlag {
+    public getGroupFlags(): ParticleGroupFlag {
         return this.m_groupFlags;
     }
 
-    public SetGroupFlags(flags: number): void {
-        // DEBUG: Assert((flags & ParticleGroupFlag.InternalMask) === 0);
+    public setGroupFlags(flags: number): void {
+        // DEBUG: assert((flags & ParticleGroupFlag.InternalMask) === 0);
         flags |= this.m_groupFlags & ParticleGroupFlag.InternalMask;
-        this.m_system.SetGroupFlags(this, flags);
+        this.m_system.setGroupFlags(this, flags);
     }
 
-    public GetMass(): number {
-        this.UpdateStatistics();
+    public getMass(): number {
+        this.updateStatistics();
         return this.m_mass;
     }
 
-    public GetInertia(): number {
-        this.UpdateStatistics();
+    public getInertia(): number {
+        this.updateStatistics();
         return this.m_inertia;
     }
 
-    public GetCenter(): Readonly<Vec2> {
-        this.UpdateStatistics();
+    public getCenter(): Readonly<Vec2> {
+        this.updateStatistics();
         return this.m_center;
     }
 
-    public GetLinearVelocity(): Readonly<Vec2> {
-        this.UpdateStatistics();
+    public getLinearVelocity(): Readonly<Vec2> {
+        this.updateStatistics();
         return this.m_linearVelocity;
     }
 
-    public GetAngularVelocity(): number {
-        this.UpdateStatistics();
+    public getAngularVelocity(): number {
+        this.updateStatistics();
         return this.m_angularVelocity;
     }
 
-    public GetTransform(): Readonly<Transform> {
+    public getTransform(): Readonly<Transform> {
         return this.m_transform;
     }
 
-    public GetPosition(): Readonly<Vec2> {
+    public getPosition(): Readonly<Vec2> {
         return this.m_transform.p;
     }
 
-    public GetAngle(): number {
-        return this.m_transform.q.GetAngle();
+    public getAngle(): number {
+        return this.m_transform.q.getAngle();
     }
 
-    public GetLinearVelocityFromWorldPoint<T extends XY>(worldPoint: XY, out: T): T {
+    public getLinearVelocityFromWorldPoint<T extends XY>(worldPoint: XY, out: T): T {
         const s_t0 = ParticleGroup.GetLinearVelocityFromWorldPoint_s_t0;
-        this.UpdateStatistics();
+        this.updateStatistics();
 
-        return Vec2.AddCrossScalarVec2(
+        return Vec2.addCrossScalarVec2(
             this.m_linearVelocity,
             this.m_angularVelocity,
-            Vec2.Subtract(worldPoint, this.m_center, s_t0),
+            Vec2.subtract(worldPoint, this.m_center, s_t0),
             out,
         );
     }
 
     public static readonly GetLinearVelocityFromWorldPoint_s_t0 = new Vec2();
 
-    public GetUserData(): void {
+    public getUserData(): void {
         return this.m_userData;
     }
 
-    public SetUserData(data: any): void {
+    public setUserData(data: any): void {
         this.m_userData = data;
     }
 
-    public ApplyForce(force: XY): void {
-        this.m_system.ApplyForce(this.m_firstIndex, this.m_lastIndex, force);
+    public applyForce(force: XY): void {
+        this.m_system.applyForce(this.m_firstIndex, this.m_lastIndex, force);
     }
 
-    public ApplyLinearImpulse(impulse: XY): void {
-        this.m_system.ApplyLinearImpulse(this.m_firstIndex, this.m_lastIndex, impulse);
+    public applyLinearImpulse(impulse: XY): void {
+        this.m_system.applyLinearImpulse(this.m_firstIndex, this.m_lastIndex, impulse);
     }
 
-    public DestroyParticles(callDestructionListener: boolean): void {
-        Assert(!this.m_system.m_world.IsLocked());
+    public destroyParticles(callDestructionListener: boolean): void {
+        assert(!this.m_system.m_world.isLocked());
 
         for (let i = this.m_firstIndex; i < this.m_lastIndex; i++) {
-            this.m_system.DestroyParticle(i, callDestructionListener);
+            this.m_system.destroyParticle(i, callDestructionListener);
         }
     }
 
-    public UpdateStatistics(): void {
-        Assert(this.m_system.m_positionBuffer.data !== null);
-        Assert(this.m_system.m_velocityBuffer.data !== null);
+    public updateStatistics(): void {
+        assert(this.m_system.m_positionBuffer.data !== null);
+        assert(this.m_system.m_velocityBuffer.data !== null);
         const p = new Vec2();
         const v = new Vec2();
         if (this.m_timestamp !== this.m_system.m_timestamp) {
-            const m = this.m_system.GetParticleMass();
+            const m = this.m_system.getParticleMass();
             this.m_mass = m * (this.m_lastIndex - this.m_firstIndex);
-            this.m_center.SetZero();
-            this.m_linearVelocity.SetZero();
+            this.m_center.setZero();
+            this.m_linearVelocity.setZero();
             for (let i = this.m_firstIndex; i < this.m_lastIndex; i++) {
-                this.m_center.AddScaled(m, this.m_system.m_positionBuffer.data[i]);
-                this.m_linearVelocity.AddScaled(m, this.m_system.m_velocityBuffer.data[i]);
+                this.m_center.addScaled(m, this.m_system.m_positionBuffer.data[i]);
+                this.m_linearVelocity.addScaled(m, this.m_system.m_velocityBuffer.data[i]);
             }
             if (this.m_mass > 0) {
                 const inv_mass = 1 / this.m_mass;
-                this.m_center.Scale(inv_mass);
-                this.m_linearVelocity.Scale(inv_mass);
+                this.m_center.scale(inv_mass);
+                this.m_linearVelocity.scale(inv_mass);
             }
             this.m_inertia = 0;
             this.m_angularVelocity = 0;
             for (let i = this.m_firstIndex; i < this.m_lastIndex; i++) {
-                Vec2.Subtract(this.m_system.m_positionBuffer.data[i], this.m_center, p);
-                Vec2.Subtract(this.m_system.m_velocityBuffer.data[i], this.m_linearVelocity, v);
-                this.m_inertia += m * Vec2.Dot(p, p);
-                this.m_angularVelocity += m * Vec2.Cross(p, v);
+                Vec2.subtract(this.m_system.m_positionBuffer.data[i], this.m_center, p);
+                Vec2.subtract(this.m_system.m_velocityBuffer.data[i], this.m_linearVelocity, v);
+                this.m_inertia += m * Vec2.dot(p, p);
+                this.m_angularVelocity += m * Vec2.cross(p, v);
             }
             if (this.m_inertia > 0) {
                 this.m_angularVelocity *= 1 / this.m_inertia;

@@ -23,12 +23,12 @@ import {
     RayCastOutput,
     Color,
     Vec2,
-    RandomFloat,
-    RandomInt,
+    randomFloat,
+    randomInt,
     TreeNode,
     XY,
-    Verify,
-    Assert,
+    verify,
+    assert,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
@@ -88,20 +88,20 @@ class DynamicTreeTest extends Test {
 
         for (let i = 0; i < DynamicTreeTest.e_actorCount; ++i) {
             const actor = this.m_actors[i];
-            this.GetRandomAABB(actor.aabb);
-            actor.proxyId = this.m_tree.CreateProxy(actor.aabb, actor);
+            this.getRandomAABB(actor.aabb);
+            actor.proxyId = this.m_tree.createProxy(actor.aabb, actor);
         }
 
         this.m_stepCount = 0;
 
         const h = this.m_worldExtent;
-        this.m_queryAABB.lowerBound.Set(-3, -4 + h);
-        this.m_queryAABB.upperBound.Set(5, 6 + h);
+        this.m_queryAABB.lowerBound.set(-3, -4 + h);
+        this.m_queryAABB.upperBound.set(5, 6 + h);
 
-        this.m_rayCastInput.p1.Set(-5, 5 + h);
-        this.m_rayCastInput.p2.Set(7, -4 + h);
-        // this.m_rayCastInput.p1.Set(0, 2 + h);
-        // this.m_rayCastInput.p2.Set(0, -2 + h);
+        this.m_rayCastInput.p1.set(-5, 5 + h);
+        this.m_rayCastInput.p2.set(7, -4 + h);
+        // this.m_rayCastInput.p1.set(0, 2 + h);
+        // this.m_rayCastInput.p2.set(0, -2 + h);
         this.m_rayCastInput.maxFraction = 1;
 
         this.m_automated = false;
@@ -114,21 +114,21 @@ class DynamicTreeTest extends Test {
         };
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
 
-        this.Reset();
+        this.reset();
 
         if (this.m_automated) {
             const actionCount = Math.max(1, DynamicTreeTest.e_actorCount >> 2);
 
             for (let i = 0; i < actionCount; ++i) {
-                this.Action();
+                this.action();
             }
         }
 
-        this.Query();
-        this.RayCast();
+        this.query();
+        this.rayCast();
 
         for (let i = 0; i < DynamicTreeTest.e_actorCount; ++i) {
             const actor = this.m_actors[i];
@@ -138,40 +138,40 @@ class DynamicTreeTest extends Test {
 
             const c = new Color(0.9, 0.9, 0.9);
             if (actor === this.m_rayActor && actor.overlap) {
-                c.SetRGB(0.9, 0.6, 0.6);
+                c.setRGB(0.9, 0.6, 0.6);
             } else if (actor === this.m_rayActor) {
-                c.SetRGB(0.6, 0.9, 0.6);
+                c.setRGB(0.6, 0.9, 0.6);
             } else if (actor.overlap) {
-                c.SetRGB(0.6, 0.6, 0.9);
+                c.setRGB(0.6, 0.6, 0.9);
             }
-            g_debugDraw.DrawAABB(actor.aabb, c);
+            g_debugDraw.drawAABB(actor.aabb, c);
         }
 
         const c = new Color(0.7, 0.7, 0.7);
-        g_debugDraw.DrawAABB(this.m_queryAABB, c);
+        g_debugDraw.drawAABB(this.m_queryAABB, c);
 
-        g_debugDraw.DrawSegment(this.m_rayCastInput.p1, this.m_rayCastInput.p2, c);
+        g_debugDraw.drawSegment(this.m_rayCastInput.p1, this.m_rayCastInput.p2, c);
 
         const c1 = new Color(0.2, 0.9, 0.2);
         const c2 = new Color(0.9, 0.2, 0.2);
-        g_debugDraw.DrawPoint(this.m_rayCastInput.p1, 6, c1);
-        g_debugDraw.DrawPoint(this.m_rayCastInput.p2, 6, c2);
+        g_debugDraw.drawPoint(this.m_rayCastInput.p1, 6, c1);
+        g_debugDraw.drawPoint(this.m_rayCastInput.p2, 6, c2);
 
         if (this.m_rayActor) {
             const cr = new Color(0.2, 0.2, 0.9);
-            const p = Vec2.Add(
+            const p = Vec2.add(
                 this.m_rayCastInput.p1,
-                Vec2.Scale(
+                Vec2.scale(
                     this.m_rayActor.fraction,
-                    Vec2.Subtract(this.m_rayCastInput.p2, this.m_rayCastInput.p1, new Vec2()),
+                    Vec2.subtract(this.m_rayCastInput.p2, this.m_rayCastInput.p1, new Vec2()),
                     new Vec2(),
                 ),
                 new Vec2(),
             );
-            g_debugDraw.DrawPoint(p, 6, cr);
+            g_debugDraw.drawPoint(p, 6, cr);
         }
 
-        this.addDebug("Dynamic Tree Height", this.m_tree.GetHeight());
+        this.addDebug("Dynamic Tree Height", this.m_tree.getHeight());
 
         ++this.m_stepCount;
     }
@@ -181,84 +181,84 @@ class DynamicTreeTest extends Test {
             hotKeyPress("a", "Toggle Automated", () => {
                 this.m_automated = !this.m_automated;
             }),
-            hotKeyPress("c", "Create Proxy", () => this.CreateProxy()),
-            hotKeyPress("d", "Destroy Proxy", () => this.DestroyProxy()),
-            hotKeyPress("m", "Move Proxy", () => this.MoveProxy()),
+            hotKeyPress("c", "Create Proxy", () => this.createProxy()),
+            hotKeyPress("d", "Destroy Proxy", () => this.destroyProxy()),
+            hotKeyPress("m", "Move Proxy", () => this.moveProxy()),
         ];
     }
 
-    public GetRandomAABB(aabb: AABB): void {
+    public getRandomAABB(aabb: AABB): void {
         const w = new Vec2();
-        w.Set(2 * this.m_proxyExtent, 2 * this.m_proxyExtent);
+        w.set(2 * this.m_proxyExtent, 2 * this.m_proxyExtent);
         // aabb.lowerBound.x = -this.m_proxyExtent;
         // aabb.lowerBound.y = -this.m_proxyExtent + this.m_worldExtent;
-        aabb.lowerBound.x = RandomFloat(-this.m_worldExtent, this.m_worldExtent);
-        aabb.lowerBound.y = RandomFloat(0, 2 * this.m_worldExtent);
-        aabb.upperBound.Copy(aabb.lowerBound);
-        aabb.upperBound.Add(w);
+        aabb.lowerBound.x = randomFloat(-this.m_worldExtent, this.m_worldExtent);
+        aabb.lowerBound.y = randomFloat(0, 2 * this.m_worldExtent);
+        aabb.upperBound.copy(aabb.lowerBound);
+        aabb.upperBound.add(w);
     }
 
-    public MoveAABB(aabb: AABB): void {
+    public moveAABB(aabb: AABB): void {
         const d = new Vec2();
-        d.x = RandomFloat(-0.5, 0.5);
-        d.y = RandomFloat(-0.5, 0.5);
+        d.x = randomFloat(-0.5, 0.5);
+        d.y = randomFloat(-0.5, 0.5);
         // d.x = 2;
         // d.y = 0;
-        aabb.lowerBound.Add(d);
-        aabb.upperBound.Add(d);
+        aabb.lowerBound.add(d);
+        aabb.upperBound.add(d);
 
-        const c0 = Vec2.Mid(aabb.lowerBound, aabb.upperBound, new Vec2());
+        const c0 = Vec2.mid(aabb.lowerBound, aabb.upperBound, new Vec2());
         const min = new Vec2(-this.m_worldExtent, 0);
         const max = new Vec2(this.m_worldExtent, 2 * this.m_worldExtent);
-        const c = Vec2.Clamp(c0, min, max, new Vec2());
+        const c = Vec2.clamp(c0, min, max, new Vec2());
 
-        aabb.lowerBound.Add(Vec2.Subtract(c, c0, new Vec2()));
-        aabb.upperBound.Add(Vec2.Subtract(c, c0, new Vec2()));
+        aabb.lowerBound.add(Vec2.subtract(c, c0, new Vec2()));
+        aabb.upperBound.add(Vec2.subtract(c, c0, new Vec2()));
     }
 
-    public CreateProxy(): void {
+    public createProxy(): void {
         for (let i = 0; i < DynamicTreeTest.e_actorCount; ++i) {
-            const j = RandomInt(0, DynamicTreeTest.e_actorCount - 1);
+            const j = randomInt(0, DynamicTreeTest.e_actorCount - 1);
             const actor = this.m_actors[j];
             if (actor.proxyId === null) {
-                this.GetRandomAABB(actor.aabb);
-                actor.proxyId = this.m_tree.CreateProxy(actor.aabb, actor);
+                this.getRandomAABB(actor.aabb);
+                actor.proxyId = this.m_tree.createProxy(actor.aabb, actor);
                 return;
             }
         }
     }
 
-    public DestroyProxy(): void {
+    public destroyProxy(): void {
         for (let i = 0; i < DynamicTreeTest.e_actorCount; ++i) {
-            const j = RandomInt(0, DynamicTreeTest.e_actorCount - 1);
+            const j = randomInt(0, DynamicTreeTest.e_actorCount - 1);
             const actor = this.m_actors[j];
             if (actor.proxyId !== null) {
-                this.m_tree.DestroyProxy(actor.proxyId);
+                this.m_tree.destroyProxy(actor.proxyId);
                 actor.proxyId = null;
                 return;
             }
         }
     }
 
-    public MoveProxy(): void {
+    public moveProxy(): void {
         const { aabb0, c0, c1 } = temp;
 
         for (let i = 0; i < DynamicTreeTest.e_actorCount; ++i) {
-            const j = RandomInt(0, DynamicTreeTest.e_actorCount - 1);
+            const j = randomInt(0, DynamicTreeTest.e_actorCount - 1);
             const actor = this.m_actors[j];
             if (actor.proxyId === null) {
                 continue;
             }
 
-            aabb0.Copy(actor.aabb);
-            this.MoveAABB(actor.aabb);
-            const displacement = Vec2.Subtract(actor.aabb.GetCenter(c1), aabb0.GetCenter(c0), new Vec2());
-            this.m_tree.MoveProxy(actor.proxyId, actor.aabb, displacement);
+            aabb0.copy(actor.aabb);
+            this.moveAABB(actor.aabb);
+            const displacement = Vec2.subtract(actor.aabb.getCenter(c1), aabb0.getCenter(c0), new Vec2());
+            this.m_tree.moveProxy(actor.proxyId, actor.aabb, displacement);
             return;
         }
     }
 
-    public Reset(): void {
+    public reset(): void {
         this.m_rayActor = null;
         for (let i = 0; i < DynamicTreeTest.e_actorCount; ++i) {
             this.m_actors[i].fraction = 1;
@@ -266,49 +266,49 @@ class DynamicTreeTest extends Test {
         }
     }
 
-    public Action(): void {
-        const choice = Math.floor(RandomFloat(0, 19));
+    public action(): void {
+        const choice = Math.floor(randomFloat(0, 19));
 
         switch (choice) {
             case 0:
-                this.CreateProxy();
+                this.createProxy();
                 break;
 
             case 1:
-                this.DestroyProxy();
+                this.destroyProxy();
                 break;
 
             default:
-                this.MoveProxy();
+                this.moveProxy();
         }
     }
 
-    public Query(): void {
-        this.m_tree.Query(this.m_queryAABB, (proxyId) => {
-            const actor = Verify(proxyId.userData);
-            actor.overlap = this.m_queryAABB.TestOverlap(actor.aabb);
+    public query(): void {
+        this.m_tree.query(this.m_queryAABB, (proxyId) => {
+            const actor = verify(proxyId.userData);
+            actor.overlap = this.m_queryAABB.testOverlap(actor.aabb);
             return true;
         });
 
         for (let i = 0; i < DynamicTreeTest.e_actorCount; ++i) {
             if (this.m_actors[i].proxyId !== null) {
-                const overlap = this.m_queryAABB.TestOverlap(this.m_actors[i].aabb);
-                Assert(overlap === this.m_actors[i].overlap);
+                const overlap = this.m_queryAABB.testOverlap(this.m_actors[i].aabb);
+                assert(overlap === this.m_actors[i].overlap);
             }
         }
     }
 
-    public RayCast(): void {
+    public rayCast(): void {
         this.m_rayActor = null;
 
-        const input = new RayCastInput().Copy(this.m_rayCastInput);
+        const input = new RayCastInput().copy(this.m_rayCastInput);
 
         // Ray cast against the dynamic tree.
-        this.m_tree.RayCast(input, (input2, proxyId) => {
-            const actor = Verify(proxyId.userData);
+        this.m_tree.rayCast(input, (input2, proxyId) => {
+            const actor = verify(proxyId.userData);
 
             const output = new RayCastOutput();
-            const hit = actor.aabb.RayCast(output, input2);
+            const hit = actor.aabb.rayCast(output, input2);
 
             if (hit) {
                 this.m_rayCastOutput = output;
@@ -329,16 +329,16 @@ class DynamicTreeTest extends Test {
             }
 
             const output = new RayCastOutput();
-            const hit = this.m_actors[i].aabb.RayCast(output, input);
+            const hit = this.m_actors[i].aabb.rayCast(output, input);
             if (hit) {
                 bruteActor = this.m_actors[i];
-                bruteOutput.Copy(output);
+                bruteOutput.copy(output);
                 input.maxFraction = output.fraction;
             }
         }
 
         if (bruteActor !== null) {
-            // DEBUG: Assert(bruteOutput.fraction === this.m_rayCastOutput.fraction);
+            // DEBUG: assert(bruteOutput.fraction === this.m_rayCastOutput.fraction);
         }
     }
 }

@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { EdgeShape, Vec2, BodyType, PolygonShape, Body, MakeArray } from "@box2d/core";
+import { EdgeShape, Vec2, BodyType, PolygonShape, Body, makeArray } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 
@@ -39,9 +39,9 @@ class ChainProblemTest extends Test {
         super();
 
         const g = new Vec2(0, -10);
-        this.m_world.SetGravity(g);
+        this.m_world.setGravity(g);
         const bodies: Body[] = [];
-        bodies[0] = this.m_world.CreateBody({
+        bodies[0] = this.m_world.createBody({
             type: BodyType.Static,
         });
 
@@ -51,13 +51,13 @@ class ChainProblemTest extends Test {
             const v3 = new Vec2(4, 0);
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(v1, v2);
-            bodies[0].CreateFixture({ shape });
+            shape.setTwoSided(v1, v2);
+            bodies[0].createFixture({ shape });
 
-            shape.SetTwoSided(v2, v3);
-            bodies[0].CreateFixture({ shape });
+            shape.setTwoSided(v2, v3);
+            bodies[0].createFixture({ shape });
         }
-        bodies[1] = this.m_world.CreateBody({
+        bodies[1] = this.m_world.createBody({
             type: BodyType.Dynamic,
             // position: new Vec2(6.033980250358582e-01f, 3.028350114822388e+00f);
             position: new Vec2(1, 3),
@@ -65,14 +65,14 @@ class ChainProblemTest extends Test {
 
         {
             const shape = new PolygonShape();
-            const vs = MakeArray(8, Vec2);
-            vs[0].Set(0.5, -3);
-            vs[1].Set(0.5, 3);
-            vs[2].Set(-0.5, 3);
-            vs[3].Set(-0.5, -3);
-            shape.Set(vs, 4);
+            const vs = makeArray(8, Vec2);
+            vs[0].set(0.5, -3);
+            vs[1].set(0.5, 3);
+            vs[2].set(-0.5, 3);
+            vs[3].set(-0.5, -3);
+            shape.set(vs, 4);
 
-            bodies[1].CreateFixture({
+            bodies[1].createFixture({
                 shape,
                 friction: 0.2,
                 density: 10,

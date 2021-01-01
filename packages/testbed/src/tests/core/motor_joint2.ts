@@ -28,18 +28,18 @@ class MotorJoint2Test extends Test {
 
         let ground: Body;
         {
-            ground = this.m_world.CreateBody();
+            ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
+            shape.setTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
 
-            ground.CreateFixture({ shape });
+            ground.createFixture({ shape });
         }
 
         // Body * body1 = NULL;
         let body1: Body;
         {
-            body1 = this.m_world.CreateBody({
+            body1 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 0, y: 4 },
             });
@@ -47,7 +47,7 @@ class MotorJoint2Test extends Test {
             const shape = new CircleShape();
             shape.m_radius = 1;
 
-            body1.CreateFixture({
+            body1.createFixture({
                 shape,
                 friction: 0.6,
                 density: 2,
@@ -57,7 +57,7 @@ class MotorJoint2Test extends Test {
         // Body * body2 = NULL;
         let body2: Body;
         {
-            body2 = this.m_world.CreateBody({
+            body2 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 4, y: 8 },
             });
@@ -65,7 +65,7 @@ class MotorJoint2Test extends Test {
             const shape = new CircleShape();
             shape.m_radius = 1;
 
-            body2.CreateFixture({
+            body2.createFixture({
                 shape,
                 friction: 0.6,
                 density: 2,
@@ -74,10 +74,10 @@ class MotorJoint2Test extends Test {
 
         {
             const mjd = new MotorJointDef();
-            mjd.Initialize(body1, body2);
+            mjd.initialize(body1, body2);
             mjd.maxForce = 1000;
             mjd.maxTorque = 1000;
-            this.m_joint = this.m_world.CreateJoint(mjd) as MotorJoint;
+            this.m_joint = this.m_world.createJoint(mjd) as MotorJoint;
         }
     }
 

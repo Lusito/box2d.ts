@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { Vec2, ChainShape, PolygonShape, XY, Assert } from "@box2d/core";
+import { Vec2, ChainShape, PolygonShape, XY, assert } from "@box2d/core";
 import { ParticleGroupDef, ParticleFlag } from "@box2d/particles";
 
 import { HotKey, hotKeyPress } from "../../utils/hotkeys";
@@ -39,7 +39,7 @@ class ImpulseTest extends AbstractParticleTestWithControls {
 
         // Create the containing box.
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const box = [
                 new Vec2(ImpulseTest.kBoxLeft, ImpulseTest.kBoxBottom),
@@ -48,29 +48,29 @@ class ImpulseTest extends AbstractParticleTestWithControls {
                 new Vec2(ImpulseTest.kBoxLeft, ImpulseTest.kBoxTop),
             ];
             const shape = new ChainShape();
-            shape.CreateLoop(box, box.length);
-            ground.CreateFixture({ shape });
+            shape.createLoop(box, box.length);
+            ground.createFixture({ shape });
         }
 
-        this.m_particleSystem.SetRadius(0.025 * 2); // HACK: increase particle radius
-        this.m_particleSystem.SetDamping(0.2);
+        this.m_particleSystem.setRadius(0.025 * 2); // HACK: increase particle radius
+        this.m_particleSystem.setDamping(0.2);
 
         // Create the particles.
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.8, 1, new Vec2(0, 1.01), 0);
+            shape.setAsBox(0.8, 1, new Vec2(0, 1.01), 0);
             const pd = new ParticleGroupDef();
-            pd.flags = particleParameter.GetValue();
+            pd.flags = particleParameter.getValue();
             pd.shape = shape;
-            const group = this.m_particleSystem.CreateParticleGroup(pd);
+            const group = this.m_particleSystem.createParticleGroup(pd);
             if (pd.flags & ParticleFlag.ColorMixing) {
-                this.ColorParticleGroup(group, 0);
+                this.colorParticleGroup(group, 0);
             }
         }
     }
 
-    public MouseUp(p: Vec2) {
-        super.MouseUp(p);
+    public mouseUp(p: Vec2) {
+        super.mouseUp(p);
 
         // Apply an impulse to the particles.
         const isInsideBox =
@@ -83,9 +83,9 @@ class ImpulseTest extends AbstractParticleTestWithControls {
                 0.5 * (ImpulseTest.kBoxLeft + ImpulseTest.kBoxRight),
                 0.5 * (ImpulseTest.kBoxBottom + ImpulseTest.kBoxTop),
             );
-            const direction = Vec2.Subtract(p, kBoxCenter, new Vec2());
-            direction.Normalize();
-            this.ApplyImpulseOrForce(direction);
+            const direction = Vec2.subtract(p, kBoxCenter, new Vec2());
+            direction.normalize();
+            this.applyImpulseOrForce(direction);
         }
     }
 
@@ -100,25 +100,25 @@ class ImpulseTest extends AbstractParticleTestWithControls {
         ];
     }
 
-    public ApplyImpulseOrForce(direction: Vec2) {
-        const particleSystem = this.m_world.GetParticleSystemList();
-        Assert(particleSystem !== null);
-        const particleGroup = particleSystem.GetParticleGroupList();
-        Assert(particleGroup !== null);
-        const numParticles = particleGroup.GetParticleCount();
+    public applyImpulseOrForce(direction: Vec2) {
+        const particleSystem = this.m_world.getParticleSystemList();
+        assert(particleSystem !== null);
+        const particleGroup = particleSystem.getParticleGroupList();
+        assert(particleGroup !== null);
+        const numParticles = particleGroup.getParticleCount();
 
         if (this.m_useLinearImpulse) {
             const kImpulseMagnitude = 0.005;
-            const impulse = Vec2.Scale(kImpulseMagnitude * numParticles, direction, new Vec2());
-            particleGroup.ApplyLinearImpulse(impulse);
+            const impulse = Vec2.scale(kImpulseMagnitude * numParticles, direction, new Vec2());
+            particleGroup.applyLinearImpulse(impulse);
         } else {
             const kForceMagnitude = 1;
-            const force = Vec2.Scale(kForceMagnitude * numParticles, direction, new Vec2());
-            particleGroup.ApplyForce(force);
+            const force = Vec2.scale(kForceMagnitude * numParticles, direction, new Vec2());
+            particleGroup.applyForce(force);
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 250;
     }
 

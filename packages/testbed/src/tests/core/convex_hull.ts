@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { Vec2, RandomFloat, Clamp, PolygonShape, Color } from "@box2d/core";
+import { Vec2, randomFloat, clamp, PolygonShape, Color } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -35,22 +35,22 @@ class ConvexHullTest extends Test {
     public constructor() {
         super();
 
-        this.Generate();
+        this.generate();
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 50;
     }
 
-    public Generate(): void {
+    public generate(): void {
         for (let i = 0; i < ConvexHullTest.e_count; ++i) {
-            let x = RandomFloat(-10, 10);
-            let y = RandomFloat(-10, 10);
+            let x = randomFloat(-10, 10);
+            let y = randomFloat(-10, 10);
 
-            // Clamp onto a square to help create collinearities.
+            // clamp onto a square to help create collinearities.
             // This will stress the convex hull algorithm.
-            x = Clamp(x, -8, 8);
-            y = Clamp(y, -8, 8);
+            x = clamp(x, -8, 8);
+            y = clamp(y, -8, 8);
             this.m_test_points[i] = new Vec2(x, y);
         }
 
@@ -62,27 +62,27 @@ class ConvexHullTest extends Test {
             hotKeyPress("a", "Toggle Autogeneration", () => {
                 this.m_auto = !this.m_auto;
             }),
-            hotKeyPress("g", "Generate a new random convex hull", () => this.Generate()),
+            hotKeyPress("g", "Generate a new random convex hull", () => this.generate()),
         ];
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
 
         const shape = new PolygonShape();
-        shape.Set(this.m_test_points, this.m_count);
+        shape.set(this.m_test_points, this.m_count);
 
-        g_debugDraw.DrawPolygon(shape.m_vertices, shape.m_count, new Color(0.9, 0.9, 0.9));
+        g_debugDraw.drawPolygon(shape.m_vertices, shape.m_count, new Color(0.9, 0.9, 0.9));
 
         for (let i = 0; i < this.m_count; ++i) {
-            g_debugDraw.DrawPoint(this.m_test_points[i], 3, new Color(0.3, 0.9, 0.3));
-            g_debugDraw.DrawStringWorld(this.m_test_points[i].x + 0.05, this.m_test_points[i].y + 0.05, `${i}`);
+            g_debugDraw.drawPoint(this.m_test_points[i], 3, new Color(0.3, 0.9, 0.3));
+            g_debugDraw.drawStringWorld(this.m_test_points[i].x + 0.05, this.m_test_points[i].y + 0.05, `${i}`);
         }
 
-        shape.Validate();
+        shape.validate();
 
         if (this.m_auto) {
-            this.Generate();
+            this.generate();
         }
     }
 }

@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { Body, EdgeShape, Vec2, PolygonShape, BodyType, RandomFloat, Gjk, Toi } from "@box2d/core";
+import { Body, EdgeShape, Vec2, PolygonShape, BodyType, randomFloat, Gjk, Toi } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -30,52 +30,52 @@ class ContinuousTest extends Test {
         super();
 
         {
-            const body = this.m_world.CreateBody();
+            const body = this.m_world.createBody();
 
             const edge = new EdgeShape();
 
-            edge.SetTwoSided(new Vec2(-10, 0), new Vec2(10, 0));
-            body.CreateFixture({ shape: edge });
+            edge.setTwoSided(new Vec2(-10, 0), new Vec2(10, 0));
+            body.createFixture({ shape: edge });
 
             const shape = new PolygonShape();
-            shape.SetAsBox(0.2, 1, new Vec2(0.5, 1), 0);
-            body.CreateFixture({ shape });
+            shape.setAsBox(0.2, 1, new Vec2(0.5, 1), 0);
+            body.createFixture({ shape });
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(2, 0.1);
+            shape.setAsBox(2, 0.1);
 
-            this.m_body = this.m_world.CreateBody({
+            this.m_body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 0, y: 20 },
                 // angle: 0.1,
             });
-            this.m_body.CreateFixture({ shape, density: 1 });
+            this.m_body.createFixture({ shape, density: 1 });
 
-            this.m_angularVelocity = RandomFloat(-50, 50);
+            this.m_angularVelocity = randomFloat(-50, 50);
             // this.m_angularVelocity = 46.661274;
-            this.m_body.SetLinearVelocity(new Vec2(0, -100));
-            this.m_body.SetAngularVelocity(this.m_angularVelocity);
+            this.m_body.setLinearVelocity(new Vec2(0, -100));
+            this.m_body.setAngularVelocity(this.m_angularVelocity);
         }
         /*
     else
     {
-      const body = this.m_world.CreateBody({
+      const body = this.m_world.createBody({
         type: BodyType.Dynamic,
         position: { y: 0, y:2}
       });
       const shape = new CircleShape();
-      shape.m_p.SetZero();
+      shape.m_p.setZero();
       shape.m_radius = 0.5;
-      body.CreateFixture({ shape, density: 1 });
-      body = this.m_world.CreateBody({
+      body.createFixture({ shape, density: 1 });
+      body = this.m_world.createBody({
         type: BodyType.Dynamic,
         bullet: true,
         position: { y: 0, y:10}
       });
-      body.CreateFixture({ shape, density: 1 });
-      body.SetLinearVelocity(new Vec2(0, -100));
+      body.createFixture({ shape, density: 1 });
+      body.setLinearVelocity(new Vec2(0, -100));
     }
     */
 
@@ -83,18 +83,18 @@ class ContinuousTest extends Test {
         Toi.reset();
     }
 
-    public Launch() {
+    public launch() {
         Gjk.reset();
         Toi.reset();
 
-        this.m_body.SetTransformVec(new Vec2(0, 20), 0);
-        this.m_angularVelocity = RandomFloat(-50, 50);
-        this.m_body.SetLinearVelocity(new Vec2(0, -100));
-        this.m_body.SetAngularVelocity(this.m_angularVelocity);
+        this.m_body.setTransformVec(new Vec2(0, 20), 0);
+        this.m_angularVelocity = randomFloat(-50, 50);
+        this.m_body.setLinearVelocity(new Vec2(0, -100));
+        this.m_body.setAngularVelocity(this.m_angularVelocity);
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
 
         this.addDebug(
             "GJK Calls [ave Iters] (max Iters)",
@@ -118,11 +118,11 @@ class ContinuousTest extends Test {
         );
 
         if (this.m_stepCount % 60 === 0) {
-            this.Launch();
+            this.launch();
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 50;
     }
 }

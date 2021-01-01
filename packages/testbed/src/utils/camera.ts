@@ -81,13 +81,13 @@ export class Camera {
     }
 
     public setPositionAndZoom(x: number, y: number, zoom: number) {
-        this.center.Set(x, y);
+        this.center.set(x, y);
         this.zoom = zoom;
         this.update();
     }
 
     public setPosition(x: number, y: number) {
-        this.center.Set(x, y);
+        this.center.set(x, y);
         this.update();
     }
 

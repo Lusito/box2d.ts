@@ -32,7 +32,7 @@ import {
     ShapeType,
     ChainShape,
     TimeStep,
-    Clamp,
+    clamp,
     Rot,
     ContactFilter,
     ContactListener,
@@ -40,19 +40,19 @@ import {
     RayCastInput,
     MassData,
     DistanceProxy,
-    Assert,
+    assert,
 } from "@box2d/core";
 
-// DEBUG: import { Assert, b2_maxParticleIndex } from "../common/b2_settings";
+// DEBUG: import { assert, b2_maxParticleIndex } from "../common/b2_settings";
 import {
-    b2_invalidParticleIndex,
-    b2_minParticleSystemBufferCapacity,
-    b2_maxTriadDistanceSquared,
-    b2_barrierCollisionTime,
-    b2_maxParticlePressure,
-    b2_minParticleWeight,
-    b2_maxParticleForce,
-    b2_particleStride,
+    INVALID_PARTICLE_INDEX,
+    MIN_PARTICLE_SYSTEM_BUFFER_CAPACITY,
+    MAX_TRIAD_DISTANCE_SQUARED,
+    BARRIER_COLLISION_TIME,
+    MAX_PARTICLE_PRESSURE,
+    MIN_PARTICLE_WEIGHT,
+    MAX_PARTICLE_FORCE,
+    PARTICLE_STRIDE,
 } from "./b2_settings";
 import { ParticleFlag, ParticleDef, ParticleHandle, IParticleDef } from "./b2_particle";
 import { ParticleGroupFlag, ParticleGroupDef, ParticleGroup, IParticleGroupDef } from "./b2_particle_group";
@@ -213,33 +213,33 @@ export class GrowableBuffer<T> {
         this.allocator = allocator;
     }
 
-    public Append(): number {
+    public append(): number {
         if (this.count >= this.capacity) {
-            this.Grow();
+            this.grow();
         }
         return this.count++;
     }
 
-    public Reserve(newCapacity: number): void {
+    public reserve(newCapacity: number): void {
         if (this.capacity >= newCapacity) {
             return;
         }
 
-        // DEBUG: Assert(this.capacity === this.data.length);
+        // DEBUG: assert(this.capacity === this.data.length);
         for (let i = this.capacity; i < newCapacity; ++i) {
             this.data[i] = this.allocator();
         }
         this.capacity = newCapacity;
     }
 
-    public Grow(): void {
+    public grow(): void {
         // Double the capacity.
-        const newCapacity = this.capacity ? 2 * this.capacity : b2_minParticleSystemBufferCapacity;
-        // DEBUG: Assert(newCapacity > this.capacity);
-        this.Reserve(newCapacity);
+        const newCapacity = this.capacity ? 2 * this.capacity : MIN_PARTICLE_SYSTEM_BUFFER_CAPACITY;
+        // DEBUG: assert(newCapacity > this.capacity);
+        this.reserve(newCapacity);
     }
 
-    public Free(): void {
+    public free(): void {
         if (this.data.length === 0) {
             return;
         }
@@ -249,28 +249,28 @@ export class GrowableBuffer<T> {
         this.count = 0;
     }
 
-    public Shorten(_newEnd: number): void {
-        // DEBUG: Assert(false);
+    public shorten(_newEnd: number): void {
+        // DEBUG: assert(false);
     }
 
-    public Data(): T[] {
+    public getData(): T[] {
         return this.data;
     }
 
-    public GetCount(): number {
+    public getCount(): number {
         return this.count;
     }
 
-    public SetCount(newCount: number): void {
-        // DEBUG: Assert(0 <= newCount && newCount <= this.capacity);
+    public setCount(newCount: number): void {
+        // DEBUG: assert(0 <= newCount && newCount <= this.capacity);
         this.count = newCount;
     }
 
-    public GetCapacity(): number {
+    public getCapacity(): number {
         return this.capacity;
     }
 
-    public RemoveIf(pred: (t: T) => boolean): void {
+    public removeIf(pred: (t: T) => boolean): void {
         // DEBUG: let count = 0;
         // DEBUG: for (let i = 0; i < this.count; ++i) {
         // DEBUG:   if (!pred(this.data[i])) {
@@ -280,10 +280,10 @@ export class GrowableBuffer<T> {
 
         this.count = std_remove_if(this.data, pred, this.count);
 
-        // DEBUG: Assert(count === this.count);
+        // DEBUG: assert(count === this.count);
     }
 
-    public Unique(pred: (a: T, b: T) => boolean): void {
+    public unique(pred: (a: T, b: T) => boolean): void {
         this.count = std_unique(this.data, 0, this.count, pred);
     }
 }
@@ -315,45 +315,45 @@ export class ParticleContact {
 
     public flags: ParticleFlag = 0;
 
-    public SetIndices(a: number, b: number): void {
-        // DEBUG: Assert(a <= b2_maxParticleIndex && b <= b2_maxParticleIndex);
+    public setIndices(a: number, b: number): void {
+        // DEBUG: assert(a <= b2_maxParticleIndex && b <= b2_maxParticleIndex);
         this.indexA = a;
         this.indexB = b;
     }
 
-    public SetWeight(w: number): void {
+    public setWeight(w: number): void {
         this.weight = w;
     }
 
-    public SetNormal(n: Vec2): void {
-        this.normal.Copy(n);
+    public setNormal(n: Vec2): void {
+        this.normal.copy(n);
     }
 
-    public SetFlags(f: ParticleFlag): void {
+    public setFlags(f: ParticleFlag): void {
         this.flags = f;
     }
 
-    public GetIndexA(): number {
+    public getIndexA(): number {
         return this.indexA;
     }
 
-    public GetIndexB(): number {
+    public getIndexB(): number {
         return this.indexB;
     }
 
-    public GetWeight(): number {
+    public getWeight(): number {
         return this.weight;
     }
 
-    public GetNormal(): Vec2 {
+    public getNormal(): Vec2 {
         return this.normal;
     }
 
-    public GetFlags(): ParticleFlag {
+    public getFlags(): ParticleFlag {
         return this.flags;
     }
 
-    public IsEqual(rhs: ParticleContact): boolean {
+    public isEqual(rhs: ParticleContact): boolean {
         return (
             this.indexA === rhs.indexA &&
             this.indexB === rhs.indexB &&
@@ -364,11 +364,11 @@ export class ParticleContact {
         );
     }
 
-    public IsNotEqual(rhs: ParticleContact): boolean {
-        return !this.IsEqual(rhs);
+    public isNotEqual(rhs: ParticleContact): boolean {
+        return !this.isEqual(rhs);
     }
 
-    public ApproximatelyEqual(rhs: ParticleContact): boolean {
+    public approximatelyEqual(rhs: ParticleContact): boolean {
         const MAX_WEIGHT_DIFF = 0.01; // Weight 0 ~ 1, so about 1%
         const MAX_NORMAL_DIFF_SQ = 0.01 * 0.01; // Normal length = 1, so 1%
         return (
@@ -376,7 +376,7 @@ export class ParticleContact {
             this.indexB === rhs.indexB &&
             this.flags === rhs.flags &&
             Math.abs(this.weight - rhs.weight) < MAX_WEIGHT_DIFF &&
-            Vec2.DistanceSquared(this.normal, rhs.normal) < MAX_NORMAL_DIFF_SQ
+            Vec2.distanceSquared(this.normal, rhs.normal) < MAX_NORMAL_DIFF_SQ
         );
     }
 }
@@ -576,7 +576,7 @@ export class ParticleSystemDef {
      */
     public lifetimeGranularity = 1 / 60;
 
-    public Copy(def: ParticleSystemDef): ParticleSystemDef {
+    public copy(def: ParticleSystemDef): ParticleSystemDef {
         this.strictContactCheck = def.strictContactCheck;
         this.density = def.density;
         this.gravityScale = def.gravityScale;
@@ -601,8 +601,8 @@ export class ParticleSystemDef {
         return this;
     }
 
-    public Clone(): ParticleSystemDef {
-        return new ParticleSystemDef().Copy(this);
+    public clone(): ParticleSystemDef {
+        return new ParticleSystemDef().copy(this);
     }
 }
 
@@ -796,40 +796,40 @@ export class ParticleSystem {
     }
 
     public constructor(def: ParticleSystemDef, world: World) {
-        this.SetStrictContactCheck(def.strictContactCheck);
-        this.SetDensity(def.density);
-        this.SetGravityScale(def.gravityScale);
-        this.SetRadius(def.radius);
-        this.SetMaxParticleCount(def.maxCount);
-        // DEBUG: Assert(def.lifetimeGranularity > 0);
-        this.m_def = def.Clone();
+        this.setStrictContactCheck(def.strictContactCheck);
+        this.setDensity(def.density);
+        this.setGravityScale(def.gravityScale);
+        this.setRadius(def.radius);
+        this.setMaxParticleCount(def.maxCount);
+        // DEBUG: assert(def.lifetimeGranularity > 0);
+        this.m_def = def.clone();
         this.m_world = world;
-        this.SetDestructionByAge(this.m_def.destroyByAge);
+        this.setDestructionByAge(this.m_def.destroyByAge);
     }
 
-    public Drop(): void {
+    public drop(): void {
         while (this.m_groupList) {
-            this.DestroyParticleGroup(this.m_groupList);
+            this.destroyParticleGroup(this.m_groupList);
         }
 
-        this.FreeUserOverridableBuffer(this.m_handleIndexBuffer);
-        this.FreeUserOverridableBuffer(this.m_flagsBuffer);
-        this.FreeUserOverridableBuffer(this.m_lastBodyContactStepBuffer);
-        this.FreeUserOverridableBuffer(this.m_bodyContactCountBuffer);
-        this.FreeUserOverridableBuffer(this.m_consecutiveContactStepsBuffer);
-        this.FreeUserOverridableBuffer(this.m_positionBuffer);
-        this.FreeUserOverridableBuffer(this.m_velocityBuffer);
-        this.FreeUserOverridableBuffer(this.m_colorBuffer);
-        this.FreeUserOverridableBuffer(this.m_userDataBuffer);
-        this.FreeUserOverridableBuffer(this.m_expirationTimeBuffer);
-        this.FreeUserOverridableBuffer(this.m_indexByExpirationTimeBuffer);
-        this.FreeBuffer(this.m_forceBuffer);
-        this.FreeBuffer(this.m_weightBuffer);
-        this.FreeBuffer(this.m_staticPressureBuffer);
-        this.FreeBuffer(this.m_accumulationBuffer);
-        this.FreeBuffer(this.m_accumulation2Buffer);
-        this.FreeBuffer(this.m_depthBuffer);
-        this.FreeBuffer(this.m_groupBuffer);
+        this.freeUserOverridableBuffer(this.m_handleIndexBuffer);
+        this.freeUserOverridableBuffer(this.m_flagsBuffer);
+        this.freeUserOverridableBuffer(this.m_lastBodyContactStepBuffer);
+        this.freeUserOverridableBuffer(this.m_bodyContactCountBuffer);
+        this.freeUserOverridableBuffer(this.m_consecutiveContactStepsBuffer);
+        this.freeUserOverridableBuffer(this.m_positionBuffer);
+        this.freeUserOverridableBuffer(this.m_velocityBuffer);
+        this.freeUserOverridableBuffer(this.m_colorBuffer);
+        this.freeUserOverridableBuffer(this.m_userDataBuffer);
+        this.freeUserOverridableBuffer(this.m_expirationTimeBuffer);
+        this.freeUserOverridableBuffer(this.m_indexByExpirationTimeBuffer);
+        this.freeBuffer(this.m_forceBuffer);
+        this.freeBuffer(this.m_weightBuffer);
+        this.freeBuffer(this.m_staticPressureBuffer);
+        this.freeBuffer(this.m_accumulationBuffer);
+        this.freeBuffer(this.m_accumulation2Buffer);
+        this.freeBuffer(this.m_depthBuffer);
+        this.freeBuffer(this.m_groupBuffer);
     }
 
     /**
@@ -844,23 +844,23 @@ export class ParticleSystem {
      *
      * warning: This function is locked during callbacks.
      */
-    public CreateParticle(def: IParticleDef): number {
-        Assert(!this.m_world.IsLocked());
+    public createParticle(def: IParticleDef): number {
+        assert(!this.m_world.isLocked());
 
         if (this.m_count >= this.m_internalAllocatedCapacity) {
             // Double the particle capacity.
-            const capacity = this.m_count ? 2 * this.m_count : b2_minParticleSystemBufferCapacity;
-            this.ReallocateInternalAllocatedBuffers(capacity);
+            const capacity = this.m_count ? 2 * this.m_count : MIN_PARTICLE_SYSTEM_BUFFER_CAPACITY;
+            this.reallocateInternalAllocatedBuffers(capacity);
         }
         if (this.m_count >= this.m_internalAllocatedCapacity) {
             // If the oldest particle should be destroyed...
             if (this.m_def.destroyByAge) {
-                this.DestroyOldestParticle(0, false);
+                this.destroyOldestParticle(0, false);
                 // Need to destroy this particle *now* so that it's possible to
                 // create a new particle.
-                this.SolveZombie();
+                this.solveZombie();
             } else {
-                return b2_invalidParticleIndex;
+                return INVALID_PARTICLE_INDEX;
             }
         }
         const index = this.m_count++;
@@ -874,43 +874,43 @@ export class ParticleSystem {
         if (this.m_consecutiveContactStepsBuffer.data) {
             this.m_consecutiveContactStepsBuffer.data[index] = 0;
         }
-        this.m_positionBuffer.data[index] = (this.m_positionBuffer.data[index] || new Vec2()).Copy(
+        this.m_positionBuffer.data[index] = (this.m_positionBuffer.data[index] || new Vec2()).copy(
             def.position ?? Vec2.ZERO,
         );
-        this.m_velocityBuffer.data[index] = (this.m_velocityBuffer.data[index] || new Vec2()).Copy(
+        this.m_velocityBuffer.data[index] = (this.m_velocityBuffer.data[index] || new Vec2()).copy(
             def.velocity ?? Vec2.ZERO,
         );
         this.m_weightBuffer[index] = 0;
-        this.m_forceBuffer[index] = (this.m_forceBuffer[index] || new Vec2()).SetZero();
+        this.m_forceBuffer[index] = (this.m_forceBuffer[index] || new Vec2()).setZero();
         if (this.m_staticPressureBuffer) {
             this.m_staticPressureBuffer[index] = 0;
         }
         if (this.m_depthBuffer) {
             this.m_depthBuffer[index] = 0;
         }
-        const color = new Color().Copy(def.color ?? Color.ZERO);
-        if (this.m_colorBuffer.data || !color.IsZero()) {
-            this.m_colorBuffer.data = this.RequestBuffer(this.m_colorBuffer.data);
-            this.m_colorBuffer.data[index] = (this.m_colorBuffer.data[index] || new Color()).Copy(color);
+        const color = new Color().copy(def.color ?? Color.ZERO);
+        if (this.m_colorBuffer.data || !color.isZero()) {
+            this.m_colorBuffer.data = this.requestBuffer(this.m_colorBuffer.data);
+            this.m_colorBuffer.data[index] = (this.m_colorBuffer.data[index] || new Color()).copy(color);
         }
         if (this.m_userDataBuffer.data || def.userData) {
-            this.m_userDataBuffer.data = this.RequestBuffer(this.m_userDataBuffer.data);
+            this.m_userDataBuffer.data = this.requestBuffer(this.m_userDataBuffer.data);
             this.m_userDataBuffer.data[index] = def.userData;
         }
         if (this.m_handleIndexBuffer.data) {
             this.m_handleIndexBuffer.data[index] = null;
         }
 
-        const proxy = this.m_proxyBuffer.data[this.m_proxyBuffer.Append()];
+        const proxy = this.m_proxyBuffer.data[this.m_proxyBuffer.append()];
 
         // If particle lifetimes are enabled or the lifetime is set in the particle
         // definition, initialize the lifetime.
         const lifetime = def.lifetime ?? 0;
         const finiteLifetime = lifetime > 0;
         if (this.m_expirationTimeBuffer.data || finiteLifetime) {
-            this.SetParticleLifetime(
+            this.setParticleLifetime(
                 index,
-                finiteLifetime ? lifetime : this.ExpirationTimeToLifetime(-this.GetQuantizedTimeElapsed()),
+                finiteLifetime ? lifetime : this.expirationTimeToLifetime(-this.getQuantizedTimeElapsed()),
             );
             // Add a reference to the newly added particle to the end of the
             // queue.
@@ -923,8 +923,8 @@ export class ParticleSystem {
         if (group) {
             if (group.m_firstIndex < group.m_lastIndex) {
                 // Move particles in the group just before the new particle.
-                this.RotateBuffer(group.m_firstIndex, group.m_lastIndex, index);
-                // DEBUG: Assert(group.m_lastIndex === index);
+                this.rotateBuffer(group.m_firstIndex, group.m_lastIndex, index);
+                // DEBUG: assert(group.m_lastIndex === index);
                 // Update the index range of the group to contain the new particle.
                 group.m_lastIndex = index + 1;
             } else {
@@ -934,7 +934,7 @@ export class ParticleSystem {
                 group.m_lastIndex = index + 1;
             }
         }
-        this.SetParticleFlags(index, def.flags ?? 0);
+        this.setParticleFlags(index, def.flags ?? 0);
         return index;
     }
 
@@ -943,17 +943,17 @@ export class ParticleSystem {
      *
      * Please see #ParticleHandle for why you might want a handle.
      */
-    public GetParticleHandleFromIndex(index: number): ParticleHandle {
-        // DEBUG: Assert(index >= 0 && index < this.GetParticleCount() && index !== b2_invalidParticleIndex);
-        this.m_handleIndexBuffer.data = this.RequestBuffer(this.m_handleIndexBuffer.data);
+    public getParticleHandleFromIndex(index: number): ParticleHandle {
+        // DEBUG: assert(index >= 0 && index < this.getParticleCount() && index !== b2_invalidParticleIndex);
+        this.m_handleIndexBuffer.data = this.requestBuffer(this.m_handleIndexBuffer.data);
         let handle = this.m_handleIndexBuffer.data[index];
         if (handle) {
             return handle;
         }
         // Create a handle.
         handle = new ParticleHandle();
-        // DEBUG: Assert(handle !== null);
-        handle.SetIndex(index);
+        // DEBUG: assert(handle !== null);
+        handle.setIndex(index);
         this.m_handleIndexBuffer.data[index] = handle;
         return handle;
     }
@@ -969,12 +969,12 @@ export class ParticleSystem {
      *      destruction listener just before the particle is
      *      destroyed.
      */
-    public DestroyParticle(index: number, callDestructionListener = false): void {
+    public destroyParticle(index: number, callDestructionListener = false): void {
         let flags = ParticleFlag.Zombie;
         if (callDestructionListener) {
             flags |= ParticleFlag.DestructionListener;
         }
-        this.SetParticleFlags(index, this.m_flagsBuffer.data[index] | flags);
+        this.setParticleFlags(index, this.m_flagsBuffer.data[index] | flags);
     }
 
     /**
@@ -989,16 +989,16 @@ export class ParticleSystem {
      *      destruction listener just before the particle is
      *      destroyed.
      */
-    public DestroyOldestParticle(index: number, callDestructionListener = false): void {
-        const particleCount = this.GetParticleCount();
-        // DEBUG: Assert(index >= 0 && index < particleCount);
+    public destroyOldestParticle(index: number, callDestructionListener = false): void {
+        const particleCount = this.getParticleCount();
+        // DEBUG: assert(index >= 0 && index < particleCount);
         // Make sure particle lifetime tracking is enabled.
-        // DEBUG: Assert(this.m_indexByExpirationTimeBuffer.data !== null);
+        // DEBUG: assert(this.m_indexByExpirationTimeBuffer.data !== null);
         // Destroy the oldest particle (preferring to destroy finite
         // lifetime particles first) to free a slot in the buffer.
         const oldestFiniteLifetimeParticle = this.m_indexByExpirationTimeBuffer.data[particleCount - (index + 1)];
         const oldestInfiniteLifetimeParticle = this.m_indexByExpirationTimeBuffer.data[index];
-        this.DestroyParticle(
+        this.destroyParticle(
             this.m_expirationTimeBuffer.data[oldestFiniteLifetimeParticle] > 0.0
                 ? oldestFiniteLifetimeParticle
                 : oldestInfiniteLifetimeParticle,
@@ -1023,17 +1023,17 @@ export class ParticleSystem {
      *      world DestructionListener for each particle
      *      destroyed.
      */
-    public DestroyParticlesInShape(shape: Shape, xf: Transform, callDestructionListener = false): number {
+    public destroyParticlesInShape(shape: Shape, xf: Transform, callDestructionListener = false): number {
         const s_aabb = ParticleSystem.DestroyParticlesInShape_s_aabb;
-        Assert(!this.m_world.IsLocked());
+        assert(!this.m_world.isLocked());
 
         const aabb = s_aabb;
-        shape.ComputeAABB(aabb, xf, 0);
+        shape.computeAABB(aabb, xf, 0);
         let destroyed = 0;
-        this.QueryAABB(aabb, (index) => {
-            // DEBUG: Assert(index >= 0 && index < this.m_system.m_count);
-            if (shape.TestPoint(xf, this.m_positionBuffer.data[index])) {
-                this.DestroyParticle(index, callDestructionListener);
+        this.queryAABB(aabb, (index) => {
+            // DEBUG: assert(index >= 0 && index < this.m_system.m_count);
+            if (shape.testPoint(xf, this.m_positionBuffer.data[index])) {
+                this.destroyParticle(index, callDestructionListener);
                 destroyed++;
             }
             return true;
@@ -1050,19 +1050,19 @@ export class ParticleSystem {
      *
      * warning: This function is locked during callbacks.
      */
-    public CreateParticleGroup(groupDef: IParticleGroupDef): ParticleGroup {
+    public createParticleGroup(groupDef: IParticleGroupDef): ParticleGroup {
         const s_transform = ParticleSystem.CreateParticleGroup_s_transform;
 
-        Assert(!this.m_world.IsLocked());
+        assert(!this.m_world.isLocked());
 
         const transform = s_transform;
-        transform.SetPositionAngle(groupDef.position ?? Vec2.ZERO, groupDef.angle ?? 0);
+        transform.setPositionAngle(groupDef.position ?? Vec2.ZERO, groupDef.angle ?? 0);
         const firstIndex = this.m_count;
         if (groupDef.shape) {
-            this.CreateParticlesWithShapeForGroup(groupDef.shape, groupDef, transform);
+            this.createParticlesWithShapeForGroup(groupDef.shape, groupDef, transform);
         }
         if (groupDef.shapes) {
-            this.CreateParticlesWithShapesForGroup(
+            this.createParticlesWithShapesForGroup(
                 groupDef.shapes,
                 groupDef.shapeCount ?? groupDef.shapes.length,
                 groupDef,
@@ -1073,7 +1073,7 @@ export class ParticleSystem {
             const count = groupDef.particleCount ?? groupDef.positionData.length;
             for (let i = 0; i < count; i++) {
                 const p = groupDef.positionData[i];
-                this.CreateParticleForGroup(groupDef, transform, p);
+                this.createParticleForGroup(groupDef, transform, p);
             }
         }
         const lastIndex = this.m_count;
@@ -1083,7 +1083,7 @@ export class ParticleSystem {
         group.m_lastIndex = lastIndex;
         group.m_strength = groupDef.strength ?? 1;
         group.m_userData = groupDef.userData;
-        group.m_transform.Copy(transform);
+        group.m_transform.copy(transform);
         group.m_prev = null;
         group.m_next = this.m_groupList;
         if (this.m_groupList) {
@@ -1094,15 +1094,15 @@ export class ParticleSystem {
         for (let i = firstIndex; i < lastIndex; i++) {
             this.m_groupBuffer[i] = group;
         }
-        this.SetGroupFlags(group, groupDef.groupFlags ?? 0);
+        this.setGroupFlags(group, groupDef.groupFlags ?? 0);
 
         // Create pairs and triads between particles in the group.
         const filter = new ParticleSystem_ConnectionFilter();
-        this.UpdateContacts(true);
-        this.UpdatePairsAndTriads(firstIndex, lastIndex, filter);
+        this.updateContacts(true);
+        this.updatePairsAndTriads(firstIndex, lastIndex, filter);
 
         if (groupDef.group) {
-            this.JoinParticleGroups(groupDef.group, group);
+            this.joinParticleGroups(groupDef.group, group);
             group = groupDef.group;
         }
 
@@ -1119,28 +1119,28 @@ export class ParticleSystem {
      * @param groupA The first group. Expands to encompass the second group.
      * @param groupB The second group. It is destroyed.
      */
-    public JoinParticleGroups(groupA: ParticleGroup, groupB: ParticleGroup): void {
-        Assert(!this.m_world.IsLocked());
+    public joinParticleGroups(groupA: ParticleGroup, groupB: ParticleGroup): void {
+        assert(!this.m_world.isLocked());
 
-        // DEBUG: Assert(groupA !== groupB);
-        this.RotateBuffer(groupB.m_firstIndex, groupB.m_lastIndex, this.m_count);
-        // DEBUG: Assert(groupB.m_lastIndex === this.m_count);
-        this.RotateBuffer(groupA.m_firstIndex, groupA.m_lastIndex, groupB.m_firstIndex);
-        // DEBUG: Assert(groupA.m_lastIndex === groupB.m_firstIndex);
+        // DEBUG: assert(groupA !== groupB);
+        this.rotateBuffer(groupB.m_firstIndex, groupB.m_lastIndex, this.m_count);
+        // DEBUG: assert(groupB.m_lastIndex === this.m_count);
+        this.rotateBuffer(groupA.m_firstIndex, groupA.m_lastIndex, groupB.m_firstIndex);
+        // DEBUG: assert(groupA.m_lastIndex === groupB.m_firstIndex);
 
         // Create pairs and triads connecting groupA and groupB.
         const filter = new ParticleSystem_JoinParticleGroupsFilter(groupB.m_firstIndex);
-        this.UpdateContacts(true);
-        this.UpdatePairsAndTriads(groupA.m_firstIndex, groupB.m_lastIndex, filter);
+        this.updateContacts(true);
+        this.updatePairsAndTriads(groupA.m_firstIndex, groupB.m_lastIndex, filter);
 
         for (let i = groupB.m_firstIndex; i < groupB.m_lastIndex; i++) {
             this.m_groupBuffer[i] = groupA;
         }
         const groupFlags = groupA.m_groupFlags | groupB.m_groupFlags;
-        this.SetGroupFlags(groupA, groupFlags);
+        this.setGroupFlags(groupA, groupFlags);
         groupA.m_lastIndex = groupB.m_lastIndex;
         groupB.m_firstIndex = groupB.m_lastIndex;
-        this.DestroyParticleGroup(groupB);
+        this.destroyParticleGroup(groupB);
     }
 
     /**
@@ -1150,18 +1150,18 @@ export class ParticleSystem {
      *
      * @param group The group to be split.
      */
-    public SplitParticleGroup(group: ParticleGroup): void {
-        this.UpdateContacts(true);
-        const particleCount = group.GetParticleCount();
+    public splitParticleGroup(group: ParticleGroup): void {
+        this.updateContacts(true);
+        const particleCount = group.getParticleCount();
         // We create several linked lists. Each list represents a set of connected particles.
         const nodeBuffer = new Array<ParticleSystem_ParticleListNode>(particleCount);
         for (let i = 0; i < particleCount; i++) nodeBuffer[i] = new ParticleSystem_ParticleListNode();
-        ParticleSystem.InitializeParticleLists(group, nodeBuffer);
-        this.MergeParticleListsInContact(group, nodeBuffer);
-        const survivingList = ParticleSystem.FindLongestParticleList(group, nodeBuffer);
-        this.MergeZombieParticleListNodes(group, nodeBuffer, survivingList);
-        this.CreateParticleGroupsFromParticleList(group, nodeBuffer, survivingList);
-        this.UpdatePairsAndTriadsWithParticleList(group, nodeBuffer);
+        ParticleSystem.initializeParticleLists(group, nodeBuffer);
+        this.mergeParticleListsInContact(group, nodeBuffer);
+        const survivingList = ParticleSystem.findLongestParticleList(group, nodeBuffer);
+        this.mergeZombieParticleListNodes(group, nodeBuffer, survivingList);
+        this.createParticleGroupsFromParticleList(group, nodeBuffer, survivingList);
+        this.updatePairsAndTriadsWithParticleList(group, nodeBuffer);
     }
 
     /**
@@ -1173,28 +1173,28 @@ export class ParticleSystem {
      *
      * @returns The head of the world particle group list.
      */
-    public GetParticleGroupList(): ParticleGroup | null {
+    public getParticleGroupList(): ParticleGroup | null {
         return this.m_groupList;
     }
 
     /**
      * Get the number of particle groups.
      */
-    public GetParticleGroupCount(): number {
+    public getParticleGroupCount(): number {
         return this.m_groupCount;
     }
 
     /**
      * Get the number of particles.
      */
-    public GetParticleCount(): number {
+    public getParticleCount(): number {
         return this.m_count;
     }
 
     /**
      * Get the maximum number of particles.
      */
-    public GetMaxParticleCount(): number {
+    public getMaxParticleCount(): number {
         return this.m_def.maxCount;
     }
 
@@ -1210,22 +1210,22 @@ export class ParticleSystem {
      * SetDestructionByAge() is used to enable the destruction of
      * the oldest particles in the system.
      */
-    public SetMaxParticleCount(count: number): void {
-        // DEBUG: Assert(this.m_count <= count);
+    public setMaxParticleCount(count: number): void {
+        // DEBUG: assert(this.m_count <= count);
         this.m_def.maxCount = count;
     }
 
     /**
      * Get all existing particle flags.
      */
-    public GetAllParticleFlags(): ParticleFlag {
+    public getAllParticleFlags(): ParticleFlag {
         return this.m_allParticleFlags;
     }
 
     /**
      * Get all existing particle group flags.
      */
-    public GetAllGroupFlags(): ParticleGroupFlag {
+    public getAllGroupFlags(): ParticleGroupFlag {
         return this.m_allGroupFlags;
     }
 
@@ -1236,7 +1236,7 @@ export class ParticleSystem {
      *
      * @param paused Paused is true to pause, false to un-pause.
      */
-    public SetPaused(paused: boolean): void {
+    public setPaused(paused: boolean): void {
         this.m_paused = paused;
     }
 
@@ -1246,7 +1246,7 @@ export class ParticleSystem {
      *
      * @returns true if the particle system is being updated in World::Step().
      */
-    public GetPaused(): boolean {
+    public getPaused(): boolean {
         return this.m_paused;
     }
 
@@ -1258,7 +1258,7 @@ export class ParticleSystem {
      * that the density does not affect how the particles interact
      * with each other.
      */
-    public SetDensity(density: number): void {
+    public setDensity(density: number): void {
         this.m_def.density = density;
         this.m_inverseDensity = 1 / this.m_def.density;
     }
@@ -1266,7 +1266,7 @@ export class ParticleSystem {
     /**
      * Get the particle density.
      */
-    public GetDensity(): number {
+    public getDensity(): number {
         return this.m_def.density;
     }
 
@@ -1274,14 +1274,14 @@ export class ParticleSystem {
      * Change the particle gravity scale. Adjusts the effect of the
      * global gravity vector on particles.
      */
-    public SetGravityScale(gravityScale: number): void {
+    public setGravityScale(gravityScale: number): void {
         this.m_def.gravityScale = gravityScale;
     }
 
     /**
      * Get the particle gravity scale.
      */
-    public GetGravityScale(): number {
+    public getGravityScale(): number {
         return this.m_def.gravityScale;
     }
 
@@ -1291,14 +1291,14 @@ export class ParticleSystem {
      * effect becomes sensitive to the time step when the damping
      * parameter is large.
      */
-    public SetDamping(damping: number): void {
+    public setDamping(damping: number): void {
         this.m_def.dampingStrength = damping;
     }
 
     /**
      * Get damping for particles
      */
-    public GetDamping(): number {
+    public getDamping(): number {
         return this.m_def.dampingStrength;
     }
 
@@ -1314,7 +1314,7 @@ export class ParticleSystem {
      * For a description of static pressure, see
      * http://en.wikipedia.org/wiki/Static_pressure#Static_pressure_in_fluid_dynamics
      */
-    public SetStaticPressureIterations(iterations: number): void {
+    public setStaticPressureIterations(iterations: number): void {
         this.m_def.staticPressureIterations = iterations;
     }
 
@@ -1322,7 +1322,7 @@ export class ParticleSystem {
      * Get the number of iterations for static pressure of
      * particles.
      */
-    public GetStaticPressureIterations(): number {
+    public getStaticPressureIterations(): number {
         return this.m_def.staticPressureIterations;
     }
 
@@ -1333,7 +1333,7 @@ export class ParticleSystem {
      * If you change the radius during execution, existing particles
      * may explode, shrink, or behave unexpectedly.
      */
-    public SetRadius(radius: number): void {
+    public setRadius(radius: number): void {
         this.m_particleDiameter = 2 * radius;
         this.m_squaredDiameter = this.m_particleDiameter * this.m_particleDiameter;
         this.m_inverseDiameter = 1 / this.m_particleDiameter;
@@ -1342,7 +1342,7 @@ export class ParticleSystem {
     /**
      * Get the particle radius.
      */
-    public GetRadius(): number {
+    public getRadius(): number {
         return this.m_particleDiameter / 2;
     }
 
@@ -1353,7 +1353,7 @@ export class ParticleSystem {
      *
      * @returns The pointer to the head of the particle positions array.
      */
-    public GetPositionBuffer(): Vec2[] {
+    public getPositionBuffer(): Vec2[] {
         return this.m_positionBuffer.data;
     }
 
@@ -1364,7 +1364,7 @@ export class ParticleSystem {
      *
      * @returns The pointer to the head of the particle velocities array.
      */
-    public GetVelocityBuffer(): Vec2[] {
+    public getVelocityBuffer(): Vec2[] {
         return this.m_velocityBuffer.data;
     }
 
@@ -1375,8 +1375,8 @@ export class ParticleSystem {
      *
      * @returns The pointer to the head of the particle colors array.
      */
-    public GetColorBuffer(): Color[] {
-        this.m_colorBuffer.data = this.RequestBuffer(this.m_colorBuffer.data);
+    public getColorBuffer(): Color[] {
+        this.m_colorBuffer.data = this.requestBuffer(this.m_colorBuffer.data);
         return this.m_colorBuffer.data;
     }
 
@@ -1387,7 +1387,7 @@ export class ParticleSystem {
      *
      * @returns The pointer to the head of the particle group array.
      */
-    public GetGroupBuffer(): Array<ParticleGroup | null> {
+    public getGroupBuffer(): Array<ParticleGroup | null> {
         return this.m_groupBuffer;
     }
 
@@ -1398,7 +1398,7 @@ export class ParticleSystem {
      *
      * @returns The pointer to the head of the particle positions array.
      */
-    public GetWeightBuffer(): number[] {
+    public getWeightBuffer(): number[] {
         return this.m_weightBuffer;
     }
 
@@ -1409,8 +1409,8 @@ export class ParticleSystem {
      *
      * @returns The pointer to the head of the particle user-data array.
      */
-    public GetUserDataBuffer<T>(): T[] {
-        this.m_userDataBuffer.data = this.RequestBuffer(this.m_userDataBuffer.data);
+    public getUserDataBuffer<T>(): T[] {
+        this.m_userDataBuffer.data = this.requestBuffer(this.m_userDataBuffer.data);
         return this.m_userDataBuffer.data;
     }
 
@@ -1421,14 +1421,14 @@ export class ParticleSystem {
      *
      * @returns The pointer to the head of the particle-flags array.
      */
-    public GetFlagsBuffer(): ParticleFlag[] {
+    public getFlagsBuffer(): ParticleFlag[] {
         return this.m_flagsBuffer.data;
     }
 
     /**
      * Set flags for a particle. See the ParticleFlag enum.
      */
-    public SetParticleFlags(index: number, newFlags: ParticleFlag): void {
+    public setParticleFlags(index: number, newFlags: ParticleFlag): void {
         const oldFlags = this.m_flagsBuffer.data[index];
         if (oldFlags & ~newFlags) {
             // If any flags might be removed
@@ -1437,10 +1437,10 @@ export class ParticleSystem {
         if (~this.m_allParticleFlags & newFlags) {
             // If any flags were added
             if (newFlags & ParticleFlag.Tensile) {
-                this.m_accumulation2Buffer = this.RequestBuffer(this.m_accumulation2Buffer);
+                this.m_accumulation2Buffer = this.requestBuffer(this.m_accumulation2Buffer);
             }
             if (newFlags & ParticleFlag.ColorMixing) {
-                this.m_colorBuffer.data = this.RequestBuffer(this.m_colorBuffer.data);
+                this.m_colorBuffer.data = this.requestBuffer(this.m_colorBuffer.data);
             }
             this.m_allParticleFlags |= newFlags;
         }
@@ -1450,7 +1450,7 @@ export class ParticleSystem {
     /**
      * Get flags for a particle. See the ParticleFlag enum.
      */
-    public GetParticleFlags(index: number): ParticleFlag {
+    public getParticleFlags(index: number): ParticleFlag {
         return this.m_flagsBuffer.data[index];
     }
 
@@ -1470,24 +1470,24 @@ export class ParticleSystem {
      * @param buffer A pointer to a block of memory.
      * @param capacity The number of values in the block.
      */
-    public SetFlagsBuffer(buffer: ParticleFlag[]): void {
-        this.SetUserOverridableBuffer(this.m_flagsBuffer, buffer);
+    public setFlagsBuffer(buffer: ParticleFlag[]): void {
+        this.setUserOverridableBuffer(this.m_flagsBuffer, buffer);
     }
 
-    public SetPositionBuffer(buffer: Vec2[]): void {
-        this.SetUserOverridableBuffer(this.m_positionBuffer, buffer);
+    public setPositionBuffer(buffer: Vec2[]): void {
+        this.setUserOverridableBuffer(this.m_positionBuffer, buffer);
     }
 
-    public SetVelocityBuffer(buffer: Vec2[]): void {
-        this.SetUserOverridableBuffer(this.m_velocityBuffer, buffer);
+    public setVelocityBuffer(buffer: Vec2[]): void {
+        this.setUserOverridableBuffer(this.m_velocityBuffer, buffer);
     }
 
-    public SetColorBuffer(buffer: Color[]): void {
-        this.SetUserOverridableBuffer(this.m_colorBuffer, buffer);
+    public setColorBuffer(buffer: Color[]): void {
+        this.setUserOverridableBuffer(this.m_colorBuffer, buffer);
     }
 
-    public SetUserDataBuffer<T>(buffer: T[]): void {
-        this.SetUserOverridableBuffer(this.m_userDataBuffer, buffer);
+    public setUserDataBuffer<T>(buffer: T[]): void {
+        this.setUserOverridableBuffer(this.m_userDataBuffer, buffer);
     }
 
     /**
@@ -1495,11 +1495,11 @@ export class ParticleSystem {
      * Contact data can be used for many reasons, for example to
      * trigger rendering or audio effects.
      */
-    public GetContacts(): ParticleContact[] {
+    public getContacts(): ParticleContact[] {
         return this.m_contactBuffer.data;
     }
 
-    public GetContactCount(): number {
+    public getContactCount(): number {
         return this.m_contactBuffer.count;
     }
 
@@ -1509,11 +1509,11 @@ export class ParticleSystem {
      * Contact data can be used for many reasons, for example to
      * trigger rendering or audio effects.
      */
-    public GetBodyContacts(): ParticleBodyContact[] {
+    public getBodyContacts(): ParticleBodyContact[] {
         return this.m_bodyContactBuffer.data;
     }
 
-    public GetBodyContactCount(): number {
+    public getBodyContactCount(): number {
         return this.m_bodyContactBuffer.count;
     }
 
@@ -1533,11 +1533,11 @@ export class ParticleSystem {
      * that are interacting. The array is sorted by ParticlePair's
      * indexA, and then indexB. There are no duplicate entries.
      */
-    public GetPairs(): ParticlePair[] {
+    public getPairs(): ParticlePair[] {
         return this.m_pairBuffer.data;
     }
 
-    public GetPairCount(): number {
+    public getPairCount(): number {
         return this.m_pairBuffer.count;
     }
 
@@ -1558,11 +1558,11 @@ export class ParticleSystem {
      * interacting. The array is sorted by ParticleTriad's indexA,
      * then indexB, then indexC. There are no duplicate entries.
      */
-    public GetTriads(): ParticleTriad[] {
+    public getTriads(): ParticleTriad[] {
         return this.m_triadBuffer.data;
     }
 
-    public GetTriadCount(): number {
+    public getTriadCount(): number {
         return this.m_triadBuffer.count;
     }
 
@@ -1572,13 +1572,13 @@ export class ParticleSystem {
      * multiple bodies before it is considered a candidate for being
      * "stuck". Setting to zero or less disables.
      */
-    public SetStuckThreshold(steps: number): void {
+    public setStuckThreshold(steps: number): void {
         this.m_stuckThreshold = steps;
 
         if (steps > 0) {
-            this.m_lastBodyContactStepBuffer.data = this.RequestBuffer(this.m_lastBodyContactStepBuffer.data);
-            this.m_bodyContactCountBuffer.data = this.RequestBuffer(this.m_bodyContactCountBuffer.data);
-            this.m_consecutiveContactStepsBuffer.data = this.RequestBuffer(this.m_consecutiveContactStepsBuffer.data);
+            this.m_lastBodyContactStepBuffer.data = this.requestBuffer(this.m_lastBodyContactStepBuffer.data);
+            this.m_bodyContactCountBuffer.data = this.requestBuffer(this.m_bodyContactCountBuffer.data);
+            this.m_consecutiveContactStepsBuffer.data = this.requestBuffer(this.m_consecutiveContactStepsBuffer.data);
         }
     }
 
@@ -1587,22 +1587,22 @@ export class ParticleSystem {
      * must decide if they are stuck or not, and if so, delete or
      * move them
      */
-    public GetStuckCandidates(): number[] {
-        return this.m_stuckParticleBuffer.Data();
+    public getStuckCandidates(): number[] {
+        return this.m_stuckParticleBuffer.getData();
     }
 
     /**
      * Get the number of stuck particle candidates from the last
      * step.
      */
-    public GetStuckCandidateCount(): number {
-        return this.m_stuckParticleBuffer.GetCount();
+    public getStuckCandidateCount(): number {
+        return this.m_stuckParticleBuffer.getCount();
     }
 
     /**
      * Compute the kinetic energy that can be lost by damping force
      */
-    public ComputeCollisionEnergy(): number {
+    public computeCollisionEnergy(): number {
         const s_v = ParticleSystem.ComputeCollisionEnergy_s_v;
         const vel_data = this.m_velocityBuffer.data;
         let sum_v2 = 0;
@@ -1611,13 +1611,13 @@ export class ParticleSystem {
             const a = contact.indexA;
             const b = contact.indexB;
             const n = contact.normal;
-            const v = Vec2.Subtract(vel_data[b], vel_data[a], s_v);
-            const vn = Vec2.Dot(v, n);
+            const v = Vec2.subtract(vel_data[b], vel_data[a], s_v);
+            const vn = Vec2.dot(v, n);
             if (vn < 0) {
                 sum_v2 += vn * vn;
             }
         }
-        return 0.5 * this.GetParticleMass() * sum_v2;
+        return 0.5 * this.getParticleMass() * sum_v2;
     }
 
     public static readonly ComputeCollisionEnergy_s_v = new Vec2();
@@ -1632,14 +1632,14 @@ export class ParticleSystem {
      * enable if it is necessary for your geometry. Enable if you
      * see strange particle behavior around Body intersections.
      */
-    public SetStrictContactCheck(enabled: boolean): void {
+    public setStrictContactCheck(enabled: boolean): void {
         this.m_def.strictContactCheck = enabled;
     }
 
     /**
      * Get the status of the strict contact check.
      */
-    public GetStrictContactCheck(): boolean {
+    public getStrictContactCheck(): boolean {
         return this.m_def.strictContactCheck;
     }
 
@@ -1649,15 +1649,15 @@ export class ParticleSystem {
      * results in the particle living forever until it's manually
      * destroyed by the application.
      */
-    public SetParticleLifetime(index: number, lifetime: number): void {
-        // DEBUG: Assert(this.ValidateParticleIndex(index));
+    public setParticleLifetime(index: number, lifetime: number): void {
+        // DEBUG: assert(this.validateParticleIndex(index));
         const initializeExpirationTimes = this.m_indexByExpirationTimeBuffer.data === null;
-        this.m_expirationTimeBuffer.data = this.RequestBuffer(this.m_expirationTimeBuffer.data);
-        this.m_indexByExpirationTimeBuffer.data = this.RequestBuffer(this.m_indexByExpirationTimeBuffer.data);
+        this.m_expirationTimeBuffer.data = this.requestBuffer(this.m_expirationTimeBuffer.data);
+        this.m_indexByExpirationTimeBuffer.data = this.requestBuffer(this.m_indexByExpirationTimeBuffer.data);
 
         // Initialize the inverse mapping buffer.
         if (initializeExpirationTimes) {
-            const particleCount = this.GetParticleCount();
+            const particleCount = this.getParticleCount();
             for (let i = 0; i < particleCount; ++i) {
                 this.m_indexByExpirationTimeBuffer.data[i] = i;
             }
@@ -1667,7 +1667,7 @@ export class ParticleSystem {
         // Use a negative lifetime so that it's possible to track which
         // of the infinite lifetime particles are older.
         const newExpirationTime =
-            quantizedLifetime > 0 ? this.GetQuantizedTimeElapsed() + quantizedLifetime : quantizedLifetime;
+            quantizedLifetime > 0 ? this.getQuantizedTimeElapsed() + quantizedLifetime : quantizedLifetime;
         if (newExpirationTime !== this.m_expirationTimeBuffer.data[index]) {
             this.m_expirationTimeBuffer.data[index] = newExpirationTime;
             this.m_expirationTimeBufferRequiresSorting = true;
@@ -1680,9 +1680,9 @@ export class ParticleSystem {
      * scheduled to be destroyed in the future, values <= 0
      * indicate the particle has an infinite lifetime.
      */
-    public GetParticleLifetime(index: number): number {
-        // DEBUG: Assert(this.ValidateParticleIndex(index));
-        return this.ExpirationTimeToLifetime(this.GetExpirationTimeBuffer()[index]);
+    public getParticleLifetime(index: number): number {
+        // DEBUG: assert(this.validateParticleIndex(index));
+        return this.expirationTimeToLifetime(this.getExpirationTimeBuffer()[index]);
     }
 
     /**
@@ -1696,9 +1696,9 @@ export class ParticleSystem {
      * enabling this feature using this function enables particle
      * lifetime tracking.
      */
-    public SetDestructionByAge(enable: boolean): void {
+    public setDestructionByAge(enable: boolean): void {
         if (enable) {
-            this.GetExpirationTimeBuffer();
+            this.getExpirationTimeBuffer();
         }
         this.m_def.destroyByAge = enable;
     }
@@ -1708,7 +1708,7 @@ export class ParticleSystem {
      * CreateParticle() when the maximum number of particles are
      * present in the system.
      */
-    public GetDestructionByAge(): boolean {
+    public getDestructionByAge(): boolean {
         return this.m_def.destroyByAge;
     }
 
@@ -1718,8 +1718,8 @@ export class ParticleSystem {
      *
      * GetParticleCount() items are in the returned array.
      */
-    public GetExpirationTimeBuffer(): number[] {
-        this.m_expirationTimeBuffer.data = this.RequestBuffer(this.m_expirationTimeBuffer.data);
+    public getExpirationTimeBuffer(): number[] {
+        this.m_expirationTimeBuffer.data = this.requestBuffer(this.m_expirationTimeBuffer.data);
         return this.m_expirationTimeBuffer.data;
     }
 
@@ -1728,9 +1728,9 @@ export class ParticleSystem {
      * GetExpirationTimeBuffer() to a time in seconds relative to
      * the current simulation time.
      */
-    public ExpirationTimeToLifetime(expirationTime: number): number {
+    public expirationTimeToLifetime(expirationTime: number): number {
         return (
-            (expirationTime > 0 ? expirationTime - this.GetQuantizedTimeElapsed() : expirationTime) *
+            (expirationTime > 0 ? expirationTime - this.getQuantizedTimeElapsed() : expirationTime) *
             this.m_def.lifetimeGranularity
         );
     }
@@ -1746,12 +1746,12 @@ export class ParticleSystem {
      *
      * GetParticleCount() items are in the returned array.
      */
-    public GetIndexByExpirationTimeBuffer(): number[] {
+    public getIndexByExpirationTimeBuffer(): number[] {
         // If particles are present, initialize / reinitialize the lifetime buffer.
-        if (this.GetParticleCount()) {
-            this.SetParticleLifetime(0, this.GetParticleLifetime(0));
+        if (this.getParticleCount()) {
+            this.setParticleLifetime(0, this.getParticleLifetime(0));
         } else {
-            this.m_indexByExpirationTimeBuffer.data = this.RequestBuffer(this.m_indexByExpirationTimeBuffer.data);
+            this.m_indexByExpirationTimeBuffer.data = this.requestBuffer(this.m_indexByExpirationTimeBuffer.data);
         }
         return this.m_indexByExpirationTimeBuffer.data;
     }
@@ -1763,8 +1763,8 @@ export class ParticleSystem {
      * @param index The particle that will be modified.
      * @param impulse Impulse the world impulse vector, usually in N-seconds or kg-m/s.
      */
-    public ParticleApplyLinearImpulse(index: number, impulse: XY): void {
-        this.ApplyLinearImpulse(index, index + 1, impulse);
+    public particleApplyLinearImpulse(index: number, impulse: XY): void {
+        this.applyLinearImpulse(index, index + 1, impulse);
     }
 
     /**
@@ -1780,17 +1780,17 @@ export class ParticleSystem {
      * @param lastIndex The last particle to be modified.
      * @param impulse The world impulse vector, usually in N-seconds or kg-m/s.
      */
-    public ApplyLinearImpulse(firstIndex: number, lastIndex: number, impulse: XY): void {
+    public applyLinearImpulse(firstIndex: number, lastIndex: number, impulse: XY): void {
         const vel_data = this.m_velocityBuffer.data;
         const numParticles = lastIndex - firstIndex;
-        const totalMass = numParticles * this.GetParticleMass();
-        const velocityDelta = Vec2.Scale(1 / totalMass, impulse, new Vec2());
+        const totalMass = numParticles * this.getParticleMass();
+        const velocityDelta = Vec2.scale(1 / totalMass, impulse, new Vec2());
         for (let i = firstIndex; i < lastIndex; i++) {
-            vel_data[i].Add(velocityDelta);
+            vel_data[i].add(velocityDelta);
         }
     }
 
-    public static IsSignificantForce(force: XY): boolean {
+    public static isSignificantForce(force: XY): boolean {
         return force.x !== 0 || force.y !== 0;
     }
 
@@ -1800,10 +1800,10 @@ export class ParticleSystem {
      * @param index The particle that will be modified.
      * @param force The world force vector, usually in Newtons (N).
      */
-    public ParticleApplyForce(index: number, force: XY): void {
-        if (ParticleSystem.IsSignificantForce(force) && this.ForceCanBeApplied(this.m_flagsBuffer.data[index])) {
-            this.PrepareForceBuffer();
-            this.m_forceBuffer[index].Add(force);
+    public particleApplyForce(index: number, force: XY): void {
+        if (ParticleSystem.isSignificantForce(force) && this.forceCanBeApplied(this.m_flagsBuffer.data[index])) {
+            this.prepareForceBuffer();
+            this.m_forceBuffer[index].add(force);
         }
     }
 
@@ -1818,23 +1818,23 @@ export class ParticleSystem {
      * @param lastIndex The last particle to be modified.
      * @param force The world force vector, usually in Newtons (N).
      */
-    public ApplyForce(firstIndex: number, lastIndex: number, force: XY): void {
+    public applyForce(firstIndex: number, lastIndex: number, force: XY): void {
         // Ensure we're not trying to apply force to particles that can't move,
         // such as wall particles.
         // DEBUG: let flags = 0;
         // DEBUG: for (let i = firstIndex; i < lastIndex; i++) {
         // DEBUG:   flags |= this.m_flagsBuffer.data[i];
         // DEBUG: }
-        // DEBUG: Assert(this.ForceCanBeApplied(flags));
+        // DEBUG: assert(this.forceCanBeApplied(flags));
 
         // Early out if force does nothing (optimization).
-        const distributedForce = Vec2.Scale(1 / (lastIndex - firstIndex), force, new Vec2());
-        if (ParticleSystem.IsSignificantForce(distributedForce)) {
-            this.PrepareForceBuffer();
+        const distributedForce = Vec2.scale(1 / (lastIndex - firstIndex), force, new Vec2());
+        if (ParticleSystem.isSignificantForce(distributedForce)) {
+            this.prepareForceBuffer();
 
             // Distribute the force over all the particles.
             for (let i = firstIndex; i < lastIndex; i++) {
-                this.m_forceBuffer[i].Add(distributedForce);
+                this.m_forceBuffer[i].add(distributedForce);
             }
         }
     }
@@ -1843,7 +1843,7 @@ export class ParticleSystem {
      * Get the next particle-system in the world's particle-system
      * list.
      */
-    public GetNext(): ParticleSystem | null {
+    public getNext(): ParticleSystem | null {
         return this.m_next;
     }
 
@@ -1854,7 +1854,7 @@ export class ParticleSystem {
      * @param callback A user implemented callback class.
      * @param aabb The query box.
      */
-    public QueryAABB(aabb: AABB, callback: ParticleQueryCallback): void {
+    public queryAABB(aabb: AABB, callback: ParticleQueryCallback): void {
         if (this.m_proxyBuffer.count === 0) {
             return;
         }
@@ -1868,7 +1868,7 @@ export class ParticleSystem {
                 this.m_inverseDiameter * aabb.lowerBound.x,
                 this.m_inverseDiameter * aabb.lowerBound.y,
             ),
-            ParticleSystem_Proxy.CompareProxyTag,
+            ParticleSystem_Proxy.compareProxyTag,
         );
         const lastProxy = std_upper_bound(
             this.m_proxyBuffer.data,
@@ -1878,7 +1878,7 @@ export class ParticleSystem {
                 this.m_inverseDiameter * aabb.upperBound.x,
                 this.m_inverseDiameter * aabb.upperBound.y,
             ),
-            ParticleSystem_Proxy.CompareTagProxy,
+            ParticleSystem_Proxy.compareTagProxy,
         );
         const pos_data = this.m_positionBuffer.data;
         for (let k = firstProxy; k < lastProxy; ++k) {
@@ -1908,21 +1908,21 @@ export class ParticleSystem {
      * @param xf The transform of the AABB
      * @param childIndex
      */
-    public QueryShapeAABB(shape: Shape, xf: Transform, childIndex: number, callback: ParticleQueryCallback): void {
+    public queryShapeAABB(shape: Shape, xf: Transform, childIndex: number, callback: ParticleQueryCallback): void {
         const s_aabb = ParticleSystem.QueryShapeAABB_s_aabb;
         const aabb = s_aabb;
-        shape.ComputeAABB(aabb, xf, childIndex);
-        this.QueryAABB(aabb, callback);
+        shape.computeAABB(aabb, xf, childIndex);
+        this.queryAABB(aabb, callback);
     }
 
     public static readonly QueryShapeAABB_s_aabb = new AABB();
 
-    public QueryPointAABB(point: XY, slop: number, callback: ParticleQueryCallback): void {
+    public queryPointAABB(point: XY, slop: number, callback: ParticleQueryCallback): void {
         const s_aabb = ParticleSystem.QueryPointAABB_s_aabb;
         const aabb = s_aabb;
-        aabb.lowerBound.Set(point.x - slop, point.y - slop);
-        aabb.upperBound.Set(point.x + slop, point.y + slop);
-        this.QueryAABB(aabb, callback);
+        aabb.lowerBound.set(point.x - slop, point.y - slop);
+        aabb.upperBound.set(point.x + slop, point.y + slop);
+        this.queryAABB(aabb, callback);
     }
 
     public static readonly QueryPointAABB_s_aabb = new AABB();
@@ -1937,7 +1937,7 @@ export class ParticleSystem {
      * @param point1 The ray starting point
      * @param point2 The ray ending point
      */
-    public RayCast(point1: XY, point2: XY, callback: ParticleRayCastCallback): void {
+    public rayCast(point1: XY, point2: XY, callback: ParticleRayCastCallback): void {
         const s_aabb = ParticleSystem.RayCast_s_aabb;
         const s_p = ParticleSystem.RayCast_s_p;
         const s_v = ParticleSystem.RayCast_s_v;
@@ -1948,22 +1948,22 @@ export class ParticleSystem {
         }
         const pos_data = this.m_positionBuffer.data;
         const aabb = s_aabb;
-        Vec2.Min(point1, point2, aabb.lowerBound);
-        Vec2.Max(point1, point2, aabb.upperBound);
+        Vec2.min(point1, point2, aabb.lowerBound);
+        Vec2.max(point1, point2, aabb.upperBound);
         let fraction = 1;
         // solving the following equation:
         // ((1-t)*point1+t*point2-position)^2=diameter^2
         // where t is a potential fraction
-        const v = Vec2.Subtract(point2, point1, s_v);
-        const v2 = Vec2.Dot(v, v);
-        const enumerator = this.GetInsideBoundsEnumerator(aabb);
+        const v = Vec2.subtract(point2, point1, s_v);
+        const v2 = Vec2.dot(v, v);
+        const enumerator = this.getInsideBoundsEnumerator(aabb);
 
         let i: number;
         // eslint-disable-next-line no-cond-assign
-        while ((i = enumerator.GetNext()) >= 0) {
-            const p = Vec2.Subtract(point1, pos_data[i], s_p);
-            const pv = Vec2.Dot(p, v);
-            const p2 = Vec2.Dot(p, p);
+        while ((i = enumerator.getNext()) >= 0) {
+            const p = Vec2.subtract(point1, pos_data[i], s_p);
+            const pv = Vec2.dot(p, v);
+            const p2 = Vec2.dot(p, p);
             const determinant = pv * pv - v2 * (p2 - this.m_squaredDiameter);
             if (determinant >= 0) {
                 const sqrtDeterminant = Math.sqrt(determinant);
@@ -1979,9 +1979,9 @@ export class ParticleSystem {
                     }
                 }
 
-                const n = Vec2.AddScaled(p, t, v, s_n);
-                n.Normalize();
-                const f = callback(i, Vec2.AddScaled(point1, t, v, s_point), n, t);
+                const n = Vec2.addScaled(p, t, v, s_n);
+                n.normalize();
+                const f = callback(i, Vec2.addScaled(point1, t, v, s_point), n, t);
                 fraction = Math.min(fraction, f);
                 if (fraction <= 0) {
                     break;
@@ -2005,9 +2005,9 @@ export class ParticleSystem {
      * contained within this particle system.
      * @param aabb Returns the axis-aligned bounding box of the system.
      */
-    public ComputeAABB(aabb: AABB): void {
-        const particleCount = this.GetParticleCount();
-        // DEBUG: Assert(aabb !== null);
+    public computeAABB(aabb: AABB): void {
+        const particleCount = this.getParticleCount();
+        // DEBUG: assert(aabb !== null);
         aabb.lowerBound.x = +MAX_FLOAT;
         aabb.lowerBound.y = +MAX_FLOAT;
         aabb.upperBound.x = -MAX_FLOAT;
@@ -2016,8 +2016,8 @@ export class ParticleSystem {
         const pos_data = this.m_positionBuffer.data;
         for (let i = 0; i < particleCount; i++) {
             const p = pos_data[i];
-            Vec2.Min(aabb.lowerBound, p, aabb.lowerBound);
-            Vec2.Max(aabb.upperBound, p, aabb.upperBound);
+            Vec2.min(aabb.lowerBound, p, aabb.lowerBound);
+            Vec2.max(aabb.upperBound, p, aabb.upperBound);
         }
         aabb.lowerBound.x -= this.m_particleDiameter;
         aabb.lowerBound.y -= this.m_particleDiameter;
@@ -2039,24 +2039,24 @@ export class ParticleSystem {
 
     public static readonly k_barrierWallFlags = ParticleFlag.Barrier | ParticleFlag.Wall;
 
-    public FreeBuffer<T>(b: T[] | null): void {
+    public freeBuffer<T>(b: T[] | null): void {
         if (b === null) {
             return;
         }
         b.length = 0;
     }
 
-    public FreeUserOverridableBuffer<T>(b: ParticleSystem_UserOverridableBuffer<T>): void {
+    public freeUserOverridableBuffer<T>(b: ParticleSystem_UserOverridableBuffer<T>): void {
         if (b.userSuppliedCapacity === 0) {
-            this.FreeBuffer(b.data);
+            this.freeBuffer(b.data);
         }
     }
 
     /**
      * Reallocate a buffer
      */
-    public ReallocateBuffer3<T>(oldBuffer: T[] | null, oldCapacity: number, newCapacity: number): T[] {
-        Assert(newCapacity > oldCapacity);
+    public reallocateBuffer3<T>(oldBuffer: T[] | null, oldCapacity: number, newCapacity: number): T[] {
+        assert(newCapacity > oldCapacity);
         const newBuffer = oldBuffer ? oldBuffer.slice() : [];
         newBuffer.length = newCapacity;
         return newBuffer;
@@ -2065,20 +2065,20 @@ export class ParticleSystem {
     /**
      * Reallocate a buffer
      */
-    public ReallocateBuffer5<T>(
+    public reallocateBuffer5<T>(
         buffer: T[] | null,
         userSuppliedCapacity: number,
         oldCapacity: number,
         newCapacity: number,
         deferred: boolean,
     ): T[] {
-        Assert(newCapacity > oldCapacity);
+        assert(newCapacity > oldCapacity);
         // A 'deferred' buffer is reallocated only if it is not NULL.
         // If 'userSuppliedCapacity' is not zero, buffer is user supplied and must
         // be kept.
-        Assert(!userSuppliedCapacity || newCapacity <= userSuppliedCapacity);
+        assert(!userSuppliedCapacity || newCapacity <= userSuppliedCapacity);
         if ((!deferred || buffer) && !userSuppliedCapacity) {
-            buffer = this.ReallocateBuffer3(buffer, oldCapacity, newCapacity);
+            buffer = this.reallocateBuffer3(buffer, oldCapacity, newCapacity);
         }
         return buffer as T[]; // TODO: fix this
     }
@@ -2086,20 +2086,20 @@ export class ParticleSystem {
     /**
      * Reallocate a buffer
      */
-    public ReallocateBuffer4<T>(
+    public reallocateBuffer4<T>(
         buffer: ParticleSystem_UserOverridableBuffer<any>,
         oldCapacity: number,
         newCapacity: number,
         deferred: boolean,
     ): T[] {
-        // DEBUG: Assert(newCapacity > oldCapacity);
-        return this.ReallocateBuffer5(buffer.data, buffer.userSuppliedCapacity, oldCapacity, newCapacity, deferred);
+        // DEBUG: assert(newCapacity > oldCapacity);
+        return this.reallocateBuffer5(buffer.data, buffer.userSuppliedCapacity, oldCapacity, newCapacity, deferred);
     }
 
-    public RequestBuffer<T>(buffer: T[] | null): T[] {
+    public requestBuffer<T>(buffer: T[] | null): T[] {
         if (!buffer) {
             if (this.m_internalAllocatedCapacity === 0) {
-                this.ReallocateInternalAllocatedBuffers(b2_minParticleSystemBufferCapacity);
+                this.reallocateInternalAllocatedBuffers(MIN_PARTICLE_SYSTEM_BUFFER_CAPACITY);
             }
 
             buffer = [];
@@ -2112,35 +2112,35 @@ export class ParticleSystem {
      * Reallocate the handle / index map and schedule the allocation
      * of a new pool for handle allocation.
      */
-    public ReallocateHandleBuffers(newCapacity: number): void {
-        // DEBUG: Assert(newCapacity > this.m_internalAllocatedCapacity);
+    public reallocateHandleBuffers(newCapacity: number): void {
+        // DEBUG: assert(newCapacity > this.m_internalAllocatedCapacity);
         // Reallocate a new handle / index map buffer, copying old handle pointers
         // is fine since they're kept around.
-        this.m_handleIndexBuffer.data = this.ReallocateBuffer4(
+        this.m_handleIndexBuffer.data = this.reallocateBuffer4(
             this.m_handleIndexBuffer,
             this.m_internalAllocatedCapacity,
             newCapacity,
             true,
         );
         // Set the size of the next handle allocation.
-        // this.m_handleAllocator.SetItemsPerSlab(newCapacity - this.m_internalAllocatedCapacity);
+        // this.m_handleAllocator.setItemsPerSlab(newCapacity - this.m_internalAllocatedCapacity);
     }
 
-    public ReallocateInternalAllocatedBuffers(capacity: number): void {
-        function LimitCapacity(maxCount: number): number {
+    public reallocateInternalAllocatedBuffers(capacity: number): void {
+        function limitCapacity(maxCount: number): number {
             return maxCount && capacity > maxCount ? maxCount : capacity;
         }
 
         // Don't increase capacity beyond the smallest user-supplied buffer size.
-        capacity = LimitCapacity(this.m_def.maxCount);
-        capacity = LimitCapacity(this.m_flagsBuffer.userSuppliedCapacity);
-        capacity = LimitCapacity(this.m_positionBuffer.userSuppliedCapacity);
-        capacity = LimitCapacity(this.m_velocityBuffer.userSuppliedCapacity);
-        capacity = LimitCapacity(this.m_colorBuffer.userSuppliedCapacity);
-        capacity = LimitCapacity(this.m_userDataBuffer.userSuppliedCapacity);
+        capacity = limitCapacity(this.m_def.maxCount);
+        capacity = limitCapacity(this.m_flagsBuffer.userSuppliedCapacity);
+        capacity = limitCapacity(this.m_positionBuffer.userSuppliedCapacity);
+        capacity = limitCapacity(this.m_velocityBuffer.userSuppliedCapacity);
+        capacity = limitCapacity(this.m_colorBuffer.userSuppliedCapacity);
+        capacity = limitCapacity(this.m_userDataBuffer.userSuppliedCapacity);
         if (this.m_internalAllocatedCapacity < capacity) {
-            this.ReallocateHandleBuffers(capacity);
-            this.m_flagsBuffer.data = this.ReallocateBuffer4(
+            this.reallocateHandleBuffers(capacity);
+            this.m_flagsBuffer.data = this.reallocateBuffer4(
                 this.m_flagsBuffer,
                 this.m_internalAllocatedCapacity,
                 capacity,
@@ -2150,104 +2150,104 @@ export class ParticleSystem {
             // Conditionally defer these as they are optional if the feature is
             // not enabled.
             const stuck = this.m_stuckThreshold > 0;
-            this.m_lastBodyContactStepBuffer.data = this.ReallocateBuffer4(
+            this.m_lastBodyContactStepBuffer.data = this.reallocateBuffer4(
                 this.m_lastBodyContactStepBuffer,
                 this.m_internalAllocatedCapacity,
                 capacity,
                 stuck,
             );
-            this.m_bodyContactCountBuffer.data = this.ReallocateBuffer4(
+            this.m_bodyContactCountBuffer.data = this.reallocateBuffer4(
                 this.m_bodyContactCountBuffer,
                 this.m_internalAllocatedCapacity,
                 capacity,
                 stuck,
             );
-            this.m_consecutiveContactStepsBuffer.data = this.ReallocateBuffer4(
+            this.m_consecutiveContactStepsBuffer.data = this.reallocateBuffer4(
                 this.m_consecutiveContactStepsBuffer,
                 this.m_internalAllocatedCapacity,
                 capacity,
                 stuck,
             );
-            this.m_positionBuffer.data = this.ReallocateBuffer4(
+            this.m_positionBuffer.data = this.reallocateBuffer4(
                 this.m_positionBuffer,
                 this.m_internalAllocatedCapacity,
                 capacity,
                 false,
             );
-            this.m_velocityBuffer.data = this.ReallocateBuffer4(
+            this.m_velocityBuffer.data = this.reallocateBuffer4(
                 this.m_velocityBuffer,
                 this.m_internalAllocatedCapacity,
                 capacity,
                 false,
             );
-            this.m_forceBuffer = this.ReallocateBuffer5(
+            this.m_forceBuffer = this.reallocateBuffer5(
                 this.m_forceBuffer,
                 0,
                 this.m_internalAllocatedCapacity,
                 capacity,
                 false,
             );
-            this.m_weightBuffer = this.ReallocateBuffer5(
+            this.m_weightBuffer = this.reallocateBuffer5(
                 this.m_weightBuffer,
                 0,
                 this.m_internalAllocatedCapacity,
                 capacity,
                 false,
             );
-            this.m_staticPressureBuffer = this.ReallocateBuffer5(
+            this.m_staticPressureBuffer = this.reallocateBuffer5(
                 this.m_staticPressureBuffer,
                 0,
                 this.m_internalAllocatedCapacity,
                 capacity,
                 true,
             );
-            this.m_accumulationBuffer = this.ReallocateBuffer5(
+            this.m_accumulationBuffer = this.reallocateBuffer5(
                 this.m_accumulationBuffer,
                 0,
                 this.m_internalAllocatedCapacity,
                 capacity,
                 false,
             );
-            this.m_accumulation2Buffer = this.ReallocateBuffer5(
+            this.m_accumulation2Buffer = this.reallocateBuffer5(
                 this.m_accumulation2Buffer,
                 0,
                 this.m_internalAllocatedCapacity,
                 capacity,
                 true,
             );
-            this.m_depthBuffer = this.ReallocateBuffer5(
+            this.m_depthBuffer = this.reallocateBuffer5(
                 this.m_depthBuffer,
                 0,
                 this.m_internalAllocatedCapacity,
                 capacity,
                 true,
             );
-            this.m_colorBuffer.data = this.ReallocateBuffer4(
+            this.m_colorBuffer.data = this.reallocateBuffer4(
                 this.m_colorBuffer,
                 this.m_internalAllocatedCapacity,
                 capacity,
                 true,
             );
-            this.m_groupBuffer = this.ReallocateBuffer5(
+            this.m_groupBuffer = this.reallocateBuffer5(
                 this.m_groupBuffer,
                 0,
                 this.m_internalAllocatedCapacity,
                 capacity,
                 false,
             );
-            this.m_userDataBuffer.data = this.ReallocateBuffer4(
+            this.m_userDataBuffer.data = this.reallocateBuffer4(
                 this.m_userDataBuffer,
                 this.m_internalAllocatedCapacity,
                 capacity,
                 true,
             );
-            this.m_expirationTimeBuffer.data = this.ReallocateBuffer4(
+            this.m_expirationTimeBuffer.data = this.reallocateBuffer4(
                 this.m_expirationTimeBuffer,
                 this.m_internalAllocatedCapacity,
                 capacity,
                 true,
             );
-            this.m_indexByExpirationTimeBuffer.data = this.ReallocateBuffer4(
+            this.m_indexByExpirationTimeBuffer.data = this.reallocateBuffer4(
                 this.m_indexByExpirationTimeBuffer,
                 this.m_internalAllocatedCapacity,
                 capacity,
@@ -2257,50 +2257,50 @@ export class ParticleSystem {
         }
     }
 
-    public CreateParticleForGroup(groupDef: IParticleGroupDef, xf: Transform, p: XY): void {
+    public createParticleForGroup(groupDef: IParticleGroupDef, xf: Transform, p: XY): void {
         const particleDef = new ParticleDef();
         particleDef.flags = groupDef.flags ?? 0;
-        Transform.MultiplyVec2(xf, p, particleDef.position);
-        Vec2.Add(
+        Transform.multiplyVec2(xf, p, particleDef.position);
+        Vec2.add(
             groupDef.linearVelocity ?? Vec2.ZERO,
-            Vec2.CrossScalarVec2(
+            Vec2.crossScalarVec2(
                 groupDef.angularVelocity ?? 0,
-                Vec2.Subtract(particleDef.position, groupDef.position ?? Vec2.ZERO, Vec2.s_t0),
+                Vec2.subtract(particleDef.position, groupDef.position ?? Vec2.ZERO, Vec2.s_t0),
                 Vec2.s_t0,
             ),
             particleDef.velocity,
         );
-        particleDef.color.Copy(groupDef.color ?? Color.ZERO);
+        particleDef.color.copy(groupDef.color ?? Color.ZERO);
         particleDef.lifetime = groupDef.lifetime ?? 0;
         particleDef.userData = groupDef.userData;
-        this.CreateParticle(particleDef);
+        this.createParticle(particleDef);
     }
 
-    public CreateParticlesStrokeShapeForGroup(shape: Shape, groupDef: IParticleGroupDef, xf: Transform): void {
+    public createParticlesStrokeShapeForGroup(shape: Shape, groupDef: IParticleGroupDef, xf: Transform): void {
         const s_edge = ParticleSystem.CreateParticlesStrokeShapeForGroup_s_edge;
         const s_d = ParticleSystem.CreateParticlesStrokeShapeForGroup_s_d;
         const s_p = ParticleSystem.CreateParticlesStrokeShapeForGroup_s_p;
         let stride = groupDef.stride ?? 0;
         if (stride === 0) {
-            stride = this.GetParticleStride();
+            stride = this.getParticleStride();
         }
         let positionOnEdge = 0;
-        const childCount = shape.GetChildCount();
+        const childCount = shape.getChildCount();
         for (let childIndex = 0; childIndex < childCount; childIndex++) {
             let edge: EdgeShape | null = null;
-            if (shape.GetType() === ShapeType.Edge) {
+            if (shape.getType() === ShapeType.Edge) {
                 edge = shape as EdgeShape;
             } else {
-                // DEBUG: Assert(shape.GetType() === ShapeType.Chain);
+                // DEBUG: assert(shape.getType() === ShapeType.Chain);
                 edge = s_edge;
-                (shape as ChainShape).GetChildEdge(edge, childIndex);
+                (shape as ChainShape).getChildEdge(edge, childIndex);
             }
-            const d = Vec2.Subtract(edge.m_vertex2, edge.m_vertex1, s_d);
-            const edgeLength = d.Length();
+            const d = Vec2.subtract(edge.m_vertex2, edge.m_vertex1, s_d);
+            const edgeLength = d.length();
 
             while (positionOnEdge < edgeLength) {
-                const p = Vec2.AddScaled(edge.m_vertex1, positionOnEdge / edgeLength, d, s_p);
-                this.CreateParticleForGroup(groupDef, xf, p);
+                const p = Vec2.addScaled(edge.m_vertex1, positionOnEdge / edgeLength, d, s_p);
+                this.createParticleForGroup(groupDef, xf, p);
                 positionOnEdge += stride;
             }
             positionOnEdge -= edgeLength;
@@ -2313,22 +2313,22 @@ export class ParticleSystem {
 
     public static readonly CreateParticlesStrokeShapeForGroup_s_p = new Vec2();
 
-    public CreateParticlesFillShapeForGroup(shape: Shape, groupDef: IParticleGroupDef, xf: Transform): void {
+    public createParticlesFillShapeForGroup(shape: Shape, groupDef: IParticleGroupDef, xf: Transform): void {
         const s_aabb = ParticleSystem.CreateParticlesFillShapeForGroup_s_aabb;
         const s_p = ParticleSystem.CreateParticlesFillShapeForGroup_s_p;
         let stride = groupDef.stride ?? 0;
         if (stride === 0) {
-            stride = this.GetParticleStride();
+            stride = this.getParticleStride();
         }
         const identity = Transform.IDENTITY;
         const aabb = s_aabb;
-        // DEBUG: Assert(shape.GetChildCount() === 1);
-        shape.ComputeAABB(aabb, identity, 0);
+        // DEBUG: assert(shape.getChildCount() === 1);
+        shape.computeAABB(aabb, identity, 0);
         for (let y = Math.floor(aabb.lowerBound.y / stride) * stride; y < aabb.upperBound.y; y += stride) {
             for (let x = Math.floor(aabb.lowerBound.x / stride) * stride; x < aabb.upperBound.x; x += stride) {
-                const p = s_p.Set(x, y);
-                if (shape.TestPoint(identity, p)) {
-                    this.CreateParticleForGroup(groupDef, xf, p);
+                const p = s_p.set(x, y);
+                if (shape.testPoint(identity, p)) {
+                    this.createParticleForGroup(groupDef, xf, p);
                 }
             }
         }
@@ -2338,49 +2338,49 @@ export class ParticleSystem {
 
     public static readonly CreateParticlesFillShapeForGroup_s_p = new Vec2();
 
-    public CreateParticlesWithShapeForGroup(shape: Shape, groupDef: IParticleGroupDef, xf: Transform): void {
-        switch (shape.GetType()) {
+    public createParticlesWithShapeForGroup(shape: Shape, groupDef: IParticleGroupDef, xf: Transform): void {
+        switch (shape.getType()) {
             case ShapeType.Edge:
             case ShapeType.Chain:
-                this.CreateParticlesStrokeShapeForGroup(shape, groupDef, xf);
+                this.createParticlesStrokeShapeForGroup(shape, groupDef, xf);
                 break;
             case ShapeType.Polygon:
             case ShapeType.Circle:
-                this.CreateParticlesFillShapeForGroup(shape, groupDef, xf);
+                this.createParticlesFillShapeForGroup(shape, groupDef, xf);
                 break;
             default:
-                // DEBUG: Assert(false);
+                // DEBUG: assert(false);
                 break;
         }
     }
 
-    public CreateParticlesWithShapesForGroup(
+    public createParticlesWithShapesForGroup(
         shapes: Shape[],
         shapeCount: number,
         groupDef: IParticleGroupDef,
         xf: Transform,
     ): void {
         const compositeShape = new ParticleSystem_CompositeShape(shapes, shapeCount);
-        this.CreateParticlesFillShapeForGroup(compositeShape, groupDef, xf);
+        this.createParticlesFillShapeForGroup(compositeShape, groupDef, xf);
     }
 
-    public CloneParticle(oldIndex: number, group: ParticleGroup): number {
+    public cloneParticle(oldIndex: number, group: ParticleGroup): number {
         const def = new ParticleDef();
         def.flags = this.m_flagsBuffer.data[oldIndex];
-        def.position.Copy(this.m_positionBuffer.data[oldIndex]);
-        def.velocity.Copy(this.m_velocityBuffer.data[oldIndex]);
+        def.position.copy(this.m_positionBuffer.data[oldIndex]);
+        def.velocity.copy(this.m_velocityBuffer.data[oldIndex]);
         if (this.m_colorBuffer.data) {
-            def.color.Copy(this.m_colorBuffer.data[oldIndex]);
+            def.color.copy(this.m_colorBuffer.data[oldIndex]);
         }
         if (this.m_userDataBuffer.data) {
             def.userData = this.m_userDataBuffer.data[oldIndex];
         }
         def.group = group;
-        const newIndex = this.CreateParticle(def);
+        const newIndex = this.createParticle(def);
         if (this.m_handleIndexBuffer.data) {
             const handle = this.m_handleIndexBuffer.data[oldIndex];
             if (handle) {
-                handle.SetIndex(newIndex);
+                handle.setIndex(newIndex);
             }
             this.m_handleIndexBuffer.data[newIndex] = handle;
             this.m_handleIndexBuffer.data[oldIndex] = null;
@@ -2395,7 +2395,7 @@ export class ParticleSystem {
             this.m_consecutiveContactStepsBuffer.data[newIndex] = this.m_consecutiveContactStepsBuffer.data[oldIndex];
         }
         if (this.m_hasForce) {
-            this.m_forceBuffer[newIndex].Copy(this.m_forceBuffer[oldIndex]);
+            this.m_forceBuffer[newIndex].copy(this.m_forceBuffer[oldIndex]);
         }
         if (this.m_staticPressureBuffer) {
             this.m_staticPressureBuffer[newIndex] = this.m_staticPressureBuffer[oldIndex];
@@ -2409,20 +2409,20 @@ export class ParticleSystem {
         return newIndex;
     }
 
-    public DestroyParticlesInGroup(group: ParticleGroup, callDestructionListener = false): void {
+    public destroyParticlesInGroup(group: ParticleGroup, callDestructionListener = false): void {
         for (let i = group.m_firstIndex; i < group.m_lastIndex; i++) {
-            this.DestroyParticle(i, callDestructionListener);
+            this.destroyParticle(i, callDestructionListener);
         }
     }
 
-    public DestroyParticleGroup(group: ParticleGroup): void {
-        // DEBUG: Assert(this.m_groupCount > 0);
-        // DEBUG: Assert(group !== null);
+    public destroyParticleGroup(group: ParticleGroup): void {
+        // DEBUG: assert(this.m_groupCount > 0);
+        // DEBUG: assert(group !== null);
 
-        const destructionListener = this.m_world.GetDestructionListener();
-        destructionListener?.SayGoodbyeParticleGroup(group);
+        const destructionListener = this.m_world.getDestructionListener();
+        destructionListener?.sayGoodbyeParticleGroup(group);
 
-        this.SetGroupFlags(group, 0);
+        this.setGroupFlags(group, 0);
         for (let i = group.m_firstIndex; i < group.m_lastIndex; i++) {
             this.m_groupBuffer[i] = null;
         }
@@ -2440,14 +2440,14 @@ export class ParticleSystem {
         --this.m_groupCount;
     }
 
-    public static ParticleCanBeConnected(flags: ParticleFlag, group: ParticleGroup | null): boolean {
+    public static particleCanBeConnected(flags: ParticleFlag, group: ParticleGroup | null): boolean {
         return (
             (flags & (ParticleFlag.Wall | ParticleFlag.Spring | ParticleFlag.Elastic)) !== 0 ||
-            (group !== null && (group.GetGroupFlags() & ParticleGroupFlag.Rigid) !== 0)
+            (group !== null && (group.getGroupFlags() & ParticleGroupFlag.Rigid) !== 0)
         );
     }
 
-    public UpdatePairsAndTriads(firstIndex: number, lastIndex: number, filter: ParticleSystem_ConnectionFilter): void {
+    public updatePairsAndTriads(firstIndex: number, lastIndex: number, filter: ParticleSystem_ConnectionFilter): void {
         const s_dab = ParticleSystem.UpdatePairsAndTriads_s_dab;
         const s_dbc = ParticleSystem.UpdatePairsAndTriads_s_dbc;
         const s_dca = ParticleSystem.UpdatePairsAndTriads_s_dca;
@@ -2461,7 +2461,7 @@ export class ParticleSystem {
         // Any particles in each pair/triad should satisfy the following:
         // * filter.IsNeeded returns true
         // * have one of k_pairFlags/k_triadsFlags
-        // DEBUG: Assert(firstIndex <= lastIndex);
+        // DEBUG: assert(firstIndex <= lastIndex);
         let particleFlags = 0;
         for (let i = firstIndex; i < lastIndex; i++) {
             particleFlags |= this.m_flagsBuffer.data[i];
@@ -2482,20 +2482,20 @@ export class ParticleSystem {
                     b < lastIndex &&
                     !((af | bf) & ParticleFlag.Zombie) &&
                     (af | bf) & ParticleSystem.k_pairFlags &&
-                    (filter.IsNecessary(a) || filter.IsNecessary(b)) &&
-                    ParticleSystem.ParticleCanBeConnected(af, groupA) &&
-                    ParticleSystem.ParticleCanBeConnected(bf, groupB) &&
-                    filter.ShouldCreatePair(a, b)
+                    (filter.isNecessary(a) || filter.isNecessary(b)) &&
+                    ParticleSystem.particleCanBeConnected(af, groupA) &&
+                    ParticleSystem.particleCanBeConnected(bf, groupB) &&
+                    filter.shouldCreatePair(a, b)
                 ) {
-                    const pair = this.m_pairBuffer.data[this.m_pairBuffer.Append()];
+                    const pair = this.m_pairBuffer.data[this.m_pairBuffer.append()];
                     pair.indexA = a;
                     pair.indexB = b;
                     pair.flags = contact.flags;
                     pair.strength = Math.min(groupA ? groupA.m_strength : 1, groupB ? groupB.m_strength : 1);
-                    pair.distance = Vec2.Distance(pos_data[a], pos_data[b]);
+                    pair.distance = Vec2.distance(pos_data[a], pos_data[b]);
                 }
-                std_stable_sort(this.m_pairBuffer.data, 0, this.m_pairBuffer.count, ParticleSystem.ComparePairIndices);
-                this.m_pairBuffer.Unique(ParticleSystem.MatchPairIndices);
+                std_stable_sort(this.m_pairBuffer.data, 0, this.m_pairBuffer.count, ParticleSystem.comparePairIndices);
+                this.m_pairBuffer.unique(ParticleSystem.matchPairIndices);
             }
         }
         if (particleFlags & ParticleSystem.k_triadFlags) {
@@ -2504,44 +2504,44 @@ export class ParticleSystem {
             for (let i = firstIndex; i < lastIndex; i++) {
                 const flags = this.m_flagsBuffer.data[i];
                 const group = this.m_groupBuffer[i];
-                if (!(flags & ParticleFlag.Zombie) && ParticleSystem.ParticleCanBeConnected(flags, group)) {
-                    // if (filter.IsNecessary(i)) {
+                if (!(flags & ParticleFlag.Zombie) && ParticleSystem.particleCanBeConnected(flags, group)) {
+                    // if (filter.isNecessary(i)) {
                     //     ++necessary_count;
                     // }
-                    diagram.AddGenerator(pos_data[i], i, filter.IsNecessary(i));
+                    diagram.addGenerator(pos_data[i], i, filter.isNecessary(i));
                 }
             }
             // if (necessary_count === 0) {
             //     debugger;
             //     for (let i = firstIndex; i < lastIndex; i++) {
-            //         filter.IsNecessary(i);
+            //         filter.isNecessary(i);
             //     }
             // }
-            const stride = this.GetParticleStride();
-            diagram.Generate(stride / 2, stride * 2);
-            diagram.GetNodes((a, b, c) => {
+            const stride = this.getParticleStride();
+            diagram.generate(stride / 2, stride * 2);
+            diagram.getNodes((a, b, c) => {
                 const af = this.m_flagsBuffer.data[a];
                 const bf = this.m_flagsBuffer.data[b];
                 const cf = this.m_flagsBuffer.data[c];
-                if ((af | bf | cf) & ParticleSystem.k_triadFlags && filter.ShouldCreateTriad(a, b, c)) {
+                if ((af | bf | cf) & ParticleSystem.k_triadFlags && filter.shouldCreateTriad(a, b, c)) {
                     const pa = pos_data[a];
                     const pb = pos_data[b];
                     const pc = pos_data[c];
-                    const dab = Vec2.Subtract(pa, pb, s_dab);
-                    const dbc = Vec2.Subtract(pb, pc, s_dbc);
-                    const dca = Vec2.Subtract(pc, pa, s_dca);
-                    const maxDistanceSquared = b2_maxTriadDistanceSquared * this.m_squaredDiameter;
+                    const dab = Vec2.subtract(pa, pb, s_dab);
+                    const dbc = Vec2.subtract(pb, pc, s_dbc);
+                    const dca = Vec2.subtract(pc, pa, s_dca);
+                    const maxDistanceSquared = MAX_TRIAD_DISTANCE_SQUARED * this.m_squaredDiameter;
                     if (
-                        Vec2.Dot(dab, dab) > maxDistanceSquared ||
-                        Vec2.Dot(dbc, dbc) > maxDistanceSquared ||
-                        Vec2.Dot(dca, dca) > maxDistanceSquared
+                        Vec2.dot(dab, dab) > maxDistanceSquared ||
+                        Vec2.dot(dbc, dbc) > maxDistanceSquared ||
+                        Vec2.dot(dca, dca) > maxDistanceSquared
                     ) {
                         return;
                     }
                     const groupA = this.m_groupBuffer[a];
                     const groupB = this.m_groupBuffer[b];
                     const groupC = this.m_groupBuffer[c];
-                    const triad = this.m_triadBuffer.data[this.m_triadBuffer.Append()];
+                    const triad = this.m_triadBuffer.data[this.m_triadBuffer.append()];
                     triad.indexA = a;
                     triad.indexB = b;
                     triad.indexC = c;
@@ -2558,14 +2558,14 @@ export class ParticleSystem {
                     triad.pb.y = pb.y - midPoint_y;
                     triad.pc.x = pc.x - midPoint_x;
                     triad.pc.y = pc.y - midPoint_y;
-                    triad.ka = -Vec2.Dot(dca, dab);
-                    triad.kb = -Vec2.Dot(dab, dbc);
-                    triad.kc = -Vec2.Dot(dbc, dca);
-                    triad.s = Vec2.Cross(pa, pb) + Vec2.Cross(pb, pc) + Vec2.Cross(pc, pa);
+                    triad.ka = -Vec2.dot(dca, dab);
+                    triad.kb = -Vec2.dot(dab, dbc);
+                    triad.kc = -Vec2.dot(dbc, dca);
+                    triad.s = Vec2.cross(pa, pb) + Vec2.cross(pb, pc) + Vec2.cross(pc, pa);
                 }
             });
-            std_stable_sort(this.m_triadBuffer.data, 0, this.m_triadBuffer.count, ParticleSystem.CompareTriadIndices);
-            this.m_triadBuffer.Unique(ParticleSystem.MatchTriadIndices);
+            std_stable_sort(this.m_triadBuffer.data, 0, this.m_triadBuffer.count, ParticleSystem.compareTriadIndices);
+            this.m_triadBuffer.unique(ParticleSystem.matchTriadIndices);
         }
     }
 
@@ -2575,9 +2575,9 @@ export class ParticleSystem {
 
     private static UpdatePairsAndTriads_s_dca = new Vec2();
 
-    public UpdatePairsAndTriadsWithReactiveParticles(): void {
+    public updatePairsAndTriadsWithReactiveParticles(): void {
         const filter = new ParticleSystem_ReactiveFilter(this.m_flagsBuffer);
-        this.UpdatePairsAndTriads(0, this.m_count, filter);
+        this.updatePairsAndTriads(0, this.m_count, filter);
 
         for (let i = 0; i < this.m_count; i++) {
             this.m_flagsBuffer.data[i] &= ~ParticleFlag.Reactive;
@@ -2585,7 +2585,7 @@ export class ParticleSystem {
         this.m_allParticleFlags &= ~ParticleFlag.Reactive;
     }
 
-    public static ComparePairIndices(a: ParticlePair, b: ParticlePair): boolean {
+    public static comparePairIndices(a: ParticlePair, b: ParticlePair): boolean {
         const diffA = a.indexA - b.indexA;
         if (diffA !== 0) {
             return diffA < 0;
@@ -2593,11 +2593,11 @@ export class ParticleSystem {
         return a.indexB < b.indexB;
     }
 
-    public static MatchPairIndices(a: ParticlePair, b: ParticlePair): boolean {
+    public static matchPairIndices(a: ParticlePair, b: ParticlePair): boolean {
         return a.indexA === b.indexA && a.indexB === b.indexB;
     }
 
-    public static CompareTriadIndices(a: ParticleTriad, b: ParticleTriad): boolean {
+    public static compareTriadIndices(a: ParticleTriad, b: ParticleTriad): boolean {
         const diffA = a.indexA - b.indexA;
         if (diffA !== 0) {
             return diffA < 0;
@@ -2609,13 +2609,13 @@ export class ParticleSystem {
         return a.indexC < b.indexC;
     }
 
-    public static MatchTriadIndices(a: ParticleTriad, b: ParticleTriad): boolean {
+    public static matchTriadIndices(a: ParticleTriad, b: ParticleTriad): boolean {
         return a.indexA === b.indexA && a.indexB === b.indexB && a.indexC === b.indexC;
     }
 
-    public static InitializeParticleLists(group: ParticleGroup, nodeBuffer: ParticleSystem_ParticleListNode[]): void {
-        const bufferIndex = group.GetBufferIndex();
-        const particleCount = group.GetParticleCount();
+    public static initializeParticleLists(group: ParticleGroup, nodeBuffer: ParticleSystem_ParticleListNode[]): void {
+        const bufferIndex = group.getBufferIndex();
+        const particleCount = group.getParticleCount();
         for (let i = 0; i < particleCount; i++) {
             const node = nodeBuffer[i];
             node.list = node;
@@ -2625,14 +2625,14 @@ export class ParticleSystem {
         }
     }
 
-    public MergeParticleListsInContact(group: ParticleGroup, nodeBuffer: ParticleSystem_ParticleListNode[]): void {
-        const bufferIndex = group.GetBufferIndex();
+    public mergeParticleListsInContact(group: ParticleGroup, nodeBuffer: ParticleSystem_ParticleListNode[]): void {
+        const bufferIndex = group.getBufferIndex();
         for (let k = 0; k < this.m_contactBuffer.count; k++) {
             /* const ParticleContact& */
             const contact = this.m_contactBuffer.data[k];
             const a = contact.indexA;
             const b = contact.indexB;
-            if (!group.ContainsParticle(a) || !group.ContainsParticle(b)) {
+            if (!group.containsParticle(a) || !group.containsParticle(b)) {
                 continue;
             }
             let listA = nodeBuffer[a - bufferIndex].list;
@@ -2647,12 +2647,12 @@ export class ParticleSystem {
                 listA = listB;
                 listB = tmp;
             }
-            // DEBUG: Assert(listA.count >= listB.count);
-            ParticleSystem.MergeParticleLists(listA, listB);
+            // DEBUG: assert(listA.count >= listB.count);
+            ParticleSystem.mergeParticleLists(listA, listB);
         }
     }
 
-    public static MergeParticleLists(
+    public static mergeParticleLists(
         listA: ParticleSystem_ParticleListNode,
         listB: ParticleSystem_ParticleListNode,
     ): void {
@@ -2662,7 +2662,7 @@ export class ParticleSystem {
         //     listB => b1 => b2 => null
         // to
         //     listA => listB => b1 => b2 => a1 => a2 => a3 => null
-        // DEBUG: Assert(listA !== listB);
+        // DEBUG: assert(listA !== listB);
         for (let b = listB; ; ) {
             b.list = listA;
             const nextB: ParticleSystem_ParticleListNode | null = b.next;
@@ -2678,11 +2678,11 @@ export class ParticleSystem {
         listB.count = 0;
     }
 
-    public static FindLongestParticleList(
+    public static findLongestParticleList(
         group: ParticleGroup,
         nodeBuffer: ParticleSystem_ParticleListNode[],
     ): ParticleSystem_ParticleListNode {
-        const particleCount = group.GetParticleCount();
+        const particleCount = group.getParticleCount();
         let result = nodeBuffer[0];
         for (let i = 0; i < particleCount; i++) {
             const node = nodeBuffer[i];
@@ -2693,21 +2693,21 @@ export class ParticleSystem {
         return result;
     }
 
-    public MergeZombieParticleListNodes(
+    public mergeZombieParticleListNodes(
         group: ParticleGroup,
         nodeBuffer: ParticleSystem_ParticleListNode[],
         survivingList: ParticleSystem_ParticleListNode,
     ): void {
-        const particleCount = group.GetParticleCount();
+        const particleCount = group.getParticleCount();
         for (let i = 0; i < particleCount; i++) {
             const node = nodeBuffer[i];
             if (node !== survivingList && this.m_flagsBuffer.data[node.index] & ParticleFlag.Zombie) {
-                ParticleSystem.MergeParticleListAndNode(survivingList, node);
+                ParticleSystem.mergeParticleListAndNode(survivingList, node);
             }
         }
     }
 
-    public static MergeParticleListAndNode(
+    public static mergeParticleListAndNode(
         list: ParticleSystem_ParticleListNode,
         node: ParticleSystem_ParticleListNode,
     ): void {
@@ -2717,9 +2717,9 @@ export class ParticleSystem {
         //     node => null
         // to
         //     list => node => a1 => a2 => a3 => null
-        // DEBUG: Assert(node !== list);
-        // DEBUG: Assert(node.list === node);
-        // DEBUG: Assert(node.count === 1);
+        // DEBUG: assert(node !== list);
+        // DEBUG: assert(node.list === node);
+        // DEBUG: assert(node.count === 1);
         node.list = list;
         node.next = list.next;
         list.next = node;
@@ -2727,38 +2727,38 @@ export class ParticleSystem {
         node.count = 0;
     }
 
-    public CreateParticleGroupsFromParticleList(
+    public createParticleGroupsFromParticleList(
         group: ParticleGroup,
         nodeBuffer: ParticleSystem_ParticleListNode[],
         survivingList: ParticleSystem_ParticleListNode,
     ): void {
-        const particleCount = group.GetParticleCount();
+        const particleCount = group.getParticleCount();
         const def = new ParticleGroupDef();
-        def.groupFlags = group.GetGroupFlags();
-        def.userData = group.GetUserData();
+        def.groupFlags = group.getGroupFlags();
+        def.userData = group.getUserData();
         for (let i = 0; i < particleCount; i++) {
             const list = nodeBuffer[i];
             if (!list.count || list === survivingList) {
                 continue;
             }
-            // DEBUG: Assert(list.list === list);
-            const newGroup = this.CreateParticleGroup(def);
+            // DEBUG: assert(list.list === list);
+            const newGroup = this.createParticleGroup(def);
             for (let node: ParticleSystem_ParticleListNode | null = list; node; node = node.next) {
                 const oldIndex = node.index;
                 // DEBUG: const flags = this.m_flagsBuffer.data[oldIndex];
-                // DEBUG: Assert(!(flags & ParticleFlag.Zombie));
-                const newIndex = this.CloneParticle(oldIndex, newGroup);
+                // DEBUG: assert(!(flags & ParticleFlag.Zombie));
+                const newIndex = this.cloneParticle(oldIndex, newGroup);
                 this.m_flagsBuffer.data[oldIndex] |= ParticleFlag.Zombie;
                 node.index = newIndex;
             }
         }
     }
 
-    public UpdatePairsAndTriadsWithParticleList(
+    public updatePairsAndTriadsWithParticleList(
         group: ParticleGroup,
         nodeBuffer: ParticleSystem_ParticleListNode[],
     ): void {
-        const bufferIndex = group.GetBufferIndex();
+        const bufferIndex = group.getBufferIndex();
         // Update indices in pairs and triads. If an index belongs to the group,
         // replace it with the corresponding value in nodeBuffer.
         // Note that nodeBuffer is allocated only for the group and the index should
@@ -2767,10 +2767,10 @@ export class ParticleSystem {
             const pair = this.m_pairBuffer.data[k];
             const a = pair.indexA;
             const b = pair.indexB;
-            if (group.ContainsParticle(a)) {
+            if (group.containsParticle(a)) {
                 pair.indexA = nodeBuffer[a - bufferIndex].index;
             }
-            if (group.ContainsParticle(b)) {
+            if (group.containsParticle(b)) {
                 pair.indexB = nodeBuffer[b - bufferIndex].index;
             }
         }
@@ -2779,19 +2779,19 @@ export class ParticleSystem {
             const a = triad.indexA;
             const b = triad.indexB;
             const c = triad.indexC;
-            if (group.ContainsParticle(a)) {
+            if (group.containsParticle(a)) {
                 triad.indexA = nodeBuffer[a - bufferIndex].index;
             }
-            if (group.ContainsParticle(b)) {
+            if (group.containsParticle(b)) {
                 triad.indexB = nodeBuffer[b - bufferIndex].index;
             }
-            if (group.ContainsParticle(c)) {
+            if (group.containsParticle(c)) {
                 triad.indexC = nodeBuffer[c - bufferIndex].index;
             }
         }
     }
 
-    public ComputeDepth(): void {
+    public computeDepth(): void {
         const contactGroups: ParticleContact[] = []; // TODO: static
         let contactGroupsCount = 0;
         for (let k = 0; k < this.m_contactBuffer.count; k++) {
@@ -2806,10 +2806,10 @@ export class ParticleSystem {
         }
         const groupsToUpdate: ParticleGroup[] = []; // TODO: static
         let groupsToUpdateCount = 0;
-        for (let group = this.m_groupList; group; group = group.GetNext()) {
+        for (let group = this.m_groupList; group; group = group.getNext()) {
             if (group.m_groupFlags & ParticleGroupFlag.NeedsUpdateDepth) {
                 groupsToUpdate[groupsToUpdateCount++] = group;
-                this.SetGroupFlags(group, group.m_groupFlags & ~ParticleGroupFlag.NeedsUpdateDepth);
+                this.setGroupFlags(group, group.m_groupFlags & ~ParticleGroupFlag.NeedsUpdateDepth);
                 for (let i = group.m_firstIndex; i < group.m_lastIndex; i++) {
                     this.m_accumulationBuffer[i] = 0;
                 }
@@ -2825,7 +2825,7 @@ export class ParticleSystem {
             this.m_accumulationBuffer[b] += w;
         }
 
-        // DEBUG: Assert(this.m_depthBuffer !== null);
+        // DEBUG: assert(this.m_depthBuffer !== null);
         for (let i = 0; i < groupsToUpdateCount; i++) {
             const group = groupsToUpdate[i];
             for (let j = group.m_firstIndex; j < group.m_lastIndex; j++) {
@@ -2873,7 +2873,7 @@ export class ParticleSystem {
         }
     }
 
-    public GetInsideBoundsEnumerator(aabb: Readonly<AABB>): ParticleSystem_InsideBoundsEnumerator {
+    public getInsideBoundsEnumerator(aabb: Readonly<AABB>): ParticleSystem_InsideBoundsEnumerator {
         const lowerTag = ParticleSystem.computeTag(
             this.m_inverseDiameter * aabb.lowerBound.x - 1,
             this.m_inverseDiameter * aabb.lowerBound.y - 1,
@@ -2889,24 +2889,24 @@ export class ParticleSystem {
             beginProxy,
             endProxy,
             lowerTag,
-            ParticleSystem_Proxy.CompareProxyTag,
+            ParticleSystem_Proxy.compareProxyTag,
         );
         const lastProxy = std_upper_bound(
             this.m_proxyBuffer.data,
             beginProxy,
             endProxy,
             upperTag,
-            ParticleSystem_Proxy.CompareTagProxy,
+            ParticleSystem_Proxy.compareTagProxy,
         );
 
-        // DEBUG: Assert(beginProxy <= firstProxy);
-        // DEBUG: Assert(firstProxy <= lastProxy);
-        // DEBUG: Assert(lastProxy <= endProxy);
+        // DEBUG: assert(beginProxy <= firstProxy);
+        // DEBUG: assert(firstProxy <= lastProxy);
+        // DEBUG: assert(lastProxy <= endProxy);
 
         return new ParticleSystem_InsideBoundsEnumerator(this, lowerTag, upperTag, firstProxy, lastProxy);
     }
 
-    public UpdateAllParticleFlags(): void {
+    public updateAllParticleFlags(): void {
         this.m_allParticleFlags = 0;
         for (let i = 0; i < this.m_count; i++) {
             this.m_allParticleFlags |= this.m_flagsBuffer.data[i];
@@ -2914,23 +2914,23 @@ export class ParticleSystem {
         this.m_needsUpdateAllParticleFlags = false;
     }
 
-    public UpdateAllGroupFlags(): void {
+    public updateAllGroupFlags(): void {
         this.m_allGroupFlags = 0;
-        for (let group = this.m_groupList; group; group = group.GetNext()) {
+        for (let group = this.m_groupList; group; group = group.getNext()) {
             this.m_allGroupFlags |= group.m_groupFlags;
         }
         this.m_needsUpdateAllGroupFlags = false;
     }
 
-    public AddContact(a: number, b: number): void {
-        // DEBUG: Assert(contacts === this.m_contactBuffer);
+    public addContact(a: number, b: number): void {
+        // DEBUG: assert(contacts === this.m_contactBuffer);
         const flags_data = this.m_flagsBuffer.data;
         const pos_data = this.m_positionBuffer.data;
-        const d = Vec2.Subtract(pos_data[b], pos_data[a], ParticleSystem.AddContact_s_d);
-        const distBtParticlesSq = Vec2.Dot(d, d);
+        const d = Vec2.subtract(pos_data[b], pos_data[a], ParticleSystem.AddContact_s_d);
+        const distBtParticlesSq = Vec2.dot(d, d);
         if (distBtParticlesSq > 0 && distBtParticlesSq < this.m_squaredDiameter) {
             const invD = 1 / Math.sqrt(distBtParticlesSq);
-            const contact = this.m_contactBuffer.data[this.m_contactBuffer.Append()];
+            const contact = this.m_contactBuffer.data[this.m_contactBuffer.append()];
             contact.indexA = a;
             contact.indexB = b;
             contact.flags = flags_data[a] | flags_data[b];
@@ -2942,8 +2942,8 @@ export class ParticleSystem {
 
     public static readonly AddContact_s_d = new Vec2();
 
-    public FindContacts_Reference(): void {
-        // DEBUG: Assert(contacts === this.m_contactBuffer);
+    public findContacts_Reference(): void {
+        // DEBUG: assert(contacts === this.m_contactBuffer);
         const beginProxy = 0;
         const endProxy = this.m_proxyBuffer.count;
 
@@ -2954,7 +2954,7 @@ export class ParticleSystem {
                 if (rightTag < this.m_proxyBuffer.data[b].tag) {
                     break;
                 }
-                this.AddContact(this.m_proxyBuffer.data[a].index, this.m_proxyBuffer.data[b].index);
+                this.addContact(this.m_proxyBuffer.data[a].index, this.m_proxyBuffer.data[b].index);
             }
             const bottomLeftTag = ParticleSystem.computeRelativeTag(this.m_proxyBuffer.data[a].tag, -1, 1);
             for (; c < endProxy; c++) {
@@ -2967,17 +2967,17 @@ export class ParticleSystem {
                 if (bottomRightTag < this.m_proxyBuffer.data[b].tag) {
                     break;
                 }
-                this.AddContact(this.m_proxyBuffer.data[a].index, this.m_proxyBuffer.data[b].index);
+                this.addContact(this.m_proxyBuffer.data[a].index, this.m_proxyBuffer.data[b].index);
             }
         }
     }
 
-    public FindContacts(): void {
-        this.FindContacts_Reference();
+    public findContacts(): void {
+        this.findContacts_Reference();
     }
 
-    public UpdateProxies_Reference(): void {
-        // DEBUG: Assert(proxies === this.m_proxyBuffer);
+    public updateProxies_Reference(): void {
+        // DEBUG: assert(proxies === this.m_proxyBuffer);
         const pos_data = this.m_positionBuffer.data;
         const inv_diam = this.m_inverseDiameter;
         for (let k = 0; k < this.m_proxyBuffer.count; ++k) {
@@ -2988,44 +2988,44 @@ export class ParticleSystem {
         }
     }
 
-    public UpdateProxies(): void {
-        this.UpdateProxies_Reference();
+    public updateProxies(): void {
+        this.updateProxies_Reference();
     }
 
-    public SortProxies(): void {
-        // DEBUG: Assert(proxies === this.m_proxyBuffer);
+    public sortProxies(): void {
+        // DEBUG: assert(proxies === this.m_proxyBuffer);
 
-        std_sort(this.m_proxyBuffer.data, 0, this.m_proxyBuffer.count, ParticleSystem_Proxy.CompareProxyProxy);
+        std_sort(this.m_proxyBuffer.data, 0, this.m_proxyBuffer.count, ParticleSystem_Proxy.compareProxyProxy);
     }
 
-    public FilterContacts(): void {
+    public filterContacts(): void {
         // Optionally filter the contact.
-        const contactFilter = this.GetParticleContactFilter();
+        const contactFilter = this.getParticleContactFilter();
         if (contactFilter === null) {
             return;
         }
 
-        // DEBUG: Assert(contacts === this.m_contactBuffer);
-        this.m_contactBuffer.RemoveIf(
+        // DEBUG: assert(contacts === this.m_contactBuffer);
+        this.m_contactBuffer.removeIf(
             (contact) =>
                 (contact.flags & ParticleFlag.ParticleContactFilter) !== 0 &&
-                !contactFilter.ShouldCollideParticleParticle(this, contact.indexA, contact.indexB),
+                !contactFilter.shouldCollideParticleParticle(this, contact.indexA, contact.indexB),
         );
     }
 
-    public NotifyContactListenerPreContact(particlePairs: ParticlePairSet): void {
-        const contactListener = this.GetParticleContactListener();
+    public notifyContactListenerPreContact(particlePairs: ParticlePairSet): void {
+        const contactListener = this.getParticleContactListener();
         if (contactListener === null) {
             return;
         }
 
-        particlePairs.Initialize(this.m_contactBuffer, this.m_flagsBuffer);
+        particlePairs.initialize(this.m_contactBuffer, this.m_flagsBuffer);
 
         throw new Error(); // TODO: notify
     }
 
-    public NotifyContactListenerPostContact(particlePairs: ParticlePairSet): void {
-        const contactListener = this.GetParticleContactListener();
+    public notifyContactListenerPostContact(particlePairs: ParticlePairSet): void {
+        const contactListener = this.getParticleContactListener();
         if (contactListener === null) {
             return;
         }
@@ -3035,69 +3035,69 @@ export class ParticleSystem {
         for (let k = 0; k < this.m_contactBuffer.count; ++k) {
             const contact = this.m_contactBuffer.data[k];
             // ParticlePair pair;
-            // pair.first = contact.GetIndexA();
-            // pair.second = contact.GetIndexB();
-            // const int32 itemIndex = particlePairs.Find(pair);
+            // pair.first = contact.getIndexA();
+            // pair.second = contact.getIndexB();
+            // const int32 itemIndex = particlePairs.find(pair);
             const itemIndex = -1; // TODO
             if (itemIndex >= 0) {
                 // Already touching, ignore this contact.
-                particlePairs.Invalidate(itemIndex);
+                particlePairs.invalidate(itemIndex);
             } else {
                 // Just started touching, inform the listener.
-                contactListener.BeginContactParticleParticle(this, contact);
+                contactListener.beginContactParticleParticle(this, contact);
             }
         }
 
         // Report particles that are no longer touching.
         // That is, any pairs that were not invalidated above.
-        // const int32 pairCount = particlePairs.GetCount();
-        // const ParticlePair* const pairs = particlePairs.GetBuffer();
-        // const int8* const valid = particlePairs.GetValidBuffer();
+        // const int32 pairCount = particlePairs.getCount();
+        // const ParticlePair* const pairs = particlePairs.getBuffer();
+        // const int8* const valid = particlePairs.getValidBuffer();
         // for (int32 i = 0; i < pairCount; ++i)
         // {
         //  if (valid[i])
         //  {
-        //    contactListener.EndContactParticleParticle(this, pairs[i].first, pairs[i].second);
+        //    contactListener.endContactParticleParticle(this, pairs[i].first, pairs[i].second);
         //  }
         // }
 
         throw new Error(); // TODO: notify
     }
 
-    public static ParticleContactIsZombie(contact: ParticleContact): boolean {
+    public static particleContactIsZombie(contact: ParticleContact): boolean {
         return (contact.flags & ParticleFlag.Zombie) === ParticleFlag.Zombie;
     }
 
-    public UpdateContacts(exceptZombie: boolean): void {
-        this.UpdateProxies();
-        this.SortProxies();
+    public updateContacts(exceptZombie: boolean): void {
+        this.updateProxies();
+        this.sortProxies();
 
         const particlePairs = new ParticlePairSet(); // TODO: static
-        this.NotifyContactListenerPreContact(particlePairs);
+        this.notifyContactListenerPreContact(particlePairs);
 
-        this.FindContacts();
-        this.FilterContacts();
+        this.findContacts();
+        this.filterContacts();
 
-        this.NotifyContactListenerPostContact(particlePairs);
+        this.notifyContactListenerPostContact(particlePairs);
 
         if (exceptZombie) {
-            this.m_contactBuffer.RemoveIf(ParticleSystem.ParticleContactIsZombie);
+            this.m_contactBuffer.removeIf(ParticleSystem.particleContactIsZombie);
         }
     }
 
-    public NotifyBodyContactListenerPreContact(fixtureSet: ParticleSystem_FixtureParticleSet): void {
-        const contactListener = this.GetFixtureContactListener();
+    public notifyBodyContactListenerPreContact(fixtureSet: ParticleSystem_FixtureParticleSet): void {
+        const contactListener = this.getFixtureContactListener();
         if (contactListener === null) {
             return;
         }
 
-        fixtureSet.Initialize(this.m_bodyContactBuffer, this.m_flagsBuffer);
+        fixtureSet.initialize(this.m_bodyContactBuffer, this.m_flagsBuffer);
 
         throw new Error(); // TODO: notify
     }
 
-    public NotifyBodyContactListenerPostContact(fixtureSet: ParticleSystem_FixtureParticleSet): void {
-        const contactListener = this.GetFixtureContactListener();
+    public notifyBodyContactListenerPostContact(fixtureSet: ParticleSystem_FixtureParticleSet): void {
+        const contactListener = this.getFixtureContactListener();
         if (contactListener === null) {
             return;
         }
@@ -3106,48 +3106,48 @@ export class ParticleSystem {
         // "invalidating" the ones that still exist.
         for (let k = 0; k < this.m_bodyContactBuffer.count; k++) {
             const contact = this.m_bodyContactBuffer.data[k];
-            // DEBUG: Assert(contact !== null);
+            // DEBUG: assert(contact !== null);
             // FixtureParticle fixtureParticleToFind;
             // fixtureParticleToFind.first = contact.fixture;
             // fixtureParticleToFind.second = contact.index;
-            // const int32 index = fixtureSet.Find(fixtureParticleToFind);
+            // const int32 index = fixtureSet.find(fixtureParticleToFind);
             const index = -1; // TODO
             if (index >= 0) {
                 // Already touching remove this from the set.
-                fixtureSet.Invalidate(index);
+                fixtureSet.invalidate(index);
             } else {
                 // Just started touching, report it!
-                contactListener.BeginContactFixtureParticle(this, contact);
+                contactListener.beginContactFixtureParticle(this, contact);
             }
         }
 
         // If the contact listener is enabled, report all fixtures that are no
         // longer in contact with particles.
-        // const FixtureParticle* const fixtureParticles = fixtureSet.GetBuffer();
-        // const int8* const fixtureParticlesValid = fixtureSet.GetValidBuffer();
-        // const int32 fixtureParticleCount = fixtureSet.GetCount();
+        // const FixtureParticle* const fixtureParticles = fixtureSet.getBuffer();
+        // const int8* const fixtureParticlesValid = fixtureSet.getValidBuffer();
+        // const int32 fixtureParticleCount = fixtureSet.getCount();
         // for (int32 i = 0; i < fixtureParticleCount; ++i)
         // {
         //  if (fixtureParticlesValid[i])
         //  {
         //    const FixtureParticle* const fixtureParticle = &fixtureParticles[i];
-        //    contactListener.EndContactFixtureParticle(fixtureParticle.first, this, fixtureParticle.second);
+        //    contactListener.endContactFixtureParticle(fixtureParticle.first, this, fixtureParticle.second);
         //  }
         // }
 
         throw new Error(); // TODO: notify
     }
 
-    public UpdateBodyContacts(): void {
+    public updateBodyContacts(): void {
         const s_aabb = ParticleSystem.UpdateBodyContacts_s_aabb;
 
         // If the particle contact listener is enabled, generate a set of
         // fixture / particle contacts.
         const fixtureSet = new ParticleSystem_FixtureParticleSet(); // TODO: static
-        this.NotifyBodyContactListenerPreContact(fixtureSet);
+        this.notifyBodyContactListenerPreContact(fixtureSet);
 
         if (this.m_stuckThreshold > 0) {
-            const particleCount = this.GetParticleCount();
+            const particleCount = this.getParticleCount();
             for (let i = 0; i < particleCount; i++) {
                 // Detect stuck particles, see comment in
                 // ParticleSystem::DetectStuckParticle()
@@ -3157,44 +3157,44 @@ export class ParticleSystem {
                 }
             }
         }
-        this.m_bodyContactBuffer.SetCount(0);
-        this.m_stuckParticleBuffer.SetCount(0);
+        this.m_bodyContactBuffer.setCount(0);
+        this.m_stuckParticleBuffer.setCount(0);
 
         const aabb = s_aabb;
-        this.ComputeAABB(aabb);
+        this.computeAABB(aabb);
 
         const callback = this.UpdateBodyContacts_callback;
-        callback.m_contactFilter = this.GetFixtureContactFilter();
-        this.m_world.QueryAABB(aabb, (fixture) => callback.ReportFixture(fixture));
+        callback.m_contactFilter = this.getFixtureContactFilter();
+        this.m_world.queryAABB(aabb, (fixture) => callback.reportFixture(fixture));
 
         if (this.m_def.strictContactCheck) {
-            this.RemoveSpuriousBodyContacts();
+            this.removeSpuriousBodyContacts();
         }
 
-        this.NotifyBodyContactListenerPostContact(fixtureSet);
+        this.notifyBodyContactListenerPostContact(fixtureSet);
     }
 
     public static readonly UpdateBodyContacts_s_aabb = new AABB();
 
     private readonly UpdateBodyContacts_callback = new ParticleSystem_UpdateBodyContactsCallback(this);
 
-    public Solve(step: TimeStep): void {
+    public solve(step: TimeStep): void {
         const s_subStep = ParticleSystem.Solve_s_subStep;
         if (this.m_count === 0) {
             return;
         }
         // If particle lifetimes are enabled, destroy particles that are too old.
         if (this.m_expirationTimeBuffer.data) {
-            this.SolveLifetimes(step);
+            this.solveLifetimes(step);
         }
         if (this.m_allParticleFlags & ParticleFlag.Zombie) {
-            this.SolveZombie();
+            this.solveZombie();
         }
         if (this.m_needsUpdateAllParticleFlags) {
-            this.UpdateAllParticleFlags();
+            this.updateAllParticleFlags();
         }
         if (this.m_needsUpdateAllGroupFlags) {
-            this.UpdateAllGroupFlags();
+            this.updateAllGroupFlags();
         }
         if (this.m_paused) {
             return;
@@ -3203,83 +3203,83 @@ export class ParticleSystem {
 
         for (this.m_iterationIndex = 0; this.m_iterationIndex < particleIterations; this.m_iterationIndex++) {
             ++this.m_timestamp;
-            const subStep = s_subStep.Copy(step);
+            const subStep = s_subStep.copy(step);
             subStep.dt /= particleIterations;
             subStep.inv_dt *= particleIterations;
-            this.UpdateContacts(false);
-            this.UpdateBodyContacts();
-            this.ComputeWeight();
+            this.updateContacts(false);
+            this.updateBodyContacts();
+            this.computeWeight();
             if (this.m_allGroupFlags & ParticleGroupFlag.NeedsUpdateDepth) {
-                this.ComputeDepth();
+                this.computeDepth();
             }
             if (this.m_allParticleFlags & ParticleFlag.Reactive) {
-                this.UpdatePairsAndTriadsWithReactiveParticles();
+                this.updatePairsAndTriadsWithReactiveParticles();
             }
             if (this.m_hasForce) {
-                this.SolveForce(subStep);
+                this.solveForce(subStep);
             }
             if (this.m_allParticleFlags & ParticleFlag.Viscous) {
-                this.SolveViscous();
+                this.solveViscous();
             }
             if (this.m_allParticleFlags & ParticleFlag.Repulsive) {
-                this.SolveRepulsive(subStep);
+                this.solveRepulsive(subStep);
             }
             if (this.m_allParticleFlags & ParticleFlag.Powder) {
-                this.SolvePowder(subStep);
+                this.solvePowder(subStep);
             }
             if (this.m_allParticleFlags & ParticleFlag.Tensile) {
-                this.SolveTensile(subStep);
+                this.solveTensile(subStep);
             }
             if (this.m_allGroupFlags & ParticleGroupFlag.Solid) {
-                this.SolveSolid(subStep);
+                this.solveSolid(subStep);
             }
             if (this.m_allParticleFlags & ParticleFlag.ColorMixing) {
-                this.SolveColorMixing();
+                this.solveColorMixing();
             }
-            this.SolveGravity(subStep);
+            this.solveGravity(subStep);
             if (this.m_allParticleFlags & ParticleFlag.StaticPressure) {
-                this.SolveStaticPressure(subStep);
+                this.solveStaticPressure(subStep);
             }
-            this.SolvePressure(subStep);
-            this.SolveDamping(subStep);
+            this.solvePressure(subStep);
+            this.solveDamping(subStep);
             if (this.m_allParticleFlags & ParticleSystem.k_extraDampingFlags) {
-                this.SolveExtraDamping();
+                this.solveExtraDamping();
             }
             // SolveElastic and SolveSpring refer the current velocities for
             // numerical stability, they should be called as late as possible.
             if (this.m_allParticleFlags & ParticleFlag.Elastic) {
-                this.SolveElastic(subStep);
+                this.solveElastic(subStep);
             }
             if (this.m_allParticleFlags & ParticleFlag.Spring) {
-                this.SolveSpring(subStep);
+                this.solveSpring(subStep);
             }
-            this.LimitVelocity(subStep);
+            this.limitVelocity(subStep);
             if (this.m_allGroupFlags & ParticleGroupFlag.Rigid) {
-                this.SolveRigidDamping();
+                this.solveRigidDamping();
             }
             if (this.m_allParticleFlags & ParticleFlag.Barrier) {
-                this.SolveBarrier(subStep);
+                this.solveBarrier(subStep);
             }
             // SolveCollision, SolveRigid and SolveWall should be called after
             // other force functions because they may require particles to have
             // specific velocities.
-            this.SolveCollision(subStep);
+            this.solveCollision(subStep);
             if (this.m_allGroupFlags & ParticleGroupFlag.Rigid) {
-                this.SolveRigid(subStep);
+                this.solveRigid(subStep);
             }
             if (this.m_allParticleFlags & ParticleFlag.Wall) {
-                this.SolveWall();
+                this.solveWall();
             }
             // The particle positions can be updated only at the end of substep.
             for (let i = 0; i < this.m_count; i++) {
-                this.m_positionBuffer.data[i].AddScaled(subStep.dt, this.m_velocityBuffer.data[i]);
+                this.m_positionBuffer.data[i].addScaled(subStep.dt, this.m_velocityBuffer.data[i]);
             }
         }
     }
 
-    public static readonly Solve_s_subStep = TimeStep.Create();
+    public static readonly Solve_s_subStep = TimeStep.create();
 
-    public SolveCollision(step: TimeStep): void {
+    public solveCollision(step: TimeStep): void {
         const s_aabb = ParticleSystem.SolveCollision_s_aabb;
         const pos_data = this.m_positionBuffer.data;
         const vel_data = this.m_velocityBuffer.data;
@@ -3305,37 +3305,37 @@ export class ParticleSystem {
         }
         const callback = this.SolveCollision_callback;
         callback.m_step = step;
-        this.m_world.QueryAABB(aabb, (fixture) => callback.ReportFixture(fixture));
+        this.m_world.queryAABB(aabb, (fixture) => callback.reportFixture(fixture));
     }
 
     public static readonly SolveCollision_s_aabb = new AABB();
 
     private readonly SolveCollision_callback = new ParticleSystem_SolveCollisionCallback(this);
 
-    public LimitVelocity(step: TimeStep): void {
+    public limitVelocity(step: TimeStep): void {
         const vel_data = this.m_velocityBuffer.data;
-        const criticalVelocitySquared = this.GetCriticalVelocitySquared(step);
+        const criticalVelocitySquared = this.getCriticalVelocitySquared(step);
         for (let i = 0; i < this.m_count; i++) {
             const v = vel_data[i];
-            const v2 = Vec2.Dot(v, v);
+            const v2 = Vec2.dot(v, v);
             if (v2 > criticalVelocitySquared) {
-                v.Scale(Math.sqrt(criticalVelocitySquared / v2));
+                v.scale(Math.sqrt(criticalVelocitySquared / v2));
             }
         }
     }
 
-    public SolveGravity(step: TimeStep): void {
+    public solveGravity(step: TimeStep): void {
         const s_gravity = ParticleSystem.SolveGravity_s_gravity;
         const vel_data = this.m_velocityBuffer.data;
-        const gravity = Vec2.Scale(step.dt * this.m_def.gravityScale, this.m_world.GetGravity(), s_gravity);
+        const gravity = Vec2.scale(step.dt * this.m_def.gravityScale, this.m_world.getGravity(), s_gravity);
         for (let i = 0; i < this.m_count; i++) {
-            vel_data[i].Add(gravity);
+            vel_data[i].add(gravity);
         }
     }
 
     public static readonly SolveGravity_s_gravity = new Vec2();
 
-    public SolveBarrier(step: TimeStep): void {
+    public solveBarrier(step: TimeStep): void {
         const s_aabb = ParticleSystem.SolveBarrier_s_aabb;
         const s_va = ParticleSystem.SolveBarrier_s_va;
         const s_vb = ParticleSystem.SolveBarrier_s_vb;
@@ -3355,11 +3355,11 @@ export class ParticleSystem {
         for (let i = 0; i < this.m_count; i++) {
             const flags = this.m_flagsBuffer.data[i];
             if ((flags & ParticleSystem.k_barrierWallFlags) !== 0) {
-                vel_data[i].SetZero();
+                vel_data[i].setZero();
             }
         }
-        const tmax = b2_barrierCollisionTime * step.dt;
-        const mass = this.GetParticleMass();
+        const tmax = BARRIER_COLLISION_TIME * step.dt;
+        const mass = this.getParticleMass();
         for (let k = 0; k < this.m_pairBuffer.count; k++) {
             const pair = this.m_pairBuffer.data[k];
             if (pair.flags & ParticleFlag.Barrier) {
@@ -3368,32 +3368,32 @@ export class ParticleSystem {
                 const pa = pos_data[a];
                 const pb = pos_data[b];
                 const aabb = s_aabb;
-                Vec2.Min(pa, pb, aabb.lowerBound);
-                Vec2.Max(pa, pb, aabb.upperBound);
+                Vec2.min(pa, pb, aabb.lowerBound);
+                Vec2.max(pa, pb, aabb.upperBound);
                 const aGroup = this.m_groupBuffer[a];
                 const bGroup = this.m_groupBuffer[b];
-                const va = this.GetLinearVelocity(aGroup, a, pa, s_va);
-                const vb = this.GetLinearVelocity(bGroup, b, pb, s_vb);
-                const pba = Vec2.Subtract(pb, pa, s_pba);
-                const vba = Vec2.Subtract(vb, va, s_vba);
-                const enumerator = this.GetInsideBoundsEnumerator(aabb);
+                const va = this.getLinearVelocity(aGroup, a, pa, s_va);
+                const vb = this.getLinearVelocity(bGroup, b, pb, s_vb);
+                const pba = Vec2.subtract(pb, pa, s_pba);
+                const vba = Vec2.subtract(vb, va, s_vba);
+                const enumerator = this.getInsideBoundsEnumerator(aabb);
                 let c: number;
                 // eslint-disable-next-line no-cond-assign
-                while ((c = enumerator.GetNext()) >= 0) {
+                while ((c = enumerator.getNext()) >= 0) {
                     const pc = pos_data[c];
                     const cGroup = this.m_groupBuffer[c];
                     if (aGroup !== cGroup && bGroup !== cGroup) {
-                        const vc = this.GetLinearVelocity(cGroup, c, pc, s_vc);
+                        const vc = this.getLinearVelocity(cGroup, c, pc, s_vc);
                         // Solve the equation below:
                         //   (1-s)*(pa+t*va)+s*(pb+t*vb) = pc+t*vc
                         // which expresses that the particle c will pass a line
                         // connecting the particles a and b at the time of t.
                         // if s is between 0 and 1, c will pass between a and b.
-                        const pca = Vec2.Subtract(pc, pa, s_pca);
-                        const vca = Vec2.Subtract(vc, va, s_vca);
-                        const e2 = Vec2.Cross(vba, vca);
-                        const e1 = Vec2.Cross(pba, vca) - Vec2.Cross(pca, vba);
-                        const e0 = Vec2.Cross(pba, pca);
+                        const pca = Vec2.subtract(pc, pa, s_pca);
+                        const vca = Vec2.subtract(vc, va, s_vca);
+                        const e2 = Vec2.cross(vba, vca);
+                        const e1 = Vec2.cross(pba, vca) - Vec2.cross(pca, vba);
+                        const e0 = Vec2.cross(pba, pca);
                         let s: number;
                         let t: number;
                         const qba = s_qba;
@@ -3406,9 +3406,9 @@ export class ParticleSystem {
                             if (!(t >= 0 && t < tmax)) {
                                 continue;
                             }
-                            Vec2.AddScaled(pba, t, vba, qba);
-                            Vec2.AddScaled(pca, t, vca, qca);
-                            s = Vec2.Dot(qba, qca) / Vec2.Dot(qba, qba);
+                            Vec2.addScaled(pba, t, vba, qba);
+                            Vec2.addScaled(pca, t, vca, qca);
+                            s = Vec2.dot(qba, qca) / Vec2.dot(qba, qba);
                             if (!(s >= 0 && s <= 1)) {
                                 continue;
                             }
@@ -3426,18 +3426,18 @@ export class ParticleSystem {
                                 t2 = tmp;
                             }
                             t = t1;
-                            Vec2.AddScaled(pba, t, vba, qba);
-                            Vec2.AddScaled(pca, t, vca, qca);
-                            s = Vec2.Dot(qba, qca) / Vec2.Dot(qba, qba);
+                            Vec2.addScaled(pba, t, vba, qba);
+                            Vec2.addScaled(pca, t, vca, qca);
+                            s = Vec2.dot(qba, qca) / Vec2.dot(qba, qba);
                             if (!(t >= 0 && t < tmax && s >= 0 && s <= 1)) {
                                 t = t2;
                                 if (!(t >= 0 && t < tmax)) {
                                     continue;
                                 }
 
-                                Vec2.AddScaled(pba, t, vba, qba);
-                                Vec2.AddScaled(pca, t, vca, qca);
-                                s = Vec2.Dot(qba, qca) / Vec2.Dot(qba, qba);
+                                Vec2.addScaled(pba, t, vba, qba);
+                                Vec2.addScaled(pca, t, vca, qca);
+                                s = Vec2.dot(qba, qca) / Vec2.dot(qba, qba);
                                 if (!(s >= 0 && s <= 1)) {
                                     continue;
                                 }
@@ -3448,25 +3448,25 @@ export class ParticleSystem {
                         const dv = s_dv;
                         dv.x = va.x + s * vba.x - vc.x;
                         dv.y = va.y + s * vba.y - vc.y;
-                        const f = Vec2.Scale(mass, dv, s_f);
-                        if (cGroup && this.IsRigidGroup(cGroup)) {
+                        const f = Vec2.scale(mass, dv, s_f);
+                        if (cGroup && this.isRigidGroup(cGroup)) {
                             // If c belongs to a rigid group, the force will be
                             // distributed in the group.
-                            const groupMass = cGroup.GetMass();
-                            const inertia = cGroup.GetInertia();
+                            const groupMass = cGroup.getMass();
+                            const inertia = cGroup.getInertia();
                             if (groupMass > 0) {
-                                cGroup.m_linearVelocity.AddScaled(1 / groupMass, f);
+                                cGroup.m_linearVelocity.addScaled(1 / groupMass, f);
                             }
                             if (inertia > 0) {
                                 cGroup.m_angularVelocity +=
-                                    Vec2.Cross(Vec2.Subtract(pc, cGroup.GetCenter(), Vec2.s_t0), f) / inertia;
+                                    Vec2.cross(Vec2.subtract(pc, cGroup.getCenter(), Vec2.s_t0), f) / inertia;
                             }
                         } else {
-                            vel_data[c].Add(dv);
+                            vel_data[c].add(dv);
                         }
                         // Apply a reversed force to particle c after particle
                         // movement so that momentum will be preserved.
-                        this.ParticleApplyForce(c, f.Scale(-step.inv_dt));
+                        this.particleApplyForce(c, f.scale(-step.inv_dt));
                     }
                 }
             }
@@ -3497,11 +3497,11 @@ export class ParticleSystem {
 
     public static readonly SolveBarrier_s_f = new Vec2();
 
-    public SolveStaticPressure(step: TimeStep): void {
-        this.m_staticPressureBuffer = this.RequestBuffer(this.m_staticPressureBuffer);
-        const criticalPressure = this.GetCriticalPressure(step);
+    public solveStaticPressure(step: TimeStep): void {
+        this.m_staticPressureBuffer = this.requestBuffer(this.m_staticPressureBuffer);
+        const criticalPressure = this.getCriticalPressure(step);
         const pressurePerWeight = this.m_def.staticPressureStrength * criticalPressure;
-        const maxPressure = b2_maxParticlePressure * criticalPressure;
+        const maxPressure = MAX_PARTICLE_PRESSURE * criticalPressure;
         const relaxation = this.m_def.staticPressureRelaxation;
         // Compute pressure satisfying the modified Poisson equation:
         //   Sum_for_j((p_i - p_j) * w_ij) + relaxation * p_i =
@@ -3531,8 +3531,8 @@ export class ParticleSystem {
                 const w = this.m_weightBuffer[i];
                 if (this.m_flagsBuffer.data[i] & ParticleFlag.StaticPressure) {
                     const wh = this.m_accumulationBuffer[i];
-                    const h = (wh + pressurePerWeight * (w - b2_minParticleWeight)) / (w + relaxation);
-                    this.m_staticPressureBuffer[i] = Clamp(h, 0, maxPressure);
+                    const h = (wh + pressurePerWeight * (w - MIN_PARTICLE_WEIGHT)) / (w + relaxation);
+                    this.m_staticPressureBuffer[i] = clamp(h, 0, maxPressure);
                 } else {
                     this.m_staticPressureBuffer[i] = 0;
                 }
@@ -3540,7 +3540,7 @@ export class ParticleSystem {
         }
     }
 
-    public ComputeWeight(): void {
+    public computeWeight(): void {
         // calculates the sum of contact-weights for each particle
         // that means dimensionless density
         for (let k = 0; k < this.m_count; k++) {
@@ -3562,17 +3562,17 @@ export class ParticleSystem {
         }
     }
 
-    public SolvePressure(step: TimeStep): void {
+    public solvePressure(step: TimeStep): void {
         const s_f = ParticleSystem.SolvePressure_s_f;
         const pos_data = this.m_positionBuffer.data;
         const vel_data = this.m_velocityBuffer.data;
         // calculates pressure as a linear function of density
-        const criticalPressure = this.GetCriticalPressure(step);
+        const criticalPressure = this.getCriticalPressure(step);
         const pressurePerWeight = this.m_def.pressureStrength * criticalPressure;
-        const maxPressure = b2_maxParticlePressure * criticalPressure;
+        const maxPressure = MAX_PARTICLE_PRESSURE * criticalPressure;
         for (let i = 0; i < this.m_count; i++) {
             const w = this.m_weightBuffer[i];
-            const h = pressurePerWeight * Math.max(0, w - b2_minParticleWeight);
+            const h = pressurePerWeight * Math.max(0, w - MIN_PARTICLE_WEIGHT);
             this.m_accumulationBuffer[i] = Math.min(h, maxPressure);
         }
         // ignores particles which have their own repulsive force
@@ -3585,7 +3585,7 @@ export class ParticleSystem {
         }
         // static pressure
         if (this.m_allParticleFlags & ParticleFlag.StaticPressure) {
-            // DEBUG: Assert(this.m_staticPressureBuffer !== null);
+            // DEBUG: assert(this.m_staticPressureBuffer !== null);
             for (let i = 0; i < this.m_count; i++) {
                 if (this.m_flagsBuffer.data[i] & ParticleFlag.StaticPressure) {
                     this.m_accumulationBuffer[i] += this.m_staticPressureBuffer[i];
@@ -3594,7 +3594,7 @@ export class ParticleSystem {
         }
         // applies pressure between each particles in contact
         const velocityPerPressure = step.dt / (this.m_def.density * this.m_particleDiameter);
-        const inv_mass = this.GetParticleInvMass();
+        const inv_mass = this.getParticleInvMass();
         for (let k = 0; k < this.m_bodyContactBuffer.count; k++) {
             const contact = this.m_bodyContactBuffer.data[k];
             const a = contact.index;
@@ -3604,9 +3604,9 @@ export class ParticleSystem {
             const n = contact.normal;
             const p = pos_data[a];
             const h = this.m_accumulationBuffer[a] + pressurePerWeight * w;
-            const f = Vec2.Scale(velocityPerPressure * w * m * h, n, s_f);
-            vel_data[a].SubtractScaled(inv_mass, f);
-            b.ApplyLinearImpulse(f, p, true);
+            const f = Vec2.scale(velocityPerPressure * w * m * h, n, s_f);
+            vel_data[a].subtractScaled(inv_mass, f);
+            b.applyLinearImpulse(f, p, true);
         }
         for (let k = 0; k < this.m_contactBuffer.count; k++) {
             const contact = this.m_contactBuffer.data[k];
@@ -3615,23 +3615,23 @@ export class ParticleSystem {
             const w = contact.weight;
             const n = contact.normal;
             const h = this.m_accumulationBuffer[a] + this.m_accumulationBuffer[b];
-            const f = Vec2.Scale(velocityPerPressure * w * h, n, s_f);
-            vel_data[a].Subtract(f);
-            vel_data[b].Add(f);
+            const f = Vec2.scale(velocityPerPressure * w * h, n, s_f);
+            vel_data[a].subtract(f);
+            vel_data[b].add(f);
         }
     }
 
     public static readonly SolvePressure_s_f = new Vec2();
 
-    public SolveDamping(step: TimeStep): void {
+    public solveDamping(step: TimeStep): void {
         const s_v = ParticleSystem.SolveDamping_s_v;
         const s_f = ParticleSystem.SolveDamping_s_f;
         const pos_data = this.m_positionBuffer.data;
         const vel_data = this.m_velocityBuffer.data;
         // reduces normal velocity of each contact
         const linearDamping = this.m_def.dampingStrength;
-        const quadraticDamping = 1 / this.GetCriticalVelocity(step);
-        const inv_mass = this.GetParticleInvMass();
+        const quadraticDamping = 1 / this.getCriticalVelocity(step);
+        const inv_mass = this.getParticleInvMass();
         for (let k = 0; k < this.m_bodyContactBuffer.count; k++) {
             const contact = this.m_bodyContactBuffer.data[k];
             const a = contact.index;
@@ -3640,13 +3640,13 @@ export class ParticleSystem {
             const m = contact.mass;
             const n = contact.normal;
             const p = pos_data[a];
-            const v = Vec2.Subtract(b.GetLinearVelocityFromWorldPoint(p, Vec2.s_t0), vel_data[a], s_v);
-            const vn = Vec2.Dot(v, n);
+            const v = Vec2.subtract(b.getLinearVelocityFromWorldPoint(p, Vec2.s_t0), vel_data[a], s_v);
+            const vn = Vec2.dot(v, n);
             if (vn < 0) {
                 const damping = Math.max(linearDamping * w, Math.min(-quadraticDamping * vn, 0.5));
-                const f = Vec2.Scale(damping * m * vn, n, s_f);
-                vel_data[a].AddScaled(inv_mass, f);
-                b.ApplyLinearImpulse(f.Negate(), p, true);
+                const f = Vec2.scale(damping * m * vn, n, s_f);
+                vel_data[a].addScaled(inv_mass, f);
+                b.applyLinearImpulse(f.negate(), p, true);
             }
         }
         for (let k = 0; k < this.m_contactBuffer.count; k++) {
@@ -3655,13 +3655,13 @@ export class ParticleSystem {
             const b = contact.indexB;
             const w = contact.weight;
             const n = contact.normal;
-            const v = Vec2.Subtract(vel_data[b], vel_data[a], s_v);
-            const vn = Vec2.Dot(v, n);
+            const v = Vec2.subtract(vel_data[b], vel_data[a], s_v);
+            const vn = Vec2.dot(v, n);
             if (vn < 0) {
                 const damping = Math.max(linearDamping * w, Math.min(-quadraticDamping * vn, 0.5));
-                const f = Vec2.Scale(damping * vn, n, s_f);
-                vel_data[a].Add(f);
-                vel_data[b].Subtract(f);
+                const f = Vec2.scale(damping * vn, n, s_f);
+                vel_data[a].add(f);
+                vel_data[b].subtract(f);
             }
         }
     }
@@ -3670,7 +3670,7 @@ export class ParticleSystem {
 
     public static readonly SolveDamping_s_f = new Vec2();
 
-    public SolveRigidDamping(): void {
+    public solveRigidDamping(): void {
         const s_t0 = ParticleSystem.SolveRigidDamping_s_t0;
         const s_t1 = ParticleSystem.SolveRigidDamping_s_t1;
         const s_p = ParticleSystem.SolveRigidDamping_s_p;
@@ -3689,21 +3689,21 @@ export class ParticleSystem {
             const contact = this.m_bodyContactBuffer.data[k];
             const a = contact.index;
             const aGroup = this.m_groupBuffer[a];
-            if (aGroup && this.IsRigidGroup(aGroup)) {
+            if (aGroup && this.isRigidGroup(aGroup)) {
                 const b = contact.body;
                 const n = contact.normal;
                 const w = contact.weight;
                 const p = pos_data[a];
-                const v = Vec2.Subtract(
-                    b.GetLinearVelocityFromWorldPoint(p, s_t0),
-                    aGroup.GetLinearVelocityFromWorldPoint(p, s_t1),
+                const v = Vec2.subtract(
+                    b.getLinearVelocityFromWorldPoint(p, s_t0),
+                    aGroup.getLinearVelocityFromWorldPoint(p, s_t1),
                     s_v,
                 );
-                const vn = Vec2.Dot(v, n);
+                const vn = Vec2.dot(v, n);
                 if (vn < 0) {
                     // The group's average velocity at particle position 'p' is pushing
                     // the particle into the body.
-                    this.InitDampingParameterWithRigidGroupOrParticle(
+                    this.initDampingParameterWithRigidGroupOrParticle(
                         invMassA,
                         invInertiaA,
                         tangentDistanceA,
@@ -3714,20 +3714,20 @@ export class ParticleSystem {
                         n,
                     );
                     // Calculate b.m_I from public functions of Body.
-                    this.InitDampingParameter(
+                    this.initDampingParameter(
                         invMassB,
                         invInertiaB,
                         tangentDistanceB,
-                        b.GetMass(),
-                        b.GetInertia() - b.GetMass() * b.GetLocalCenter().LengthSquared(),
-                        b.GetWorldCenter(),
+                        b.getMass(),
+                        b.getInertia() - b.getMass() * b.getLocalCenter().lengthSquared(),
+                        b.getWorldCenter(),
                         p,
                         n,
                     );
                     const f =
                         damping *
                         Math.min(w, 1) *
-                        this.ComputeDampingImpulse(
+                        this.computeDampingImpulse(
                             invMassA[0],
                             invInertiaA[0],
                             tangentDistanceA[0],
@@ -3736,8 +3736,8 @@ export class ParticleSystem {
                             tangentDistanceB[0],
                             vn,
                         );
-                    this.ApplyDamping(invMassA[0], invInertiaA[0], tangentDistanceA[0], true, aGroup, a, f, n);
-                    b.ApplyLinearImpulse(Vec2.Scale(-f, n, Vec2.s_t0), p, true);
+                    this.applyDamping(invMassA[0], invInertiaA[0], tangentDistanceA[0], true, aGroup, a, f, n);
+                    b.applyLinearImpulse(Vec2.scale(-f, n, Vec2.s_t0), p, true);
                 }
             }
         }
@@ -3749,18 +3749,18 @@ export class ParticleSystem {
             const w = contact.weight;
             const aGroup = this.m_groupBuffer[a];
             const bGroup = this.m_groupBuffer[b];
-            const aRigid = this.IsRigidGroup(aGroup);
-            const bRigid = this.IsRigidGroup(bGroup);
+            const aRigid = this.isRigidGroup(aGroup);
+            const bRigid = this.isRigidGroup(bGroup);
             if (aGroup !== bGroup && (aRigid || bRigid)) {
-                const p = Vec2.Mid(pos_data[a], pos_data[b], s_p);
-                const v = Vec2.Subtract(
-                    this.GetLinearVelocity(bGroup, b, p, s_t0),
-                    this.GetLinearVelocity(aGroup, a, p, s_t1),
+                const p = Vec2.mid(pos_data[a], pos_data[b], s_p);
+                const v = Vec2.subtract(
+                    this.getLinearVelocity(bGroup, b, p, s_t0),
+                    this.getLinearVelocity(aGroup, a, p, s_t1),
                     s_v,
                 );
-                const vn = Vec2.Dot(v, n);
+                const vn = Vec2.dot(v, n);
                 if (vn < 0) {
-                    this.InitDampingParameterWithRigidGroupOrParticle(
+                    this.initDampingParameterWithRigidGroupOrParticle(
                         invMassA,
                         invInertiaA,
                         tangentDistanceA,
@@ -3770,7 +3770,7 @@ export class ParticleSystem {
                         p,
                         n,
                     );
-                    this.InitDampingParameterWithRigidGroupOrParticle(
+                    this.initDampingParameterWithRigidGroupOrParticle(
                         invMassB,
                         invInertiaB,
                         tangentDistanceB,
@@ -3783,7 +3783,7 @@ export class ParticleSystem {
                     const f =
                         damping *
                         w *
-                        this.ComputeDampingImpulse(
+                        this.computeDampingImpulse(
                             invMassA[0],
                             invInertiaA[0],
                             tangentDistanceA[0],
@@ -3792,8 +3792,8 @@ export class ParticleSystem {
                             tangentDistanceB[0],
                             vn,
                         );
-                    this.ApplyDamping(invMassA[0], invInertiaA[0], tangentDistanceA[0], aRigid, aGroup, a, f, n);
-                    this.ApplyDamping(invMassB[0], invInertiaB[0], tangentDistanceB[0], bRigid, bGroup, b, -f, n);
+                    this.applyDamping(invMassA[0], invInertiaA[0], tangentDistanceA[0], aRigid, aGroup, a, f, n);
+                    this.applyDamping(invMassB[0], invInertiaB[0], tangentDistanceB[0], bRigid, bGroup, b, -f, n);
                 }
             }
         }
@@ -3807,7 +3807,7 @@ export class ParticleSystem {
 
     public static readonly SolveRigidDamping_s_v = new Vec2();
 
-    public SolveExtraDamping(): void {
+    public solveExtraDamping(): void {
         const s_v = ParticleSystem.SolveExtraDamping_s_v;
         const s_f = ParticleSystem.SolveExtraDamping_s_f;
         const vel_data = this.m_velocityBuffer.data;
@@ -3815,7 +3815,7 @@ export class ParticleSystem {
         // produce strong repulsive force. Applying damping force multiple times
         // is effective in suppressing vibration.
         const pos_data = this.m_positionBuffer.data;
-        const inv_mass = this.GetParticleInvMass();
+        const inv_mass = this.getParticleInvMass();
         for (let k = 0; k < this.m_bodyContactBuffer.count; k++) {
             const contact = this.m_bodyContactBuffer.data[k];
             const a = contact.index;
@@ -3824,12 +3824,12 @@ export class ParticleSystem {
                 const m = contact.mass;
                 const n = contact.normal;
                 const p = pos_data[a];
-                const v = Vec2.Subtract(b.GetLinearVelocityFromWorldPoint(p, Vec2.s_t0), vel_data[a], s_v);
-                const vn = Vec2.Dot(v, n);
+                const v = Vec2.subtract(b.getLinearVelocityFromWorldPoint(p, Vec2.s_t0), vel_data[a], s_v);
+                const vn = Vec2.dot(v, n);
                 if (vn < 0) {
-                    const f = Vec2.Scale(0.5 * m * vn, n, s_f);
-                    vel_data[a].AddScaled(inv_mass, f);
-                    b.ApplyLinearImpulse(f.Negate(), p, true);
+                    const f = Vec2.scale(0.5 * m * vn, n, s_f);
+                    vel_data[a].addScaled(inv_mass, f);
+                    b.applyLinearImpulse(f.negate(), p, true);
                 }
             }
         }
@@ -3839,46 +3839,46 @@ export class ParticleSystem {
 
     public static readonly SolveExtraDamping_s_f = new Vec2();
 
-    public SolveWall(): void {
+    public solveWall(): void {
         const vel_data = this.m_velocityBuffer.data;
         for (let i = 0; i < this.m_count; i++) {
             if (this.m_flagsBuffer.data[i] & ParticleFlag.Wall) {
-                vel_data[i].SetZero();
+                vel_data[i].setZero();
             }
         }
     }
 
-    public SolveRigid(step: TimeStep): void {
+    public solveRigid(step: TimeStep): void {
         const s_position = ParticleSystem.SolveRigid_s_position;
         const s_rotation = ParticleSystem.SolveRigid_s_rotation;
         const s_transform = ParticleSystem.SolveRigid_s_transform;
         const s_velocityTransform = ParticleSystem.SolveRigid_s_velocityTransform;
         const pos_data = this.m_positionBuffer.data;
         const vel_data = this.m_velocityBuffer.data;
-        for (let group = this.m_groupList; group; group = group.GetNext()) {
+        for (let group = this.m_groupList; group; group = group.getNext()) {
             if (group.m_groupFlags & ParticleGroupFlag.Rigid) {
-                group.UpdateStatistics();
+                group.updateStatistics();
                 const rotation = s_rotation;
-                rotation.Set(step.dt * group.m_angularVelocity);
-                const position = Vec2.Add(
+                rotation.set(step.dt * group.m_angularVelocity);
+                const position = Vec2.add(
                     group.m_center,
-                    Vec2.Subtract(
-                        Vec2.Scale(step.dt, group.m_linearVelocity, Vec2.s_t0),
-                        Rot.MultiplyVec2(rotation, group.m_center, Vec2.s_t1),
+                    Vec2.subtract(
+                        Vec2.scale(step.dt, group.m_linearVelocity, Vec2.s_t0),
+                        Rot.multiplyVec2(rotation, group.m_center, Vec2.s_t1),
                         Vec2.s_t0,
                     ),
                     s_position,
                 );
                 const transform = s_transform;
-                transform.SetPositionRotation(position, rotation);
-                Transform.Multiply(transform, group.m_transform, group.m_transform);
+                transform.setPositionRotation(position, rotation);
+                Transform.multiply(transform, group.m_transform, group.m_transform);
                 const velocityTransform = s_velocityTransform;
                 velocityTransform.p.x = step.inv_dt * transform.p.x;
                 velocityTransform.p.y = step.inv_dt * transform.p.y;
                 velocityTransform.q.s = step.inv_dt * transform.q.s;
                 velocityTransform.q.c = step.inv_dt * (transform.q.c - 1);
                 for (let i = group.m_firstIndex; i < group.m_lastIndex; i++) {
-                    Transform.MultiplyVec2(velocityTransform, pos_data[i], vel_data[i]);
+                    Transform.multiplyVec2(velocityTransform, pos_data[i], vel_data[i]);
                 }
             }
         }
@@ -3892,7 +3892,7 @@ export class ParticleSystem {
 
     public static readonly SolveRigid_s_velocityTransform = new Transform();
 
-    public SolveElastic(step: TimeStep): void {
+    public solveElastic(step: TimeStep): void {
         const s_pa = ParticleSystem.SolveElastic_s_pa;
         const s_pb = ParticleSystem.SolveElastic_s_pb;
         const s_pc = ParticleSystem.SolveElastic_s_pc;
@@ -3910,15 +3910,15 @@ export class ParticleSystem {
                 const oa = triad.pa;
                 const ob = triad.pb;
                 const oc = triad.pc;
-                const pa = s_pa.Copy(pos_data[a]);
-                const pb = s_pb.Copy(pos_data[b]);
-                const pc = s_pc.Copy(pos_data[c]);
+                const pa = s_pa.copy(pos_data[a]);
+                const pb = s_pb.copy(pos_data[b]);
+                const pc = s_pc.copy(pos_data[c]);
                 const va = vel_data[a];
                 const vb = vel_data[b];
                 const vc = vel_data[c];
-                pa.AddScaled(step.dt, va);
-                pb.AddScaled(step.dt, vb);
-                pc.AddScaled(step.dt, vc);
+                pa.addScaled(step.dt, va);
+                pb.addScaled(step.dt, vb);
+                pc.addScaled(step.dt, vc);
                 const midPoint_x = (pa.x + pb.x + pc.x) / 3;
                 const midPoint_y = (pa.y + pb.y + pc.y) / 3;
                 pa.x -= midPoint_x;
@@ -3928,8 +3928,8 @@ export class ParticleSystem {
                 pc.x -= midPoint_x;
                 pc.y -= midPoint_y;
                 const r = s_r;
-                r.s = Vec2.Cross(oa, pa) + Vec2.Cross(ob, pb) + Vec2.Cross(oc, pc);
-                r.c = Vec2.Dot(oa, pa) + Vec2.Dot(ob, pb) + Vec2.Dot(oc, pc);
+                r.s = Vec2.cross(oa, pa) + Vec2.cross(ob, pb) + Vec2.cross(oc, pc);
+                r.c = Vec2.dot(oa, pa) + Vec2.dot(ob, pb) + Vec2.dot(oc, pc);
                 const r2 = r.s * r.s + r.c * r.c;
                 let invR = 1 / Math.sqrt(r2);
                 if (!Number.isFinite(invR)) {
@@ -3938,18 +3938,18 @@ export class ParticleSystem {
                 r.s *= invR;
                 r.c *= invR;
                 const strength = elasticStrength * triad.strength;
-                Rot.MultiplyVec2(r, oa, s_t0);
-                Vec2.Subtract(s_t0, pa, s_t0);
-                Vec2.Scale(strength, s_t0, s_t0);
-                va.Add(s_t0);
-                Rot.MultiplyVec2(r, ob, s_t0);
-                Vec2.Subtract(s_t0, pb, s_t0);
-                Vec2.Scale(strength, s_t0, s_t0);
-                vb.Add(s_t0);
-                Rot.MultiplyVec2(r, oc, s_t0);
-                Vec2.Subtract(s_t0, pc, s_t0);
-                Vec2.Scale(strength, s_t0, s_t0);
-                vc.Add(s_t0);
+                Rot.multiplyVec2(r, oa, s_t0);
+                Vec2.subtract(s_t0, pa, s_t0);
+                Vec2.scale(strength, s_t0, s_t0);
+                va.add(s_t0);
+                Rot.multiplyVec2(r, ob, s_t0);
+                Vec2.subtract(s_t0, pb, s_t0);
+                Vec2.scale(strength, s_t0, s_t0);
+                vb.add(s_t0);
+                Rot.multiplyVec2(r, oc, s_t0);
+                Vec2.subtract(s_t0, pc, s_t0);
+                Vec2.scale(strength, s_t0, s_t0);
+                vc.add(s_t0);
             }
         }
     }
@@ -3964,7 +3964,7 @@ export class ParticleSystem {
 
     public static readonly SolveElastic_s_t0 = new Vec2();
 
-    public SolveSpring(step: TimeStep): void {
+    public solveSpring(step: TimeStep): void {
         const s_pa = ParticleSystem.SolveSpring_s_pa;
         const s_pb = ParticleSystem.SolveSpring_s_pb;
         const s_d = ParticleSystem.SolveSpring_s_d;
@@ -3977,19 +3977,19 @@ export class ParticleSystem {
             if (pair.flags & ParticleFlag.Spring) {
                 const a = pair.indexA;
                 const b = pair.indexB;
-                const pa = s_pa.Copy(pos_data[a]);
-                const pb = s_pb.Copy(pos_data[b]);
+                const pa = s_pa.copy(pos_data[a]);
+                const pb = s_pb.copy(pos_data[b]);
                 const va = vel_data[a];
                 const vb = vel_data[b];
-                pa.AddScaled(step.dt, va);
-                pb.AddScaled(step.dt, vb);
-                const d = Vec2.Subtract(pb, pa, s_d);
+                pa.addScaled(step.dt, va);
+                pb.addScaled(step.dt, vb);
+                const d = Vec2.subtract(pb, pa, s_d);
                 const r0 = pair.distance;
-                const r1 = d.Length();
+                const r1 = d.length();
                 const strength = springStrength * pair.strength;
-                const f = Vec2.Scale((strength * (r0 - r1)) / r1, d, s_f);
-                va.Subtract(f);
-                vb.Add(f);
+                const f = Vec2.scale((strength * (r0 - r1)) / r1, d, s_f);
+                va.subtract(f);
+                vb.add(f);
             }
         }
     }
@@ -4002,15 +4002,15 @@ export class ParticleSystem {
 
     public static readonly SolveSpring_s_f = new Vec2();
 
-    public SolveTensile(step: TimeStep): void {
+    public solveTensile(step: TimeStep): void {
         const s_weightedNormal = ParticleSystem.SolveTensile_s_weightedNormal;
         const s_s = ParticleSystem.SolveTensile_s_s;
         const s_f = ParticleSystem.SolveTensile_s_f;
         const vel_data = this.m_velocityBuffer.data;
-        // DEBUG: Assert(this.m_accumulation2Buffer !== null);
+        // DEBUG: assert(this.m_accumulation2Buffer !== null);
         for (let i = 0; i < this.m_count; i++) {
             this.m_accumulation2Buffer[i] = new Vec2();
-            this.m_accumulation2Buffer[i].SetZero();
+            this.m_accumulation2Buffer[i].setZero();
         }
         for (let k = 0; k < this.m_contactBuffer.count; k++) {
             const contact = this.m_contactBuffer.data[k];
@@ -4019,15 +4019,15 @@ export class ParticleSystem {
                 const b = contact.indexB;
                 const w = contact.weight;
                 const n = contact.normal;
-                const weightedNormal = Vec2.Scale((1 - w) * w, n, s_weightedNormal);
-                this.m_accumulation2Buffer[a].Subtract(weightedNormal);
-                this.m_accumulation2Buffer[b].Add(weightedNormal);
+                const weightedNormal = Vec2.scale((1 - w) * w, n, s_weightedNormal);
+                this.m_accumulation2Buffer[a].subtract(weightedNormal);
+                this.m_accumulation2Buffer[b].add(weightedNormal);
             }
         }
-        const criticalVelocity = this.GetCriticalVelocity(step);
+        const criticalVelocity = this.getCriticalVelocity(step);
         const pressureStrength = this.m_def.surfaceTensionPressureStrength * criticalVelocity;
         const normalStrength = this.m_def.surfaceTensionNormalStrength * criticalVelocity;
-        const maxVelocityVariation = b2_maxParticleForce * criticalVelocity;
+        const maxVelocityVariation = MAX_PARTICLE_FORCE * criticalVelocity;
         for (let k = 0; k < this.m_contactBuffer.count; k++) {
             const contact = this.m_contactBuffer.data[k];
             if (contact.flags & ParticleFlag.Tensile) {
@@ -4036,12 +4036,12 @@ export class ParticleSystem {
                 const w = contact.weight;
                 const n = contact.normal;
                 const h = this.m_weightBuffer[a] + this.m_weightBuffer[b];
-                const s = Vec2.Subtract(this.m_accumulation2Buffer[b], this.m_accumulation2Buffer[a], s_s);
+                const s = Vec2.subtract(this.m_accumulation2Buffer[b], this.m_accumulation2Buffer[a], s_s);
                 const fn =
-                    Math.min(pressureStrength * (h - 2) + normalStrength * Vec2.Dot(s, n), maxVelocityVariation) * w;
-                const f = Vec2.Scale(fn, n, s_f);
-                vel_data[a].Subtract(f);
-                vel_data[b].Add(f);
+                    Math.min(pressureStrength * (h - 2) + normalStrength * Vec2.dot(s, n), maxVelocityVariation) * w;
+                const f = Vec2.scale(fn, n, s_f);
+                vel_data[a].subtract(f);
+                vel_data[b].add(f);
             }
         }
     }
@@ -4052,13 +4052,13 @@ export class ParticleSystem {
 
     public static readonly SolveTensile_s_f = new Vec2();
 
-    public SolveViscous(): void {
+    public solveViscous(): void {
         const s_v = ParticleSystem.SolveViscous_s_v;
         const s_f = ParticleSystem.SolveViscous_s_f;
         const pos_data = this.m_positionBuffer.data;
         const vel_data = this.m_velocityBuffer.data;
         const { viscousStrength } = this.m_def;
-        const inv_mass = this.GetParticleInvMass();
+        const inv_mass = this.getParticleInvMass();
         for (let k = 0; k < this.m_bodyContactBuffer.count; k++) {
             const contact = this.m_bodyContactBuffer.data[k];
             const a = contact.index;
@@ -4067,10 +4067,10 @@ export class ParticleSystem {
                 const w = contact.weight;
                 const m = contact.mass;
                 const p = pos_data[a];
-                const v = Vec2.Subtract(b.GetLinearVelocityFromWorldPoint(p, Vec2.s_t0), vel_data[a], s_v);
-                const f = Vec2.Scale(viscousStrength * m * w, v, s_f);
-                vel_data[a].AddScaled(inv_mass, f);
-                b.ApplyLinearImpulse(f.Negate(), p, true);
+                const v = Vec2.subtract(b.getLinearVelocityFromWorldPoint(p, Vec2.s_t0), vel_data[a], s_v);
+                const f = Vec2.scale(viscousStrength * m * w, v, s_f);
+                vel_data[a].addScaled(inv_mass, f);
+                b.applyLinearImpulse(f.negate(), p, true);
             }
         }
         for (let k = 0; k < this.m_contactBuffer.count; k++) {
@@ -4079,10 +4079,10 @@ export class ParticleSystem {
                 const a = contact.indexA;
                 const b = contact.indexB;
                 const w = contact.weight;
-                const v = Vec2.Subtract(vel_data[b], vel_data[a], s_v);
-                const f = Vec2.Scale(viscousStrength * w, v, s_f);
-                vel_data[a].Add(f);
-                vel_data[b].Subtract(f);
+                const v = Vec2.subtract(vel_data[b], vel_data[a], s_v);
+                const f = Vec2.scale(viscousStrength * w, v, s_f);
+                vel_data[a].add(f);
+                vel_data[b].subtract(f);
             }
         }
     }
@@ -4091,10 +4091,10 @@ export class ParticleSystem {
 
     public static readonly SolveViscous_s_f = new Vec2();
 
-    public SolveRepulsive(step: TimeStep): void {
+    public solveRepulsive(step: TimeStep): void {
         const s_f = ParticleSystem.SolveRepulsive_s_f;
         const vel_data = this.m_velocityBuffer.data;
-        const repulsiveStrength = this.m_def.repulsiveStrength * this.GetCriticalVelocity(step);
+        const repulsiveStrength = this.m_def.repulsiveStrength * this.getCriticalVelocity(step);
         for (let k = 0; k < this.m_contactBuffer.count; k++) {
             const contact = this.m_contactBuffer.data[k];
             if (contact.flags & ParticleFlag.Repulsive) {
@@ -4103,9 +4103,9 @@ export class ParticleSystem {
                 if (this.m_groupBuffer[a] !== this.m_groupBuffer[b]) {
                     const w = contact.weight;
                     const n = contact.normal;
-                    const f = Vec2.Scale(repulsiveStrength * w, n, s_f);
-                    vel_data[a].Subtract(f);
-                    vel_data[b].Add(f);
+                    const f = Vec2.scale(repulsiveStrength * w, n, s_f);
+                    vel_data[a].subtract(f);
+                    vel_data[b].add(f);
                 }
             }
         }
@@ -4113,13 +4113,13 @@ export class ParticleSystem {
 
     public static readonly SolveRepulsive_s_f = new Vec2();
 
-    public SolvePowder(step: TimeStep): void {
+    public solvePowder(step: TimeStep): void {
         const s_f = ParticleSystem.SolvePowder_s_f;
         const pos_data = this.m_positionBuffer.data;
         const vel_data = this.m_velocityBuffer.data;
-        const powderStrength = this.m_def.powderStrength * this.GetCriticalVelocity(step);
-        const minWeight = 1 - b2_particleStride;
-        const inv_mass = this.GetParticleInvMass();
+        const powderStrength = this.m_def.powderStrength * this.getCriticalVelocity(step);
+        const minWeight = 1 - PARTICLE_STRIDE;
+        const inv_mass = this.getParticleInvMass();
         for (let k = 0; k < this.m_bodyContactBuffer.count; k++) {
             const contact = this.m_bodyContactBuffer.data[k];
             const a = contact.index;
@@ -4130,9 +4130,9 @@ export class ParticleSystem {
                     const m = contact.mass;
                     const p = pos_data[a];
                     const n = contact.normal;
-                    const f = Vec2.Scale(powderStrength * m * (w - minWeight), n, s_f);
-                    vel_data[a].SubtractScaled(inv_mass, f);
-                    b.ApplyLinearImpulse(f, p, true);
+                    const f = Vec2.scale(powderStrength * m * (w - minWeight), n, s_f);
+                    vel_data[a].subtractScaled(inv_mass, f);
+                    b.applyLinearImpulse(f, p, true);
                 }
             }
         }
@@ -4144,9 +4144,9 @@ export class ParticleSystem {
                     const a = contact.indexA;
                     const b = contact.indexB;
                     const n = contact.normal;
-                    const f = Vec2.Scale(powderStrength * (w - minWeight), n, s_f);
-                    vel_data[a].Subtract(f);
-                    vel_data[b].Add(f);
+                    const f = Vec2.scale(powderStrength * (w - minWeight), n, s_f);
+                    vel_data[a].subtract(f);
+                    vel_data[b].add(f);
                 }
             }
         }
@@ -4154,11 +4154,11 @@ export class ParticleSystem {
 
     public static readonly SolvePowder_s_f = new Vec2();
 
-    public SolveSolid(step: TimeStep): void {
+    public solveSolid(step: TimeStep): void {
         const s_f = ParticleSystem.SolveSolid_s_f;
         const vel_data = this.m_velocityBuffer.data;
         // applies extra repulsive force from solid particle groups
-        this.m_depthBuffer = this.RequestBuffer(this.m_depthBuffer);
+        this.m_depthBuffer = this.requestBuffer(this.m_depthBuffer);
         const ejectionStrength = step.inv_dt * this.m_def.ejectionStrength;
         for (let k = 0; k < this.m_contactBuffer.count; k++) {
             const contact = this.m_contactBuffer.data[k];
@@ -4168,25 +4168,25 @@ export class ParticleSystem {
                 const w = contact.weight;
                 const n = contact.normal;
                 const h = this.m_depthBuffer[a] + this.m_depthBuffer[b];
-                const f = Vec2.Scale(ejectionStrength * h * w, n, s_f);
-                vel_data[a].Subtract(f);
-                vel_data[b].Add(f);
+                const f = Vec2.scale(ejectionStrength * h * w, n, s_f);
+                vel_data[a].subtract(f);
+                vel_data[b].add(f);
             }
         }
     }
 
     public static readonly SolveSolid_s_f = new Vec2();
 
-    public SolveForce(step: TimeStep): void {
+    public solveForce(step: TimeStep): void {
         const vel_data = this.m_velocityBuffer.data;
-        const velocityPerForce = step.dt * this.GetParticleInvMass();
+        const velocityPerForce = step.dt * this.getParticleInvMass();
         for (let i = 0; i < this.m_count; i++) {
-            vel_data[i].AddScaled(velocityPerForce, this.m_forceBuffer[i]);
+            vel_data[i].addScaled(velocityPerForce, this.m_forceBuffer[i]);
         }
         this.m_hasForce = false;
     }
 
-    public SolveColorMixing(): void {
+    public solveColorMixing(): void {
         // mixes color between contacting particles
         const colorMixing = 0.5 * this.m_def.colorMixingStrength;
         if (colorMixing) {
@@ -4199,37 +4199,37 @@ export class ParticleSystem {
                     const colorB = this.m_colorBuffer.data[b];
                     // Use the static method to ensure certain compilers inline
                     // this correctly.
-                    Color.MixColors(colorA, colorB, colorMixing);
+                    Color.mix(colorA, colorB, colorMixing);
                 }
             }
         }
     }
 
-    public SolveZombie(): void {
+    public solveZombie(): void {
         // removes particles with zombie flag
         let newCount = 0;
         const newIndices: number[] = []; // TODO: static
         for (let i = 0; i < this.m_count; i++) {
-            newIndices[i] = b2_invalidParticleIndex;
+            newIndices[i] = INVALID_PARTICLE_INDEX;
         }
-        // DEBUG: Assert(newIndices.length === this.m_count);
+        // DEBUG: assert(newIndices.length === this.m_count);
         let allParticleFlags = 0;
-        const destructionListener = this.m_world.GetDestructionListener();
+        const destructionListener = this.m_world.getDestructionListener();
         for (let i = 0; i < this.m_count; i++) {
             const flags = this.m_flagsBuffer.data[i];
             if (flags & ParticleFlag.Zombie) {
                 if (flags & ParticleFlag.DestructionListener) {
-                    destructionListener?.SayGoodbyeParticle(this, i);
+                    destructionListener?.sayGoodbyeParticle(this, i);
                 }
                 // Destroy particle handle.
                 if (this.m_handleIndexBuffer.data) {
                     const handle = this.m_handleIndexBuffer.data[i];
                     if (handle) {
-                        handle.SetIndex(b2_invalidParticleIndex);
+                        handle.setIndex(INVALID_PARTICLE_INDEX);
                         this.m_handleIndexBuffer.data[i] = null;
                     }
                 }
-                newIndices[i] = b2_invalidParticleIndex;
+                newIndices[i] = INVALID_PARTICLE_INDEX;
             } else {
                 newIndices[i] = newCount;
                 if (i !== newCount) {
@@ -4237,7 +4237,7 @@ export class ParticleSystem {
                     if (this.m_handleIndexBuffer.data) {
                         const handle = this.m_handleIndexBuffer.data[i];
                         if (handle) {
-                            handle.SetIndex(newCount);
+                            handle.setIndex(newCount);
                         }
                         this.m_handleIndexBuffer.data[newCount] = handle;
                     }
@@ -4253,11 +4253,11 @@ export class ParticleSystem {
                             i
                         ];
                     }
-                    this.m_positionBuffer.data[newCount].Copy(this.m_positionBuffer.data[i]);
-                    this.m_velocityBuffer.data[newCount].Copy(this.m_velocityBuffer.data[i]);
+                    this.m_positionBuffer.data[newCount].copy(this.m_positionBuffer.data[i]);
+                    this.m_velocityBuffer.data[newCount].copy(this.m_velocityBuffer.data[i]);
                     this.m_groupBuffer[newCount] = this.m_groupBuffer[i];
                     if (this.m_hasForce) {
-                        this.m_forceBuffer[newCount].Copy(this.m_forceBuffer[i]);
+                        this.m_forceBuffer[newCount].copy(this.m_forceBuffer[i]);
                     }
                     if (this.m_staticPressureBuffer) {
                         this.m_staticPressureBuffer[newCount] = this.m_staticPressureBuffer[i];
@@ -4266,7 +4266,7 @@ export class ParticleSystem {
                         this.m_depthBuffer[newCount] = this.m_depthBuffer[i];
                     }
                     if (this.m_colorBuffer.data) {
-                        this.m_colorBuffer.data[newCount].Copy(this.m_colorBuffer.data[i]);
+                        this.m_colorBuffer.data[newCount].copy(this.m_colorBuffer.data[i]);
                     }
                     if (this.m_userDataBuffer.data) {
                         this.m_userDataBuffer.data[newCount] = this.m_userDataBuffer.data[i];
@@ -4281,20 +4281,20 @@ export class ParticleSystem {
         }
 
         // predicate functions
-        const Test = {
-            IsProxyInvalid: (proxy: ParticleSystem_Proxy) => {
+        const test = {
+            isProxyInvalid: (proxy: ParticleSystem_Proxy) => {
                 return proxy.index < 0;
             },
-            IsContactInvalid: (contact: ParticleContact) => {
+            isContactInvalid: (contact: ParticleContact) => {
                 return contact.indexA < 0 || contact.indexB < 0;
             },
-            IsBodyContactInvalid: (contact: ParticleBodyContact) => {
+            isBodyContactInvalid: (contact: ParticleBodyContact) => {
                 return contact.index < 0;
             },
-            IsPairInvalid: (pair: ParticlePair) => {
+            isPairInvalid: (pair: ParticlePair) => {
                 return pair.indexA < 0 || pair.indexB < 0;
             },
-            IsTriadInvalid: (triad: ParticleTriad) => {
+            isTriadInvalid: (triad: ParticleTriad) => {
                 return triad.indexA < 0 || triad.indexB < 0 || triad.indexC < 0;
             },
         };
@@ -4304,7 +4304,7 @@ export class ParticleSystem {
             const proxy = this.m_proxyBuffer.data[k];
             proxy.index = newIndices[proxy.index];
         }
-        this.m_proxyBuffer.RemoveIf(Test.IsProxyInvalid);
+        this.m_proxyBuffer.removeIf(test.isProxyInvalid);
 
         // update contacts
         for (let k = 0; k < this.m_contactBuffer.count; k++) {
@@ -4312,14 +4312,14 @@ export class ParticleSystem {
             contact.indexA = newIndices[contact.indexA];
             contact.indexB = newIndices[contact.indexB];
         }
-        this.m_contactBuffer.RemoveIf(Test.IsContactInvalid);
+        this.m_contactBuffer.removeIf(test.isContactInvalid);
 
         // update particle-body contacts
         for (let k = 0; k < this.m_bodyContactBuffer.count; k++) {
             const contact = this.m_bodyContactBuffer.data[k];
             contact.index = newIndices[contact.index];
         }
-        this.m_bodyContactBuffer.RemoveIf(Test.IsBodyContactInvalid);
+        this.m_bodyContactBuffer.removeIf(test.isBodyContactInvalid);
 
         // update pairs
         for (let k = 0; k < this.m_pairBuffer.count; k++) {
@@ -4327,7 +4327,7 @@ export class ParticleSystem {
             pair.indexA = newIndices[pair.indexA];
             pair.indexB = newIndices[pair.indexB];
         }
-        this.m_pairBuffer.RemoveIf(Test.IsPairInvalid);
+        this.m_pairBuffer.removeIf(test.isPairInvalid);
 
         // update triads
         for (let k = 0; k < this.m_triadBuffer.count; k++) {
@@ -4336,21 +4336,21 @@ export class ParticleSystem {
             triad.indexB = newIndices[triad.indexB];
             triad.indexC = newIndices[triad.indexC];
         }
-        this.m_triadBuffer.RemoveIf(Test.IsTriadInvalid);
+        this.m_triadBuffer.removeIf(test.isTriadInvalid);
 
         // Update lifetime indices.
         if (this.m_indexByExpirationTimeBuffer.data) {
             let writeOffset = 0;
             for (let readOffset = 0; readOffset < this.m_count; readOffset++) {
                 const newIndex = newIndices[this.m_indexByExpirationTimeBuffer.data[readOffset]];
-                if (newIndex !== b2_invalidParticleIndex) {
+                if (newIndex !== INVALID_PARTICLE_INDEX) {
                     this.m_indexByExpirationTimeBuffer.data[writeOffset++] = newIndex;
                 }
             }
         }
 
         // update groups
-        for (let group = this.m_groupList; group; group = group.GetNext()) {
+        for (let group = this.m_groupList; group; group = group.getNext()) {
             let firstIndex = newCount;
             let lastIndex = 0;
             let modified = false;
@@ -4368,14 +4368,14 @@ export class ParticleSystem {
                 group.m_lastIndex = lastIndex;
                 if (modified) {
                     if (group.m_groupFlags & ParticleGroupFlag.Solid) {
-                        this.SetGroupFlags(group, group.m_groupFlags | ParticleGroupFlag.NeedsUpdateDepth);
+                        this.setGroupFlags(group, group.m_groupFlags | ParticleGroupFlag.NeedsUpdateDepth);
                     }
                 }
             } else {
                 group.m_firstIndex = 0;
                 group.m_lastIndex = 0;
                 if (!(group.m_groupFlags & ParticleGroupFlag.CanBeEmpty)) {
-                    this.SetGroupFlags(group, group.m_groupFlags | ParticleGroupFlag.WillBeDestroyed);
+                    this.setGroupFlags(group, group.m_groupFlags | ParticleGroupFlag.WillBeDestroyed);
                 }
             }
         }
@@ -4387,9 +4387,9 @@ export class ParticleSystem {
 
         // destroy bodies with no particles
         for (let group = this.m_groupList; group; ) {
-            const next = group.GetNext();
+            const next = group.getNext();
             if (group.m_groupFlags & ParticleGroupFlag.WillBeDestroyed) {
-                this.DestroyParticleGroup(group);
+                this.destroyParticleGroup(group);
             }
             group = next;
         }
@@ -4399,15 +4399,15 @@ export class ParticleSystem {
      * Destroy all particles which have outlived their lifetimes set
      * by SetParticleLifetime().
      */
-    public SolveLifetimes(step: TimeStep): void {
+    public solveLifetimes(step: TimeStep): void {
         // Update the time elapsed.
-        this.m_timeElapsed = this.LifetimeToExpirationTime(step.dt);
+        this.m_timeElapsed = this.lifetimeToExpirationTime(step.dt);
         // Get the floor (non-fractional component) of the elapsed time.
-        const quantizedTimeElapsed = this.GetQuantizedTimeElapsed();
+        const quantizedTimeElapsed = this.getQuantizedTimeElapsed();
 
         const expirationTimes = this.m_expirationTimeBuffer.data;
         const expirationTimeIndices = this.m_indexByExpirationTimeBuffer.data;
-        const particleCount = this.GetParticleCount();
+        const particleCount = this.getParticleCount();
         // Sort the lifetime buffer if it's required.
         if (this.m_expirationTimeBufferRequiresSorting) {
             /**
@@ -4446,16 +4446,16 @@ export class ParticleSystem {
                 break;
             }
             // Destroy this particle.
-            this.DestroyParticle(particleIndex);
+            this.destroyParticle(particleIndex);
         }
     }
 
-    public RotateBuffer(start: number, mid: number, end: number): void {
+    public rotateBuffer(start: number, mid: number, end: number): void {
         // move the particles assigned to the given group toward the end of array
         if (start === mid || mid === end) {
             return;
         }
-        // DEBUG: Assert(mid >= start && mid <= end);
+        // DEBUG: assert(mid >= start && mid <= end);
 
         function newIndices(i: number): number {
             if (i < start) {
@@ -4505,7 +4505,7 @@ export class ParticleSystem {
             for (let i = start; i < end; ++i) {
                 const handle = this.m_handleIndexBuffer.data[i];
                 if (handle) {
-                    handle.SetIndex(newIndices(handle.GetIndex()));
+                    handle.setIndex(newIndices(handle.getIndex()));
                 }
             }
         }
@@ -4513,7 +4513,7 @@ export class ParticleSystem {
         if (this.m_expirationTimeBuffer.data) {
             std_rotate(this.m_expirationTimeBuffer.data, start, mid, end);
             // Update expiration time buffer indices.
-            const particleCount = this.GetParticleCount();
+            const particleCount = this.getParticleCount();
             const indexByExpirationTime = this.m_indexByExpirationTimeBuffer.data;
             for (let i = 0; i < particleCount; ++i) {
                 indexByExpirationTime[i] = newIndices(indexByExpirationTime[i]);
@@ -4555,37 +4555,37 @@ export class ParticleSystem {
         }
 
         // update groups
-        for (let group = this.m_groupList; group; group = group.GetNext()) {
+        for (let group = this.m_groupList; group; group = group.getNext()) {
             group.m_firstIndex = newIndices(group.m_firstIndex);
             group.m_lastIndex = newIndices(group.m_lastIndex - 1) + 1;
         }
     }
 
-    public GetCriticalVelocity(step: TimeStep): number {
+    public getCriticalVelocity(step: TimeStep): number {
         return this.m_particleDiameter * step.inv_dt;
     }
 
-    public GetCriticalVelocitySquared(step: TimeStep): number {
-        const velocity = this.GetCriticalVelocity(step);
+    public getCriticalVelocitySquared(step: TimeStep): number {
+        const velocity = this.getCriticalVelocity(step);
         return velocity * velocity;
     }
 
-    public GetCriticalPressure(step: TimeStep): number {
-        return this.m_def.density * this.GetCriticalVelocitySquared(step);
+    public getCriticalPressure(step: TimeStep): number {
+        return this.m_def.density * this.getCriticalVelocitySquared(step);
     }
 
-    public GetParticleStride(): number {
-        return b2_particleStride * this.m_particleDiameter;
+    public getParticleStride(): number {
+        return PARTICLE_STRIDE * this.m_particleDiameter;
     }
 
-    public GetParticleMass(): number {
-        const stride = this.GetParticleStride();
+    public getParticleMass(): number {
+        const stride = this.getParticleStride();
         return this.m_def.density * stride * stride;
     }
 
-    public GetParticleInvMass(): number {
+    public getParticleInvMass(): number {
         // mass = density * stride^2, so we take the inverse of this.
-        const inverseStride = this.m_inverseDiameter * (1 / b2_particleStride);
+        const inverseStride = this.m_inverseDiameter * (1 / PARTICLE_STRIDE);
         return this.m_inverseDensity * inverseStride * inverseStride;
     }
 
@@ -4593,9 +4593,9 @@ export class ParticleSystem {
      * Get the world's contact filter if any particles with the
      * ContactFilter flag are present in the system.
      */
-    public GetFixtureContactFilter(): ContactFilter | null {
+    public getFixtureContactFilter(): ContactFilter | null {
         return this.m_allParticleFlags & ParticleFlag.FixtureContactFilter
-            ? this.m_world.GetContactManager().m_contactFilter
+            ? this.m_world.getContactManager().m_contactFilter
             : null;
     }
 
@@ -4604,9 +4604,9 @@ export class ParticleSystem {
      * ParticleContactFilter flag are present in the
      * system.
      */
-    public GetParticleContactFilter(): ContactFilter | null {
+    public getParticleContactFilter(): ContactFilter | null {
         return this.m_allParticleFlags & ParticleFlag.ParticleContactFilter
-            ? this.m_world.GetContactManager().m_contactFilter
+            ? this.m_world.getContactManager().m_contactFilter
             : null;
     }
 
@@ -4615,9 +4615,9 @@ export class ParticleSystem {
      * FixtureContactListener flag are present in the
      * system.
      */
-    public GetFixtureContactListener(): ContactListener | null {
+    public getFixtureContactListener(): ContactListener | null {
         return this.m_allParticleFlags & ParticleFlag.FixtureContactListener
-            ? this.m_world.GetContactManager().m_contactListener
+            ? this.m_world.getContactManager().m_contactListener
             : null;
     }
 
@@ -4626,18 +4626,18 @@ export class ParticleSystem {
      * ParticleContactListener flag are present in the
      * system.
      */
-    public GetParticleContactListener(): ContactListener | null {
+    public getParticleContactListener(): ContactListener | null {
         return this.m_allParticleFlags & ParticleFlag.ParticleContactListener
-            ? this.m_world.GetContactManager().m_contactListener
+            ? this.m_world.getContactManager().m_contactListener
             : null;
     }
 
-    public SetUserOverridableBuffer<T>(buffer: ParticleSystem_UserOverridableBuffer<T>, data: T[]): void {
+    public setUserOverridableBuffer<T>(buffer: ParticleSystem_UserOverridableBuffer<T>, data: T[]): void {
         buffer.data = data;
         buffer.userSuppliedCapacity = data.length;
     }
 
-    public SetGroupFlags(group: ParticleGroup, newFlags: ParticleGroupFlag): void {
+    public setGroupFlags(group: ParticleGroup, newFlags: ParticleGroupFlag): void {
         const oldFlags = group.m_groupFlags;
         if ((oldFlags ^ newFlags) & ParticleGroupFlag.Solid) {
             // If the Solid flag changed schedule depth update.
@@ -4650,14 +4650,14 @@ export class ParticleSystem {
         if (~this.m_allGroupFlags & newFlags) {
             // If any flags were added
             if (newFlags & ParticleGroupFlag.Solid) {
-                this.m_depthBuffer = this.RequestBuffer(this.m_depthBuffer);
+                this.m_depthBuffer = this.requestBuffer(this.m_depthBuffer);
             }
             this.m_allGroupFlags |= newFlags;
         }
         group.m_groupFlags = newFlags;
     }
 
-    public static BodyContactCompare(lhs: ParticleBodyContact, rhs: ParticleBodyContact): boolean {
+    public static bodyContactCompare(lhs: ParticleBodyContact, rhs: ParticleBodyContact): boolean {
         if (lhs.index === rhs.index) {
             // Subsort by weight, decreasing.
             return lhs.weight > rhs.weight;
@@ -4665,7 +4665,7 @@ export class ParticleSystem {
         return lhs.index < rhs.index;
     }
 
-    public RemoveSpuriousBodyContacts(): void {
+    public removeSpuriousBodyContacts(): void {
         // At this point we have a list of contact candidates based on AABB
         // overlap.The AABB query that  generated this returns all collidable
         // fixtures overlapping particle bounding boxes.  This breaks down around
@@ -4683,7 +4683,7 @@ export class ParticleSystem {
         //         it, otherwise discard as impossible
         //      - repeat for up to n nearest contacts, currently we get good results
         //        from n=3.
-        std_sort(this.m_bodyContactBuffer.data, 0, this.m_bodyContactBuffer.count, ParticleSystem.BodyContactCompare);
+        std_sort(this.m_bodyContactBuffer.data, 0, this.m_bodyContactBuffer.count, ParticleSystem.bodyContactCompare);
 
         const s_n = ParticleSystem.RemoveSpuriousBodyContacts_s_n;
         const s_pos = ParticleSystem.RemoveSpuriousBodyContacts_s_pos;
@@ -4699,7 +4699,7 @@ export class ParticleSystem {
         let currentContacts = 0;
         // Output the number of discarded contacts.
         // let discarded = 0;
-        const ParticleBodyContactRemovePredicate = (contact: ParticleBodyContact): boolean => {
+        const particleBodyContactRemovePredicate = (contact: ParticleBodyContact): boolean => {
             // This implements the selection criteria described in
             // RemoveSpuriousBodyContacts().
             // This functor is iterating through a list of Body contacts per
@@ -4721,22 +4721,22 @@ export class ParticleSystem {
 
             // Project along inverse normal (as returned in the contact) to get the
             // point to check.
-            const n = s_n.Copy(contact.normal);
+            const n = s_n.copy(contact.normal);
             // weight is 1-(inv(diameter) * distance)
-            n.Scale(this.m_particleDiameter * (1 - contact.weight));
-            const pos = Vec2.Add(this.m_positionBuffer.data[contact.index], n, s_pos);
+            n.scale(this.m_particleDiameter * (1 - contact.weight));
+            const pos = Vec2.add(this.m_positionBuffer.data[contact.index], n, s_pos);
 
             // pos is now a point projected back along the contact normal to the
             // contact distance. If the surface makes sense for a contact, pos will
             // now lie on or in the fixture generating
-            if (!contact.fixture.TestPoint(pos)) {
-                const childCount = contact.fixture.GetShape().GetChildCount();
+            if (!contact.fixture.testPoint(pos)) {
+                const childCount = contact.fixture.getShape().getChildCount();
                 for (let childIndex = 0; childIndex < childCount; childIndex++) {
                     const normal = s_normal;
 
                     const distance = computeDistance(
-                        contact.fixture.GetShape(),
-                        contact.fixture.GetBody().GetTransform(),
+                        contact.fixture.getShape(),
+                        contact.fixture.getBody().getTransform(),
                         pos,
                         normal,
                         childIndex,
@@ -4753,7 +4753,7 @@ export class ParticleSystem {
         };
         this.m_bodyContactBuffer.count = std_remove_if(
             this.m_bodyContactBuffer.data,
-            ParticleBodyContactRemovePredicate,
+            particleBodyContactRemovePredicate,
             this.m_bodyContactBuffer.count,
         );
     }
@@ -4764,7 +4764,7 @@ export class ParticleSystem {
 
     private static RemoveSpuriousBodyContacts_s_normal = new Vec2();
 
-    public DetectStuckParticle(particle: number): void {
+    public detectStuckParticle(particle: number): void {
         // Detect stuck particles
         //
         // The basic algorithm is to allow the user to specify an optional
@@ -4795,9 +4795,9 @@ export class ParticleSystem {
             ++this.m_consecutiveContactStepsBuffer.data[particle];
             // if (*consecutiveCount > m_stuckThreshold)
             if (this.m_consecutiveContactStepsBuffer.data[particle] > this.m_stuckThreshold) {
-                // int32& newStuckParticle = m_stuckParticleBuffer.Append();
+                // int32& newStuckParticle = m_stuckParticleBuffer.append();
                 // newStuckParticle = particle;
-                this.m_stuckParticleBuffer.data[this.m_stuckParticleBuffer.Append()] = particle;
+                this.m_stuckParticleBuffer.data[this.m_stuckParticleBuffer.append()] = particle;
             }
         }
         // *lastStep = m_timestamp;
@@ -4807,15 +4807,15 @@ export class ParticleSystem {
     /**
      * Determine whether a particle index is valid.
      */
-    public ValidateParticleIndex(index: number): boolean {
-        return index >= 0 && index < this.GetParticleCount() && index !== b2_invalidParticleIndex;
+    public validateParticleIndex(index: number): boolean {
+        return index >= 0 && index < this.getParticleCount() && index !== INVALID_PARTICLE_INDEX;
     }
 
     /**
      * Get the time elapsed in
      * ParticleSystemDef::lifetimeGranularity.
      */
-    public GetQuantizedTimeElapsed(): number {
+    public getQuantizedTimeElapsed(): number {
         // return (int32)(m_timeElapsed >> 32);
         return Math.floor(this.m_timeElapsed / 0x100000000);
     }
@@ -4823,35 +4823,35 @@ export class ParticleSystem {
     /**
      * Convert a lifetime in seconds to an expiration time.
      */
-    public LifetimeToExpirationTime(lifetime: number): number {
+    public lifetimeToExpirationTime(lifetime: number): number {
         return this.m_timeElapsed + Math.floor((lifetime / this.m_def.lifetimeGranularity) * 0x100000000);
     }
 
-    public ForceCanBeApplied(flags: ParticleFlag): boolean {
+    public forceCanBeApplied(flags: ParticleFlag): boolean {
         return !(flags & ParticleFlag.Wall);
     }
 
-    public PrepareForceBuffer(): void {
+    public prepareForceBuffer(): void {
         if (!this.m_hasForce) {
             for (let i = 0; i < this.m_count; i++) {
-                this.m_forceBuffer[i].SetZero();
+                this.m_forceBuffer[i].setZero();
             }
             this.m_hasForce = true;
         }
     }
 
-    public IsRigidGroup(group: ParticleGroup | null): boolean {
+    public isRigidGroup(group: ParticleGroup | null): boolean {
         return group !== null && (group.m_groupFlags & ParticleGroupFlag.Rigid) !== 0;
     }
 
-    public GetLinearVelocity(group: ParticleGroup | null, particleIndex: number, point: Vec2, out: Vec2): Vec2 {
-        if (group && this.IsRigidGroup(group)) {
-            return group.GetLinearVelocityFromWorldPoint(point, out);
+    public getLinearVelocity(group: ParticleGroup | null, particleIndex: number, point: Vec2, out: Vec2): Vec2 {
+        if (group && this.isRigidGroup(group)) {
+            return group.getLinearVelocityFromWorldPoint(point, out);
         }
-        return out.Copy(this.m_velocityBuffer.data[particleIndex]);
+        return out.copy(this.m_velocityBuffer.data[particleIndex]);
     }
 
-    public InitDampingParameter(
+    public initDampingParameter(
         invMass: number[],
         invInertia: number[],
         tangentDistance: number[],
@@ -4863,10 +4863,10 @@ export class ParticleSystem {
     ): void {
         invMass[0] = mass > 0 ? 1 / mass : 0;
         invInertia[0] = inertia > 0 ? 1 / inertia : 0;
-        tangentDistance[0] = Vec2.Cross(Vec2.Subtract(point, center, Vec2.s_t0), normal);
+        tangentDistance[0] = Vec2.cross(Vec2.subtract(point, center, Vec2.s_t0), normal);
     }
 
-    public InitDampingParameterWithRigidGroupOrParticle(
+    public initDampingParameterWithRigidGroupOrParticle(
         invMass: number[],
         invInertia: number[],
         tangentDistance: number[],
@@ -4877,23 +4877,23 @@ export class ParticleSystem {
         normal: Vec2,
     ): void {
         if (group && isRigidGroup) {
-            this.InitDampingParameter(
+            this.initDampingParameter(
                 invMass,
                 invInertia,
                 tangentDistance,
-                group.GetMass(),
-                group.GetInertia(),
-                group.GetCenter(),
+                group.getMass(),
+                group.getInertia(),
+                group.getCenter(),
                 point,
                 normal,
             );
         } else {
             const flags = this.m_flagsBuffer.data[particleIndex];
-            this.InitDampingParameter(
+            this.initDampingParameter(
                 invMass,
                 invInertia,
                 tangentDistance,
-                flags & ParticleFlag.Wall ? 0 : this.GetParticleMass(),
+                flags & ParticleFlag.Wall ? 0 : this.getParticleMass(),
                 0,
                 point,
                 point,
@@ -4902,7 +4902,7 @@ export class ParticleSystem {
         }
     }
 
-    public ComputeDampingImpulse(
+    public computeDampingImpulse(
         invMassA: number,
         invInertiaA: number,
         tangentDistanceA: number,
@@ -4919,7 +4919,7 @@ export class ParticleSystem {
         return invMass > 0 ? normalVelocity / invMass : 0;
     }
 
-    public ApplyDamping(
+    public applyDamping(
         invMass: number,
         invInertia: number,
         tangentDistance: number,
@@ -4930,28 +4930,28 @@ export class ParticleSystem {
         normal: Vec2,
     ): void {
         if (group && isRigidGroup) {
-            group.m_linearVelocity.AddScaled(impulse * invMass, normal);
+            group.m_linearVelocity.addScaled(impulse * invMass, normal);
             group.m_angularVelocity += impulse * tangentDistance * invInertia;
         } else {
-            this.m_velocityBuffer.data[particleIndex].AddScaled(impulse * invMass, normal);
+            this.m_velocityBuffer.data[particleIndex].addScaled(impulse * invMass, normal);
         }
     }
 }
 
 export class ParticleSystem_Proxy {
-    public index = b2_invalidParticleIndex;
+    public index = INVALID_PARTICLE_INDEX;
 
     public tag = 0;
 
-    public static CompareProxyProxy(a: ParticleSystem_Proxy, b: ParticleSystem_Proxy): boolean {
+    public static compareProxyProxy(a: ParticleSystem_Proxy, b: ParticleSystem_Proxy): boolean {
         return a.tag < b.tag;
     }
 
-    public static CompareTagProxy(a: number, b: ParticleSystem_Proxy): boolean {
+    public static compareTagProxy(a: number, b: ParticleSystem_Proxy): boolean {
         return a < b.tag;
     }
 
-    public static CompareProxyTag(a: ParticleSystem_Proxy, b: number): boolean {
+    public static compareProxyTag(a: ParticleSystem_Proxy, b: number): boolean {
         return a.tag < b;
     }
 }
@@ -4986,27 +4986,27 @@ export class ParticleSystem_InsideBoundsEnumerator {
         this.m_yUpper = (upper & ParticleSystem.yMask) >>> 0;
         this.m_first = first;
         this.m_last = last;
-        // DEBUG: Assert(this.m_first <= this.m_last);
+        // DEBUG: assert(this.m_first <= this.m_last);
     }
 
     /**
      * Get index of the next particle. Returns
      * b2_invalidParticleIndex if there are no more particles.
      */
-    public GetNext(): number {
+    public getNext(): number {
         while (this.m_first < this.m_last) {
             const xTag = (this.m_system.m_proxyBuffer.data[this.m_first].tag & ParticleSystem.xMask) >>> 0;
             // #if B2_ASSERT_ENABLED
             // DEBUG: const yTag = (this.m_system.m_proxyBuffer.data[this.m_first].tag & ParticleSystem_yMask) >>> 0;
-            // DEBUG: Assert(yTag >= this.m_yLower);
-            // DEBUG: Assert(yTag <= this.m_yUpper);
+            // DEBUG: assert(yTag >= this.m_yLower);
+            // DEBUG: assert(yTag <= this.m_yUpper);
             // #endif
             if (xTag >= this.m_xLower && xTag <= this.m_xUpper) {
                 return this.m_system.m_proxyBuffer.data[this.m_first++].index;
             }
             this.m_first++;
         }
-        return b2_invalidParticleIndex;
+        return INVALID_PARTICLE_INDEX;
     }
 }
 
@@ -5031,35 +5031,35 @@ export class ParticleSystem_ParticleListNode {
  * @constructor
  */
 export class ParticleSystem_FixedSetAllocator<T> {
-    public Allocate(_itemSize: number, count: number): number {
+    public allocate(_itemSize: number, count: number): number {
         // TODO
         return count;
     }
 
-    public Clear(): void {
+    public clear(): void {
         // TODO
     }
 
-    public GetCount(): number {
+    public getCount(): number {
         // TODO
         return 0;
     }
 
-    public Invalidate(_itemIndex: number): void {
+    public invalidate(_itemIndex: number): void {
         // TODO
     }
 
-    public GetValidBuffer(): boolean[] {
-        // TODO
-        return [];
-    }
-
-    public GetBuffer(): T[] {
+    public getValidBuffer(): boolean[] {
         // TODO
         return [];
     }
 
-    public SetCount(_count: number): void {
+    public getBuffer(): T[] {
+        // TODO
+        return [];
+    }
+
+    public setCount(_count: number): void {
         // TODO
     }
 }
@@ -5067,7 +5067,7 @@ export class ParticleSystem_FixedSetAllocator<T> {
 export class ParticleSystem_FixtureParticle {
     public first: Fixture;
 
-    public second = b2_invalidParticleIndex;
+    public second = INVALID_PARTICLE_INDEX;
 
     public constructor(fixture: Fixture, particle: number) {
         this.first = fixture;
@@ -5078,23 +5078,23 @@ export class ParticleSystem_FixtureParticle {
 export class ParticleSystem_FixtureParticleSet extends ParticleSystem_FixedSetAllocator<
     ParticleSystem_FixtureParticle
 > {
-    public Initialize(
+    public initialize(
         _bodyContactBuffer: GrowableBuffer<ParticleBodyContact>,
         _flagsBuffer: ParticleSystem_UserOverridableBuffer<ParticleFlag>,
     ): void {
         // TODO
     }
 
-    public Find(_pair: ParticleSystem_FixtureParticle): number {
+    public find(_pair: ParticleSystem_FixtureParticle): number {
         // TODO
-        return b2_invalidParticleIndex;
+        return INVALID_PARTICLE_INDEX;
     }
 }
 
 export class ParticleSystem_ParticlePair {
-    public first = b2_invalidParticleIndex;
+    public first = INVALID_PARTICLE_INDEX;
 
-    public second = b2_invalidParticleIndex;
+    public second = INVALID_PARTICLE_INDEX;
 
     public constructor(particleA: number, particleB: number) {
         this.first = particleA;
@@ -5103,16 +5103,16 @@ export class ParticleSystem_ParticlePair {
 }
 
 export class ParticlePairSet extends ParticleSystem_FixedSetAllocator<ParticleSystem_ParticlePair> {
-    public Initialize(
+    public initialize(
         _contactBuffer: GrowableBuffer<ParticleContact>,
         _flagsBuffer: ParticleSystem_UserOverridableBuffer<ParticleFlag>,
     ): void {
         // TODO
     }
 
-    public Find(_pair: ParticleSystem_ParticlePair): number {
+    public find(_pair: ParticleSystem_ParticlePair): number {
         // TODO
-        return b2_invalidParticleIndex;
+        return INVALID_PARTICLE_INDEX;
     }
 }
 
@@ -5122,21 +5122,21 @@ export class ParticleSystem_ConnectionFilter {
      * A pair or a triad should contain at least one 'necessary'
      * particle.
      */
-    public IsNecessary(_index: number): boolean {
+    public isNecessary(_index: number): boolean {
         return true;
     }
 
     /**
      * An additional condition for creating a pair.
      */
-    public ShouldCreatePair(_a: number, _b: number): boolean {
+    public shouldCreatePair(_a: number, _b: number): boolean {
         return true;
     }
 
     /**
      * An additional condition for creating a triad.
      */
-    public ShouldCreateTriad(_a: number, _b: number, _c: number): boolean {
+    public shouldCreateTriad(_a: number, _b: number, _c: number): boolean {
         return true;
     }
 }
@@ -5152,14 +5152,14 @@ export class ParticleSystem_JoinParticleGroupsFilter extends ParticleSystem_Conn
     /**
      * An additional condition for creating a pair.
      */
-    public ShouldCreatePair(a: number, b: number): boolean {
+    public shouldCreatePair(a: number, b: number): boolean {
         return (a < this.m_threshold && this.m_threshold <= b) || (b < this.m_threshold && this.m_threshold <= a);
     }
 
     /**
      * An additional condition for creating a triad.
      */
-    public ShouldCreateTriad(a: number, b: number, c: number): boolean {
+    public shouldCreateTriad(a: number, b: number, c: number): boolean {
         return (
             (a < this.m_threshold || b < this.m_threshold || c < this.m_threshold) &&
             (this.m_threshold <= a || this.m_threshold <= b || this.m_threshold <= c)
@@ -5178,20 +5178,20 @@ export class ParticleSystem_CompositeShape extends Shape {
 
     public m_shapeCount = 0;
 
-    public Clone(): Shape {
+    public clone(): Shape {
         throw new Error();
     }
 
-    public GetChildCount(): number {
+    public getChildCount(): number {
         return 1;
     }
 
     /**
      * @see Shape::TestPoint
      */
-    public TestPoint(xf: Transform, p: XY): boolean {
+    public testPoint(xf: Transform, p: XY): boolean {
         for (let i = 0; i < this.m_shapeCount; i++) {
-            if (this.m_shapes[i].TestPoint(xf, p)) {
+            if (this.m_shapes[i].testPoint(xf, p)) {
                 return true;
             }
         }
@@ -5201,27 +5201,27 @@ export class ParticleSystem_CompositeShape extends Shape {
     /**
      * Implement Shape.
      */
-    public RayCast(_output: RayCastOutput, _input: RayCastInput, _xf: Transform, _childIndex: number): boolean {
-        // DEBUG: Assert(false);
+    public rayCast(_output: RayCastOutput, _input: RayCastInput, _xf: Transform, _childIndex: number): boolean {
+        // DEBUG: assert(false);
         return false;
     }
 
     /**
      * @see Shape::ComputeAABB
      */
-    public ComputeAABB(aabb: AABB, xf: Transform, _childIndex: number): void {
+    public computeAABB(aabb: AABB, xf: Transform, _childIndex: number): void {
         const s_subaabb = new AABB();
         aabb.lowerBound.x = +MAX_FLOAT;
         aabb.lowerBound.y = +MAX_FLOAT;
         aabb.upperBound.x = -MAX_FLOAT;
         aabb.upperBound.y = -MAX_FLOAT;
-        // DEBUG: Assert(childIndex === 0);
+        // DEBUG: assert(childIndex === 0);
         for (let i = 0; i < this.m_shapeCount; i++) {
-            const childCount = this.m_shapes[i].GetChildCount();
+            const childCount = this.m_shapes[i].getChildCount();
             for (let j = 0; j < childCount; j++) {
                 const subaabb = s_subaabb;
-                this.m_shapes[i].ComputeAABB(subaabb, xf, j);
-                aabb.Combine1(subaabb);
+                this.m_shapes[i].computeAABB(subaabb, xf, j);
+                aabb.combine1(subaabb);
             }
         }
     }
@@ -5229,15 +5229,15 @@ export class ParticleSystem_CompositeShape extends Shape {
     /**
      * @see Shape::ComputeMass
      */
-    public ComputeMass(_massData: MassData, _density: number): void {
-        // DEBUG: Assert(false);
+    public computeMass(_massData: MassData, _density: number): void {
+        // DEBUG: assert(false);
     }
 
-    public SetupDistanceProxy(_proxy: DistanceProxy, _index: number): void {
-        // DEBUG: Assert(false);
+    public setupDistanceProxy(_proxy: DistanceProxy, _index: number): void {
+        // DEBUG: assert(false);
     }
 
-    public Draw() {}
+    public draw() {}
 }
 
 export class ParticleSystem_ReactiveFilter extends ParticleSystem_ConnectionFilter {
@@ -5248,7 +5248,7 @@ export class ParticleSystem_ReactiveFilter extends ParticleSystem_ConnectionFilt
         this.m_flagsBuffer = flagsBuffer;
     }
 
-    public IsNecessary(index: number): boolean {
+    public isNecessary(index: number): boolean {
         return (this.m_flagsBuffer.data[index] & ParticleFlag.Reactive) !== 0;
     }
 }

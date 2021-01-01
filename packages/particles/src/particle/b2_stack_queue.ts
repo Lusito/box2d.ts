@@ -16,9 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { Assert } from "@box2d/core";
-
-// DEBUG: import { Assert } from "../common/b2_settings";
+import { assert } from "@box2d/core";
 
 export class StackQueue<T> {
     public readonly m_buffer: Array<T | null> = [];
@@ -35,7 +33,7 @@ export class StackQueue<T> {
         this.m_buffer.fill(null, 0, capacity);
     }
 
-    public Push(item: T): void {
+    public push(item: T): void {
         if (this.m_back >= this.m_capacity) {
             for (let i = this.m_front; i < this.m_back; i++) {
                 this.m_buffer[i - this.m_front] = this.m_buffer[i];
@@ -47,20 +45,20 @@ export class StackQueue<T> {
         this.m_back++;
     }
 
-    public Pop(): void {
-        // DEBUG: Assert(this.m_front < this.m_back);
+    public pop(): void {
+        // DEBUG: assert(this.m_front < this.m_back);
         this.m_buffer[this.m_front] = null;
         this.m_front++;
     }
 
-    public Empty(): boolean {
-        // DEBUG: Assert(this.m_front <= this.m_back);
+    public empty(): boolean {
+        // DEBUG: assert(this.m_front <= this.m_back);
         return this.m_front === this.m_back;
     }
 
-    public Front(): T {
+    public front(): T {
         const item = this.m_buffer[this.m_front];
-        Assert(item !== null);
+        assert(item !== null);
         return item;
     }
 }

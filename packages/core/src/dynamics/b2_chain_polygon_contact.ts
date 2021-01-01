@@ -21,7 +21,7 @@
 // SOFTWARE.
 
 import { Transform } from "../common/b2_math";
-import { CollideEdgeAndPolygon } from "../collision/b2_collide_edge";
+import { collideEdgeAndPolygon } from "../collision/b2_collide_edge";
 import { Manifold } from "../collision/b2_collision";
 import { ChainShape } from "../collision/b2_chain_shape";
 import { EdgeShape } from "../collision/b2_edge_shape";
@@ -32,9 +32,9 @@ import { Contact } from "./b2_contact";
 export class ChainAndPolygonContact extends Contact<ChainShape, PolygonShape> {
     private static Evaluate_s_edge = new EdgeShape();
 
-    public Evaluate(manifold: Manifold, xfA: Transform, xfB: Transform): void {
+    public evaluate(manifold: Manifold, xfA: Transform, xfB: Transform): void {
         const edge = ChainAndPolygonContact.Evaluate_s_edge;
-        this.GetShapeA().GetChildEdge(edge, this.m_indexA);
-        CollideEdgeAndPolygon(manifold, edge, xfA, this.GetShapeB(), xfB);
+        this.getShapeA().getChildEdge(edge, this.m_indexA);
+        collideEdgeAndPolygon(manifold, edge, xfA, this.getShapeB(), xfB);
     }
 }

@@ -10,8 +10,8 @@ function submergedAreaForPolygon(shape: Shape, normal: Vec2, offset: number, xf:
     const polygon = shape as PolygonShape;
 
     // Transform plane into shape co-ordinates
-    const normalL = Rot.TransposeMultiplyVec2(xf.q, normal, ComputeSubmergedArea_s_normalL);
-    const offsetL = offset - Vec2.Dot(normal, xf.p);
+    const normalL = Rot.transposeMultiplyVec2(xf.q, normal, ComputeSubmergedArea_s_normalL);
+    const offsetL = offset - Vec2.dot(normal, xf.p);
 
     const depths: number[] = [];
     let diveCount = 0;
@@ -20,7 +20,7 @@ function submergedAreaForPolygon(shape: Shape, normal: Vec2, offset: number, xf:
 
     let lastSubmerged = false;
     for (let i = 0; i < polygon.m_count; ++i) {
-        depths[i] = Vec2.Dot(normalL, polygon.m_vertices[i]) - offsetL;
+        depths[i] = Vec2.dot(normalL, polygon.m_vertices[i]) - offsetL;
         const isSubmerged = depths[i] < -EPSILON;
         if (i > 0) {
             if (isSubmerged) {
@@ -40,8 +40,8 @@ function submergedAreaForPolygon(shape: Shape, normal: Vec2, offset: number, xf:
             if (lastSubmerged) {
                 // Completely submerged
                 const md = ComputeSubmergedArea_s_md;
-                polygon.ComputeMass(md, 1);
-                Transform.MultiplyVec2(xf, md.center, c);
+                polygon.computeMass(md, 1);
+                Transform.multiplyVec2(xf, md.center, c);
                 return md.mass;
             }
             // Completely dry
@@ -60,18 +60,18 @@ function submergedAreaForPolygon(shape: Shape, normal: Vec2, offset: number, xf:
     const intoLamdda = (0 - depths[intoIndex]) / (depths[intoIndex2] - depths[intoIndex]);
     const outoLamdda = (0 - depths[outoIndex]) / (depths[outoIndex2] - depths[outoIndex]);
 
-    const intoVec = ComputeSubmergedArea_s_intoVec.Set(
+    const intoVec = ComputeSubmergedArea_s_intoVec.set(
         polygon.m_vertices[intoIndex].x * (1 - intoLamdda) + polygon.m_vertices[intoIndex2].x * intoLamdda,
         polygon.m_vertices[intoIndex].y * (1 - intoLamdda) + polygon.m_vertices[intoIndex2].y * intoLamdda,
     );
-    const outoVec = ComputeSubmergedArea_s_outoVec.Set(
+    const outoVec = ComputeSubmergedArea_s_outoVec.set(
         polygon.m_vertices[outoIndex].x * (1 - outoLamdda) + polygon.m_vertices[outoIndex2].x * outoLamdda,
         polygon.m_vertices[outoIndex].y * (1 - outoLamdda) + polygon.m_vertices[outoIndex2].y * outoLamdda,
     );
 
     // Initialize accumulator
     let area = 0;
-    const center = ComputeSubmergedArea_s_center.SetZero();
+    const center = ComputeSubmergedArea_s_center.setZero();
     let p2 = polygon.m_vertices[intoIndex2];
     let p3: Vec2;
 
@@ -95,26 +95,26 @@ function submergedAreaForPolygon(shape: Shape, normal: Vec2, offset: number, xf:
     }
 
     // Normalize and transform centroid
-    center.Scale(1 / area);
-    Transform.MultiplyVec2(xf, center, c);
+    center.scale(1 / area);
+    Transform.multiplyVec2(xf, center, c);
 
     return area;
 }
 
 function submergedAreaForEdge(shape: Shape, _normal: Vec2, _offset: number, _xf: Transform, c: Vec2): number {
-    c.SetZero();
+    c.setZero();
     return 0;
 }
 
 function submergedAreaForChain(shape: Shape, _normal: Vec2, _offset: number, _xf: Transform, c: Vec2): number {
-    c.SetZero();
+    c.setZero();
     return 0;
 }
 
 function submergedAreaForCircle(shape: Shape, normal: Vec2, offset: number, xf: Transform, c: Vec2): number {
     const circle = shape as CircleShape;
-    const p = Transform.MultiplyVec2(xf, circle.m_p, new Vec2());
-    const l = -(Vec2.Dot(normal, p) - offset);
+    const p = Transform.multiplyVec2(xf, circle.m_p, new Vec2());
+    const l = -(Vec2.dot(normal, p) - offset);
 
     if (l < -circle.m_radius + EPSILON) {
         // Completely dry
@@ -122,7 +122,7 @@ function submergedAreaForCircle(shape: Shape, normal: Vec2, offset: number, xf: 
     }
     if (l > circle.m_radius) {
         // Completely wet
-        c.Copy(p);
+        c.copy(p);
         return Math.PI * circle.m_radius * circle.m_radius;
     }
 
@@ -139,14 +139,14 @@ function submergedAreaForCircle(shape: Shape, normal: Vec2, offset: number, xf: 
 }
 type submergedAreaFn = (shape: Shape, _normal: Vec2, _offset: number, _xf: Transform, c: Vec2) => number;
 
-export const SubmergedAreaByShape: submergedAreaFn[] = [];
+export const submergedAreaByShape: submergedAreaFn[] = [];
 
-SubmergedAreaByShape[ShapeType.Circle] = submergedAreaForCircle;
-SubmergedAreaByShape[ShapeType.Edge] = submergedAreaForEdge;
-SubmergedAreaByShape[ShapeType.Polygon] = submergedAreaForPolygon;
-SubmergedAreaByShape[ShapeType.Chain] = submergedAreaForChain;
+submergedAreaByShape[ShapeType.Circle] = submergedAreaForCircle;
+submergedAreaByShape[ShapeType.Edge] = submergedAreaForEdge;
+submergedAreaByShape[ShapeType.Polygon] = submergedAreaForPolygon;
+submergedAreaByShape[ShapeType.Chain] = submergedAreaForChain;
 
-export function SubmergedAreaForShape(shape: Shape, normal: Vec2, offset: number, xf: Transform, c: Vec2) {
-    const fn = SubmergedAreaByShape[shape.GetType()];
+export function submergedAreaForShape(shape: Shape, normal: Vec2, offset: number, xf: Transform, c: Vec2) {
+    const fn = submergedAreaByShape[shape.getType()];
     return fn ? fn(shape, normal, offset, xf, c) : 0;
 }

@@ -57,16 +57,16 @@ class WreckingBallTest extends Test {
     public constructor() {
         super();
 
-        const ground = this.m_world.CreateBody();
+        const ground = this.m_world.createBody();
         {
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape, density: 0 });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape, density: 0 });
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.5, 0.125);
+            shape.setAsBox(0.5, 0.125);
 
             const fd: FixtureDef = {
                 shape,
@@ -83,7 +83,7 @@ class WreckingBallTest extends Test {
 
             const N = 10;
             const y = 15;
-            this.m_distanceJointDef.localAnchorA.Set(0, y);
+            this.m_distanceJointDef.localAnchorA.set(0, y);
 
             let prevBody = ground;
             for (let i = 0; i < N; ++i) {
@@ -93,15 +93,15 @@ class WreckingBallTest extends Test {
                     position,
                 };
                 if (i === N - 1) {
-                    position.Set(1 * i, y);
+                    position.set(1 * i, y);
                     bd.angularDamping = 0.4;
                 }
 
-                const body = this.m_world.CreateBody(bd);
+                const body = this.m_world.createBody(bd);
 
                 if (i === N - 1) {
                     const circleShape = new CircleShape(1.5);
-                    body.CreateFixture({
+                    body.createFixture({
                         shape: circleShape,
                         density: 100,
                         filter: {
@@ -109,17 +109,17 @@ class WreckingBallTest extends Test {
                         },
                     });
                 } else {
-                    body.CreateFixture(fd);
+                    body.createFixture(fd);
                 }
 
                 const anchor = new Vec2(i, y);
-                jd.Initialize(prevBody, body, anchor);
-                this.m_world.CreateJoint(jd);
+                jd.initialize(prevBody, body, anchor);
+                this.m_world.createJoint(jd);
 
                 prevBody = body;
             }
 
-            this.m_distanceJointDef.localAnchorB.SetZero();
+            this.m_distanceJointDef.localAnchorB.setZero();
 
             const extraLength = 0.01;
             this.m_distanceJointDef.minLength = 0;
@@ -128,7 +128,7 @@ class WreckingBallTest extends Test {
         }
 
         this.m_distanceJointDef.bodyA = ground;
-        this.m_distanceJoint = this.m_world.CreateJoint(this.m_distanceJointDef);
+        this.m_distanceJoint = this.m_world.createJoint(this.m_distanceJointDef);
         this.m_stabilize = true;
     }
 
@@ -137,17 +137,17 @@ class WreckingBallTest extends Test {
             checkboxDef("Stabilize", this.m_stabilize, (value: boolean) => {
                 this.m_stabilize = value;
                 if (value && this.m_distanceJoint === null)
-                    this.m_distanceJoint = this.m_world.CreateJoint(this.m_distanceJointDef);
+                    this.m_distanceJoint = this.m_world.createJoint(this.m_distanceJointDef);
                 else if (!value && this.m_distanceJoint !== null) {
-                    this.m_world.DestroyJoint(this.m_distanceJoint);
+                    this.m_world.destroyJoint(this.m_distanceJoint);
                     this.m_distanceJoint = null;
                 }
             }),
         ]);
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
 
         this.addDebug("Distance Joint", this.m_distanceJoint ? "ON" : "OFF");
     }

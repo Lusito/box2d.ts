@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { Assert } from "../common/b2_common";
+// DEBUG: import { assert } from "../common/b2_common";
 import { BroadPhase } from "../collision/b2_broad_phase";
 import { Contact, ContactEdge } from "./b2_contact";
 import { ContactFactory } from "./b2_contact_factory";
@@ -43,9 +43,9 @@ export class ContactManager {
     public readonly m_contactFactory = new ContactFactory();
 
     /** Broad-phase callback. */
-    public AddPair = (proxyA: FixtureProxy, proxyB: FixtureProxy): void => {
-        // DEBUG: Assert(proxyA instanceof FixtureProxy);
-        // DEBUG: Assert(proxyB instanceof FixtureProxy);
+    public addPair = (proxyA: FixtureProxy, proxyB: FixtureProxy): void => {
+        // DEBUG: assert(proxyA instanceof FixtureProxy);
+        // DEBUG: assert(proxyB instanceof FixtureProxy);
 
         let fixtureA = proxyA.fixture;
         let fixtureB = proxyB.fixture;
@@ -53,8 +53,8 @@ export class ContactManager {
         let indexA = proxyA.childIndex;
         let indexB = proxyB.childIndex;
 
-        let bodyA = fixtureA.GetBody();
-        let bodyB = fixtureB.GetBody();
+        let bodyA = fixtureA.getBody();
+        let bodyB = fixtureB.getBody();
 
         // Are the fixtures on the same body?
         if (bodyA === bodyB) {
@@ -64,13 +64,13 @@ export class ContactManager {
         // TODO_ERIN use a hash table to remove a potential bottleneck when both
         // bodies have a lot of contacts.
         // Does a contact already exist?
-        let edge: ContactEdge | null = bodyB.GetContactList();
+        let edge: ContactEdge | null = bodyB.getContactList();
         while (edge) {
             if (edge.other === bodyA) {
-                const fA = edge.contact.GetFixtureA();
-                const fB = edge.contact.GetFixtureB();
-                const iA = edge.contact.GetChildIndexA();
-                const iB = edge.contact.GetChildIndexB();
+                const fA = edge.contact.getFixtureA();
+                const fB = edge.contact.getFixtureB();
+                const iA = edge.contact.getChildIndexA();
+                const iB = edge.contact.getChildIndexB();
 
                 if (fA === fixtureA && fB === fixtureB && iA === indexA && iB === indexB) {
                     // A contact already exists.
@@ -87,26 +87,26 @@ export class ContactManager {
         }
 
         // Does a joint override collision? Is at least one body dynamic?
-        if (bodyB.ShouldCollide(bodyA) === false) {
+        if (bodyB.shouldCollide(bodyA) === false) {
             return;
         }
 
         // Check user filtering.
-        if (this.m_contactFilter && !this.m_contactFilter.ShouldCollide(fixtureA, fixtureB)) {
+        if (this.m_contactFilter && !this.m_contactFilter.shouldCollide(fixtureA, fixtureB)) {
             return;
         }
 
         // Call the factory.
-        const c: Contact | null = this.m_contactFactory.Create(fixtureA, indexA, fixtureB, indexB);
+        const c: Contact | null = this.m_contactFactory.create(fixtureA, indexA, fixtureB, indexB);
         if (c === null) {
             return;
         }
 
         // Contact creation may swap fixtures.
-        fixtureA = c.GetFixtureA();
-        fixtureB = c.GetFixtureB();
-        indexA = c.GetChildIndexA();
-        indexB = c.GetChildIndexB();
+        fixtureA = c.getFixtureA();
+        fixtureB = c.getFixtureB();
+        indexA = c.getChildIndexA();
+        indexB = c.getChildIndexB();
         bodyA = fixtureA.m_body;
         bodyB = fixtureB.m_body;
 
@@ -143,18 +143,18 @@ export class ContactManager {
         ++this.m_contactCount;
     };
 
-    public FindNewContacts(): void {
-        this.m_broadPhase.UpdatePairs(this.AddPair);
+    public findNewContacts(): void {
+        this.m_broadPhase.updatePairs(this.addPair);
     }
 
-    public Destroy(c: Contact): void {
-        const fixtureA = c.GetFixtureA();
-        const fixtureB = c.GetFixtureB();
-        const bodyA = fixtureA.GetBody();
-        const bodyB = fixtureB.GetBody();
+    public destroy(c: Contact): void {
+        const fixtureA = c.getFixtureA();
+        const fixtureB = c.getFixtureB();
+        const bodyA = fixtureA.getBody();
+        const bodyB = fixtureB.getBody();
 
-        if (this.m_contactListener && c.IsTouching()) {
-            this.m_contactListener.EndContact(c);
+        if (this.m_contactListener && c.isTouching()) {
+            this.m_contactListener.endContact(c);
         }
 
         // Remove from the world.
@@ -197,13 +197,13 @@ export class ContactManager {
         }
 
         // moved this from ContactFactory:Destroy
-        if (c.m_manifold.pointCount > 0 && !fixtureA.IsSensor() && !fixtureB.IsSensor()) {
-            fixtureA.GetBody().SetAwake(true);
-            fixtureB.GetBody().SetAwake(true);
+        if (c.m_manifold.pointCount > 0 && !fixtureA.isSensor() && !fixtureB.isSensor()) {
+            fixtureA.getBody().setAwake(true);
+            fixtureB.getBody().setAwake(true);
         }
 
         // Call the factory.
-        this.m_contactFactory.Destroy(c);
+        this.m_contactFactory.destroy(c);
         --this.m_contactCount;
     }
 
@@ -212,28 +212,28 @@ export class ContactManager {
      * all the narrow phase collision is processed for the world
      * contact list.
      */
-    public Collide(): void {
+    public collide(): void {
         // Update awake contacts.
         let c: Contact | null = this.m_contactList;
         while (c) {
-            const fixtureA = c.GetFixtureA();
-            const fixtureB = c.GetFixtureB();
-            const indexA = c.GetChildIndexA();
-            const indexB = c.GetChildIndexB();
-            const bodyA = fixtureA.GetBody();
-            const bodyB = fixtureB.GetBody();
+            const fixtureA = c.getFixtureA();
+            const fixtureB = c.getFixtureB();
+            const indexA = c.getChildIndexA();
+            const indexB = c.getChildIndexB();
+            const bodyA = fixtureA.getBody();
+            const bodyB = fixtureB.getBody();
 
             // Is this contact flagged for filtering?
             if (c.m_filterFlag) {
                 if (
                     // Should these bodies collide?
-                    !bodyB.ShouldCollide(bodyA) ||
+                    !bodyB.shouldCollide(bodyA) ||
                     // Check user filtering.
-                    (this.m_contactFilter && !this.m_contactFilter.ShouldCollide(fixtureA, fixtureB))
+                    (this.m_contactFilter && !this.m_contactFilter.shouldCollide(fixtureA, fixtureB))
                 ) {
                     const cNuke = c;
                     c = cNuke.m_next;
-                    this.Destroy(cNuke);
+                    this.destroy(cNuke);
                     continue;
                 }
 
@@ -241,8 +241,8 @@ export class ContactManager {
                 c.m_filterFlag = false;
             }
 
-            const activeA = bodyA.IsAwake() && bodyA.m_type !== BodyType.Static;
-            const activeB = bodyB.IsAwake() && bodyB.m_type !== BodyType.Static;
+            const activeA = bodyA.isAwake() && bodyA.m_type !== BodyType.Static;
+            const activeB = bodyB.isAwake() && bodyB.m_type !== BodyType.Static;
 
             // At least one body must be awake and it must be dynamic or kinematic.
             if (!activeA && !activeB) {
@@ -252,18 +252,18 @@ export class ContactManager {
 
             const treeNodeA = fixtureA.m_proxies[indexA].treeNode;
             const treeNodeB = fixtureB.m_proxies[indexB].treeNode;
-            const overlap = treeNodeA.aabb.TestOverlap(treeNodeB.aabb);
+            const overlap = treeNodeA.aabb.testOverlap(treeNodeB.aabb);
 
             // Here we destroy contacts that cease to overlap in the broad-phase.
             if (!overlap) {
                 const cNuke = c;
                 c = cNuke.m_next;
-                this.Destroy(cNuke);
+                this.destroy(cNuke);
                 continue;
             }
 
             // The contact persists.
-            c.Update(this.m_contactListener);
+            c.update(this.m_contactListener);
             c = c.m_next;
         }
     }

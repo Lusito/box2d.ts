@@ -16,9 +16,9 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { XY, RGBA, Vec2, Clamp, Color } from "@box2d/core";
+import { XY, RGBA, Vec2, clamp, Color } from "@box2d/core";
 
-import { b2_invalidParticleIndex } from "./b2_settings";
+import { INVALID_PARTICLE_INDEX } from "./b2_settings";
 import type { ParticleGroup } from "./b2_particle_group";
 
 /**
@@ -134,23 +134,23 @@ export class ParticleDef implements IParticleDef {
     public group: ParticleGroup | null = null;
 }
 
-export function CalculateParticleIterations(gravity: number, radius: number, timeStep: number): number {
+export function calculateParticleIterations(gravity: number, radius: number, timeStep: number): number {
     // In some situations you may want more particle iterations than this,
     // but to avoid excessive cycle cost, don't recommend more than this.
     const B2_MAX_RECOMMENDED_PARTICLE_ITERATIONS = 8;
     const B2_RADIUS_THRESHOLD = 0.01;
     const iterations = Math.ceil(Math.sqrt(gravity / (B2_RADIUS_THRESHOLD * radius)) * timeStep);
-    return Clamp(iterations, 1, B2_MAX_RECOMMENDED_PARTICLE_ITERATIONS);
+    return clamp(iterations, 1, B2_MAX_RECOMMENDED_PARTICLE_ITERATIONS);
 }
 
 export class ParticleHandle {
-    public m_index = b2_invalidParticleIndex;
+    public m_index = INVALID_PARTICLE_INDEX;
 
-    public GetIndex(): number {
+    public getIndex(): number {
         return this.m_index;
     }
 
-    public SetIndex(index: number): void {
+    public setIndex(index: number): void {
         this.m_index = index;
     }
 }

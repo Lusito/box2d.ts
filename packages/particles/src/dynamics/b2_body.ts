@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2_augment, Body, Transform } from "@box2d/core";
+import { augment, Body, Transform } from "@box2d/core";
 
 declare module "@box2d/core" {
     interface Body {
@@ -24,9 +24,9 @@ declare module "@box2d/core" {
     }
 }
 
-b2_augment(Body.prototype, {
-    SetTransformXY(this: Body, original, x, y, angle): void {
+augment(Body.prototype, {
+    setTransformXY(this: Body, original, x, y, angle): void {
         original(x, y, angle);
-        this.m_xf0.Copy(this.GetTransform());
+        this.m_xf0.copy(this.getTransform());
     },
 });

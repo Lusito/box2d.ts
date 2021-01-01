@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { Assert } from "../common/b2_common";
+// DEBUG: import { assert } from "../common/b2_common";
 import { Color, Draw } from "../common/b2_draw";
 import { Vec2, Transform, XY } from "../common/b2_math";
 import { AABB, RayCastInput, RayCastOutput } from "./b2_collision";
@@ -71,10 +71,10 @@ export abstract class Shape {
     /**
      * Clone the concrete shape.
      */
-    public abstract Clone(): Shape;
+    public abstract clone(): Shape;
 
-    public Copy(other: Shape): Shape {
-        // DEBUG: Assert(this.m_type === other.m_type);
+    public copy(other: Shape): Shape {
+        // DEBUG: assert(this.m_type === other.m_type);
         this.m_radius = other.m_radius;
         return this;
     }
@@ -84,14 +84,14 @@ export abstract class Shape {
      *
      * @returns The shape type.
      */
-    public GetType(): ShapeType {
+    public getType(): ShapeType {
         return this.m_type;
     }
 
     /**
      * Get the number of child primitives.
      */
-    public abstract GetChildCount(): number;
+    public abstract getChildCount(): number;
 
     /**
      * Test a point for containment in this shape. This only works for convex shapes.
@@ -99,7 +99,7 @@ export abstract class Shape {
      * @param xf The shape world transform.
      * @param p A point in world coordinates.
      */
-    public abstract TestPoint(xf: Transform, p: XY): boolean;
+    public abstract testPoint(xf: Transform, p: XY): boolean;
 
     /**
      * Cast a ray against a child shape.
@@ -109,7 +109,7 @@ export abstract class Shape {
      * @param transform The transform to be applied to the shape.
      * @param childIndex The child shape index
      */
-    public abstract RayCast(
+    public abstract rayCast(
         output: RayCastOutput,
         input: RayCastInput,
         transform: Transform,
@@ -123,7 +123,7 @@ export abstract class Shape {
      * @param xf The world transform of the shape.
      * @param childIndex The child shape
      */
-    public abstract ComputeAABB(aabb: AABB, xf: Transform, childIndex: number): void;
+    public abstract computeAABB(aabb: AABB, xf: Transform, childIndex: number): void;
 
     /**
      * Compute the mass properties of this shape using its dimensions and density.
@@ -132,10 +132,10 @@ export abstract class Shape {
      * @param massData Returns the mass data for this shape.
      * @param density The density in kilograms per meter squared.
      */
-    public abstract ComputeMass(massData: MassData, density: number): void;
+    public abstract computeMass(massData: MassData, density: number): void;
 
     // Fixme: check the logic of the implementations. Seems strange
-    public abstract SetupDistanceProxy(proxy: DistanceProxy, index: number): void;
+    public abstract setupDistanceProxy(proxy: DistanceProxy, index: number): void;
 
-    public abstract Draw(draw: Draw, color: Color): void;
+    public abstract draw(draw: Draw, color: Color): void;
 }

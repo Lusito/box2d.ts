@@ -25,11 +25,11 @@ class TestStackTest extends Test {
         super();
 
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new ChainShape();
-            shape.CreateLoop([new Vec2(-30, 0), new Vec2(-30, 40), new Vec2(30, 40), new Vec2(30, 0)]);
-            ground.CreateFixture({ shape });
+            shape.createLoop([new Vec2(-30, 0), new Vec2(-30, 40), new Vec2(30, 40), new Vec2(30, 0)]);
+            ground.createFixture({ shape });
         }
 
         // Add bodies
@@ -46,39 +46,39 @@ class TestStackTest extends Test {
             friction: 0.5,
             restitution: 0.1,
         };
-        polygon.SetAsBox(1, 1);
+        polygon.setAsBox(1, 1);
         // Create 3 stacks
         for (let i = 0; i < 10; ++i) {
-            position.Set(0 + Math.random() * 0.2 - 0.1, 30 - i * 2.5);
-            this.m_world.CreateBody(bd).CreateFixture(fd);
+            position.set(0 + Math.random() * 0.2 - 0.1, 30 - i * 2.5);
+            this.m_world.createBody(bd).createFixture(fd);
         }
         for (let i = 0; i < 10; ++i) {
-            position.Set(10 + Math.random() * 0.2 - 0.1, 30 - i * 2.5);
-            this.m_world.CreateBody(bd).CreateFixture(fd);
+            position.set(10 + Math.random() * 0.2 - 0.1, 30 - i * 2.5);
+            this.m_world.createBody(bd).createFixture(fd);
         }
         for (let i = 0; i < 10; ++i) {
-            position.Set(20 + Math.random() * 0.2 - 0.1, 30 - i * 2.5);
-            this.m_world.CreateBody(bd).CreateFixture(fd);
+            position.set(20 + Math.random() * 0.2 - 0.1, 30 - i * 2.5);
+            this.m_world.createBody(bd).createFixture(fd);
         }
         // Create ramp
         bd.type = BodyType.Static;
-        position.Set(0, 0);
+        position.set(0, 0);
         const vxs = [new Vec2(-30, 0), new Vec2(-10, 0), new Vec2(-30, 10)];
-        polygon.Set(vxs, vxs.length);
+        polygon.set(vxs, vxs.length);
         fd.density = 0;
-        this.m_world.CreateBody(bd).CreateFixture(fd);
+        this.m_world.createBody(bd).createFixture(fd);
 
         // Create ball
         bd.type = BodyType.Dynamic;
-        position.Set(-25, 20);
+        position.set(-25, 20);
         fd.shape = new CircleShape(4);
         fd.density = 2;
         fd.restitution = 0.2;
         fd.friction = 0.5;
-        this.m_world.CreateBody(bd).CreateFixture(fd);
+        this.m_world.createBody(bd).createFixture(fd);
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 15;
     }
 

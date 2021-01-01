@@ -26,82 +26,82 @@ class ElasticParticlesTest extends AbstractParticleTest {
     public constructor() {
         super();
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(-4, -1), new Vec2(4, -1), new Vec2(4, 0), new Vec2(-4, 0)];
-                shape.Set(vertices, 4);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 4);
+                ground.createFixture({ shape });
             }
 
             {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(-4, -0.1), new Vec2(-2, -0.1), new Vec2(-2, 2), new Vec2(-4, 2)];
-                shape.Set(vertices, 4);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 4);
+                ground.createFixture({ shape });
             }
 
             {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(2, -0.1), new Vec2(4, -0.1), new Vec2(4, 2), new Vec2(2, 2)];
-                shape.Set(vertices, 4);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 4);
+                ground.createFixture({ shape });
             }
         }
 
-        this.m_particleSystem.SetRadius(0.035 * 2); // HACK: increase particle radius
+        this.m_particleSystem.setRadius(0.035 * 2); // HACK: increase particle radius
 
         {
             const shape = new CircleShape();
-            shape.m_p.Set(0, 3);
+            shape.m_p.set(0, 3);
             shape.m_radius = 0.5;
             const pd = new ParticleGroupDef();
             pd.flags = ParticleFlag.Spring;
             pd.groupFlags = ParticleGroupFlag.Solid;
             pd.shape = shape;
-            pd.color.SetRGBA(1, 0, 0, 1);
-            this.m_particleSystem.CreateParticleGroup(pd);
+            pd.color.setRGBA(1, 0, 0, 1);
+            this.m_particleSystem.createParticleGroup(pd);
         }
 
         {
             const shape = new CircleShape();
-            shape.m_p.Set(-1, 3);
+            shape.m_p.set(-1, 3);
             shape.m_radius = 0.5;
             const pd = new ParticleGroupDef();
             pd.flags = ParticleFlag.Elastic;
             pd.groupFlags = ParticleGroupFlag.Solid;
             pd.shape = shape;
-            pd.color.SetRGBA(0, 1, 0, 1);
-            this.m_particleSystem.CreateParticleGroup(pd);
+            pd.color.setRGBA(0, 1, 0, 1);
+            this.m_particleSystem.createParticleGroup(pd);
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(1, 0.5);
+            shape.setAsBox(1, 0.5);
             const pd = new ParticleGroupDef();
             pd.flags = ParticleFlag.Elastic;
             pd.groupFlags = ParticleGroupFlag.Solid;
-            pd.position.Set(1, 4);
+            pd.position.set(1, 4);
             pd.angle = -0.5;
             pd.angularVelocity = 2;
             pd.shape = shape;
-            pd.color.SetRGBA(0, 0, 1, 1);
-            this.m_particleSystem.CreateParticleGroup(pd);
+            pd.color.setRGBA(0, 0, 1, 1);
+            this.m_particleSystem.createParticleGroup(pd);
         }
 
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
             });
             const shape = new CircleShape();
-            shape.m_p.Set(0, 8);
+            shape.m_p.set(0, 8);
             shape.m_radius = 0.5;
-            body.CreateFixture({ shape, density: 0.5 });
+            body.createFixture({ shape, density: 0.5 });
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 250;
     }
 

@@ -40,30 +40,30 @@ class PrismaticJointTest extends Test {
         let ground = null;
 
         {
-            ground = this.m_world.CreateBody();
+            ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape });
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(1, 1);
+            shape.setAsBox(1, 1);
 
             const position = { x: 0, y: 10 };
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position,
                 angle: 0.5 * Math.PI,
                 allowSleep: false,
             });
-            body.CreateFixture({ shape, density: 5 });
+            body.createFixture({ shape, density: 5 });
 
             const pjd = new PrismaticJointDef();
 
             // Horizontal
-            pjd.Initialize(ground, body, position, new Vec2(1, 0));
+            pjd.initialize(ground, body, position, new Vec2(1, 0));
 
             pjd.motorSpeed = this.m_motorSpeed;
             pjd.maxMotorForce = 10000;
@@ -72,35 +72,35 @@ class PrismaticJointTest extends Test {
             pjd.upperTranslation = 10;
             pjd.enableLimit = this.m_enableLimit;
 
-            this.m_joint = this.m_world.CreateJoint(pjd);
+            this.m_joint = this.m_world.createJoint(pjd);
         }
     }
 
     public setupControls() {
         this.addTestControlGroup("Joint", [
             checkboxDef("Limit", this.m_enableLimit, (value: boolean) => {
-                this.m_enableLimit = this.m_joint.EnableLimit(value);
+                this.m_enableLimit = this.m_joint.enableLimit(value);
             }),
             checkboxDef("Motor", this.m_enableMotor, (value: boolean) => {
-                this.m_enableMotor = this.m_joint.EnableMotor(value);
+                this.m_enableMotor = this.m_joint.enableMotor(value);
             }),
             sliderDef("Speed", -100, 100, 1, this.m_motorSpeed, (value: number) => {
-                this.m_motorSpeed = this.m_joint.SetMotorSpeed(value);
+                this.m_motorSpeed = this.m_joint.setMotorSpeed(value);
             }),
         ]);
     }
 
     public getHotkeys(): HotKey[] {
         return [
-            hotKeyPress("l", "Toggle Limit", () => this.m_joint.EnableLimit(!this.m_joint.IsLimitEnabled())),
-            hotKeyPress("m", "Start/Stop", () => this.m_joint.EnableMotor(!this.m_joint.IsMotorEnabled())),
-            hotKeyPress("s", "Reverse Direction", () => this.m_joint.SetMotorSpeed(-this.m_joint.GetMotorSpeed())),
+            hotKeyPress("l", "Toggle Limit", () => this.m_joint.enableLimit(!this.m_joint.isLimitEnabled())),
+            hotKeyPress("m", "Start/Stop", () => this.m_joint.enableMotor(!this.m_joint.isMotorEnabled())),
+            hotKeyPress("s", "Reverse Direction", () => this.m_joint.setMotorSpeed(-this.m_joint.getMotorSpeed())),
         ];
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
-        const force = this.m_joint.GetMotorForce(settings.m_hertz);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
+        const force = this.m_joint.getMotorForce(settings.m_hertz);
         this.addDebug("Motor Force", force.toFixed());
     }
 }

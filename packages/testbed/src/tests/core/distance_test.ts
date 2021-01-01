@@ -23,7 +23,7 @@ import {
     DistanceInput,
     SimplexCache,
     DistanceOutput,
-    Distance,
+    distance,
     Color,
     XY,
 } from "@box2d/core";
@@ -49,18 +49,18 @@ class DistanceTest extends Test {
     public constructor() {
         super();
 
-        this.m_transformA.SetIdentity();
-        this.m_transformA.p.Set(0, -0.2);
-        this.m_polygonA.SetAsBox(10, 0.2);
+        this.m_transformA.setIdentity();
+        this.m_transformA.p.set(0, -0.2);
+        this.m_polygonA.setAsBox(10, 0.2);
 
-        this.m_positionB.Set(12.017401, 0.13678508);
+        this.m_positionB.set(12.017401, 0.13678508);
         this.m_angleB = -0.0109265;
-        this.m_transformB.SetPositionAngle(this.m_positionB, this.m_angleB);
+        this.m_transformB.setPositionAngle(this.m_positionB, this.m_angleB);
 
-        this.m_polygonB.SetAsBox(2, 0.1);
+        this.m_polygonB.setAsBox(2, 0.1);
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 200;
     }
 
@@ -73,35 +73,35 @@ class DistanceTest extends Test {
 
     public getHotkeys(): HotKey[] {
         return [
-            hotKeyPress("a", "Move Left", () => this.Adjust(-0.1, 0, 0)),
-            hotKeyPress("d", "Move Right", () => this.Adjust(0.1, 0, 0)),
-            hotKeyPress("s", "Move Down", () => this.Adjust(0, -0.1, 0)),
-            hotKeyPress("w", "Move Up", () => this.Adjust(0, 0.1, 0)),
-            hotKeyPress("q", "Turn Left", () => this.Adjust(0, 0, 0.1 * Math.PI)),
-            hotKeyPress("e", "Turn Right", () => this.Adjust(0, 0, -0.1 * Math.PI)),
+            hotKeyPress("a", "Move Left", () => this.adjust(-0.1, 0, 0)),
+            hotKeyPress("d", "Move Right", () => this.adjust(0.1, 0, 0)),
+            hotKeyPress("s", "Move Down", () => this.adjust(0, -0.1, 0)),
+            hotKeyPress("w", "Move Up", () => this.adjust(0, 0.1, 0)),
+            hotKeyPress("q", "Turn Left", () => this.adjust(0, 0, 0.1 * Math.PI)),
+            hotKeyPress("e", "Turn Right", () => this.adjust(0, 0, -0.1 * Math.PI)),
         ];
     }
 
-    private Adjust(x: number, y: number, angle: number) {
+    private adjust(x: number, y: number, angle: number) {
         this.m_positionB.x += x;
         this.m_positionB.y += y;
         this.m_angleB += angle;
-        this.m_transformB.SetPositionAngle(this.m_positionB, this.m_angleB);
+        this.m_transformB.setPositionAngle(this.m_positionB, this.m_angleB);
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
 
         const input = new DistanceInput();
-        input.proxyA.SetShape(this.m_polygonA, 0);
-        input.proxyB.SetShape(this.m_polygonB, 0);
-        input.transformA.Copy(this.m_transformA);
-        input.transformB.Copy(this.m_transformB);
+        input.proxyA.setShape(this.m_polygonA, 0);
+        input.proxyB.setShape(this.m_polygonB, 0);
+        input.transformA.copy(this.m_transformA);
+        input.transformB.copy(this.m_transformB);
         input.useRadii = true;
         const cache = new SimplexCache();
         cache.count = 0;
         const output = new DistanceOutput();
-        Distance(output, cache, input);
+        distance(output, cache, input);
 
         this.addDebug("Distance", output.distance.toFixed(2));
         this.addDebug("Iterations", output.iterations);
@@ -110,24 +110,24 @@ class DistanceTest extends Test {
             const color = new Color(0.9, 0.9, 0.9);
             const v = [];
             for (let i = 0; i < this.m_polygonA.m_count; ++i) {
-                v[i] = Transform.MultiplyVec2(this.m_transformA, this.m_polygonA.m_vertices[i], new Vec2());
+                v[i] = Transform.multiplyVec2(this.m_transformA, this.m_polygonA.m_vertices[i], new Vec2());
             }
-            g_debugDraw.DrawPolygon(v, this.m_polygonA.m_count, color);
+            g_debugDraw.drawPolygon(v, this.m_polygonA.m_count, color);
 
             for (let i = 0; i < this.m_polygonB.m_count; ++i) {
-                v[i] = Transform.MultiplyVec2(this.m_transformB, this.m_polygonB.m_vertices[i], new Vec2());
+                v[i] = Transform.multiplyVec2(this.m_transformB, this.m_polygonB.m_vertices[i], new Vec2());
             }
-            g_debugDraw.DrawPolygon(v, this.m_polygonB.m_count, color);
+            g_debugDraw.drawPolygon(v, this.m_polygonB.m_count, color);
         }
 
         const x1 = output.pointA;
         const x2 = output.pointB;
 
         const c1 = new Color(1, 0, 0);
-        g_debugDraw.DrawPoint(x1, 4, c1);
+        g_debugDraw.drawPoint(x1, 4, c1);
 
         const c2 = new Color(1, 1, 0);
-        g_debugDraw.DrawPoint(x2, 4, c2);
+        g_debugDraw.drawPoint(x2, 4, c2);
     }
 }
 

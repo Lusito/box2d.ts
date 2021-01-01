@@ -42,7 +42,7 @@ export class Profile {
 
     public solveTOI = 0;
 
-    public Reset() {
+    public reset() {
         this.step = 0;
         this.collide = 0;
         this.solve = 0;
@@ -79,11 +79,11 @@ export class TimeStep {
 
     private constructor() {}
 
-    public static Create() {
+    public static create() {
         return new TimeStep();
     }
 
-    public Copy(step: TimeStep): TimeStep {
+    public copy(step: TimeStep): TimeStep {
         this.dt = step.dt;
         this.inv_dt = step.inv_dt;
         this.dtRatio = step.dtRatio;
@@ -117,7 +117,7 @@ export class Velocity {
  * Solver Data
  */
 export class SolverData {
-    public readonly step = TimeStep.Create();
+    public readonly step = TimeStep.create();
 
     public positions!: Position[];
 

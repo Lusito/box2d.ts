@@ -34,44 +34,44 @@ class PulleyJointTest extends Test {
 
         let ground = null;
         {
-            ground = this.m_world.CreateBody();
+            ground = this.m_world.createBody();
 
             const circle = new CircleShape();
             circle.m_radius = 2;
 
-            circle.m_p.Set(-10, y + b + L);
-            ground.CreateFixture({ shape: circle });
+            circle.m_p.set(-10, y + b + L);
+            ground.createFixture({ shape: circle });
 
-            circle.m_p.Set(10, y + b + L);
-            ground.CreateFixture({ shape: circle });
+            circle.m_p.set(10, y + b + L);
+            ground.createFixture({ shape: circle });
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(a, b);
+            shape.setAsBox(a, b);
 
-            const body1 = this.m_world.CreateBody({
+            const body1 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 // fixedRotation: true,
                 position: { x: -10, y },
             });
-            body1.CreateFixture({ shape, density: 5 });
+            body1.createFixture({ shape, density: 5 });
 
-            const body2 = this.m_world.CreateBody({
+            const body2 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 // fixedRotation: true,
                 position: { x: 10, y },
             });
-            body2.CreateFixture({ shape, density: 5 });
+            body2.createFixture({ shape, density: 5 });
 
             const pulleyDef = new PulleyJointDef();
             const anchor1 = new Vec2(-10, y + b);
             const anchor2 = new Vec2(10, y + b);
             const groundAnchor1 = new Vec2(-10, y + b + L);
             const groundAnchor2 = new Vec2(10, y + b + L);
-            pulleyDef.Initialize(body1, body2, groundAnchor1, groundAnchor2, anchor1, anchor2, 1.5);
+            pulleyDef.initialize(body1, body2, groundAnchor1, groundAnchor2, anchor1, anchor2, 1.5);
 
-            this.m_joint1 = this.m_world.CreateJoint(pulleyDef);
+            this.m_joint1 = this.m_world.createJoint(pulleyDef);
         }
     }
 
@@ -82,11 +82,11 @@ class PulleyJointTest extends Test {
         };
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
-        this.addDebug("Ratio", this.m_joint1.GetRatio().toFixed(2));
-        this.addDebug("Length A", this.m_joint1.GetCurrentLengthA().toFixed(2));
-        this.addDebug("Length B", this.m_joint1.GetCurrentLengthB().toFixed(2));
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
+        this.addDebug("Ratio", this.m_joint1.getRatio().toFixed(2));
+        this.addDebug("Length A", this.m_joint1.getCurrentLengthA().toFixed(2));
+        this.addDebug("Length B", this.m_joint1.getCurrentLengthB().toFixed(2));
     }
 }
 

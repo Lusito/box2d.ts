@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { TimeStep, Body, Assert } from "@box2d/core";
+import { TimeStep, Body, assert } from "@box2d/core";
 
 /**
  * A controller edge is used to connect bodies and controllers
@@ -52,7 +52,6 @@ export class ControllerEdge {
  * encapsulating common per-step functionality.
  */
 export abstract class Controller {
-    // m_world: World;
     public m_bodyList: ControllerEdge | null = null;
 
     public m_bodyCount = 0;
@@ -64,40 +63,33 @@ export abstract class Controller {
     /**
      * Controllers override this to implement per-step functionality.
      */
-    public abstract Step(step: TimeStep): void;
+    public abstract step(step: TimeStep): void;
 
     /**
      * Get the next controller in the world's body list.
      */
-    public GetNext(): Controller | null {
+    public getNext(): Controller | null {
         return this.m_next;
     }
 
     /**
      * Get the previous controller in the world's body list.
      */
-    public GetPrev(): Controller | null {
+    public getPrev(): Controller | null {
         return this.m_prev;
     }
 
     /**
-     * Get the parent world of this body.
-     */
-    // GetWorld() {
-    //   return this.m_world;
-    // }
-
-    /**
      * Get the attached body list
      */
-    public GetBodyList(): ControllerEdge | null {
+    public getBodyList(): ControllerEdge | null {
         return this.m_bodyList;
     }
 
     /**
      * Adds a body to the controller list.
      */
-    public AddBody(body: Body): void {
+    public addBody(body: Body): void {
         const edge = new ControllerEdge(this, body);
 
         // Add edge to controller list
@@ -122,8 +114,8 @@ export abstract class Controller {
     /**
      * Removes a body from the controller list.
      */
-    public RemoveBody(body: Body): void {
-        Assert(this.m_bodyCount > 0, "Controller is empty");
+    public removeBody(body: Body): void {
+        assert(this.m_bodyCount > 0, "Controller is empty");
 
         // Find the corresponding edge
         /* ControllerEdge */
@@ -132,7 +124,7 @@ export abstract class Controller {
             edge = edge.nextBody;
         }
 
-        Assert(edge !== null, "Body is not attached to the controller");
+        assert(edge !== null, "Body is not attached to the controller");
 
         // Remove edge from controller list
         if (edge.prevBody) {
@@ -162,9 +154,9 @@ export abstract class Controller {
     /**
      * Removes all bodies from the controller list.
      */
-    public Clear(): void {
+    public clear(): void {
         while (this.m_bodyList) {
-            this.RemoveBody(this.m_bodyList.body);
+            this.removeBody(this.m_bodyList.body);
         }
 
         this.m_bodyCount = 0;

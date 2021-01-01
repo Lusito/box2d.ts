@@ -8,7 +8,7 @@ import {
     TimeStep,
     Transform,
     Vec2,
-    Verify,
+    verify,
     LINEAR_SLOP,
 } from "@box2d/core";
 
@@ -23,73 +23,73 @@ export abstract class FixtureParticleQueryCallback {
         this.m_system = system;
     }
 
-    public ReportFixture(fixture: Fixture): boolean {
-        if (fixture.IsSensor()) {
+    public reportFixture(fixture: Fixture): boolean {
+        if (fixture.isSensor()) {
             return true;
         }
-        const shape = fixture.GetShape();
-        const childCount = shape.GetChildCount();
+        const shape = fixture.getShape();
+        const childCount = shape.getChildCount();
         for (let childIndex = 0; childIndex < childCount; childIndex++) {
-            const aabb = fixture.GetAABB(childIndex);
-            const enumerator = this.m_system.GetInsideBoundsEnumerator(aabb);
+            const aabb = fixture.getAABB(childIndex);
+            const enumerator = this.m_system.getInsideBoundsEnumerator(aabb);
             let index: number;
             // eslint-disable-next-line no-cond-assign
-            while ((index = enumerator.GetNext()) >= 0) {
-                this.ReportFixtureAndParticle(fixture, childIndex, index);
+            while ((index = enumerator.getNext()) >= 0) {
+                this.reportFixtureAndParticle(fixture, childIndex, index);
             }
         }
         return true;
     }
 
-    public abstract ReportFixtureAndParticle(_fixture: Fixture, _childIndex: number, _index: number): void;
+    public abstract reportFixtureAndParticle(_fixture: Fixture, _childIndex: number, _index: number): void;
 }
 
 export class ParticleSystem_UpdateBodyContactsCallback extends FixtureParticleQueryCallback {
     public m_contactFilter: ContactFilter | null = null;
 
-    public ShouldCollideFixtureParticle(fixture: Fixture, particleIndex: number): boolean {
+    public shouldCollideFixtureParticle(fixture: Fixture, particleIndex: number): boolean {
         // Call the contact filter if it's set, to determine whether to
         // filter this contact.  Returns true if contact calculations should
         // be performed, false otherwise.
         if (this.m_contactFilter) {
-            const flags = this.m_system.GetFlagsBuffer();
+            const flags = this.m_system.getFlagsBuffer();
             if (flags[particleIndex] & ParticleFlag.FixtureContactFilter) {
-                return this.m_contactFilter.ShouldCollideFixtureParticle(fixture, this.m_system, particleIndex);
+                return this.m_contactFilter.shouldCollideFixtureParticle(fixture, this.m_system, particleIndex);
             }
         }
         return true;
     }
 
-    public ReportFixtureAndParticle(fixture: Fixture, childIndex: number, a: number): void {
+    public reportFixtureAndParticle(fixture: Fixture, childIndex: number, a: number): void {
         const s_n = ParticleSystem_UpdateBodyContactsCallback.ReportFixtureAndParticle_s_n;
         const s_rp = ParticleSystem_UpdateBodyContactsCallback.ReportFixtureAndParticle_s_rp;
         const ap = this.m_system.m_positionBuffer.data[a];
         const n = s_n;
 
-        const d = computeDistance(fixture.GetShape(), fixture.GetBody().GetTransform(), ap, n, childIndex);
-        if (d < this.m_system.m_particleDiameter && this.ShouldCollideFixtureParticle(fixture, a)) {
-            const b = fixture.GetBody();
-            const bp = b.GetWorldCenter();
-            const bm = b.GetMass();
-            const bI = b.GetInertia() - bm * b.GetLocalCenter().LengthSquared();
+        const d = computeDistance(fixture.getShape(), fixture.getBody().getTransform(), ap, n, childIndex);
+        if (d < this.m_system.m_particleDiameter && this.shouldCollideFixtureParticle(fixture, a)) {
+            const b = fixture.getBody();
+            const bp = b.getWorldCenter();
+            const bm = b.getMass();
+            const bI = b.getInertia() - bm * b.getLocalCenter().lengthSquared();
             const invBm = bm > 0 ? 1 / bm : 0;
             const invBI = bI > 0 ? 1 / bI : 0;
             const invAm =
-                this.m_system.m_flagsBuffer.data[a] & ParticleFlag.Wall ? 0 : this.m_system.GetParticleInvMass();
+                this.m_system.m_flagsBuffer.data[a] & ParticleFlag.Wall ? 0 : this.m_system.getParticleInvMass();
 
-            const rp = Vec2.Subtract(ap, bp, s_rp);
-            const rpn = Vec2.Cross(rp, n);
+            const rp = Vec2.subtract(ap, bp, s_rp);
+            const rpn = Vec2.cross(rp, n);
             const invM = invAm + invBm + invBI * rpn * rpn;
 
-            const contact = this.m_system.m_bodyContactBuffer.data[this.m_system.m_bodyContactBuffer.Append()];
+            const contact = this.m_system.m_bodyContactBuffer.data[this.m_system.m_bodyContactBuffer.append()];
             contact.index = a;
             contact.body = b;
             contact.fixture = fixture;
             contact.weight = 1 - d * this.m_system.m_inverseDiameter;
 
-            contact.normal.Copy(n.Negate());
+            contact.normal.copy(n.negate());
             contact.mass = invM > 0 ? 1 / invM : 0;
-            this.m_system.DetectStuckParticle(a);
+            this.m_system.detectStuckParticle(a);
         }
     }
 
@@ -101,7 +101,7 @@ export class ParticleSystem_UpdateBodyContactsCallback extends FixtureParticleQu
 export class ParticleSystem_SolveCollisionCallback extends FixtureParticleQueryCallback {
     public m_step: TimeStep | null = null;
 
-    public ReportFixtureAndParticle(fixture: Fixture, childIndex: number, a: number): void {
+    public reportFixtureAndParticle(fixture: Fixture, childIndex: number, a: number): void {
         const s_p1 = ParticleSystem_SolveCollisionCallback.ReportFixtureAndParticle_s_p1;
         const s_output = ParticleSystem_SolveCollisionCallback.ReportFixtureAndParticle_s_output;
         const s_input = ParticleSystem_SolveCollisionCallback.ReportFixtureAndParticle_s_input;
@@ -109,35 +109,35 @@ export class ParticleSystem_SolveCollisionCallback extends FixtureParticleQueryC
         const s_v = ParticleSystem_SolveCollisionCallback.ReportFixtureAndParticle_s_v;
         const s_f = ParticleSystem_SolveCollisionCallback.ReportFixtureAndParticle_s_f;
 
-        const body = fixture.GetBody();
+        const body = fixture.getBody();
         const ap = this.m_system.m_positionBuffer.data[a];
         const av = this.m_system.m_velocityBuffer.data[a];
         const output = s_output;
         const input = s_input;
         if (this.m_system.m_iterationIndex === 0) {
-            const xf = body.GetTransform();
+            const xf = body.getTransform();
             // Put 'ap' in the local space of the previous frame
-            const p1 = Transform.TransposeMultiplyVec2(body.m_xf0, ap, s_p1);
-            if (fixture.GetShape().GetType() === ShapeType.Circle) {
+            const p1 = Transform.transposeMultiplyVec2(body.m_xf0, ap, s_p1);
+            if (fixture.getShape().getType() === ShapeType.Circle) {
                 // Make relative to the center of the circle
-                p1.Subtract(body.GetLocalCenter());
+                p1.subtract(body.getLocalCenter());
                 // Re-apply rotation about the center of the circle
-                Rot.MultiplyVec2(body.m_xf0.q, p1, p1);
+                Rot.multiplyVec2(body.m_xf0.q, p1, p1);
                 // Subtract rotation of the current frame
-                Rot.TransposeMultiplyVec2(xf.q, p1, p1);
+                Rot.transposeMultiplyVec2(xf.q, p1, p1);
                 // Return to local space
-                p1.Add(body.GetLocalCenter());
+                p1.add(body.getLocalCenter());
             }
             // Return to global space and apply rotation of current frame
-            Transform.MultiplyVec2(xf, p1, input.p1);
+            Transform.multiplyVec2(xf, p1, input.p1);
         } else {
-            input.p1.Copy(ap);
+            input.p1.copy(ap);
         }
 
-        const step = Verify(this.m_step);
-        Vec2.AddScaled(ap, step.dt, av, input.p2);
+        const step = verify(this.m_step);
+        Vec2.addScaled(ap, step.dt, av, input.p2);
         input.maxFraction = 1;
-        if (fixture.RayCast(output, input, childIndex)) {
+        if (fixture.rayCast(output, input, childIndex)) {
             const n = output.normal;
             const p = s_p;
             p.x = (1 - output.fraction) * input.p1.x + output.fraction * input.p2.x + LINEAR_SLOP * n.x;
@@ -145,11 +145,11 @@ export class ParticleSystem_SolveCollisionCallback extends FixtureParticleQueryC
             const v = s_v;
             v.x = step.inv_dt * (p.x - ap.x);
             v.y = step.inv_dt * (p.y - ap.y);
-            this.m_system.m_velocityBuffer.data[a].Copy(v);
+            this.m_system.m_velocityBuffer.data[a].copy(v);
             const f = s_f;
-            f.x = step.inv_dt * this.m_system.GetParticleMass() * (av.x - v.x);
-            f.y = step.inv_dt * this.m_system.GetParticleMass() * (av.y - v.y);
-            this.m_system.ParticleApplyForce(a, f);
+            f.x = step.inv_dt * this.m_system.getParticleMass() * (av.x - v.x);
+            f.y = step.inv_dt * this.m_system.getParticleMass() * (av.y - v.y);
+            this.m_system.particleApplyForce(a, f);
         }
     }
 

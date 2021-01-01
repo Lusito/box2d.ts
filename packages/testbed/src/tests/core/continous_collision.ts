@@ -25,26 +25,26 @@ class ContinousCollisionTest extends Test {
         super();
 
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new ChainShape();
-            shape.CreateLoop([new Vec2(-30, 0), new Vec2(-30, 40), new Vec2(30, 40), new Vec2(30, 0)]);
-            ground.CreateFixture({ shape });
+            shape.createLoop([new Vec2(-30, 0), new Vec2(-30, 40), new Vec2(30, 40), new Vec2(30, 0)]);
+            ground.createFixture({ shape });
         }
 
         // Always on, even if default is off
-        this.m_world.SetContinuousPhysics(true);
+        this.m_world.setContinuousPhysics(true);
 
         // Create 'basket'
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 bullet: true,
                 position: { x: 15, y: 5 },
             });
 
             const sd_bottom = new PolygonShape();
-            sd_bottom.SetAsBox(4.5, 0.45);
+            sd_bottom.setAsBox(4.5, 0.45);
             // These values are used for all the parts of the 'basket'
             const fd: FixtureDef = {
                 density: 4,
@@ -52,23 +52,23 @@ class ContinousCollisionTest extends Test {
                 shape: sd_bottom,
             };
 
-            body.CreateFixture(fd);
+            body.createFixture(fd);
 
             const sd_left = new PolygonShape();
-            sd_left.SetAsBox(0.45, 8.1, new Vec2(-4.35, 7.05), 0.2);
+            sd_left.setAsBox(0.45, 8.1, new Vec2(-4.35, 7.05), 0.2);
             fd.shape = sd_left;
-            body.CreateFixture(fd);
+            body.createFixture(fd);
 
             const sd_right = new PolygonShape();
-            sd_right.SetAsBox(0.45, 8.1, new Vec2(4.35, 7.05), -0.2);
+            sd_right.setAsBox(0.45, 8.1, new Vec2(4.35, 7.05), -0.2);
             fd.shape = sd_right;
-            body.CreateFixture(fd);
+            body.createFixture(fd);
         }
 
         // add some small circles for effect
         for (let i = 0; i < 5; i++) {
             const cd = new CircleShape(Math.random() * 1 + 0.5);
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 bullet: true,
                 position: {
@@ -76,7 +76,7 @@ class ContinousCollisionTest extends Test {
                     y: Math.random() * 32 + 2,
                 },
             });
-            body.CreateFixture({
+            body.createFixture({
                 shape: cd,
                 friction: 0.3,
                 density: 1,
@@ -85,7 +85,7 @@ class ContinousCollisionTest extends Test {
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 20;
     }
 

@@ -49,10 +49,10 @@ export class VoronoiDiagram {
      * @param tag A tag used to identify the generator in callback functions.
      * @param necessary Whether to callback for nodes associated with the generator.
      */
-    public AddGenerator(center: Vec2, tag: number, necessary: boolean): void {
+    public addGenerator(center: Vec2, tag: number, necessary: boolean): void {
         // DEBUG: Assert(this.m_generatorCount < this.m_generatorCapacity);
         const g = this.m_generatorBuffer[this.m_generatorCount++];
-        g.center.Copy(center);
+        g.center.copy(center);
         g.tag = tag;
         g.necessary = necessary;
     }
@@ -64,7 +64,7 @@ export class VoronoiDiagram {
      * @param radius The interval of the diagram.
      * @param margin Margin for which the range of the diagram is extended.
      */
-    public Generate(radius: number, margin: number): void {
+    public generate(radius: number, margin: number): void {
         const inverseRadius = 1 / radius;
         const lower = new Vec2(+MAX_FLOAT, +MAX_FLOAT);
         const upper = new Vec2(-MAX_FLOAT, -MAX_FLOAT);
@@ -72,8 +72,8 @@ export class VoronoiDiagram {
         for (let k = 0; k < this.m_generatorCount; k++) {
             const g = this.m_generatorBuffer[k];
             if (g.necessary) {
-                Vec2.Min(lower, g.center, lower);
-                Vec2.Max(upper, g.center, upper);
+                Vec2.min(lower, g.center, lower);
+                Vec2.max(upper, g.center, upper);
                 ++necessary_count;
             }
         }
@@ -95,33 +95,33 @@ export class VoronoiDiagram {
         const queue = new StackQueue<VoronoiDiagram_Task>(4 * this.m_countX * this.m_countY);
         for (let k = 0; k < this.m_generatorCount; k++) {
             const g = this.m_generatorBuffer[k];
-            g.center.Subtract(lower).Scale(inverseRadius);
+            g.center.subtract(lower).scale(inverseRadius);
             const x = Math.floor(g.center.x);
             const y = Math.floor(g.center.y);
             if (x >= 0 && y >= 0 && x < this.m_countX && y < this.m_countY) {
-                queue.Push(new VoronoiDiagram_Task(x, y, x + y * this.m_countX, g));
+                queue.push(new VoronoiDiagram_Task(x, y, x + y * this.m_countX, g));
             }
         }
-        while (!queue.Empty()) {
-            const task = queue.Front();
+        while (!queue.empty()) {
+            const task = queue.front();
             const x = task.m_x;
             const y = task.m_y;
             const i = task.m_i;
             const g = task.m_generator;
-            queue.Pop();
+            queue.pop();
             if (!this.m_diagram[i]) {
                 this.m_diagram[i] = g;
                 if (x > 0) {
-                    queue.Push(new VoronoiDiagram_Task(x - 1, y, i - 1, g));
+                    queue.push(new VoronoiDiagram_Task(x - 1, y, i - 1, g));
                 }
                 if (y > 0) {
-                    queue.Push(new VoronoiDiagram_Task(x, y - 1, i - this.m_countX, g));
+                    queue.push(new VoronoiDiagram_Task(x, y - 1, i - this.m_countX, g));
                 }
                 if (x < this.m_countX - 1) {
-                    queue.Push(new VoronoiDiagram_Task(x + 1, y, i + 1, g));
+                    queue.push(new VoronoiDiagram_Task(x + 1, y, i + 1, g));
                 }
                 if (y < this.m_countY - 1) {
-                    queue.Push(new VoronoiDiagram_Task(x, y + 1, i + this.m_countX, g));
+                    queue.push(new VoronoiDiagram_Task(x, y + 1, i + this.m_countX, g));
                 }
             }
         }
@@ -131,8 +131,8 @@ export class VoronoiDiagram {
                 const a = this.m_diagram[i];
                 const b = this.m_diagram[i + 1];
                 if (a !== b) {
-                    queue.Push(new VoronoiDiagram_Task(x, y, i, b));
-                    queue.Push(new VoronoiDiagram_Task(x + 1, y, i + 1, a));
+                    queue.push(new VoronoiDiagram_Task(x, y, i, b));
+                    queue.push(new VoronoiDiagram_Task(x + 1, y, i + 1, a));
                 }
             }
         }
@@ -142,18 +142,18 @@ export class VoronoiDiagram {
                 const a = this.m_diagram[i];
                 const b = this.m_diagram[i + this.m_countX];
                 if (a !== b) {
-                    queue.Push(new VoronoiDiagram_Task(x, y, i, b));
-                    queue.Push(new VoronoiDiagram_Task(x, y + 1, i + this.m_countX, a));
+                    queue.push(new VoronoiDiagram_Task(x, y, i, b));
+                    queue.push(new VoronoiDiagram_Task(x, y + 1, i + this.m_countX, a));
                 }
             }
         }
-        while (!queue.Empty()) {
-            const task = queue.Front();
+        while (!queue.empty()) {
+            const task = queue.front();
             const x = task.m_x;
             const y = task.m_y;
             const i = task.m_i;
             const k = task.m_generator;
-            queue.Pop();
+            queue.pop();
             const a = this.m_diagram[i];
             const b = k;
             if (a !== b) {
@@ -166,16 +166,16 @@ export class VoronoiDiagram {
                 if (a2 > b2) {
                     this.m_diagram[i] = b;
                     if (x > 0) {
-                        queue.Push(new VoronoiDiagram_Task(x - 1, y, i - 1, b));
+                        queue.push(new VoronoiDiagram_Task(x - 1, y, i - 1, b));
                     }
                     if (y > 0) {
-                        queue.Push(new VoronoiDiagram_Task(x, y - 1, i - this.m_countX, b));
+                        queue.push(new VoronoiDiagram_Task(x, y - 1, i - this.m_countX, b));
                     }
                     if (x < this.m_countX - 1) {
-                        queue.Push(new VoronoiDiagram_Task(x + 1, y, i + 1, b));
+                        queue.push(new VoronoiDiagram_Task(x + 1, y, i + 1, b));
                     }
                     if (y < this.m_countY - 1) {
-                        queue.Push(new VoronoiDiagram_Task(x, y + 1, i + this.m_countX, b));
+                        queue.push(new VoronoiDiagram_Task(x, y + 1, i + this.m_countX, b));
                     }
                 }
             }
@@ -186,7 +186,7 @@ export class VoronoiDiagram {
      * Enumerate all nodes that contain at least one necessary
      * generator.
      */
-    public GetNodes(callback: VoronoiDiagram_NodeCallback): void {
+    public getNodes(callback: VoronoiDiagram_NodeCallback): void {
         for (let y = 0; y < this.m_countY - 1; y++) {
             for (let x = 0; x < this.m_countX - 1; x++) {
                 const i = x + y * this.m_countX;

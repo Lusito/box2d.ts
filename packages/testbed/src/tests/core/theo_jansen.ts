@@ -23,7 +23,7 @@ import {
     PolygonShape,
     BodyType,
     DistanceJointDef,
-    LinearStiffness,
+    linearStiffness,
     RevoluteJointDef,
     EdgeShape,
     CircleShape,
@@ -51,22 +51,22 @@ class TheoJansenTest extends Test {
     public constructor() {
         super();
 
-        this.m_offset.Set(0, 8);
+        this.m_offset.set(0, 8);
         const pivot = new Vec2(0, 0.8);
 
         // Ground
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-50, 0), new Vec2(50, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-50, 0), new Vec2(50, 0));
+            ground.createFixture({ shape });
 
-            shape.SetTwoSided(new Vec2(-50, 0), new Vec2(-50, 10));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-50, 0), new Vec2(-50, 10));
+            ground.createFixture({ shape });
 
-            shape.SetTwoSided(new Vec2(50, 0), new Vec2(50, 10));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(50, 0), new Vec2(50, 10));
+            ground.createFixture({ shape });
         }
 
         // Balls
@@ -74,26 +74,26 @@ class TheoJansenTest extends Test {
             const shape = new CircleShape();
             shape.m_radius = 0.25;
 
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -40 + 2 * i, y: 0.5 },
             });
-            body.CreateFixture({ shape, density: 1 });
+            body.createFixture({ shape, density: 1 });
         }
 
         // Chassis
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(2.5, 1);
+            shape.setAsBox(2.5, 1);
 
-            this.m_chassis = this.m_world.CreateBody({
+            this.m_chassis = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: {
                     x: pivot.x + this.m_offset.x,
                     y: pivot.y + this.m_offset.y,
                 },
             });
-            this.m_chassis.CreateFixture({
+            this.m_chassis.createFixture({
                 density: 1,
                 shape,
                 filter: {
@@ -106,14 +106,14 @@ class TheoJansenTest extends Test {
             const shape = new CircleShape();
             shape.m_radius = 1.6;
 
-            this.m_wheel = this.m_world.CreateBody({
+            this.m_wheel = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: {
                     x: pivot.x + this.m_offset.x,
                     y: pivot.y + this.m_offset.y,
                 },
             });
-            this.m_wheel.CreateFixture({
+            this.m_wheel.createFixture({
                 density: 1,
                 shape,
                 filter: {
@@ -124,29 +124,29 @@ class TheoJansenTest extends Test {
 
         {
             const jd = new RevoluteJointDef();
-            jd.Initialize(this.m_wheel, this.m_chassis, Vec2.Add(pivot, this.m_offset, new Vec2()));
+            jd.initialize(this.m_wheel, this.m_chassis, Vec2.add(pivot, this.m_offset, new Vec2()));
             jd.collideConnected = false;
             jd.motorSpeed = this.m_motorSpeed;
             jd.maxMotorTorque = 400;
             jd.enableMotor = this.m_motorOn;
-            this.m_motorJoint = this.m_world.CreateJoint(jd);
+            this.m_motorJoint = this.m_world.createJoint(jd);
         }
 
-        const wheelAnchor = Vec2.Add(pivot, new Vec2(0, -0.8), new Vec2());
+        const wheelAnchor = Vec2.add(pivot, new Vec2(0, -0.8), new Vec2());
 
-        this.CreateLeg(-1, wheelAnchor);
-        this.CreateLeg(1, wheelAnchor);
+        this.createLeg(-1, wheelAnchor);
+        this.createLeg(1, wheelAnchor);
 
-        this.m_wheel.SetTransformVec(this.m_wheel.GetPosition(), (120 * Math.PI) / 180);
-        this.CreateLeg(-1, wheelAnchor);
-        this.CreateLeg(1, wheelAnchor);
+        this.m_wheel.setTransformVec(this.m_wheel.getPosition(), (120 * Math.PI) / 180);
+        this.createLeg(-1, wheelAnchor);
+        this.createLeg(1, wheelAnchor);
 
-        this.m_wheel.SetTransformVec(this.m_wheel.GetPosition(), (-120 * Math.PI) / 180);
-        this.CreateLeg(-1, wheelAnchor);
-        this.CreateLeg(1, wheelAnchor);
+        this.m_wheel.setTransformVec(this.m_wheel.getPosition(), (-120 * Math.PI) / 180);
+        this.createLeg(-1, wheelAnchor);
+        this.createLeg(1, wheelAnchor);
     }
 
-    public CreateLeg(s: number, wheelAnchor: Vec2) {
+    public createLeg(s: number, wheelAnchor: Vec2) {
         const p1 = new Vec2(5.4 * s, -6.1);
         const p2 = new Vec2(7.2 * s, -1.2);
         const p3 = new Vec2(4.3 * s, -1.9);
@@ -163,43 +163,43 @@ class TheoJansenTest extends Test {
             vertices[0] = p1;
             vertices[1] = p2;
             vertices[2] = p3;
-            poly1.Set(vertices);
+            poly1.set(vertices);
 
             vertices[0] = Vec2.ZERO;
-            vertices[1] = Vec2.Subtract(p5, p4, new Vec2());
-            vertices[2] = Vec2.Subtract(p6, p4, new Vec2());
-            poly2.Set(vertices);
+            vertices[1] = Vec2.subtract(p5, p4, new Vec2());
+            vertices[2] = Vec2.subtract(p6, p4, new Vec2());
+            poly2.set(vertices);
         } else {
             const vertices = [];
 
             vertices[0] = p1;
             vertices[1] = p3;
             vertices[2] = p2;
-            poly1.Set(vertices);
+            poly1.set(vertices);
 
             vertices[0] = Vec2.ZERO;
-            vertices[1] = Vec2.Subtract(p6, p4, new Vec2());
-            vertices[2] = Vec2.Subtract(p5, p4, new Vec2());
-            poly2.Set(vertices);
+            vertices[1] = Vec2.subtract(p6, p4, new Vec2());
+            vertices[2] = Vec2.subtract(p5, p4, new Vec2());
+            poly2.set(vertices);
         }
 
-        const body1 = this.m_world.CreateBody({
+        const body1 = this.m_world.createBody({
             type: BodyType.Dynamic,
             position: this.m_offset,
             angularDamping: 10,
         });
-        const body2 = this.m_world.CreateBody({
+        const body2 = this.m_world.createBody({
             type: BodyType.Dynamic,
-            position: Vec2.Add(p4, this.m_offset, new Vec2()),
+            position: Vec2.add(p4, this.m_offset, new Vec2()),
             angularDamping: 10,
         });
 
-        body1.CreateFixture({
+        body1.createFixture({
             filter: { groupIndex: -1 },
             shape: poly1,
             density: 1,
         });
-        body2.CreateFixture({
+        body2.createFixture({
             filter: { groupIndex: -1 },
             density: 1,
             shape: poly2,
@@ -214,58 +214,58 @@ class TheoJansenTest extends Test {
             const dampingRatio = 0.5;
             const frequencyHz = 10;
 
-            jd.Initialize(
+            jd.initialize(
                 body1,
                 body2,
-                Vec2.Add(p2, this.m_offset, new Vec2()),
-                Vec2.Add(p5, this.m_offset, new Vec2()),
+                Vec2.add(p2, this.m_offset, new Vec2()),
+                Vec2.add(p5, this.m_offset, new Vec2()),
             );
-            LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_world.CreateJoint(jd);
+            linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            this.m_world.createJoint(jd);
 
-            jd.Initialize(
+            jd.initialize(
                 body1,
                 body2,
-                Vec2.Add(p3, this.m_offset, new Vec2()),
-                Vec2.Add(p4, this.m_offset, new Vec2()),
+                Vec2.add(p3, this.m_offset, new Vec2()),
+                Vec2.add(p4, this.m_offset, new Vec2()),
             );
-            LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_world.CreateJoint(jd);
+            linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            this.m_world.createJoint(jd);
 
-            jd.Initialize(
+            jd.initialize(
                 body1,
                 this.m_wheel,
-                Vec2.Add(p3, this.m_offset, new Vec2()),
-                Vec2.Add(wheelAnchor, this.m_offset, new Vec2()),
+                Vec2.add(p3, this.m_offset, new Vec2()),
+                Vec2.add(wheelAnchor, this.m_offset, new Vec2()),
             );
-            LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_world.CreateJoint(jd);
+            linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            this.m_world.createJoint(jd);
 
-            jd.Initialize(
+            jd.initialize(
                 body2,
                 this.m_wheel,
-                Vec2.Add(p6, this.m_offset, new Vec2()),
-                Vec2.Add(wheelAnchor, this.m_offset, new Vec2()),
+                Vec2.add(p6, this.m_offset, new Vec2()),
+                Vec2.add(wheelAnchor, this.m_offset, new Vec2()),
             );
-            LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_world.CreateJoint(jd);
+            linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            this.m_world.createJoint(jd);
         }
 
         {
             const jd = new RevoluteJointDef();
 
-            jd.Initialize(body2, this.m_chassis, Vec2.Add(p4, this.m_offset, new Vec2()));
-            this.m_world.CreateJoint(jd);
+            jd.initialize(body2, this.m_chassis, Vec2.add(p4, this.m_offset, new Vec2()));
+            this.m_world.createJoint(jd);
         }
     }
 
     public getHotkeys(): HotKey[] {
         return [
-            hotKeyPress("a", "Left", () => this.m_motorJoint.SetMotorSpeed(-this.m_motorSpeed)),
-            hotKeyPress("s", "Brake", () => this.m_motorJoint.SetMotorSpeed(0)),
-            hotKeyPress("d", "Right", () => this.m_motorJoint.SetMotorSpeed(this.m_motorSpeed)),
+            hotKeyPress("a", "Left", () => this.m_motorJoint.setMotorSpeed(-this.m_motorSpeed)),
+            hotKeyPress("s", "Brake", () => this.m_motorJoint.setMotorSpeed(0)),
+            hotKeyPress("d", "Right", () => this.m_motorJoint.setMotorSpeed(this.m_motorSpeed)),
             hotKeyPress("m", "Toggle Enabled", () =>
-                this.m_motorJoint.EnableMotor(!this.m_motorJoint.IsMotorEnabled()),
+                this.m_motorJoint.enableMotor(!this.m_motorJoint.isMotorEnabled()),
             ),
         ];
     }

@@ -50,67 +50,67 @@ const tempCenter = new Vec2();
 
 const implementations: Array<ComputeDistanceFn<any>> = [
     (shape: CircleShape, xf, p, normal) => {
-        const center = Transform.MultiplyVec2(xf, shape.m_p, tempCenter);
-        Vec2.Subtract(p, center, normal);
-        return normal.Normalize() - shape.m_radius;
+        const center = Transform.multiplyVec2(xf, shape.m_p, tempCenter);
+        Vec2.subtract(p, center, normal);
+        return normal.normalize() - shape.m_radius;
     },
     (shape: EdgeShape, xf, p, normal) => {
-        const v1 = Transform.MultiplyVec2(xf, shape.m_vertex1, tempV1);
-        const v2 = Transform.MultiplyVec2(xf, shape.m_vertex2, tempV2);
+        const v1 = Transform.multiplyVec2(xf, shape.m_vertex1, tempV1);
+        const v2 = Transform.multiplyVec2(xf, shape.m_vertex2, tempV2);
 
-        const d = Vec2.Subtract(p, v1, tempD);
-        const s = Vec2.Subtract(v2, v1, tempS);
-        const ds = Vec2.Dot(d, s);
+        const d = Vec2.subtract(p, v1, tempD);
+        const s = Vec2.subtract(v2, v1, tempS);
+        const ds = Vec2.dot(d, s);
         if (ds > 0) {
-            const s2 = Vec2.Dot(s, s);
+            const s2 = Vec2.dot(s, s);
             if (ds > s2) {
-                Vec2.Subtract(p, v2, d);
+                Vec2.subtract(p, v2, d);
             } else {
-                d.SubtractScaled(ds / s2, s);
+                d.subtractScaled(ds / s2, s);
             }
         }
-        normal.Copy(d);
-        return normal.Normalize();
+        normal.copy(d);
+        return normal.normalize();
     },
     (shape: PolygonShape, xf, p, normal) => {
-        const pLocal = Transform.TransposeMultiplyVec2(xf, p, tempLocal);
+        const pLocal = Transform.transposeMultiplyVec2(xf, p, tempLocal);
         let maxDistance = -MAX_FLOAT;
-        const normalForMaxDistance = tempNormalForMaxDistance.Copy(pLocal);
+        const normalForMaxDistance = tempNormalForMaxDistance.copy(pLocal);
 
         for (let i = 0; i < shape.m_count; ++i) {
-            const dot = Vec2.Dot(shape.m_normals[i], Vec2.Subtract(pLocal, shape.m_vertices[i], Vec2.s_t0));
+            const dot = Vec2.dot(shape.m_normals[i], Vec2.subtract(pLocal, shape.m_vertices[i], Vec2.s_t0));
             if (dot > maxDistance) {
                 maxDistance = dot;
-                normalForMaxDistance.Copy(shape.m_normals[i]);
+                normalForMaxDistance.copy(shape.m_normals[i]);
             }
         }
 
         if (maxDistance > 0) {
-            const minDistance = tempMinDistance.Copy(normalForMaxDistance);
+            const minDistance = tempMinDistance.copy(normalForMaxDistance);
             let minDistance2 = maxDistance * maxDistance;
             for (let i = 0; i < shape.m_count; ++i) {
-                const distance = Vec2.Subtract(pLocal, shape.m_vertices[i], tempDistance);
-                const distance2 = distance.LengthSquared();
+                const distance = Vec2.subtract(pLocal, shape.m_vertices[i], tempDistance);
+                const distance2 = distance.lengthSquared();
                 if (minDistance2 > distance2) {
-                    minDistance.Copy(distance);
+                    minDistance.copy(distance);
                     minDistance2 = distance2;
                 }
             }
 
-            Rot.MultiplyVec2(xf.q, minDistance, normal);
-            normal.Normalize();
+            Rot.multiplyVec2(xf.q, minDistance, normal);
+            normal.normalize();
             return Math.sqrt(minDistance2);
         }
-        Rot.MultiplyVec2(xf.q, normalForMaxDistance, normal);
+        Rot.multiplyVec2(xf.q, normalForMaxDistance, normal);
         return maxDistance;
     },
     (shape: ChainShape, xf, p, normal, childIndex) => {
-        shape.GetChildEdge(tempEdgeShape, childIndex);
+        shape.getChildEdge(tempEdgeShape, childIndex);
         return implementations[ShapeType.Edge](tempEdgeShape, xf, p, normal, 0);
     },
 ];
 
 export const computeDistance = (shape: Shape, xf: Transform, p: Vec2, normal: Vec2, childIndex: number) => {
-    const fn = implementations[shape.GetType()];
+    const fn = implementations[shape.getType()];
     return fn ? fn(shape, xf, p, normal, childIndex) : 0;
 };

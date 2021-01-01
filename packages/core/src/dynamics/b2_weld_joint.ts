@@ -82,12 +82,12 @@ export class WeldJointDef extends JointDef implements IWeldJointDef {
         super(JointType.Weld);
     }
 
-    public Initialize(bA: Body, bB: Body, anchor: Vec2): void {
+    public initialize(bA: Body, bB: Body, anchor: Vec2): void {
         this.bodyA = bA;
         this.bodyB = bB;
-        this.bodyA.GetLocalPoint(anchor, this.localAnchorA);
-        this.bodyB.GetLocalPoint(anchor, this.localAnchorB);
-        this.referenceAngle = this.bodyB.GetAngle() - this.bodyA.GetAngle();
+        this.bodyA.getLocalPoint(anchor, this.localAnchorA);
+        this.bodyB.getLocalPoint(anchor, this.localAnchorB);
+        this.referenceAngle = this.bodyB.getAngle() - this.bodyA.getAngle();
     }
 }
 
@@ -140,19 +140,19 @@ export class WeldJoint extends Joint {
     public constructor(def: IWeldJointDef) {
         super(def);
 
-        this.m_localAnchorA.Copy(def.localAnchorA ?? Vec2.ZERO);
-        this.m_localAnchorB.Copy(def.localAnchorB ?? Vec2.ZERO);
+        this.m_localAnchorA.copy(def.localAnchorA ?? Vec2.ZERO);
+        this.m_localAnchorB.copy(def.localAnchorB ?? Vec2.ZERO);
         this.m_referenceAngle = def.referenceAngle ?? 0;
         this.m_stiffness = def.stiffness ?? 0;
         this.m_damping = def.damping ?? 0;
     }
 
     /** @internal protected */
-    public InitVelocityConstraints(data: SolverData): void {
+    public initVelocityConstraints(data: SolverData): void {
         this.m_indexA = this.m_bodyA.m_islandIndex;
         this.m_indexB = this.m_bodyB.m_islandIndex;
-        this.m_localCenterA.Copy(this.m_bodyA.m_sweep.localCenter);
-        this.m_localCenterB.Copy(this.m_bodyB.m_sweep.localCenter);
+        this.m_localCenterA.copy(this.m_bodyA.m_sweep.localCenter);
+        this.m_localCenterB.copy(this.m_bodyB.m_sweep.localCenter);
         this.m_invMassA = this.m_bodyA.m_invMass;
         this.m_invMassB = this.m_bodyB.m_invMass;
         this.m_invIA = this.m_bodyA.m_invI;
@@ -167,11 +167,11 @@ export class WeldJoint extends Joint {
         let wB = data.velocities[this.m_indexB].w;
 
         const { qA, qB, lalcA, lalcB, K } = temp;
-        qA.Set(aA);
-        qB.Set(aB);
+        qA.set(aA);
+        qB.set(aB);
 
-        Rot.MultiplyVec2(qA, Vec2.Subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), this.m_rA);
-        Rot.MultiplyVec2(qB, Vec2.Subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
+        Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), this.m_rA);
+        Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
 
         // J = [-I -r1_skew I r2_skew]
         //     [ 0       -1 0       1]
@@ -198,7 +198,7 @@ export class WeldJoint extends Joint {
         K.ez.z = iA + iB;
 
         if (this.m_stiffness > 0) {
-            K.GetInverse22(this.m_mass);
+            K.getInverse22(this.m_mass);
 
             let invM = iA + iB;
 
@@ -219,29 +219,29 @@ export class WeldJoint extends Joint {
             invM += this.m_gamma;
             this.m_mass.ez.z = invM !== 0 ? 1 / invM : 0;
         } else if (K.ez.z === 0) {
-            K.GetInverse22(this.m_mass);
+            K.getInverse22(this.m_mass);
             this.m_gamma = 0;
             this.m_bias = 0;
         } else {
-            K.GetSymInverse33(this.m_mass);
+            K.getSymInverse33(this.m_mass);
             this.m_gamma = 0;
             this.m_bias = 0;
         }
 
         if (data.step.warmStarting) {
             // Scale impulses to support a variable time step.
-            this.m_impulse.Scale(data.step.dtRatio);
+            this.m_impulse.scale(data.step.dtRatio);
 
             const { P } = temp;
-            P.Copy(this.m_impulse);
+            P.copy(this.m_impulse);
 
-            vA.SubtractScaled(mA, P);
-            wA -= iA * (Vec2.Cross(this.m_rA, P) + this.m_impulse.z);
+            vA.subtractScaled(mA, P);
+            wA -= iA * (Vec2.cross(this.m_rA, P) + this.m_impulse.z);
 
-            vB.AddScaled(mB, P);
-            wB += iB * (Vec2.Cross(this.m_rB, P) + this.m_impulse.z);
+            vB.addScaled(mB, P);
+            wB += iB * (Vec2.cross(this.m_rB, P) + this.m_impulse.z);
         } else {
-            this.m_impulse.SetZero();
+            this.m_impulse.setZero();
         }
 
         data.velocities[this.m_indexA].w = wA;
@@ -249,7 +249,7 @@ export class WeldJoint extends Joint {
     }
 
     /** @internal protected */
-    public SolveVelocityConstraints(data: SolverData): void {
+    public solveVelocityConstraints(data: SolverData): void {
         const vA = data.velocities[this.m_indexA].v;
         let wA = data.velocities[this.m_indexA].w;
         const vB = data.velocities[this.m_indexB].v;
@@ -270,42 +270,42 @@ export class WeldJoint extends Joint {
             wB += iB * impulse2;
 
             const { Cdot1, impulse1 } = temp;
-            Vec2.Subtract(
-                Vec2.AddCrossScalarVec2(vB, wB, this.m_rB, Vec2.s_t0),
-                Vec2.AddCrossScalarVec2(vA, wA, this.m_rA, Vec2.s_t1),
+            Vec2.subtract(
+                Vec2.addCrossScalarVec2(vB, wB, this.m_rB, Vec2.s_t0),
+                Vec2.addCrossScalarVec2(vA, wA, this.m_rA, Vec2.s_t1),
                 Cdot1,
             );
 
-            Mat33.MultiplyVec2(this.m_mass, Cdot1, impulse1).Negate();
+            Mat33.multiplyVec2(this.m_mass, Cdot1, impulse1).negate();
             this.m_impulse.x += impulse1.x;
             this.m_impulse.y += impulse1.y;
 
             const P = impulse1;
 
-            vA.SubtractScaled(mA, P);
-            wA -= iA * Vec2.Cross(this.m_rA, P);
+            vA.subtractScaled(mA, P);
+            wA -= iA * Vec2.cross(this.m_rA, P);
 
-            vB.AddScaled(mB, P);
-            wB += iB * Vec2.Cross(this.m_rB, P);
+            vB.addScaled(mB, P);
+            wB += iB * Vec2.cross(this.m_rB, P);
         } else {
             const { Cdot1, impulse, P } = temp;
-            Vec2.Subtract(
-                Vec2.AddCrossScalarVec2(vB, wB, this.m_rB, Vec2.s_t0),
-                Vec2.AddCrossScalarVec2(vA, wA, this.m_rA, Vec2.s_t1),
+            Vec2.subtract(
+                Vec2.addCrossScalarVec2(vB, wB, this.m_rB, Vec2.s_t0),
+                Vec2.addCrossScalarVec2(vA, wA, this.m_rA, Vec2.s_t1),
                 Cdot1,
             );
             Cdot1.z = wB - wA;
 
-            Mat33.MultiplyVec3(this.m_mass, Cdot1, impulse).Negate();
-            this.m_impulse.Add(impulse);
+            Mat33.multiplyVec3(this.m_mass, Cdot1, impulse).negate();
+            this.m_impulse.add(impulse);
 
-            P.Set(impulse.x, impulse.y);
+            P.set(impulse.x, impulse.y);
 
-            vA.SubtractScaled(mA, P);
-            wA -= iA * (Vec2.Cross(this.m_rA, P) + impulse.z);
+            vA.subtractScaled(mA, P);
+            wA -= iA * (Vec2.cross(this.m_rA, P) + impulse.z);
 
-            vB.AddScaled(mB, P);
-            wB += iB * (Vec2.Cross(this.m_rB, P) + impulse.z);
+            vB.addScaled(mB, P);
+            wB += iB * (Vec2.cross(this.m_rB, P) + impulse.z);
         }
 
         data.velocities[this.m_indexA].w = wA;
@@ -313,23 +313,23 @@ export class WeldJoint extends Joint {
     }
 
     /** @internal protected */
-    public SolvePositionConstraints(data: SolverData): boolean {
+    public solvePositionConstraints(data: SolverData): boolean {
         const cA = data.positions[this.m_indexA].c;
         let aA = data.positions[this.m_indexA].a;
         const cB = data.positions[this.m_indexB].c;
         let aB = data.positions[this.m_indexB].a;
 
         const { qA, qB, lalcA, lalcB, K, C1, P, rA, rB } = temp;
-        qA.Set(aA);
-        qB.Set(aB);
+        qA.set(aA);
+        qB.set(aB);
 
         const mA = this.m_invMassA;
         const mB = this.m_invMassB;
         const iA = this.m_invIA;
         const iB = this.m_invIB;
 
-        Rot.MultiplyVec2(qA, Vec2.Subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), rA);
-        Rot.MultiplyVec2(qB, Vec2.Subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), rB);
+        Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), rA);
+        Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), rB);
 
         let positionError: number;
         let angularError: number;
@@ -345,42 +345,42 @@ export class WeldJoint extends Joint {
         K.ez.z = iA + iB;
 
         if (this.m_stiffness > 0) {
-            Vec2.Add(cB, rB, C1).Subtract(cA).Subtract(rA);
-            positionError = C1.Length();
+            Vec2.add(cB, rB, C1).subtract(cA).subtract(rA);
+            positionError = C1.length();
             angularError = 0;
 
-            K.Solve22(C1.x, C1.y, P).Negate();
+            K.solve22(C1.x, C1.y, P).negate();
 
-            cA.SubtractScaled(mA, P);
-            aA -= iA * Vec2.Cross(rA, P);
+            cA.subtractScaled(mA, P);
+            aA -= iA * Vec2.cross(rA, P);
 
-            cB.AddScaled(mB, P);
-            aB += iB * Vec2.Cross(rB, P);
+            cB.addScaled(mB, P);
+            aB += iB * Vec2.cross(rB, P);
         } else {
-            Vec2.Add(cB, rB, C1).Subtract(cA).Subtract(rA);
-            Vec2.Subtract(Vec2.Add(cB, rB, Vec2.s_t0), Vec2.Add(cA, rA, Vec2.s_t1), C1);
+            Vec2.add(cB, rB, C1).subtract(cA).subtract(rA);
+            Vec2.subtract(Vec2.add(cB, rB, Vec2.s_t0), Vec2.add(cA, rA, Vec2.s_t1), C1);
             const C2 = aB - aA - this.m_referenceAngle;
 
-            positionError = C1.Length();
+            positionError = C1.length();
             angularError = Math.abs(C2);
 
             const { impulse, C } = temp;
-            C.Set(C1.x, C1.y, C2);
+            C.set(C1.x, C1.y, C2);
 
             if (K.ez.z > 0) {
-                K.Solve33(C.x, C.y, C.z, impulse).Negate();
+                K.solve33(C.x, C.y, C.z, impulse).negate();
             } else {
-                K.Solve22(C1.x, C1.y, impulse).Negate();
+                K.solve22(C1.x, C1.y, impulse).negate();
                 impulse.z = 0;
             }
 
-            P.Copy(impulse);
+            P.copy(impulse);
 
-            cA.SubtractScaled(mA, P);
-            aA -= iA * (Vec2.Cross(rA, P) + impulse.z);
+            cA.subtractScaled(mA, P);
+            aA -= iA * (Vec2.cross(rA, P) + impulse.z);
 
-            cB.AddScaled(mB, P);
-            aB += iB * (Vec2.Cross(rB, P) + impulse.z);
+            cB.addScaled(mB, P);
+            aB += iB * (Vec2.cross(rB, P) + impulse.z);
         }
 
         data.positions[this.m_indexA].a = aA;
@@ -389,49 +389,49 @@ export class WeldJoint extends Joint {
         return positionError <= LINEAR_SLOP && angularError <= ANGULAR_SLOP;
     }
 
-    public GetAnchorA<T extends XY>(out: T): T {
-        return this.m_bodyA.GetWorldPoint(this.m_localAnchorA, out);
+    public getAnchorA<T extends XY>(out: T): T {
+        return this.m_bodyA.getWorldPoint(this.m_localAnchorA, out);
     }
 
-    public GetAnchorB<T extends XY>(out: T): T {
-        return this.m_bodyB.GetWorldPoint(this.m_localAnchorB, out);
+    public getAnchorB<T extends XY>(out: T): T {
+        return this.m_bodyB.getWorldPoint(this.m_localAnchorB, out);
     }
 
-    public GetReactionForce<T extends XY>(inv_dt: number, out: T): T {
+    public getReactionForce<T extends XY>(inv_dt: number, out: T): T {
         out.x = inv_dt * this.m_impulse.x;
         out.y = inv_dt * this.m_impulse.y;
         return out;
     }
 
-    public GetReactionTorque(inv_dt: number): number {
+    public getReactionTorque(inv_dt: number): number {
         return inv_dt * this.m_impulse.z;
     }
 
-    public GetLocalAnchorA(): Readonly<Vec2> {
+    public getLocalAnchorA(): Readonly<Vec2> {
         return this.m_localAnchorA;
     }
 
-    public GetLocalAnchorB(): Readonly<Vec2> {
+    public getLocalAnchorB(): Readonly<Vec2> {
         return this.m_localAnchorB;
     }
 
-    public GetReferenceAngle(): number {
+    public getReferenceAngle(): number {
         return this.m_referenceAngle;
     }
 
-    public SetStiffness(stiffness: number): void {
+    public setStiffness(stiffness: number): void {
         this.m_stiffness = stiffness;
     }
 
-    public GetStiffness(): number {
+    public getStiffness(): number {
         return this.m_stiffness;
     }
 
-    public SetDamping(damping: number) {
+    public setDamping(damping: number) {
         this.m_damping = damping;
     }
 
-    public GetDamping() {
+    public getDamping() {
         return this.m_damping;
     }
 }

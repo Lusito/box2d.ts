@@ -27,7 +27,7 @@ import {
     RevoluteJointDef,
     CircleShape,
     XY,
-    MakeArray,
+    makeArray,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
@@ -52,18 +52,18 @@ class PinballTest extends Test {
 
         let ground = null;
         {
-            ground = this.m_world.CreateBody();
+            ground = this.m_world.createBody();
 
-            const vs = MakeArray(5, Vec2);
-            vs[0].Set(-8, 6);
-            vs[1].Set(-8, 20);
-            vs[2].Set(8, 20);
-            vs[3].Set(8, 6);
-            vs[4].Set(0, -2);
+            const vs = makeArray(5, Vec2);
+            vs[0].set(-8, 6);
+            vs[1].set(-8, 20);
+            vs[2].set(8, 20);
+            vs[3].set(8, 6);
+            vs[4].set(0, -2);
 
             const loop = new ChainShape();
-            loop.CreateLoop(vs, 5);
-            ground.CreateFixture({
+            loop.createLoop(vs, 5);
+            ground.createFixture({
                 shape: loop,
                 density: 0,
             });
@@ -74,51 +74,51 @@ class PinballTest extends Test {
             const p1 = new Vec2(-2, 0);
             const p2 = new Vec2(2, 0);
 
-            const leftFlipper = this.m_world.CreateBody({
+            const leftFlipper = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: p1,
             });
 
-            const rightFlipper = this.m_world.CreateBody({
+            const rightFlipper = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: p2,
             });
 
             const box = new PolygonShape();
-            box.SetAsBox(1.75, 0.1);
+            box.setAsBox(1.75, 0.1);
 
             const fd: FixtureDef = {
                 shape: box,
                 density: 1,
             };
-            leftFlipper.CreateFixture(fd);
-            rightFlipper.CreateFixture(fd);
+            leftFlipper.createFixture(fd);
+            rightFlipper.createFixture(fd);
 
             const jd = new RevoluteJointDef();
             jd.bodyA = ground;
-            jd.localAnchorB.SetZero();
+            jd.localAnchorB.setZero();
             jd.enableMotor = true;
             jd.maxMotorTorque = 1000;
             jd.enableLimit = true;
 
             jd.motorSpeed = -10;
-            jd.localAnchorA.Copy(p1);
+            jd.localAnchorA.copy(p1);
             jd.bodyB = leftFlipper;
             jd.lowerAngle = (-30 * Math.PI) / 180;
             jd.upperAngle = (5 * Math.PI) / 180;
-            this.m_leftJoint = this.m_world.CreateJoint(jd);
+            this.m_leftJoint = this.m_world.createJoint(jd);
 
             jd.motorSpeed = 10;
-            jd.localAnchorA.Copy(p2);
+            jd.localAnchorA.copy(p2);
             jd.bodyB = rightFlipper;
             jd.lowerAngle = (-5 * Math.PI) / 180;
             jd.upperAngle = (30 * Math.PI) / 180;
-            this.m_rightJoint = this.m_world.CreateJoint(jd);
+            this.m_rightJoint = this.m_world.createJoint(jd);
         }
 
         // Circle character
         {
-            this.m_ball = this.m_world.CreateBody({
+            this.m_ball = this.m_world.createBody({
                 position: { x: 1, y: 15 },
                 type: BodyType.Dynamic,
                 bullet: true,
@@ -131,11 +131,11 @@ class PinballTest extends Test {
                 shape,
                 density: 1,
             };
-            this.m_ball.CreateFixture(fd);
+            this.m_ball.createFixture(fd);
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 40;
     }
 
@@ -150,11 +150,11 @@ class PinballTest extends Test {
         return [
             hotKey("a", "Hold Flipper", (down) => {
                 if (down) {
-                    this.m_leftJoint.SetMotorSpeed(20);
-                    this.m_rightJoint.SetMotorSpeed(-20);
+                    this.m_leftJoint.setMotorSpeed(20);
+                    this.m_rightJoint.setMotorSpeed(-20);
                 } else {
-                    this.m_leftJoint.SetMotorSpeed(-10);
-                    this.m_rightJoint.SetMotorSpeed(10);
+                    this.m_leftJoint.setMotorSpeed(-10);
+                    this.m_rightJoint.setMotorSpeed(10);
                 }
             }),
         ];

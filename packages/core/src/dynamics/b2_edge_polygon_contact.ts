@@ -21,7 +21,7 @@
 // SOFTWARE.
 
 import { Transform } from "../common/b2_math";
-import { CollideEdgeAndPolygon } from "../collision/b2_collide_edge";
+import { collideEdgeAndPolygon } from "../collision/b2_collide_edge";
 import { Manifold } from "../collision/b2_collision";
 import { EdgeShape } from "../collision/b2_edge_shape";
 import { PolygonShape } from "../collision/b2_polygon_shape";
@@ -29,7 +29,7 @@ import { Contact } from "./b2_contact";
 
 /** @internal */
 export class EdgeAndPolygonContact extends Contact<EdgeShape, PolygonShape> {
-    public Evaluate(manifold: Manifold, xfA: Transform, xfB: Transform): void {
-        CollideEdgeAndPolygon(manifold, this.GetShapeA(), xfA, this.GetShapeB(), xfB);
+    public evaluate(manifold: Manifold, xfA: Transform, xfB: Transform): void {
+        collideEdgeAndPolygon(manifold, this.getShapeA(), xfA, this.getShapeB(), xfB);
     }
 }

@@ -27,31 +27,31 @@ class DamBreakTest extends AbstractParticleTestWithControls {
         super(particleParameter);
 
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new ChainShape();
             const vertices = [new Vec2(-2, 0), new Vec2(2, 0), new Vec2(2, 4), new Vec2(-2, 4)];
-            shape.CreateLoop(vertices, 4);
-            ground.CreateFixture({ shape });
+            shape.createLoop(vertices, 4);
+            ground.createFixture({ shape });
         }
 
-        this.m_particleSystem.SetRadius(0.025 * 2); // HACK: increase particle radius
-        this.m_particleSystem.SetDamping(0.2);
+        this.m_particleSystem.setRadius(0.025 * 2); // HACK: increase particle radius
+        this.m_particleSystem.setDamping(0.2);
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.8, 1, new Vec2(-1.2, 1.01), 0);
+            shape.setAsBox(0.8, 1, new Vec2(-1.2, 1.01), 0);
             const pd = new ParticleGroupDef();
-            pd.flags = particleParameter.GetValue();
+            pd.flags = particleParameter.getValue();
             pd.shape = shape;
-            const group = this.m_particleSystem.CreateParticleGroup(pd);
+            const group = this.m_particleSystem.createParticleGroup(pd);
             if (pd.flags & ParticleFlag.ColorMixing) {
-                this.ColorParticleGroup(group, 0);
+                this.colorParticleGroup(group, 0);
             }
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 250;
     }
 

@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { Assert } from "../common/b2_common";
+// DEBUG: import { assert } from "../common/b2_common";
 import { ShapeType } from "../collision/b2_shape";
 import { Contact } from "./b2_contact";
 import { CircleContact } from "./b2_circle_contact";
@@ -54,16 +54,16 @@ export class ContactFactory {
         for (let i = 0; i < ShapeType.TypeCount; i++) result[i] = new Array<ContactRegister>(ShapeType.TypeCount);
         this.m_registers = result;
 
-        this.AddType(CircleContact, ShapeType.Circle, ShapeType.Circle);
-        this.AddType(PolygonAndCircleContact, ShapeType.Polygon, ShapeType.Circle);
-        this.AddType(PolygonContact, ShapeType.Polygon, ShapeType.Polygon);
-        this.AddType(EdgeAndCircleContact, ShapeType.Edge, ShapeType.Circle);
-        this.AddType(EdgeAndPolygonContact, ShapeType.Edge, ShapeType.Polygon);
-        this.AddType(ChainAndCircleContact, ShapeType.Chain, ShapeType.Circle);
-        this.AddType(ChainAndPolygonContact, ShapeType.Chain, ShapeType.Polygon);
+        this.addType(CircleContact, ShapeType.Circle, ShapeType.Circle);
+        this.addType(PolygonAndCircleContact, ShapeType.Polygon, ShapeType.Circle);
+        this.addType(PolygonContact, ShapeType.Polygon, ShapeType.Polygon);
+        this.addType(EdgeAndCircleContact, ShapeType.Edge, ShapeType.Circle);
+        this.addType(EdgeAndPolygonContact, ShapeType.Edge, ShapeType.Polygon);
+        this.addType(ChainAndCircleContact, ShapeType.Chain, ShapeType.Circle);
+        this.addType(ChainAndPolygonContact, ShapeType.Chain, ShapeType.Polygon);
     }
 
-    private AddType(Clazz: ContactConstructor, typeA: ShapeType, typeB: ShapeType): void {
+    private addType(Clazz: ContactConstructor, typeA: ShapeType, typeB: ShapeType): void {
         const pool: Contact[] = [];
         const destroyFcn: DestroyFcn = (contact) => {
             pool.push(contact);
@@ -72,7 +72,7 @@ export class ContactFactory {
         this.m_registers[typeA][typeB] = {
             createFcn(fixtureA, indexA, fixtureB, indexB) {
                 const c = pool.pop() ?? new Clazz();
-                c.Reset(fixtureA, indexA, fixtureB, indexB);
+                c.reset(fixtureA, indexA, fixtureB, indexB);
                 return c;
             },
             destroyFcn,
@@ -82,7 +82,7 @@ export class ContactFactory {
             this.m_registers[typeB][typeA] = {
                 createFcn(fixtureA, indexA, fixtureB, indexB) {
                     const c = pool.pop() ?? new Clazz();
-                    c.Reset(fixtureB, indexB, fixtureA, indexA);
+                    c.reset(fixtureB, indexB, fixtureA, indexA);
                     return c;
                 },
                 destroyFcn,
@@ -90,23 +90,23 @@ export class ContactFactory {
         }
     }
 
-    public Create(fixtureA: Fixture, indexA: number, fixtureB: Fixture, indexB: number): Contact | null {
-        const typeA = fixtureA.GetType();
-        const typeB = fixtureB.GetType();
+    public create(fixtureA: Fixture, indexA: number, fixtureB: Fixture, indexB: number): Contact | null {
+        const typeA = fixtureA.getType();
+        const typeB = fixtureB.getType();
 
-        // DEBUG: Assert(0 <= typeA && typeA < ShapeType.TypeCount);
-        // DEBUG: Assert(0 <= typeB && typeB < ShapeType.TypeCount);
+        // DEBUG: assert(0 <= typeA && typeA < ShapeType.TypeCount);
+        // DEBUG: assert(0 <= typeB && typeB < ShapeType.TypeCount);
 
         const reg = this.m_registers[typeA][typeB];
         return reg ? reg.createFcn(fixtureA, indexA, fixtureB, indexB) : null;
     }
 
-    public Destroy(contact: Contact): void {
-        const typeA = contact.m_fixtureA.GetType();
-        const typeB = contact.m_fixtureB.GetType();
+    public destroy(contact: Contact): void {
+        const typeA = contact.m_fixtureA.getType();
+        const typeB = contact.m_fixtureB.getType();
 
-        // DEBUG: Assert(0 <= typeA && typeB < ShapeType.TypeCount);
-        // DEBUG: Assert(0 <= typeA && typeB < ShapeType.TypeCount);
+        // DEBUG: assert(0 <= typeA && typeB < ShapeType.TypeCount);
+        // DEBUG: assert(0 <= typeA && typeB < ShapeType.TypeCount);
 
         const reg = this.m_registers[typeA][typeB];
         reg?.destroyFcn(contact);

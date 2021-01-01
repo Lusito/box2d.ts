@@ -31,14 +31,14 @@ export class ConstantAccelController extends Controller {
      */
     public readonly A = new Vec2();
 
-    public Step(step: TimeStep) {
-        Vec2.Scale(step.dt, this.A, tempDta);
+    public step(step: TimeStep) {
+        Vec2.scale(step.dt, this.A, tempDta);
         for (let i = this.m_bodyList; i; i = i.nextBody) {
             const { body } = i;
-            if (!body.IsAwake()) {
+            if (!body.isAwake()) {
                 continue;
             }
-            body.SetLinearVelocity(Vec2.Add(body.GetLinearVelocity(), tempDta, Vec2.s_t0));
+            body.setLinearVelocity(Vec2.add(body.getLinearVelocity(), tempDta, Vec2.s_t0));
         }
     }
 }

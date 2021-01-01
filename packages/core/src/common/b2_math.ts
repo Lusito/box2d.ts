@@ -20,23 +20,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { Assert } from "./b2_common";
+// DEBUG: import { assert } from "./b2_common";
 import { EPSILON, EPSILON_SQUARED } from "./b2_common";
 
 export const b2_pi_over_180 = Math.PI / 180;
 export const b2_180_over_pi = 180 / Math.PI;
 export const b2_two_pi = 2 * Math.PI;
 
-export function Clamp(a: number, low: number, high: number) {
+export function clamp(a: number, low: number, high: number) {
     if (a < low) return low;
     return a > high ? high : a;
 }
 
-export function DegToRad(degrees: number) {
+export function degToRad(degrees: number) {
     return degrees * b2_pi_over_180;
 }
 
-export function RadToDeg(radians: number) {
+export function radToDeg(radians: number) {
     return radians * b2_180_over_pi;
 }
 
@@ -47,7 +47,7 @@ export function RadToDeg(radians: number) {
  * the same most significant 1 as x, but all 1's below it. Adding 1 to that value yields the next
  * largest power of 2. For a 32-bit value:"
  */
-export function NextPowerOfTwo(x: number) {
+export function nextPowerOfTwo(x: number) {
     x |= x >> 1;
     x |= x >> 2;
     x |= x >> 4;
@@ -56,19 +56,19 @@ export function NextPowerOfTwo(x: number) {
     return x + 1;
 }
 
-export function IsPowerOfTwo(x: number) {
+export function isPowerOfTwo(x: number) {
     return x > 0 && (x & (x - 1)) === 0;
 }
 
-export function Random(): number {
+export function random(): number {
     return Math.random() * 2 - 1;
 }
 
-export function RandomFloat(lo: number, hi: number) {
+export function randomFloat(lo: number, hi: number) {
     return (hi - lo) * Math.random() + lo;
 }
 
-export function RandomInt(lo: number, hi: number) {
+export function randomInt(lo: number, hi: number) {
     return Math.round((hi - lo) * Math.random() + lo);
 }
 
@@ -104,14 +104,14 @@ export class Vec2 implements XY {
         this.y = y;
     }
 
-    public Clone() {
+    public clone() {
         return new Vec2(this.x, this.y);
     }
 
     /**
      * Set this vector to all zeros.
      */
-    public SetZero() {
+    public setZero() {
         this.x = 0;
         this.y = 0;
         return this;
@@ -120,13 +120,13 @@ export class Vec2 implements XY {
     /**
      * Set this vector to some specified coordinates.
      */
-    public Set(x: number, y: number) {
+    public set(x: number, y: number) {
         this.x = x;
         this.y = y;
         return this;
     }
 
-    public Copy(other: XY) {
+    public copy(other: XY) {
         this.x = other.x;
         this.y = other.y;
         return this;
@@ -135,7 +135,7 @@ export class Vec2 implements XY {
     /**
      * Add a vector to this vector.
      */
-    public Add(v: XY) {
+    public add(v: XY) {
         this.x += v.x;
         this.y += v.y;
         return this;
@@ -144,7 +144,7 @@ export class Vec2 implements XY {
     /**
      * Add a vector to this vector.
      */
-    public AddXY(x: number, y: number) {
+    public addXY(x: number, y: number) {
         this.x += x;
         this.y += y;
         return this;
@@ -153,7 +153,7 @@ export class Vec2 implements XY {
     /**
      * Subtract a vector from this vector.
      */
-    public Subtract(v: XY) {
+    public subtract(v: XY) {
         this.x -= v.x;
         this.y -= v.y;
         return this;
@@ -162,7 +162,7 @@ export class Vec2 implements XY {
     /**
      * Subtract a vector from this vector.
      */
-    public SubtractXY(x: number, y: number) {
+    public subtractXY(x: number, y: number) {
         this.x -= x;
         this.y -= y;
         return this;
@@ -171,19 +171,19 @@ export class Vec2 implements XY {
     /**
      * Multiply this vector by a scalar.
      */
-    public Scale(s: number) {
+    public scale(s: number) {
         this.x *= s;
         this.y *= s;
         return this;
     }
 
-    public AddScaled(s: number, v: XY) {
+    public addScaled(s: number, v: XY) {
         this.x += s * v.x;
         this.y += s * v.y;
         return this;
     }
 
-    public SubtractScaled(s: number, v: XY) {
+    public subtractScaled(s: number, v: XY) {
         this.x -= s * v.x;
         this.y -= s * v.y;
         return this;
@@ -192,21 +192,21 @@ export class Vec2 implements XY {
     /**
      * Perform the dot product on two vectors.
      */
-    public Dot(v: XY) {
+    public dot(v: XY) {
         return this.x * v.x + this.y * v.y;
     }
 
     /**
      * Perform the cross product on two vectors. In 2D this produces a scalar.
      */
-    public Cross(v: XY) {
+    public cross(v: XY) {
         return this.x * v.y - this.y * v.x;
     }
 
     /**
      * Get the length of this vector (the norm).
      */
-    public Length() {
+    public length() {
         const { x, y } = this;
         return Math.sqrt(x * x + y * y);
     }
@@ -215,7 +215,7 @@ export class Vec2 implements XY {
      * Get the length squared. For performance, use this instead of
      * Vec2::Length (if possible).
      */
-    public LengthSquared() {
+    public lengthSquared() {
         const { x, y } = this;
         return x * x + y * y;
     }
@@ -223,8 +223,8 @@ export class Vec2 implements XY {
     /**
      * Convert this vector into a unit vector. Returns the length.
      */
-    public Normalize() {
-        const length = this.Length();
+    public normalize() {
+        const length = this.length();
         if (length < EPSILON) {
             return 0;
         }
@@ -234,7 +234,7 @@ export class Vec2 implements XY {
         return length;
     }
 
-    public Rotate(radians: number) {
+    public rotate(radians: number) {
         const c = Math.cos(radians);
         const s = Math.sin(radians);
         const { x } = this;
@@ -243,7 +243,7 @@ export class Vec2 implements XY {
         return this;
     }
 
-    public RotateCosSin(c: number, s: number) {
+    public rotateCosSin(c: number, s: number) {
         const { x } = this;
         this.x = c * x - s * this.y;
         this.y = s * x + c * this.y;
@@ -253,17 +253,17 @@ export class Vec2 implements XY {
     /**
      * Does this vector contain finite coordinates?
      */
-    public IsValid() {
+    public isValid() {
         return Number.isFinite(this.x) && Number.isFinite(this.y);
     }
 
-    public Abs() {
+    public abs() {
         this.x = Math.abs(this.x);
         this.y = Math.abs(this.y);
         return this;
     }
 
-    public GetAbs<T extends XY>(out: T) {
+    public getAbs<T extends XY>(out: T) {
         out.x = Math.abs(this.x);
         out.y = Math.abs(this.y);
         return out;
@@ -272,7 +272,7 @@ export class Vec2 implements XY {
     /**
      * Negate this vector.
      */
-    public Negate() {
+    public negate() {
         this.x = -this.x;
         this.y = -this.y;
         return this;
@@ -281,32 +281,32 @@ export class Vec2 implements XY {
     /**
      * Skew this vector such that dot(skew_vec, other) == cross(vec, other)
      */
-    public Skew() {
+    public skew() {
         const { x } = this;
         this.x = -this.y;
         this.y = x;
         return this;
     }
 
-    public static Min<T extends XY>(a: XY, b: XY, out: T) {
+    public static min<T extends XY>(a: XY, b: XY, out: T) {
         out.x = Math.min(a.x, b.x);
         out.y = Math.min(a.y, b.y);
         return out;
     }
 
-    public static Max<T extends XY>(a: XY, b: XY, out: T) {
+    public static max<T extends XY>(a: XY, b: XY, out: T) {
         out.x = Math.max(a.x, b.x);
         out.y = Math.max(a.y, b.y);
         return out;
     }
 
-    public static Clamp<T extends XY>(v: XY, lo: XY, hi: XY, out: T) {
-        out.x = Clamp(v.x, lo.x, hi.x);
-        out.y = Clamp(v.y, lo.y, hi.y);
+    public static clamp<T extends XY>(v: XY, lo: XY, hi: XY, out: T) {
+        out.x = clamp(v.x, lo.x, hi.x);
+        out.y = clamp(v.y, lo.y, hi.y);
         return out;
     }
 
-    public static Rotate<T extends XY>(v: XY, radians: number, out: T) {
+    public static rotate<T extends XY>(v: XY, radians: number, out: T) {
         const v_x = v.x;
         const v_y = v.y;
         const c = Math.cos(radians);
@@ -316,11 +316,11 @@ export class Vec2 implements XY {
         return out;
     }
 
-    public static Dot(a: XY, b: XY) {
+    public static dot(a: XY, b: XY) {
         return a.x * b.x + a.y * b.y;
     }
 
-    public static Cross(a: XY, b: XY) {
+    public static cross(a: XY, b: XY) {
         return a.x * b.y - a.y * b.x;
     }
 
@@ -328,14 +328,14 @@ export class Vec2 implements XY {
      * Perform the cross product on a vector and a scalar. In 2D this produces
      * a vector.
      */
-    public static CrossVec2Scalar<T extends XY>(v: XY, s: number, out: T) {
+    public static crossVec2Scalar<T extends XY>(v: XY, s: number, out: T) {
         const v_x = v.x;
         out.x = s * v.y;
         out.y = -s * v_x;
         return out;
     }
 
-    public static CrossVec2One<T extends XY>(v: XY, out: T) {
+    public static crossVec2One<T extends XY>(v: XY, out: T) {
         const v_x = v.x;
         out.x = v.y;
         out.y = -v_x;
@@ -346,14 +346,14 @@ export class Vec2 implements XY {
      * Perform the cross product on a scalar and a vector. In 2D this produces
      * a vector.
      */
-    public static CrossScalarVec2<T extends XY>(s: number, v: XY, out: T) {
+    public static crossScalarVec2<T extends XY>(s: number, v: XY, out: T) {
         const v_x = v.x;
         out.x = -s * v.y;
         out.y = s * v_x;
         return out;
     }
 
-    public static CrossOneVec2<T extends XY>(v: XY, out: T) {
+    public static crossOneVec2<T extends XY>(v: XY, out: T) {
         const v_x = v.x;
         out.x = -v.y;
         out.y = v_x;
@@ -363,7 +363,7 @@ export class Vec2 implements XY {
     /**
      * Add two vectors component-wise.
      */
-    public static Add<T extends XY>(a: XY, b: XY, out: T) {
+    public static add<T extends XY>(a: XY, b: XY, out: T) {
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         return out;
@@ -372,71 +372,71 @@ export class Vec2 implements XY {
     /**
      * Subtract two vectors component-wise.
      */
-    public static Subtract<T extends XY>(a: XY, b: XY, out: T) {
+    public static subtract<T extends XY>(a: XY, b: XY, out: T) {
         out.x = a.x - b.x;
         out.y = a.y - b.y;
         return out;
     }
 
-    public static Scale<T extends XY>(s: number, v: XY, out: T) {
+    public static scale<T extends XY>(s: number, v: XY, out: T) {
         out.x = v.x * s;
         out.y = v.y * s;
         return out;
     }
 
-    public static AddScaled<T extends XY>(a: XY, s: number, b: XY, out: T) {
+    public static addScaled<T extends XY>(a: XY, s: number, b: XY, out: T) {
         out.x = a.x + s * b.x;
         out.y = a.y + s * b.y;
         return out;
     }
 
-    public static SubtractScaled<T extends XY>(a: XY, s: number, b: XY, out: T) {
+    public static subtractScaled<T extends XY>(a: XY, s: number, b: XY, out: T) {
         out.x = a.x - s * b.x;
         out.y = a.y - s * b.y;
         return out;
     }
 
-    public static AddCrossScalarVec2<T extends XY>(a: XY, s: number, v: XY, out: T) {
+    public static addCrossScalarVec2<T extends XY>(a: XY, s: number, v: XY, out: T) {
         const v_x = v.x;
         out.x = a.x - s * v.y;
         out.y = a.y + s * v_x;
         return out;
     }
 
-    public static Mid<T extends XY>(a: XY, b: XY, out: T) {
+    public static mid<T extends XY>(a: XY, b: XY, out: T) {
         out.x = (a.x + b.x) * 0.5;
         out.y = (a.y + b.y) * 0.5;
         return out;
     }
 
-    public static Extents<T extends XY>(a: XY, b: XY, out: T) {
+    public static extents<T extends XY>(a: XY, b: XY, out: T) {
         out.x = (b.x - a.x) * 0.5;
         out.y = (b.y - a.y) * 0.5;
         return out;
     }
 
-    public static Equals(a: XY, b: XY) {
+    public static equals(a: XY, b: XY) {
         return a.x === b.x && a.y === b.y;
     }
 
-    public static Distance(a: XY, b: XY) {
+    public static distance(a: XY, b: XY) {
         return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
     }
 
-    public static DistanceSquared(a: XY, b: XY) {
+    public static distanceSquared(a: XY, b: XY) {
         return (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
     }
 
     /**
      * Negate a vector.
      */
-    public static Negate<T extends XY>(v: XY, out: T) {
+    public static negate<T extends XY>(v: XY, out: T) {
         out.x = -v.x;
         out.y = -v.y;
         return out;
     }
 
-    public static Normalize<T extends XY>(v: XY, out: T) {
+    public static normalize<T extends XY>(v: XY, out: T) {
         const length_sq = v.x ** 2 + v.y ** 2;
         if (length_sq >= EPSILON_SQUARED) {
             const inv_length = 1 / Math.sqrt(length_sq);
@@ -452,7 +452,7 @@ export class Vec2 implements XY {
     /**
      * Skew a vector such that dot(skew_vec, other) == cross(vec, other)
      */
-    public static Skew<T extends XY>(v: XY, out: T) {
+    public static skew<T extends XY>(v: XY, out: T) {
         const { x } = v;
         out.x = -v.y;
         out.y = x;
@@ -484,14 +484,14 @@ export class Vec3 implements XYZ {
         this.z = z;
     }
 
-    public Clone() {
+    public clone() {
         return new Vec3(this.x, this.y, this.z);
     }
 
     /**
      * Set this vector to all zeros.
      */
-    public SetZero() {
+    public setZero() {
         this.x = 0;
         this.y = 0;
         this.z = 0;
@@ -501,14 +501,14 @@ export class Vec3 implements XYZ {
     /**
      * Set this vector to some specified coordinates.
      */
-    public Set(x: number, y: number, z: number) {
+    public set(x: number, y: number, z: number) {
         this.x = x;
         this.y = y;
         this.z = z;
         return this;
     }
 
-    public Copy(other: XYZ) {
+    public copy(other: XYZ) {
         this.x = other.x;
         this.y = other.y;
         this.z = other.z;
@@ -518,7 +518,7 @@ export class Vec3 implements XYZ {
     /**
      * Negate this vector.
      */
-    public Negate() {
+    public negate() {
         this.x = -this.x;
         this.y = -this.y;
         this.z = -this.z;
@@ -528,7 +528,7 @@ export class Vec3 implements XYZ {
     /**
      * Add a vector to this vector.
      */
-    public Add(v: XYZ) {
+    public add(v: XYZ) {
         this.x += v.x;
         this.y += v.y;
         this.z += v.z;
@@ -538,7 +538,7 @@ export class Vec3 implements XYZ {
     /**
      * Add a vector to this vector.
      */
-    public AddXYZ(x: number, y: number, z: number) {
+    public addXYZ(x: number, y: number, z: number) {
         this.x += x;
         this.y += y;
         this.z += z;
@@ -548,7 +548,7 @@ export class Vec3 implements XYZ {
     /**
      * Subtract a vector from this vector.
      */
-    public Subtract(v: XYZ) {
+    public subtract(v: XYZ) {
         this.x -= v.x;
         this.y -= v.y;
         this.z -= v.z;
@@ -558,7 +558,7 @@ export class Vec3 implements XYZ {
     /**
      * Subtract a vector from this vector.
      */
-    public SubtractXYZ(x: number, y: number, z: number) {
+    public subtractXYZ(x: number, y: number, z: number) {
         this.x -= x;
         this.y -= y;
         this.z -= z;
@@ -568,7 +568,7 @@ export class Vec3 implements XYZ {
     /**
      * Multiply this vector by a scalar.
      */
-    public Scale(s: number) {
+    public scale(s: number) {
         this.x *= s;
         this.y *= s;
         this.z *= s;
@@ -578,14 +578,14 @@ export class Vec3 implements XYZ {
     /**
      * Perform the dot product on two vectors.
      */
-    public static Dot(a: XYZ, b: XYZ): number {
+    public static dot(a: XYZ, b: XYZ): number {
         return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
     /**
      * Perform the cross product on two vectors.
      */
-    public static Cross<T extends XYZ>(a: XYZ, b: XYZ, out: T) {
+    public static cross<T extends XYZ>(a: XYZ, b: XYZ, out: T) {
         const a_x = a.x;
         const a_y = a.y;
         const a_z = a.z;
@@ -609,79 +609,79 @@ export class Mat22 {
 
     public readonly ey = new Vec2(0, 1);
 
-    public Clone() {
-        return new Mat22().Copy(this);
+    public clone() {
+        return new Mat22().copy(this);
     }
 
     /**
      * Construct a matrix using columns.
      */
-    public static FromColumns(c1: XY, c2: XY) {
-        return new Mat22().SetColumns(c1, c2);
+    public static fromColumns(c1: XY, c2: XY) {
+        return new Mat22().setColumns(c1, c2);
     }
 
     /**
      * Construct a matrix using scalars.
      */
-    public static FromScalars(r1c1: number, r1c2: number, r2c1: number, r2c2: number) {
-        return new Mat22().SetScalars(r1c1, r1c2, r2c1, r2c2);
+    public static fromScalars(r1c1: number, r1c2: number, r2c1: number, r2c2: number) {
+        return new Mat22().setScalars(r1c1, r1c2, r2c1, r2c2);
     }
 
-    public static FromAngle(radians: number) {
-        return new Mat22().SetAngle(radians);
+    public static fromAngle(radians: number) {
+        return new Mat22().setAngle(radians);
     }
 
     /**
      * Set this matrix using scalars.
      */
-    public SetScalars(r1c1: number, r1c2: number, r2c1: number, r2c2: number) {
-        this.ex.Set(r1c1, r2c1);
-        this.ey.Set(r1c2, r2c2);
+    public setScalars(r1c1: number, r1c2: number, r2c1: number, r2c2: number) {
+        this.ex.set(r1c1, r2c1);
+        this.ey.set(r1c2, r2c2);
         return this;
     }
 
     /**
      * Initialize this matrix using columns.
      */
-    public SetColumns(c1: XY, c2: XY) {
-        this.ex.Copy(c1);
-        this.ey.Copy(c2);
+    public setColumns(c1: XY, c2: XY) {
+        this.ex.copy(c1);
+        this.ey.copy(c2);
         return this;
     }
 
-    public SetAngle(radians: number) {
+    public setAngle(radians: number) {
         const c = Math.cos(radians);
         const s = Math.sin(radians);
-        this.ex.Set(c, s);
-        this.ey.Set(-s, c);
+        this.ex.set(c, s);
+        this.ey.set(-s, c);
         return this;
     }
 
-    public Copy(other: Mat22) {
-        this.ex.Copy(other.ex);
-        this.ey.Copy(other.ey);
+    public copy(other: Mat22) {
+        this.ex.copy(other.ex);
+        this.ey.copy(other.ey);
         return this;
     }
 
     /**
      * Set this to the identity matrix.
      */
-    public SetIdentity() {
-        this.ex.Set(1, 0);
-        this.ey.Set(0, 1);
+    public setIdentity() {
+        this.ex.set(1, 0);
+        this.ey.set(0, 1);
         return this;
     }
 
     /**
      * Set this matrix to all zeros.
      */
-    public SetZero() {
-        this.ex.SetZero();
-        this.ey.SetZero();
+    public setZero() {
+        this.ex.setZero();
+        this.ey.setZero();
         return this;
     }
 
-    public GetAngle() {
+    public getAngle() {
         return Math.atan2(this.ex.y, this.ex.x);
     }
 
@@ -689,7 +689,7 @@ export class Mat22 {
      * Solve A * x = b, where b is a column vector. This is more efficient
      * than computing the inverse in one-shot cases.
      */
-    public Solve<T extends XY>(b_x: number, b_y: number, out: T) {
+    public solve<T extends XY>(b_x: number, b_y: number, out: T) {
         const a11 = this.ex.x;
         const a12 = this.ey.x;
         const a21 = this.ex.y;
@@ -703,30 +703,30 @@ export class Mat22 {
         return out;
     }
 
-    public Abs() {
-        this.ex.Abs();
-        this.ey.Abs();
+    public abs() {
+        this.ex.abs();
+        this.ey.abs();
         return this;
     }
 
-    public Inverse() {
-        this.GetInverse(this);
+    public inverse() {
+        this.getInverse(this);
         return this;
     }
 
-    public Add(M: Mat22) {
-        this.ex.Add(M.ex);
-        this.ey.Add(M.ey);
+    public add(M: Mat22) {
+        this.ex.add(M.ex);
+        this.ey.add(M.ey);
         return this;
     }
 
-    public Subtract(M: Mat22) {
-        this.ex.Subtract(M.ex);
-        this.ey.Subtract(M.ey);
+    public subtract(M: Mat22) {
+        this.ex.subtract(M.ex);
+        this.ey.subtract(M.ey);
         return this;
     }
 
-    public GetInverse(out: Mat22) {
+    public getInverse(out: Mat22) {
         const a = this.ex.x;
         const b = this.ey.x;
         const c = this.ex.y;
@@ -742,7 +742,7 @@ export class Mat22 {
         return out;
     }
 
-    public GetAbs(out: Mat22) {
+    public getAbs(out: Mat22) {
         out.ex.x = Math.abs(this.ex.x);
         out.ex.y = Math.abs(this.ex.y);
         out.ey.x = Math.abs(this.ey.x);
@@ -754,7 +754,7 @@ export class Mat22 {
      * Multiply a matrix times a vector. If a rotation matrix is provided,
      * then this transforms the vector from one frame to another.
      */
-    public static MultiplyVec2<T extends XY>(M: Mat22, v: XY, out: T) {
+    public static multiplyVec2<T extends XY>(M: Mat22, v: XY, out: T) {
         const v_x = v.x;
         const v_y = v.y;
         out.x = M.ex.x * v_x + M.ey.x * v_y;
@@ -766,7 +766,7 @@ export class Mat22 {
      * Multiply a matrix transpose times a vector. If a rotation matrix is provided,
      * then this transforms the vector from one frame to another (inverse transform).
      */
-    public static TransposeMultiplyVec2<T extends XY>(M: Mat22, v: XY, out: T) {
+    public static transposeMultiplyVec2<T extends XY>(M: Mat22, v: XY, out: T) {
         const v_x = v.x;
         const v_y = v.y;
         out.x = M.ex.x * v_x + M.ex.y * v_y;
@@ -774,7 +774,7 @@ export class Mat22 {
         return out;
     }
 
-    public static Add(A: Mat22, B: Mat22, out: Mat22) {
+    public static add(A: Mat22, B: Mat22, out: Mat22) {
         out.ex.x = A.ex.x + B.ex.x;
         out.ex.y = A.ex.y + B.ex.y;
         out.ey.x = A.ey.x + B.ey.x;
@@ -783,7 +783,7 @@ export class Mat22 {
     }
 
     /** A * B */
-    public static Multiply(A: Mat22, B: Mat22, out: Mat22) {
+    public static multiply(A: Mat22, B: Mat22, out: Mat22) {
         const A_ex_x = A.ex.x;
         const A_ex_y = A.ex.y;
         const A_ey_x = A.ey.x;
@@ -800,7 +800,7 @@ export class Mat22 {
     }
 
     /** A^T * B */
-    public static TransposeMultiply(A: Mat22, B: Mat22, out: Mat22) {
+    public static transposeMultiply(A: Mat22, B: Mat22, out: Mat22) {
         const A_ex_x = A.ex.x;
         const A_ex_y = A.ex.y;
         const A_ey_x = A.ey.x;
@@ -829,48 +829,48 @@ export class Mat33 {
 
     public readonly ez = new Vec3(0, 0, 1);
 
-    public Clone(): Mat33 {
-        return new Mat33().Copy(this);
+    public clone(): Mat33 {
+        return new Mat33().copy(this);
     }
 
     /**
      * Set this matrix using columns.
      */
-    public SetColumns(c1: XYZ, c2: XYZ, c3: XYZ) {
-        this.ex.Copy(c1);
-        this.ey.Copy(c2);
-        this.ez.Copy(c3);
+    public setColumns(c1: XYZ, c2: XYZ, c3: XYZ) {
+        this.ex.copy(c1);
+        this.ey.copy(c2);
+        this.ez.copy(c3);
         return this;
     }
 
-    public Copy(other: Mat33) {
-        this.ex.Copy(other.ex);
-        this.ey.Copy(other.ey);
-        this.ez.Copy(other.ez);
+    public copy(other: Mat33) {
+        this.ex.copy(other.ex);
+        this.ey.copy(other.ey);
+        this.ez.copy(other.ez);
         return this;
     }
 
-    public SetIdentity() {
-        this.ex.Set(1, 0, 0);
-        this.ey.Set(0, 1, 0);
-        this.ez.Set(0, 0, 1);
+    public setIdentity() {
+        this.ex.set(1, 0, 0);
+        this.ey.set(0, 1, 0);
+        this.ez.set(0, 0, 1);
         return this;
     }
 
     /**
      * Set this matrix to all zeros.
      */
-    public SetZero() {
-        this.ex.SetZero();
-        this.ey.SetZero();
-        this.ez.SetZero();
+    public setZero() {
+        this.ex.setZero();
+        this.ey.setZero();
+        this.ez.setZero();
         return this;
     }
 
-    public Add(M: Mat33) {
-        this.ex.Add(M.ex);
-        this.ey.Add(M.ey);
-        this.ez.Add(M.ez);
+    public add(M: Mat33) {
+        this.ex.add(M.ex);
+        this.ey.add(M.ey);
+        this.ez.add(M.ez);
         return this;
     }
 
@@ -878,7 +878,7 @@ export class Mat33 {
      * Solve A * x = b, where b is a column vector. This is more efficient
      * than computing the inverse in one-shot cases.
      */
-    public Solve33<T extends XYZ>(b_x: number, b_y: number, b_z: number, out: T) {
+    public solve33<T extends XYZ>(b_x: number, b_y: number, b_z: number, out: T) {
         const a11 = this.ex.x;
         const a21 = this.ex.y;
         const a31 = this.ex.z;
@@ -903,7 +903,7 @@ export class Mat33 {
      * than computing the inverse in one-shot cases. Solve only the upper
      * 2-by-2 matrix equation.
      */
-    public Solve22<T extends XY>(b_x: number, b_y: number, out: T) {
+    public solve22<T extends XY>(b_x: number, b_y: number, out: T) {
         const a11 = this.ex.x;
         const a12 = this.ey.x;
         const a21 = this.ex.y;
@@ -921,7 +921,7 @@ export class Mat33 {
      * Get the inverse of this matrix as a 2-by-2.
      * Returns the zero matrix if singular.
      */
-    public GetInverse22(M: Mat33) {
+    public getInverse22(M: Mat33) {
         const a = this.ex.x;
         const b = this.ey.x;
         const c = this.ex.y;
@@ -946,8 +946,8 @@ export class Mat33 {
      * Get the symmetric inverse of this matrix as a 3-by-3.
      * Returns the zero matrix if singular.
      */
-    public GetSymInverse33(M: Mat33) {
-        let det = Vec3.Dot(this.ex, Vec3.Cross(this.ey, this.ez, Vec3.s_t0));
+    public getSymInverse33(M: Mat33) {
+        let det = Vec3.dot(this.ex, Vec3.cross(this.ey, this.ez, Vec3.s_t0));
         if (det !== 0) {
             det = 1 / det;
         }
@@ -975,7 +975,7 @@ export class Mat33 {
     /**
      * Multiply a matrix times a vector.
      */
-    public static MultiplyVec3<T extends XYZ>(A: Mat33, v: XYZ, out: T) {
+    public static multiplyVec3<T extends XYZ>(A: Mat33, v: XYZ, out: T) {
         const { x, y, z } = v;
         out.x = A.ex.x * x + A.ey.x * y + A.ez.x * z;
         out.y = A.ex.y * x + A.ey.y * y + A.ez.y * z;
@@ -986,7 +986,7 @@ export class Mat33 {
     /**
      * Multiply a matrix times a vector.
      */
-    public static MultiplyVec2<T extends XY>(A: Mat33, v: XY, out: T) {
+    public static multiplyVec2<T extends XY>(A: Mat33, v: XY, out: T) {
         const { x, y } = v;
         out.x = A.ex.x * x + A.ey.x * y;
         out.y = A.ex.y * x + A.ey.y * y;
@@ -1016,11 +1016,11 @@ export class Rot {
         }
     }
 
-    public Clone() {
-        return new Rot().Copy(this);
+    public clone() {
+        return new Rot().copy(this);
     }
 
-    public Copy(other: Rot) {
+    public copy(other: Rot) {
         this.s = other.s;
         this.c = other.c;
         return this;
@@ -1029,7 +1029,7 @@ export class Rot {
     /**
      * Set using an angle in radians.
      */
-    public Set(angle: number) {
+    public set(angle: number) {
         this.s = Math.sin(angle);
         this.c = Math.cos(angle);
         return this;
@@ -1038,7 +1038,7 @@ export class Rot {
     /**
      * Set to the identity rotation
      */
-    public SetIdentity() {
+    public setIdentity() {
         this.s = 0;
         this.c = 1;
         return this;
@@ -1047,14 +1047,14 @@ export class Rot {
     /**
      * Get the angle in radians
      */
-    public GetAngle() {
+    public getAngle() {
         return Math.atan2(this.s, this.c);
     }
 
     /**
      * Get the x-axis
      */
-    public GetXAxis<T extends XY>(out: T) {
+    public getXAxis<T extends XY>(out: T) {
         out.x = this.c;
         out.y = this.s;
         return out;
@@ -1063,7 +1063,7 @@ export class Rot {
     /**
      * Get the u-axis
      */
-    public GetYAxis<T extends XY>(out: T) {
+    public getYAxis<T extends XY>(out: T) {
         out.x = -this.s;
         out.y = this.c;
         return out;
@@ -1072,7 +1072,7 @@ export class Rot {
     /**
      * Multiply two rotations: q * r
      */
-    public static Multiply(q: Rot, r: Rot, out: Rot) {
+    public static multiply(q: Rot, r: Rot, out: Rot) {
         // [qc -qs] * [rc -rs] = [qc*rc-qs*rs -qc*rs-qs*rc]
         // [qs  qc]   [rs  rc]   [qs*rc+qc*rs -qs*rs+qc*rc]
         // s = qs * rc + qc * rs
@@ -1087,7 +1087,7 @@ export class Rot {
     /**
      * Transpose multiply two rotations: qT * r
      */
-    public static TransposeMultiply(q: Rot, r: Rot, out: Rot) {
+    public static transposeMultiply(q: Rot, r: Rot, out: Rot) {
         // [ qc qs] * [rc -rs] = [qc*rc+qs*rs -qc*rs+qs*rc]
         // [-qs qc]   [rs  rc]   [-qs*rc+qc*rs qs*rs+qc*rc]
         // s = qc * rs - qs * rc
@@ -1102,7 +1102,7 @@ export class Rot {
     /**
      * Rotate a vector
      */
-    public static MultiplyVec2<T extends XY>(q: Rot, v: XY, out: T) {
+    public static multiplyVec2<T extends XY>(q: Rot, v: XY, out: T) {
         const v_x = v.x;
         const v_y = v.y;
         out.x = q.c * v_x - q.s * v_y;
@@ -1113,7 +1113,7 @@ export class Rot {
     /**
      * Inverse rotate a vector
      */
-    public static TransposeMultiplyVec2<T extends XY>(q: Rot, v: XY, out: T) {
+    public static transposeMultiplyVec2<T extends XY>(q: Rot, v: XY, out: T) {
         const v_x = v.x;
         const v_y = v.y;
         out.x = q.c * v_x + q.s * v_y;
@@ -1133,76 +1133,76 @@ export class Transform {
 
     public readonly q = new Rot();
 
-    public Clone() {
-        return new Transform().Copy(this);
+    public clone() {
+        return new Transform().copy(this);
     }
 
-    public Copy(other: Transform) {
-        this.p.Copy(other.p);
-        this.q.Copy(other.q);
+    public copy(other: Transform) {
+        this.p.copy(other.p);
+        this.q.copy(other.q);
         return this;
     }
 
     /**
      * Set this to the identity transform.
      */
-    public SetIdentity() {
-        this.p.SetZero();
-        this.q.SetIdentity();
+    public setIdentity() {
+        this.p.setZero();
+        this.q.setIdentity();
         return this;
     }
 
     /**
      * Set this based on the position and rotation.
      */
-    public SetPositionRotation(position: XY, q: Readonly<Rot>) {
-        this.p.Copy(position);
-        this.q.Copy(q);
+    public setPositionRotation(position: XY, q: Readonly<Rot>) {
+        this.p.copy(position);
+        this.q.copy(q);
         return this;
     }
 
     /**
      * Set this based on the position and angle.
      */
-    public SetPositionAngle(pos: XY, a: number) {
-        this.p.Copy(pos);
-        this.q.Set(a);
+    public setPositionAngle(pos: XY, a: number) {
+        this.p.copy(pos);
+        this.q.set(a);
         return this;
     }
 
-    public SetPosition(position: XY) {
-        this.p.Copy(position);
+    public setPosition(position: XY) {
+        this.p.copy(position);
         return this;
     }
 
-    public SetPositionXY(x: number, y: number) {
-        this.p.Set(x, y);
+    public setPositionXY(x: number, y: number) {
+        this.p.set(x, y);
         return this;
     }
 
-    public SetRotation(rotation: Readonly<Rot>) {
-        this.q.Copy(rotation);
+    public setRotation(rotation: Readonly<Rot>) {
+        this.q.copy(rotation);
         return this;
     }
 
-    public SetRotationAngle(radians: number) {
-        this.q.Set(radians);
+    public setRotationAngle(radians: number) {
+        this.q.set(radians);
         return this;
     }
 
-    public GetPosition(): Readonly<Vec2> {
+    public getPosition(): Readonly<Vec2> {
         return this.p;
     }
 
-    public GetRotation(): Readonly<Rot> {
+    public getRotation(): Readonly<Rot> {
         return this.q;
     }
 
-    public GetAngle() {
-        return this.q.GetAngle();
+    public getAngle() {
+        return this.q.getAngle();
     }
 
-    public static MultiplyVec2<T extends XY>(T: Transform, v: Readonly<XY>, out: T) {
+    public static multiplyVec2<T extends XY>(T: Transform, v: Readonly<XY>, out: T) {
         const v_x = v.x;
         const v_y = v.y;
         out.x = T.q.c * v_x - T.q.s * v_y + T.p.x;
@@ -1210,7 +1210,7 @@ export class Transform {
         return out;
     }
 
-    public static TransposeMultiplyVec2<T extends XY>(T: Transform, v: Readonly<XY>, out: T) {
+    public static transposeMultiplyVec2<T extends XY>(T: Transform, v: Readonly<XY>, out: T) {
         const px = v.x - T.p.x;
         const py = v.y - T.p.y;
         out.x = T.q.c * px + T.q.s * py;
@@ -1222,9 +1222,9 @@ export class Transform {
      * v2 = A.q.Rot(B.q.Rot(v1) + B.p) + A.p
      *    = (A.q * B.q).Rot(v1) + A.q.Rot(B.p) + A.p
      */
-    public static Multiply(A: Transform, B: Transform, out: Transform) {
-        Rot.Multiply(A.q, B.q, out.q);
-        Rot.MultiplyVec2(A.q, B.p, out.p).Add(A.p);
+    public static multiply(A: Transform, B: Transform, out: Transform) {
+        Rot.multiply(A.q, B.q, out.q);
+        Rot.multiplyVec2(A.q, B.p, out.p).add(A.p);
         return out;
     }
 
@@ -1232,9 +1232,9 @@ export class Transform {
      * v2 = A.q' * (B.q * v1 + B.p - A.p)
      *    = A.q' * B.q * v1 + A.q' * (B.p - A.p)
      */
-    public static TransposeMultiply(A: Transform, B: Transform, out: Transform) {
-        Rot.TransposeMultiply(A.q, B.q, out.q);
-        Rot.TransposeMultiplyVec2(A.q, Vec2.Subtract(B.p, A.p, out.p), out.p);
+    public static transposeMultiply(A: Transform, B: Transform, out: Transform) {
+        Rot.transposeMultiply(A.q, B.q, out.q);
+        Rot.transposeMultiplyVec2(A.q, Vec2.subtract(B.p, A.p, out.p), out.p);
         return out;
     }
 }
@@ -1267,14 +1267,14 @@ export class Sweep {
      */
     public alpha0 = 0;
 
-    public Clone(): Sweep {
-        return new Sweep().Copy(this);
+    public clone(): Sweep {
+        return new Sweep().copy(this);
     }
 
-    public Copy(other: Sweep) {
-        this.localCenter.Copy(other.localCenter);
-        this.c0.Copy(other.c0);
-        this.c.Copy(other.c);
+    public copy(other: Sweep) {
+        this.localCenter.copy(other.localCenter);
+        this.c0.copy(other.c0);
+        this.c.copy(other.c);
         this.a0 = other.a0;
         this.a = other.a;
         this.alpha0 = other.alpha0;
@@ -1288,15 +1288,15 @@ export class Sweep {
      * @param beta Is a factor in [0,1], where 0 indicates alpha0.
      * @see https://fgiesen.wordpress.com/2012/08/15/linear-interpolation-past-present-and-future/
      */
-    public GetTransform(xf: Transform, beta: number) {
+    public getTransform(xf: Transform, beta: number) {
         const oneMinusBeta = 1 - beta;
         xf.p.x = oneMinusBeta * this.c0.x + beta * this.c.x;
         xf.p.y = oneMinusBeta * this.c0.y + beta * this.c.y;
         const angle = oneMinusBeta * this.a0 + beta * this.a;
-        xf.q.Set(angle);
+        xf.q.set(angle);
 
         // Shift to origin
-        xf.p.Subtract(Rot.MultiplyVec2(xf.q, this.localCenter, Vec2.s_t0));
+        xf.p.subtract(Rot.multiplyVec2(xf.q, this.localCenter, Vec2.s_t0));
         return xf;
     }
 
@@ -1305,8 +1305,8 @@ export class Sweep {
      *
      * @param alpha The new initial time.
      */
-    public Advance(alpha: number) {
-        // DEBUG: Assert(this.alpha0 < 1);
+    public advance(alpha: number) {
+        // DEBUG: assert(this.alpha0 < 1);
         const beta = (alpha - this.alpha0) / (1 - this.alpha0);
         this.c0.x += beta * (this.c.x - this.c0.x);
         this.c0.y += beta * (this.c.y - this.c0.y);
@@ -1317,7 +1317,7 @@ export class Sweep {
     /**
      * Normalize an angle in radians to be between -pi and pi
      */
-    public Normalize() {
+    public normalize() {
         const d = b2_two_pi * Math.floor(this.a0 / b2_two_pi);
         this.a0 -= d;
         this.a -= d;

@@ -36,7 +36,7 @@ class AntiPointyTest extends AbstractParticleTestWithControls {
         super(particleParameter);
 
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             // Construct a valley out of many polygons to ensure there's no
             // issue with particles falling directly on an ambiguous set of
@@ -47,34 +47,34 @@ class AntiPointyTest extends AbstractParticleTestWithControls {
             for (let i = -10; i < 10; i += step) {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(i, -10), new Vec2(i + step, -10), new Vec2(0, 15)];
-                shape.Set(vertices, 3);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 3);
+                ground.createFixture({ shape });
             }
             for (let i = -10; i < 35; i += step) {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(-10, i), new Vec2(-10, i + step), new Vec2(0, 15)];
-                shape.Set(vertices, 3);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 3);
+                ground.createFixture({ shape });
 
                 const vertices2 = [new Vec2(10, i), new Vec2(10, i + step), new Vec2(0, 15)];
-                shape.Set(vertices2, 3);
-                ground.CreateFixture({ shape });
+                shape.set(vertices2, 3);
+                ground.createFixture({ shape });
             }
         }
 
         // Cap the number of generated particles or we'll fill forever
         this.m_particlesToCreate = 300;
 
-        this.m_particleSystem.SetRadius(0.25 * 2); // HACK: increase particle radius
-        const particleType = particleParameter.GetValue();
+        this.m_particleSystem.setRadius(0.25 * 2); // HACK: increase particle radius
+        const particleType = particleParameter.getValue();
         if (particleType === ParticleFlag.Water) {
-            this.m_particleSystem.SetDamping(0.2);
+            this.m_particleSystem.setDamping(0.2);
         }
-        particleParameter.SetValues(baseParticleTypes, "water");
+        particleParameter.setValues(baseParticleTypes, "water");
     }
 
-    public Step(settings: Settings, timeStep: number) {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number) {
+        super.step(settings, timeStep);
 
         if (this.m_particlesToCreate <= 0) {
             return;
@@ -82,20 +82,20 @@ class AntiPointyTest extends AbstractParticleTestWithControls {
 
         --this.m_particlesToCreate;
 
-        const flags = this.particleParameter.GetValue();
+        const flags = this.particleParameter.getValue();
         const pd = new ParticleDef();
 
-        pd.position.Set(0, 40);
-        pd.velocity.Set(0, -1);
+        pd.position.set(0, 40);
+        pd.velocity.set(0, -1);
         pd.flags = flags;
 
         if (flags & (ParticleFlag.Spring | ParticleFlag.Elastic)) {
-            const count = this.m_particleSystem.GetParticleCount();
-            pd.velocity.Set(count & 1 ? -1 : 1, -5);
+            const count = this.m_particleSystem.getParticleCount();
+            pd.velocity.set(count & 1 ? -1 : 1, -5);
             pd.flags |= ParticleFlag.Reactive;
         }
 
-        this.m_particleSystem.CreateParticle(pd);
+        this.m_particleSystem.createParticle(pd);
     }
 
     public getCenter(): XY {

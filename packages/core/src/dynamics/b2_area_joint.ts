@@ -20,8 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { Assert } from "../common/b2_common";
-import { EPSILON, LINEAR_SLOP, MAX_LINEAR_CORRECTION, MakeNumberArray, MakeArray } from "../common/b2_common";
+// DEBUG: import { assert } from "../common/b2_common";
+import { EPSILON, LINEAR_SLOP, MAX_LINEAR_CORRECTION, makeNumberArray, makeArray } from "../common/b2_common";
 import { Vec2, XY } from "../common/b2_math";
 import { Joint, JointDef, JointType, IJointDef } from "./b2_joint";
 import { DistanceJoint, DistanceJointDef } from "./b2_distance_joint";
@@ -47,7 +47,7 @@ export class AreaJointDef extends JointDef implements IAreaJointDef {
         super(JointType.Area);
     }
 
-    public AddBody(body: Body): void {
+    public addBody(body: Body): void {
         this.bodies.push(body);
 
         if (this.bodies.length === 1) {
@@ -84,15 +84,15 @@ export class AreaJoint extends Joint {
     public constructor(def: IAreaJointDef) {
         super(def);
 
-        // DEBUG: Assert(def.bodies.length >= 3, "You cannot create an area joint with less than three bodies.");
+        // DEBUG: assert(def.bodies.length >= 3, "You cannot create an area joint with less than three bodies.");
 
         this.m_bodies = def.bodies;
         this.m_stiffness = def.stiffness ?? 0;
         this.m_damping = def.damping ?? 0;
 
-        this.m_targetLengths = MakeNumberArray(def.bodies.length);
-        this.m_normals = MakeArray(def.bodies.length, Vec2);
-        this.m_deltas = MakeArray(def.bodies.length, Vec2);
+        this.m_targetLengths = makeNumberArray(def.bodies.length);
+        this.m_normals = makeArray(def.bodies.length, Vec2);
+        this.m_deltas = makeArray(def.bodies.length, Vec2);
 
         const djd = new DistanceJointDef();
         djd.stiffness = this.m_stiffness;
@@ -104,61 +104,61 @@ export class AreaJoint extends Joint {
             const body = this.m_bodies[i];
             const next = this.m_bodies[(i + 1) % this.m_bodies.length];
 
-            const body_c = body.GetWorldCenter();
-            const next_c = next.GetWorldCenter();
+            const body_c = body.getWorldCenter();
+            const next_c = next.getWorldCenter();
 
-            this.m_targetLengths[i] = Vec2.Distance(body_c, next_c);
+            this.m_targetLengths[i] = Vec2.distance(body_c, next_c);
 
-            this.m_targetArea += Vec2.Cross(body_c, next_c);
+            this.m_targetArea += Vec2.cross(body_c, next_c);
 
-            djd.Initialize(body, next, body_c, next_c);
-            this.m_joints[i] = body.GetWorld().CreateJoint(djd);
+            djd.initialize(body, next, body_c, next_c);
+            this.m_joints[i] = body.getWorld().createJoint(djd);
         }
 
         this.m_targetArea *= 0.5;
     }
 
-    public GetAnchorA<T extends XY>(out: T): T {
+    public getAnchorA<T extends XY>(out: T): T {
         return out;
     }
 
-    public GetAnchorB<T extends XY>(out: T): T {
+    public getAnchorB<T extends XY>(out: T): T {
         return out;
     }
 
-    public GetReactionForce<T extends XY>(inv_dt: number, out: T): T {
+    public getReactionForce<T extends XY>(inv_dt: number, out: T): T {
         return out;
     }
 
-    public GetReactionTorque(_inv_dt: number): number {
+    public getReactionTorque(_inv_dt: number): number {
         return 0;
     }
 
-    public SetStiffness(stiffness: number): void {
+    public setStiffness(stiffness: number): void {
         this.m_stiffness = stiffness;
 
         for (const joint of this.m_joints) {
-            joint.SetStiffness(stiffness);
+            joint.setStiffness(stiffness);
         }
     }
 
-    public GetStiffness() {
+    public getStiffness() {
         return this.m_stiffness;
     }
 
-    public SetDamping(damping: number): void {
+    public setDamping(damping: number): void {
         this.m_damping = damping;
 
         for (const joint of this.m_joints) {
-            joint.SetDamping(damping);
+            joint.setDamping(damping);
         }
     }
 
-    public GetDamping() {
+    public getDamping() {
         return this.m_damping;
     }
 
-    public InitVelocityConstraints(data: SolverData): void {
+    public initVelocityConstraints(data: SolverData): void {
         for (let i = 0; i < this.m_bodies.length; ++i) {
             const prev = this.m_bodies[(i + this.m_bodies.length - 1) % this.m_bodies.length];
             const next = this.m_bodies[(i + 1) % this.m_bodies.length];
@@ -166,7 +166,7 @@ export class AreaJoint extends Joint {
             const next_c = data.positions[next.m_islandIndex].c;
             const delta = this.m_deltas[i];
 
-            Vec2.Subtract(next_c, prev_c, delta);
+            Vec2.subtract(next_c, prev_c, delta);
         }
 
         if (data.step.warmStarting) {
@@ -185,7 +185,7 @@ export class AreaJoint extends Joint {
         }
     }
 
-    public SolveVelocityConstraints(data: SolverData): void {
+    public solveVelocityConstraints(data: SolverData): void {
         let dotMassSum = 0;
         let crossMassSum = 0;
 
@@ -194,12 +194,12 @@ export class AreaJoint extends Joint {
             const body_v = data.velocities[body.m_islandIndex].v;
             const delta = this.m_deltas[i];
 
-            dotMassSum += delta.LengthSquared() / body.GetMass();
-            crossMassSum += Vec2.Cross(body_v, delta);
+            dotMassSum += delta.lengthSquared() / body.getMass();
+            crossMassSum += Vec2.cross(body_v, delta);
         }
 
         const lambda = (-2 * crossMassSum) / dotMassSum;
-        // lambda = Clamp(lambda, -MAX_LINEAR_CORRECTION, MAX_LINEAR_CORRECTION);
+        // lambda = clamp(lambda, -MAX_LINEAR_CORRECTION, MAX_LINEAR_CORRECTION);
 
         this.m_impulse += lambda;
 
@@ -213,7 +213,7 @@ export class AreaJoint extends Joint {
         }
     }
 
-    public SolvePositionConstraints(data: SolverData): boolean {
+    public solvePositionConstraints(data: SolverData): boolean {
         let perimeter = 0;
         let area = 0;
 
@@ -223,9 +223,9 @@ export class AreaJoint extends Joint {
             const body_c = data.positions[body.m_islandIndex].c;
             const next_c = data.positions[next.m_islandIndex].c;
 
-            const delta = Vec2.Subtract(next_c, body_c, this.m_delta);
+            const delta = Vec2.subtract(next_c, body_c, this.m_delta);
 
-            let dist = delta.Length();
+            let dist = delta.length();
             if (dist < EPSILON) {
                 dist = 1;
             }
@@ -235,7 +235,7 @@ export class AreaJoint extends Joint {
 
             perimeter += dist;
 
-            area += Vec2.Cross(body_c, next_c);
+            area += Vec2.cross(body_c, next_c);
         }
 
         area *= 0.5;
@@ -249,18 +249,18 @@ export class AreaJoint extends Joint {
             const body_c = data.positions[body.m_islandIndex].c;
             const next_i = (i + 1) % this.m_bodies.length;
 
-            const delta = Vec2.Add(this.m_normals[i], this.m_normals[next_i], this.m_delta);
-            delta.Scale(toExtrude);
+            const delta = Vec2.add(this.m_normals[i], this.m_normals[next_i], this.m_delta);
+            delta.scale(toExtrude);
 
-            const norm_sq = delta.LengthSquared();
+            const norm_sq = delta.lengthSquared();
             if (norm_sq > MAX_LINEAR_CORRECTION ** 2) {
-                delta.Scale(MAX_LINEAR_CORRECTION / Math.sqrt(norm_sq));
+                delta.scale(MAX_LINEAR_CORRECTION / Math.sqrt(norm_sq));
             }
             if (norm_sq > LINEAR_SLOP ** 2) {
                 done = false;
             }
 
-            body_c.Add(delta);
+            body_c.add(delta);
         }
 
         return done;

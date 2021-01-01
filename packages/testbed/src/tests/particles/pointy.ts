@@ -37,10 +37,10 @@ class PointyTest extends AbstractParticleTestWithControls {
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter);
 
-        particleParameter.SetValues(baseParticleTypes, "water");
+        particleParameter.setValues(baseParticleTypes, "water");
 
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             // Construct a triangle out of many polygons to ensure there's no
             // issue with particles falling directly on an ambiguous corner
@@ -49,47 +49,47 @@ class PointyTest extends AbstractParticleTestWithControls {
             for (let x = -10; x < 10; x += xstep) {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(x, -10), new Vec2(x + xstep, -10), new Vec2(0, 25)];
-                shape.Set(vertices, 3);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 3);
+                ground.createFixture({ shape });
             }
         }
 
-        this.m_particleSystem.SetRadius(0.25 * 2); // HACK: increase particle radius
-        const particleType = particleParameter.GetValue();
+        this.m_particleSystem.setRadius(0.25 * 2); // HACK: increase particle radius
+        const particleType = particleParameter.getValue();
         if (particleType === ParticleFlag.Water) {
-            this.m_particleSystem.SetDamping(0.2);
+            this.m_particleSystem.setDamping(0.2);
         }
 
         // Create killfield shape and transform
         this.m_killfieldShape = new PolygonShape();
-        this.m_killfieldShape.SetAsBox(50, 1);
+        this.m_killfieldShape.setAsBox(50, 1);
 
         // Put this at the bottom of the world
         this.m_killfieldTransform = new Transform();
         const loc = new Vec2(-25, 1);
-        this.m_killfieldTransform.SetPositionAngle(loc, 0);
+        this.m_killfieldTransform.setPositionAngle(loc, 0);
     }
 
-    public Step(settings: Settings, timeStep: number) {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number) {
+        super.step(settings, timeStep);
 
-        const flags = this.particleParameter.GetValue();
+        const flags = this.particleParameter.getValue();
         const pd = new ParticleDef();
 
-        pd.position.Set(0, 33);
-        pd.velocity.Set(0, -1);
+        pd.position.set(0, 33);
+        pd.velocity.set(0, -1);
         pd.flags = flags;
 
         if (flags & (ParticleFlag.Spring | ParticleFlag.Elastic)) {
-            const count = this.m_particleSystem.GetParticleCount();
-            pd.velocity.Set(count & 1 ? -1 : 1, -5);
+            const count = this.m_particleSystem.getParticleCount();
+            pd.velocity.set(count & 1 ? -1 : 1, -5);
             pd.flags |= ParticleFlag.Reactive;
         }
 
-        this.m_particleSystem.CreateParticle(pd);
+        this.m_particleSystem.createParticle(pd);
 
         // kill every particle near the bottom of the screen
-        this.m_particleSystem.DestroyParticlesInShape(this.m_killfieldShape, this.m_killfieldTransform);
+        this.m_particleSystem.destroyParticlesInShape(this.m_killfieldShape, this.m_killfieldTransform);
     }
 
     public getCenter(): XY {

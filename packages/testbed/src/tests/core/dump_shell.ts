@@ -25,7 +25,7 @@ import {
     PrismaticJointDef,
     XY,
     Body,
-    MakeArray,
+    makeArray,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
@@ -39,7 +39,7 @@ class DumpShellTest extends Test {
         const bodies = new Array<Body>(4);
 
         const joints = new Array(2);
-        bodies[0] = this.m_world.CreateBody({
+        bodies[0] = this.m_world.createBody({
             type: BodyType.Static,
             angle: 0,
             angularVelocity: 0,
@@ -56,13 +56,13 @@ class DumpShellTest extends Test {
         {
             const shape = new EdgeShape();
             shape.m_radius = 0.009999999776483;
-            shape.m_vertex0.Set(0, 0);
-            shape.m_vertex1.Set(0, 0);
-            shape.m_vertex2.Set(44.521739959716797, 0);
-            shape.m_vertex3.Set(0, 0);
+            shape.m_vertex0.set(0, 0);
+            shape.m_vertex1.set(0, 0);
+            shape.m_vertex2.set(44.521739959716797, 0);
+            shape.m_vertex3.set(0, 0);
             // shape.m_hasVertex0 = false;
             // shape.m_hasVertex3 = false;
-            bodies[0].CreateFixture({
+            bodies[0].createFixture({
                 friction: 10,
                 restitution: 0,
                 density: 0,
@@ -78,14 +78,14 @@ class DumpShellTest extends Test {
         {
             const shape = new EdgeShape();
             shape.m_radius = 0.009999999776483;
-            shape.m_vertex0.Set(0, 0);
-            shape.m_vertex1.Set(0, 16.695652008056641);
-            shape.m_vertex2.Set(44.521739959716797, 16.695652008056641);
-            shape.m_vertex3.Set(0, 0);
+            shape.m_vertex0.set(0, 0);
+            shape.m_vertex1.set(0, 16.695652008056641);
+            shape.m_vertex2.set(44.521739959716797, 16.695652008056641);
+            shape.m_vertex3.set(0, 0);
             // shape.m_hasVertex0 = false;
             // shape.m_hasVertex3 = false;
 
-            bodies[0].CreateFixture({
+            bodies[0].createFixture({
                 friction: 10,
                 restitution: 0,
                 density: 0,
@@ -101,14 +101,14 @@ class DumpShellTest extends Test {
         {
             const shape = new EdgeShape();
             shape.m_radius = 0.009999999776483;
-            shape.m_vertex0.Set(0, 0);
-            shape.m_vertex1.Set(0, 16.695652008056641);
-            shape.m_vertex2.Set(0, 0);
-            shape.m_vertex3.Set(0, 0);
+            shape.m_vertex0.set(0, 0);
+            shape.m_vertex1.set(0, 16.695652008056641);
+            shape.m_vertex2.set(0, 0);
+            shape.m_vertex3.set(0, 0);
             // shape.m_hasVertex0 = false;
             // shape.m_hasVertex3 = false;
 
-            bodies[0].CreateFixture({
+            bodies[0].createFixture({
                 friction: 10,
                 restitution: 0,
                 density: 0,
@@ -124,14 +124,14 @@ class DumpShellTest extends Test {
         {
             const shape = new EdgeShape();
             shape.m_radius = 0.009999999776483;
-            shape.m_vertex0.Set(0, 0);
-            shape.m_vertex1.Set(44.521739959716797, 16.695652008056641);
-            shape.m_vertex2.Set(44.521739959716797, 0);
-            shape.m_vertex3.Set(0, 0);
+            shape.m_vertex0.set(0, 0);
+            shape.m_vertex1.set(44.521739959716797, 16.695652008056641);
+            shape.m_vertex2.set(44.521739959716797, 0);
+            shape.m_vertex3.set(0, 0);
             // shape.m_hasVertex0 = false;
             // shape.m_hasVertex3 = false;
 
-            bodies[0].CreateFixture({
+            bodies[0].createFixture({
                 friction: 10,
                 restitution: 0,
                 density: 0,
@@ -144,7 +144,7 @@ class DumpShellTest extends Test {
                 shape,
             });
         }
-        bodies[1] = this.m_world.CreateBody({
+        bodies[1] = this.m_world.createBody({
             type: BodyType.Dynamic,
             position: { x: 0.847826063632965, y: 2.5 },
             angle: 0,
@@ -162,13 +162,13 @@ class DumpShellTest extends Test {
         {
             const shape = new PolygonShape();
 
-            const vs = MakeArray(8, Vec2);
-            vs[0].Set(6.907599925994873, 0.327199995517731);
-            vs[1].Set(-0.322800010442734, 0.282599985599518);
-            vs[2].Set(-0.322800010442734, -0.295700013637543);
-            vs[3].Set(6.885900020599365, -0.364100009202957);
-            shape.Set(vs, 4);
-            bodies[1].CreateFixture({
+            const vs = makeArray(8, Vec2);
+            vs[0].set(6.907599925994873, 0.327199995517731);
+            vs[1].set(-0.322800010442734, 0.282599985599518);
+            vs[2].set(-0.322800010442734, -0.295700013637543);
+            vs[3].set(6.885900020599365, -0.364100009202957);
+            shape.set(vs, 4);
+            bodies[1].createFixture({
                 friction: 1,
                 restitution: 0.5,
                 density: 10,
@@ -181,7 +181,7 @@ class DumpShellTest extends Test {
                 shape,
             });
         }
-        bodies[2] = this.m_world.CreateBody({
+        bodies[2] = this.m_world.createBody({
             type: BodyType.Dynamic,
             position: { x: 13.043478012084959, y: 2.5 },
             angle: 0,
@@ -199,13 +199,13 @@ class DumpShellTest extends Test {
         {
             const shape = new PolygonShape();
 
-            const vs = MakeArray(8, Vec2);
-            vs[0].Set(0.200000002980232, -0.300000011920929);
-            vs[1].Set(0.200000002980232, 0.200000002980232);
-            vs[2].Set(-6.900000095367432, 0.200000002980232);
-            vs[3].Set(-6.900000095367432, -0.300000011920929);
-            shape.Set(vs, 4);
-            bodies[2].CreateFixture({
+            const vs = makeArray(8, Vec2);
+            vs[0].set(0.200000002980232, -0.300000011920929);
+            vs[1].set(0.200000002980232, 0.200000002980232);
+            vs[2].set(-6.900000095367432, 0.200000002980232);
+            vs[3].set(-6.900000095367432, -0.300000011920929);
+            shape.set(vs, 4);
+            bodies[2].createFixture({
                 friction: 1,
                 restitution: 0.5,
                 density: 10,
@@ -218,7 +218,7 @@ class DumpShellTest extends Test {
                 shape,
             });
         }
-        bodies[3] = this.m_world.CreateBody({
+        bodies[3] = this.m_world.createBody({
             type: BodyType.Static,
             angle: 0,
             angularVelocity: 0,
@@ -238,8 +238,8 @@ class DumpShellTest extends Test {
             // eslint-disable-next-line prefer-destructuring
             jd.bodyB = bodies[0];
             jd.collideConnected = false;
-            jd.localAnchorA.Set(0, 0);
-            jd.localAnchorB.Set(0.847826063632965, 2.5);
+            jd.localAnchorA.set(0, 0);
+            jd.localAnchorB.set(0.847826063632965, 2.5);
             jd.referenceAngle = 0;
             jd.enableLimit = false;
             jd.lowerAngle = 0;
@@ -247,7 +247,7 @@ class DumpShellTest extends Test {
             jd.enableMotor = false;
             jd.motorSpeed = 0;
             jd.maxMotorTorque = 0;
-            joints[0] = this.m_world.CreateJoint(jd);
+            joints[0] = this.m_world.createJoint(jd);
         }
         {
             const jd = new PrismaticJointDef();
@@ -256,9 +256,9 @@ class DumpShellTest extends Test {
             // eslint-disable-next-line prefer-destructuring
             jd.bodyB = bodies[2];
             jd.collideConnected = false;
-            jd.localAnchorA.Set(0, 0);
-            jd.localAnchorB.Set(-12.195652008056641, 0);
-            jd.localAxisA.Set(-1, 0);
+            jd.localAnchorA.set(0, 0);
+            jd.localAnchorB.set(-12.195652008056641, 0);
+            jd.localAxisA.set(-1, 0);
             jd.referenceAngle = 0;
             jd.enableLimit = true;
             jd.lowerTranslation = -20;
@@ -266,7 +266,7 @@ class DumpShellTest extends Test {
             jd.enableMotor = true;
             jd.motorSpeed = 0;
             jd.maxMotorForce = 10;
-            joints[1] = this.m_world.CreateJoint(jd);
+            joints[1] = this.m_world.createJoint(jd);
         }
         // dump end
     }

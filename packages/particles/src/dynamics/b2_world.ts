@@ -16,40 +16,40 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { World, MAX_FLOAT, Transform, Body, b2_augment, Writeable, Assert } from "@box2d/core";
+import { World, MAX_FLOAT, Transform, Body, augment, Writeable, assert } from "@box2d/core";
 
-import { CalculateParticleIterations } from "../particle/b2_particle";
+import { calculateParticleIterations } from "../particle/b2_particle";
 import { ParticleSystem, ParticleSystemDef } from "../particle/b2_particle_system";
 
 declare module "@box2d/core" {
     interface World {
         m_particleSystemList: ParticleSystem | null;
 
-        CreateParticleSystem(def: ParticleSystemDef): ParticleSystem;
-        DestroyParticleSystem(p: ParticleSystem): void;
-        GetParticleSystemList(): ParticleSystem | null;
-        CalculateReasonableParticleIterations(timeStep: number): number;
+        createParticleSystem(def: ParticleSystemDef): ParticleSystem;
+        destroyParticleSystem(p: ParticleSystem): void;
+        getParticleSystemList(): ParticleSystem | null;
+        calculateReasonableParticleIterations(timeStep: number): number;
     }
 }
 
-b2_augment(World, {
-    Create(original, gravity) {
+augment(World, {
+    create(original, gravity) {
         const world = original(gravity);
         world.m_particleSystemList = null;
         return world;
     },
 });
 
-function GetSmallestRadius(world: World): number {
+function getSmallestRadius(world: World): number {
     let smallestRadius = MAX_FLOAT;
-    for (let system = world.GetParticleSystemList(); system !== null; system = system.m_next) {
-        smallestRadius = Math.min(smallestRadius, system.GetRadius());
+    for (let system = world.getParticleSystemList(); system !== null; system = system.m_next) {
+        smallestRadius = Math.min(smallestRadius, system.getRadius());
     }
     return smallestRadius;
 }
 Object.assign(World.prototype, {
-    CreateParticleSystem(this: World, def: ParticleSystemDef): ParticleSystem {
-        Assert(!this.IsLocked());
+    createParticleSystem(this: World, def: ParticleSystemDef): ParticleSystem {
+        assert(!this.isLocked());
 
         const p = new ParticleSystem(def, this);
 
@@ -63,8 +63,8 @@ Object.assign(World.prototype, {
 
         return p;
     },
-    DestroyParticleSystem(this: World, p: ParticleSystem): void {
-        Assert(!this.IsLocked());
+    destroyParticleSystem(this: World, p: ParticleSystem): void {
+        assert(!this.isLocked());
 
         // Remove world particleSystem list.
         if (p.m_prev) {
@@ -79,21 +79,21 @@ Object.assign(World.prototype, {
             this.m_particleSystemList = p.m_next;
         }
     },
-    GetParticleSystemList(this: World): ParticleSystem | null {
+    getParticleSystemList(this: World): ParticleSystem | null {
         return this.m_particleSystemList;
     },
-    CalculateReasonableParticleIterations(this: World, timeStep: number): number {
+    calculateReasonableParticleIterations(this: World, timeStep: number): number {
         if (this.m_particleSystemList === null) {
             return 1;
         }
 
         // Use the smallest radius, since that represents the worst-case.
-        return CalculateParticleIterations(this.GetGravity().Length(), GetSmallestRadius(this), timeStep);
+        return calculateParticleIterations(this.getGravity().length(), getSmallestRadius(this), timeStep);
     },
 });
 
-b2_augment(World.prototype, {
-    CreateBody(this: World, original, def = {}) {
+augment(World.prototype, {
+    createBody(this: World, original, def = {}) {
         const body = original(def);
         (body as Writeable<Body>).m_xf0 = new Transform();
         return body;
@@ -101,13 +101,13 @@ b2_augment(World.prototype, {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    Solve(this: World, original: (step: TimeStep) => void, step: TimeStep) {
+    solve(this: World, original: (step: TimeStep) => void, step: TimeStep) {
         for (let p = this.m_particleSystemList; p; p = p.m_next) {
-            p.Solve(step); // Particle Simulation
+            p.solve(step); // Particle Simulation
         }
         // update previous transforms
-        for (let b = this.GetBodyList(); b; b = b.GetNext()) {
-            b.m_xf0.Copy(b.GetTransform());
+        for (let b = this.getBodyList(); b; b = b.getNext()) {
+            b.m_xf0.copy(b.getTransform());
         }
 
         original(step);

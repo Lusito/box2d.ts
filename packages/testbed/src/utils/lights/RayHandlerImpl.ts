@@ -18,16 +18,16 @@ export class RayHandlerImpl extends RayHandler {
 
     public createRayCastCallback(light: Light) {
         return (point1: XY, point2: XY) =>
-            this.world.RayCast(point1, point2, (fixture, point, _normal, fraction) =>
-                light.reportFixture(fixture.GetFilterData(), fixture.GetBody(), point, fraction),
+            this.world.rayCast(point1, point2, (fixture, point, _normal, fraction) =>
+                light.reportFixture(fixture.getFilterData(), fixture.getBody(), point, fraction),
             );
     }
 
     public getBodyPosition(body: any) {
-        return (body as Body).GetPosition();
+        return (body as Body).getPosition();
     }
 
     public getBodyAngle(body: any) {
-        return (body as Body).GetAngle();
+        return (body as Body).getAngle();
     }
 }

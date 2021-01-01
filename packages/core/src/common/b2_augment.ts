@@ -24,7 +24,7 @@ export type Augmentation<T extends { [s: string]: any }> = {
     [P in keyof T]?: (original: T[P], ...args: Parameters<T[P]>) => ReturnType<T[P]>;
 };
 
-export function b2_augment<T extends { [s: string]: any }>(host: T, augmentations: Augmentation<T>) {
+export function augment<T extends { [s: string]: any }>(host: T, augmentations: Augmentation<T>) {
     for (const key of Object.keys(augmentations)) {
         const augmentation = augmentations[key] as (this: T, original: (...args: any[]) => any, ...args: any[]) => any;
         const original = host[key];

@@ -34,59 +34,59 @@ class CompoundShapesTest extends Test {
         super();
 
         {
-            const body = this.m_world.CreateBody();
+            const body = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(50, 0), new Vec2(-50, 0));
+            shape.setTwoSided(new Vec2(50, 0), new Vec2(-50, 0));
 
-            body.CreateFixture({ shape });
+            body.createFixture({ shape });
         }
 
         // Table 1
         {
-            this.m_table1 = this.m_world.CreateBody({
+            this.m_table1 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: new Vec2(-15, 1),
             });
 
             const top = new PolygonShape();
-            top.SetAsBox(3, 0.5, new Vec2(0, 3.5), 0);
+            top.setAsBox(3, 0.5, new Vec2(0, 3.5), 0);
 
             const leftLeg = new PolygonShape();
-            leftLeg.SetAsBox(0.5, 1.5, new Vec2(-2.5, 1.5), 0);
+            leftLeg.setAsBox(0.5, 1.5, new Vec2(-2.5, 1.5), 0);
 
             const rightLeg = new PolygonShape();
-            rightLeg.SetAsBox(0.5, 1.5, new Vec2(2.5, 1.5), 0);
+            rightLeg.setAsBox(0.5, 1.5, new Vec2(2.5, 1.5), 0);
 
-            this.m_table1.CreateFixture({ shape: top, density: 2 });
-            this.m_table1.CreateFixture({ shape: leftLeg, density: 2 });
-            this.m_table1.CreateFixture({ shape: rightLeg, density: 2 });
+            this.m_table1.createFixture({ shape: top, density: 2 });
+            this.m_table1.createFixture({ shape: leftLeg, density: 2 });
+            this.m_table1.createFixture({ shape: rightLeg, density: 2 });
         }
 
         // Table 2
         {
-            this.m_table2 = this.m_world.CreateBody({
+            this.m_table2 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: new Vec2(-5, 1),
             });
 
             const top = new PolygonShape();
-            top.SetAsBox(3, 0.5, new Vec2(0, 3.5), 0);
+            top.setAsBox(3, 0.5, new Vec2(0, 3.5), 0);
 
             const leftLeg = new PolygonShape();
-            leftLeg.SetAsBox(0.5, 2, new Vec2(-2.5, 2), 0);
+            leftLeg.setAsBox(0.5, 2, new Vec2(-2.5, 2), 0);
 
             const rightLeg = new PolygonShape();
-            rightLeg.SetAsBox(0.5, 2, new Vec2(2.5, 2), 0);
+            rightLeg.setAsBox(0.5, 2, new Vec2(2.5, 2), 0);
 
-            this.m_table2.CreateFixture({ shape: top, density: 2 });
-            this.m_table2.CreateFixture({ shape: leftLeg, density: 2 });
-            this.m_table2.CreateFixture({ shape: rightLeg, density: 2 });
+            this.m_table2.createFixture({ shape: top, density: 2 });
+            this.m_table2.createFixture({ shape: leftLeg, density: 2 });
+            this.m_table2.createFixture({ shape: rightLeg, density: 2 });
         }
 
         // Spaceship 1
         {
-            this.m_ship1 = this.m_world.CreateBody({
+            this.m_ship1 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: new Vec2(5, 1),
             });
@@ -97,21 +97,21 @@ class CompoundShapesTest extends Test {
             vertices[0] = new Vec2(-2, 0);
             vertices[1] = new Vec2(0, 4 / 3);
             vertices[2] = new Vec2(0, 4);
-            left.Set(vertices, 3);
+            left.set(vertices, 3);
 
             const right = new PolygonShape();
             vertices[0] = new Vec2(2, 0);
             vertices[1] = new Vec2(0, 4 / 3);
             vertices[2] = new Vec2(0, 4);
-            right.Set(vertices, 3);
+            right.set(vertices, 3);
 
-            this.m_ship1.CreateFixture({ shape: left, density: 2 });
-            this.m_ship1.CreateFixture({ shape: right, density: 2 });
+            this.m_ship1.createFixture({ shape: left, density: 2 });
+            this.m_ship1.createFixture({ shape: right, density: 2 });
         }
 
         // Spaceship 2
         {
-            this.m_ship2 = this.m_world.CreateBody({
+            this.m_ship2 = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: new Vec2(15, 1),
             });
@@ -122,83 +122,83 @@ class CompoundShapesTest extends Test {
             vertices[0] = new Vec2(-2, 0);
             vertices[1] = new Vec2(1, 2);
             vertices[2] = new Vec2(0, 4);
-            left.Set(vertices, 3);
+            left.set(vertices, 3);
 
             const right = new PolygonShape();
             vertices[0] = new Vec2(2, 0);
             vertices[1] = new Vec2(-1, 2);
             vertices[2] = new Vec2(0, 4);
-            right.Set(vertices, 3);
+            right.set(vertices, 3);
 
-            this.m_ship2.CreateFixture({ shape: left, density: 2 });
-            this.m_ship2.CreateFixture({ shape: right, density: 2 });
+            this.m_ship2.createFixture({ shape: left, density: 2 });
+            this.m_ship2.createFixture({ shape: right, density: 2 });
         }
     }
 
-    private Spawn() {
+    private spawn() {
         // Table 1 obstruction
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
-                position: this.m_table1.GetPosition(),
-                angle: this.m_table1.GetAngle(),
+                position: this.m_table1.getPosition(),
+                angle: this.m_table1.getAngle(),
             });
 
             const box = new PolygonShape();
-            box.SetAsBox(4, 0.1, new Vec2(0, 3), 0);
+            box.setAsBox(4, 0.1, new Vec2(0, 3), 0);
 
-            body.CreateFixture({ shape: box, density: 2 });
+            body.createFixture({ shape: box, density: 2 });
         }
 
         // Table 2 obstruction
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
-                position: this.m_table2.GetPosition(),
-                angle: this.m_table2.GetAngle(),
+                position: this.m_table2.getPosition(),
+                angle: this.m_table2.getAngle(),
             });
 
             const box = new PolygonShape();
-            box.SetAsBox(4, 0.1, new Vec2(0, 3), 0);
+            box.setAsBox(4, 0.1, new Vec2(0, 3), 0);
 
-            body.CreateFixture({ shape: box, density: 2 });
+            body.createFixture({ shape: box, density: 2 });
         }
 
         // Ship 1 obstruction
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
-                position: this.m_ship1.GetPosition(),
-                angle: this.m_ship1.GetAngle(),
+                position: this.m_ship1.getPosition(),
+                angle: this.m_ship1.getAngle(),
                 gravityScale: 0,
             });
 
             const circle = new CircleShape(0.5);
-            circle.m_p.Set(0, 2);
+            circle.m_p.set(0, 2);
 
-            body.CreateFixture({ shape: circle, density: 2 });
+            body.createFixture({ shape: circle, density: 2 });
         }
 
         // Ship 2 obstruction
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
-                position: this.m_ship2.GetPosition(),
-                angle: this.m_ship2.GetAngle(),
+                position: this.m_ship2.getPosition(),
+                angle: this.m_ship2.getAngle(),
                 gravityScale: 0,
             });
 
             const circle = new CircleShape(0.5);
-            circle.m_p.Set(0, 2);
+            circle.m_p.set(0, 2);
 
-            body.CreateFixture({ shape: circle, density: 2 });
+            body.createFixture({ shape: circle, density: 2 });
         }
     }
 
     public getHotkeys(): HotKey[] {
         return [
             hotKeyPress("s", "Spawn Items", () => {
-                this.Spawn();
+                this.spawn();
             }),
         ];
     }

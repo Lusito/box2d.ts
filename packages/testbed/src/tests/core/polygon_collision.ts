@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { PolygonShape, Transform, Vec2, Manifold, CollidePolygons, WorldManifold, Color } from "@box2d/core";
+import { PolygonShape, Transform, Vec2, Manifold, collidePolygons, WorldManifold, Color } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -39,43 +39,43 @@ class PolygonCollisionTest extends Test {
     public constructor() {
         super();
 
-        this.m_polygonA.SetAsBox(0.2, 0.4);
-        this.m_transformA.SetPositionAngle(new Vec2(), 0);
-        this.m_polygonB.SetAsBox(0.5, 0.5);
-        this.m_positionB.Set(1, 1);
+        this.m_polygonA.setAsBox(0.2, 0.4);
+        this.m_transformA.setPositionAngle(new Vec2(), 0);
+        this.m_polygonB.setAsBox(0.5, 0.5);
+        this.m_positionB.set(1, 1);
         this.m_angleB = 1.9160721;
-        this.m_transformB.SetPositionAngle(this.m_positionB, this.m_angleB);
+        this.m_transformB.setPositionAngle(this.m_positionB, this.m_angleB);
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 100;
     }
 
     public getHotkeys(): HotKey[] {
         return [
-            hotKeyPress("a", "Move Left", () => this.Adjust(-0.1, 0, 0)),
-            hotKeyPress("d", "Move Right", () => this.Adjust(0.1, 0, 0)),
-            hotKeyPress("s", "Move Down", () => this.Adjust(0, -0.1, 0)),
-            hotKeyPress("w", "Move Up", () => this.Adjust(0, 0.1, 0)),
-            hotKeyPress("q", "Turn Left", () => this.Adjust(0, 0, 0.1 * Math.PI)),
-            hotKeyPress("e", "Turn Right", () => this.Adjust(0, 0, -0.1 * Math.PI)),
+            hotKeyPress("a", "Move Left", () => this.adjust(-0.1, 0, 0)),
+            hotKeyPress("d", "Move Right", () => this.adjust(0.1, 0, 0)),
+            hotKeyPress("s", "Move Down", () => this.adjust(0, -0.1, 0)),
+            hotKeyPress("w", "Move Up", () => this.adjust(0, 0.1, 0)),
+            hotKeyPress("q", "Turn Left", () => this.adjust(0, 0, 0.1 * Math.PI)),
+            hotKeyPress("e", "Turn Right", () => this.adjust(0, 0, -0.1 * Math.PI)),
         ];
     }
 
-    private Adjust(x: number, y: number, angle: number) {
+    private adjust(x: number, y: number, angle: number) {
         this.m_positionB.x += x;
         this.m_positionB.y += y;
         this.m_angleB += angle;
-        this.m_transformB.SetPositionAngle(this.m_positionB, this.m_angleB);
+        this.m_transformB.setPositionAngle(this.m_positionB, this.m_angleB);
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
         const manifold = new Manifold();
-        CollidePolygons(manifold, this.m_polygonA, this.m_transformA, this.m_polygonB, this.m_transformB);
+        collidePolygons(manifold, this.m_polygonA, this.m_transformA, this.m_polygonB, this.m_transformB);
 
         const worldManifold = new WorldManifold();
-        worldManifold.Initialize(
+        worldManifold.initialize(
             manifold,
             this.m_transformA,
             this.m_polygonA.m_radius,
@@ -89,18 +89,18 @@ class PolygonCollisionTest extends Test {
             const color = new Color(0.9, 0.9, 0.9);
             const v = [];
             for (let i = 0; i < this.m_polygonA.m_count; ++i) {
-                v[i] = Transform.MultiplyVec2(this.m_transformA, this.m_polygonA.m_vertices[i], new Vec2());
+                v[i] = Transform.multiplyVec2(this.m_transformA, this.m_polygonA.m_vertices[i], new Vec2());
             }
-            g_debugDraw.DrawPolygon(v, this.m_polygonA.m_count, color);
+            g_debugDraw.drawPolygon(v, this.m_polygonA.m_count, color);
 
             for (let i = 0; i < this.m_polygonB.m_count; ++i) {
-                v[i] = Transform.MultiplyVec2(this.m_transformB, this.m_polygonB.m_vertices[i], new Vec2());
+                v[i] = Transform.multiplyVec2(this.m_transformB, this.m_polygonB.m_vertices[i], new Vec2());
             }
-            g_debugDraw.DrawPolygon(v, this.m_polygonB.m_count, color);
+            g_debugDraw.drawPolygon(v, this.m_polygonB.m_count, color);
         }
 
         for (let i = 0; i < manifold.pointCount; ++i) {
-            g_debugDraw.DrawPoint(worldManifold.points[i], 4, new Color(0.9, 0.3, 0.3));
+            g_debugDraw.drawPoint(worldManifold.points[i], 4, new Color(0.9, 0.3, 0.3));
         }
     }
 }

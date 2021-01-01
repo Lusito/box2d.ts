@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { Clamp, Vec2, Mat22, Rot, XY } from "../common/b2_math";
+import { clamp, Vec2, Mat22, Rot, XY } from "../common/b2_math";
 import { Joint, JointDef, JointType, IJointDef } from "./b2_joint";
 import { SolverData } from "./b2_time_step";
 import { Body } from "./b2_body";
@@ -65,11 +65,11 @@ export class FrictionJointDef extends JointDef implements IFrictionJointDef {
         super(JointType.Friction);
     }
 
-    public Initialize(bA: Body, bB: Body, anchor: Vec2): void {
+    public initialize(bA: Body, bB: Body, anchor: Vec2): void {
         this.bodyA = bA;
         this.bodyB = bB;
-        this.bodyA.GetLocalPoint(anchor, this.localAnchorA);
-        this.bodyB.GetLocalPoint(anchor, this.localAnchorB);
+        this.bodyA.getLocalPoint(anchor, this.localAnchorA);
+        this.bodyB.getLocalPoint(anchor, this.localAnchorB);
     }
 }
 
@@ -120,19 +120,19 @@ export class FrictionJoint extends Joint {
     public constructor(def: IFrictionJointDef) {
         super(def);
 
-        this.m_localAnchorA.Copy(def.localAnchorA);
-        this.m_localAnchorB.Copy(def.localAnchorB);
+        this.m_localAnchorA.copy(def.localAnchorA);
+        this.m_localAnchorB.copy(def.localAnchorB);
 
-        this.m_linearImpulse.SetZero();
+        this.m_linearImpulse.setZero();
         this.m_maxForce = def.maxForce ?? 0;
         this.m_maxTorque = def.maxTorque ?? 0;
     }
 
-    public InitVelocityConstraints(data: SolverData): void {
+    public initVelocityConstraints(data: SolverData): void {
         this.m_indexA = this.m_bodyA.m_islandIndex;
         this.m_indexB = this.m_bodyB.m_islandIndex;
-        this.m_localCenterA.Copy(this.m_bodyA.m_sweep.localCenter);
-        this.m_localCenterB.Copy(this.m_bodyB.m_sweep.localCenter);
+        this.m_localCenterA.copy(this.m_bodyA.m_sweep.localCenter);
+        this.m_localCenterB.copy(this.m_bodyB.m_sweep.localCenter);
         this.m_invMassA = this.m_bodyA.m_invMass;
         this.m_invMassB = this.m_bodyB.m_invMass;
         this.m_invIA = this.m_bodyA.m_invI;
@@ -147,12 +147,12 @@ export class FrictionJoint extends Joint {
         let wB = data.velocities[this.m_indexB].w;
 
         const { qA, qB, lalcA, lalcB } = temp;
-        qA.Set(aA);
-        qB.Set(aB);
+        qA.set(aA);
+        qB.set(aB);
 
         // Compute the effective mass matrix.
-        Rot.MultiplyVec2(qA, Vec2.Subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), this.m_rA);
-        Rot.MultiplyVec2(qB, Vec2.Subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
+        Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), this.m_rA);
+        Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
 
         // J = [-I -r1_skew I r2_skew]
         //     [ 0       -1 0       1]
@@ -174,7 +174,7 @@ export class FrictionJoint extends Joint {
         K.ey.x = K.ex.y;
         K.ey.y = mA + mB + iA * this.m_rA.x * this.m_rA.x + iB * this.m_rB.x * this.m_rB.x;
 
-        K.Inverse();
+        K.inverse();
 
         this.m_angularMass = iA + iB;
         if (this.m_angularMass > 0) {
@@ -183,16 +183,16 @@ export class FrictionJoint extends Joint {
 
         if (data.step.warmStarting) {
             // Scale impulses to support a variable time step.
-            this.m_linearImpulse.Scale(data.step.dtRatio);
+            this.m_linearImpulse.scale(data.step.dtRatio);
             this.m_angularImpulse *= data.step.dtRatio;
 
             const P = this.m_linearImpulse;
-            vA.SubtractScaled(mA, P);
-            wA -= iA * (Vec2.Cross(this.m_rA, P) + this.m_angularImpulse);
-            vB.AddScaled(mB, P);
-            wB += iB * (Vec2.Cross(this.m_rB, P) + this.m_angularImpulse);
+            vA.subtractScaled(mA, P);
+            wA -= iA * (Vec2.cross(this.m_rA, P) + this.m_angularImpulse);
+            vB.addScaled(mB, P);
+            wB += iB * (Vec2.cross(this.m_rB, P) + this.m_angularImpulse);
         } else {
-            this.m_linearImpulse.SetZero();
+            this.m_linearImpulse.setZero();
             this.m_angularImpulse = 0;
         }
 
@@ -200,7 +200,7 @@ export class FrictionJoint extends Joint {
         data.velocities[this.m_indexB].w = wB;
     }
 
-    public SolveVelocityConstraints(data: SolverData): void {
+    public solveVelocityConstraints(data: SolverData): void {
         const vA = data.velocities[this.m_indexA].v;
         let wA = data.velocities[this.m_indexA].w;
         const vB = data.velocities[this.m_indexB].v;
@@ -220,7 +220,7 @@ export class FrictionJoint extends Joint {
 
             const oldImpulse = this.m_angularImpulse;
             const maxImpulse = h * this.m_maxTorque;
-            this.m_angularImpulse = Clamp(this.m_angularImpulse + impulse, -maxImpulse, maxImpulse);
+            this.m_angularImpulse = clamp(this.m_angularImpulse + impulse, -maxImpulse, maxImpulse);
             impulse = this.m_angularImpulse - oldImpulse;
 
             wA -= iA * impulse;
@@ -230,81 +230,81 @@ export class FrictionJoint extends Joint {
         // Solve linear friction
         {
             const { Cdot, impulse, oldImpulse } = temp;
-            Vec2.Subtract(
-                Vec2.AddCrossScalarVec2(vB, wB, this.m_rB, Vec2.s_t0),
-                Vec2.AddCrossScalarVec2(vA, wA, this.m_rA, Vec2.s_t1),
+            Vec2.subtract(
+                Vec2.addCrossScalarVec2(vB, wB, this.m_rB, Vec2.s_t0),
+                Vec2.addCrossScalarVec2(vA, wA, this.m_rA, Vec2.s_t1),
                 Cdot,
             );
 
-            Mat22.MultiplyVec2(this.m_linearMass, Cdot, impulse).Negate();
-            oldImpulse.Copy(this.m_linearImpulse);
-            this.m_linearImpulse.Add(impulse);
+            Mat22.multiplyVec2(this.m_linearMass, Cdot, impulse).negate();
+            oldImpulse.copy(this.m_linearImpulse);
+            this.m_linearImpulse.add(impulse);
 
             const maxImpulse = h * this.m_maxForce;
 
-            if (this.m_linearImpulse.LengthSquared() > maxImpulse * maxImpulse) {
-                this.m_linearImpulse.Normalize();
-                this.m_linearImpulse.Scale(maxImpulse);
+            if (this.m_linearImpulse.lengthSquared() > maxImpulse * maxImpulse) {
+                this.m_linearImpulse.normalize();
+                this.m_linearImpulse.scale(maxImpulse);
             }
 
-            Vec2.Subtract(this.m_linearImpulse, oldImpulse, impulse);
+            Vec2.subtract(this.m_linearImpulse, oldImpulse, impulse);
 
-            vA.SubtractScaled(mA, impulse);
-            wA -= iA * Vec2.Cross(this.m_rA, impulse);
+            vA.subtractScaled(mA, impulse);
+            wA -= iA * Vec2.cross(this.m_rA, impulse);
 
-            vB.AddScaled(mB, impulse);
-            wB += iB * Vec2.Cross(this.m_rB, impulse);
+            vB.addScaled(mB, impulse);
+            wB += iB * Vec2.cross(this.m_rB, impulse);
         }
 
         data.velocities[this.m_indexA].w = wA;
         data.velocities[this.m_indexB].w = wB;
     }
 
-    public SolvePositionConstraints(_data: SolverData): boolean {
+    public solvePositionConstraints(_data: SolverData): boolean {
         return true;
     }
 
-    public GetAnchorA<T extends XY>(out: T): T {
-        return this.m_bodyA.GetWorldPoint(this.m_localAnchorA, out);
+    public getAnchorA<T extends XY>(out: T): T {
+        return this.m_bodyA.getWorldPoint(this.m_localAnchorA, out);
     }
 
-    public GetAnchorB<T extends XY>(out: T): T {
-        return this.m_bodyB.GetWorldPoint(this.m_localAnchorB, out);
+    public getAnchorB<T extends XY>(out: T): T {
+        return this.m_bodyB.getWorldPoint(this.m_localAnchorB, out);
     }
 
-    public GetReactionForce<T extends XY>(inv_dt: number, out: T): T {
+    public getReactionForce<T extends XY>(inv_dt: number, out: T): T {
         out.x = inv_dt * this.m_linearImpulse.x;
         out.y = inv_dt * this.m_linearImpulse.y;
         return out;
     }
 
-    public GetReactionTorque(inv_dt: number): number {
+    public getReactionTorque(inv_dt: number): number {
         return inv_dt * this.m_angularImpulse;
     }
 
-    public GetLocalAnchorA(): Readonly<Vec2> {
+    public getLocalAnchorA(): Readonly<Vec2> {
         return this.m_localAnchorA;
     }
 
-    public GetLocalAnchorB(): Readonly<Vec2> {
+    public getLocalAnchorB(): Readonly<Vec2> {
         return this.m_localAnchorB;
     }
 
-    public SetMaxForce(force: number): void {
-        // DEBUG: Assert(Number.isFinite(force) && force >= 0);
+    public setMaxForce(force: number): void {
+        // DEBUG: assert(Number.isFinite(force) && force >= 0);
         this.m_maxForce = force;
     }
 
-    public GetMaxForce(): number {
+    public getMaxForce(): number {
         return this.m_maxForce;
     }
 
-    public SetMaxTorque(torque: number): void {
-        // DEBUG: Assert(Number.isFinite(torque) && torque >= 0);
+    public setMaxTorque(torque: number): void {
+        // DEBUG: assert(Number.isFinite(torque) && torque >= 0);
         this.m_maxTorque = torque;
     }
 
-    public GetMaxTorque(): number {
+    public getMaxTorque(): number {
         return this.m_maxTorque;
     }
 }

@@ -58,10 +58,10 @@ class MultipleParticleSystemsTest extends AbstractParticleTest {
     public static readonly k_emitterSize = new Vec2(1, 1);
 
     /** Color of the left emitter's particles. */
-    public static readonly k_leftEmitterColor = new Color().SetByteRGBA(0x22, 0x33, 0xff, 0xff);
+    public static readonly k_leftEmitterColor = new Color().setByteRGBA(0x22, 0x33, 0xff, 0xff);
 
     /** Color of the right emitter's particles. */
-    public static readonly k_rightEmitterColor = new Color().SetByteRGBA(0xff, 0x22, 0x11, 0xff);
+    public static readonly k_rightEmitterColor = new Color().setByteRGBA(0xff, 0x22, 0x11, 0xff);
 
     public constructor() {
         super();
@@ -69,89 +69,89 @@ class MultipleParticleSystemsTest extends AbstractParticleTest {
         this.m_emitters = [new RadialEmitter(), new RadialEmitter()];
 
         // Configure the default particle system's parameters.
-        this.m_particleSystem.SetRadius(0.05);
-        this.m_particleSystem.SetMaxParticleCount(MultipleParticleSystemsTest.k_maxParticleCount);
-        this.m_particleSystem.SetDestructionByAge(true);
+        this.m_particleSystem.setRadius(0.05);
+        this.m_particleSystem.setMaxParticleCount(MultipleParticleSystemsTest.k_maxParticleCount);
+        this.m_particleSystem.setDestructionByAge(true);
 
         // Create a secondary particle system.
         const particleSystemDef = new ParticleSystemDef();
-        particleSystemDef.radius = this.m_particleSystem.GetRadius();
+        particleSystemDef.radius = this.m_particleSystem.getRadius();
         particleSystemDef.destroyByAge = true;
-        this.m_particleSystem2 = this.m_world.CreateParticleSystem(particleSystemDef);
-        this.m_particleSystem2.SetMaxParticleCount(MultipleParticleSystemsTest.k_maxParticleCount);
+        this.m_particleSystem2 = this.m_world.createParticleSystem(particleSystemDef);
+        this.m_particleSystem2.setMaxParticleCount(MultipleParticleSystemsTest.k_maxParticleCount);
 
         // Create the ground.
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
             const shape = new PolygonShape();
-            shape.SetAsBox(5, 0.1);
-            ground.CreateFixture({ shape });
+            shape.setAsBox(5, 0.1);
+            ground.createFixture({ shape });
         }
 
         // Create a dynamic body to push around.
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
             });
             const shape = new PolygonShape();
             const center = new Vec2(0, 1.2);
-            shape.SetAsBox(
+            shape.setAsBox(
                 MultipleParticleSystemsTest.k_dynamicBoxSize.x,
                 MultipleParticleSystemsTest.k_dynamicBoxSize.y,
                 center,
                 0,
             );
-            body.CreateFixture({ shape });
+            body.createFixture({ shape });
             const massData = new MassData();
             massData.mass = MultipleParticleSystemsTest.k_boxMass;
-            massData.center.Copy(center);
+            massData.center.copy(center);
             massData.I = 0;
-            body.SetMassData(massData);
+            body.setMassData(massData);
         }
 
         // Initialize the emitters.
         for (let i = 0; i < this.m_emitters.length; ++i) {
             const mirrorAlongY = i & 1 ? -1 : 1;
             const emitter = this.m_emitters[i];
-            emitter.SetPosition(
+            emitter.setPosition(
                 new Vec2(
                     MultipleParticleSystemsTest.k_emitterPosition.x * mirrorAlongY,
                     MultipleParticleSystemsTest.k_emitterPosition.y,
                 ),
             );
-            emitter.SetSize(MultipleParticleSystemsTest.k_emitterSize);
-            emitter.SetVelocity(
+            emitter.setSize(MultipleParticleSystemsTest.k_emitterSize);
+            emitter.setVelocity(
                 new Vec2(
                     MultipleParticleSystemsTest.k_emitterVelocity.x * mirrorAlongY,
                     MultipleParticleSystemsTest.k_emitterVelocity.y,
                 ),
             );
-            emitter.SetEmitRate(MultipleParticleSystemsTest.k_emitRate);
-            emitter.SetColor(
+            emitter.setEmitRate(MultipleParticleSystemsTest.k_emitRate);
+            emitter.setColor(
                 i & 1
                     ? MultipleParticleSystemsTest.k_rightEmitterColor
                     : MultipleParticleSystemsTest.k_leftEmitterColor,
             );
-            emitter.SetParticleSystem(i & 1 ? this.m_particleSystem2 : this.m_particleSystem);
+            emitter.setParticleSystem(i & 1 ? this.m_particleSystem2 : this.m_particleSystem);
         }
     }
 
-    public Step(settings: Settings, timeStep: number) {
+    public step(settings: Settings, timeStep: number) {
         let dt = settings.m_hertz > 0 ? 1 / settings.m_hertz : 0;
         if (settings.m_pause && !settings.m_singleStep) {
             dt = 0;
         }
 
-        this.m_particleSystem2.SetStrictContactCheck(AbstractParticleTest.m_strictContacts);
+        this.m_particleSystem2.setStrictContactCheck(AbstractParticleTest.m_strictContacts);
 
-        super.Step(settings, timeStep);
+        super.step(settings, timeStep);
 
         for (const emitter of this.m_emitters) {
-            emitter.Step(dt);
+            emitter.step(dt);
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 250;
     }
 

@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { Body, Joint, EdgeShape, Vec2, PolygonShape, BodyType, DistanceJointDef, LinearStiffness } from "@box2d/core";
+import { Body, Joint, EdgeShape, Vec2, PolygonShape, BodyType, DistanceJointDef, linearStiffness } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
@@ -33,40 +33,40 @@ class WebTest extends Test {
 
         let ground = null;
         {
-            ground = this.m_world.CreateBody();
+            ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape });
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.5, 0.5);
+            shape.setAsBox(0.5, 0.5);
 
-            const body0 = (this.m_bodies[0] = this.m_world.CreateBody({
+            const body0 = (this.m_bodies[0] = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -5, y: 5 },
             }));
-            body0.CreateFixture({ shape, density: 5 });
+            body0.createFixture({ shape, density: 5 });
 
-            const body1 = (this.m_bodies[1] = this.m_world.CreateBody({
+            const body1 = (this.m_bodies[1] = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 5, y: 5 },
             }));
-            body1.CreateFixture({ shape, density: 5 });
+            body1.createFixture({ shape, density: 5 });
 
-            const body2 = (this.m_bodies[2] = this.m_world.CreateBody({
+            const body2 = (this.m_bodies[2] = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 5, y: 15 },
             }));
-            body2.CreateFixture({ shape, density: 5 });
+            body2.createFixture({ shape, density: 5 });
 
-            const body3 = (this.m_bodies[3] = this.m_world.CreateBody({
+            const body3 = (this.m_bodies[3] = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -5, y: 15 },
             }));
-            body3.CreateFixture({ shape, density: 5 });
+            body3.createFixture({ shape, density: 5 });
 
             const jd = new DistanceJointDef();
             let p1;
@@ -78,95 +78,95 @@ class WebTest extends Test {
 
             jd.bodyA = ground;
             jd.bodyB = body0;
-            jd.localAnchorA.Set(-10, 0);
-            jd.localAnchorB.Set(-0.5, -0.5);
-            p1 = jd.bodyA.GetWorldPoint(jd.localAnchorA, new Vec2());
-            p2 = jd.bodyB.GetWorldPoint(jd.localAnchorB, new Vec2());
-            d = Vec2.Subtract(p2, p1, new Vec2());
-            jd.length = d.Length();
-            LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_joints[0] = this.m_world.CreateJoint(jd);
+            jd.localAnchorA.set(-10, 0);
+            jd.localAnchorB.set(-0.5, -0.5);
+            p1 = jd.bodyA.getWorldPoint(jd.localAnchorA, new Vec2());
+            p2 = jd.bodyB.getWorldPoint(jd.localAnchorB, new Vec2());
+            d = Vec2.subtract(p2, p1, new Vec2());
+            jd.length = d.length();
+            linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            this.m_joints[0] = this.m_world.createJoint(jd);
 
             jd.bodyA = ground;
             jd.bodyB = body1;
-            jd.localAnchorA.Set(10, 0);
-            jd.localAnchorB.Set(0.5, -0.5);
-            p1 = jd.bodyA.GetWorldPoint(jd.localAnchorA, new Vec2());
-            p2 = jd.bodyB.GetWorldPoint(jd.localAnchorB, new Vec2());
-            d = Vec2.Subtract(p2, p1, new Vec2());
-            jd.length = d.Length();
-            LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_joints[1] = this.m_world.CreateJoint(jd);
+            jd.localAnchorA.set(10, 0);
+            jd.localAnchorB.set(0.5, -0.5);
+            p1 = jd.bodyA.getWorldPoint(jd.localAnchorA, new Vec2());
+            p2 = jd.bodyB.getWorldPoint(jd.localAnchorB, new Vec2());
+            d = Vec2.subtract(p2, p1, new Vec2());
+            jd.length = d.length();
+            linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            this.m_joints[1] = this.m_world.createJoint(jd);
 
             jd.bodyA = ground;
             jd.bodyB = body2;
-            jd.localAnchorA.Set(10, 20);
-            jd.localAnchorB.Set(0.5, 0.5);
-            p1 = jd.bodyA.GetWorldPoint(jd.localAnchorA, new Vec2());
-            p2 = jd.bodyB.GetWorldPoint(jd.localAnchorB, new Vec2());
-            d = Vec2.Subtract(p2, p1, new Vec2());
-            jd.length = d.Length();
-            LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_joints[2] = this.m_world.CreateJoint(jd);
+            jd.localAnchorA.set(10, 20);
+            jd.localAnchorB.set(0.5, 0.5);
+            p1 = jd.bodyA.getWorldPoint(jd.localAnchorA, new Vec2());
+            p2 = jd.bodyB.getWorldPoint(jd.localAnchorB, new Vec2());
+            d = Vec2.subtract(p2, p1, new Vec2());
+            jd.length = d.length();
+            linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            this.m_joints[2] = this.m_world.createJoint(jd);
 
             jd.bodyA = ground;
             jd.bodyB = body3;
-            jd.localAnchorA.Set(-10, 20);
-            jd.localAnchorB.Set(-0.5, 0.5);
-            p1 = jd.bodyA.GetWorldPoint(jd.localAnchorA, new Vec2());
-            p2 = jd.bodyB.GetWorldPoint(jd.localAnchorB, new Vec2());
-            d = Vec2.Subtract(p2, p1, new Vec2());
-            jd.length = d.Length();
-            LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_joints[3] = this.m_world.CreateJoint(jd);
+            jd.localAnchorA.set(-10, 20);
+            jd.localAnchorB.set(-0.5, 0.5);
+            p1 = jd.bodyA.getWorldPoint(jd.localAnchorA, new Vec2());
+            p2 = jd.bodyB.getWorldPoint(jd.localAnchorB, new Vec2());
+            d = Vec2.subtract(p2, p1, new Vec2());
+            jd.length = d.length();
+            linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            this.m_joints[3] = this.m_world.createJoint(jd);
 
             jd.bodyA = body0;
             jd.bodyB = body1;
-            jd.localAnchorA.Set(0.5, 0);
-            jd.localAnchorB.Set(-0.5, 0);
-            p1 = jd.bodyA.GetWorldPoint(jd.localAnchorA, new Vec2());
-            p2 = jd.bodyB.GetWorldPoint(jd.localAnchorB, new Vec2());
-            d = Vec2.Subtract(p2, p1, new Vec2());
-            jd.length = d.Length();
-            LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_joints[4] = this.m_world.CreateJoint(jd);
+            jd.localAnchorA.set(0.5, 0);
+            jd.localAnchorB.set(-0.5, 0);
+            p1 = jd.bodyA.getWorldPoint(jd.localAnchorA, new Vec2());
+            p2 = jd.bodyB.getWorldPoint(jd.localAnchorB, new Vec2());
+            d = Vec2.subtract(p2, p1, new Vec2());
+            jd.length = d.length();
+            linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            this.m_joints[4] = this.m_world.createJoint(jd);
 
             jd.bodyA = body1;
             jd.bodyB = body2;
-            jd.localAnchorA.Set(0, 0.5);
-            jd.localAnchorB.Set(0, -0.5);
-            p1 = jd.bodyA.GetWorldPoint(jd.localAnchorA, new Vec2());
-            p2 = jd.bodyB.GetWorldPoint(jd.localAnchorB, new Vec2());
-            d = Vec2.Subtract(p2, p1, new Vec2());
-            jd.length = d.Length();
-            LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_joints[5] = this.m_world.CreateJoint(jd);
+            jd.localAnchorA.set(0, 0.5);
+            jd.localAnchorB.set(0, -0.5);
+            p1 = jd.bodyA.getWorldPoint(jd.localAnchorA, new Vec2());
+            p2 = jd.bodyB.getWorldPoint(jd.localAnchorB, new Vec2());
+            d = Vec2.subtract(p2, p1, new Vec2());
+            jd.length = d.length();
+            linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            this.m_joints[5] = this.m_world.createJoint(jd);
 
             jd.bodyA = body2;
             jd.bodyB = body3;
-            jd.localAnchorA.Set(-0.5, 0);
-            jd.localAnchorB.Set(0.5, 0);
-            p1 = jd.bodyA.GetWorldPoint(jd.localAnchorA, new Vec2());
-            p2 = jd.bodyB.GetWorldPoint(jd.localAnchorB, new Vec2());
-            d = Vec2.Subtract(p2, p1, new Vec2());
-            jd.length = d.Length();
-            LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_joints[6] = this.m_world.CreateJoint(jd);
+            jd.localAnchorA.set(-0.5, 0);
+            jd.localAnchorB.set(0.5, 0);
+            p1 = jd.bodyA.getWorldPoint(jd.localAnchorA, new Vec2());
+            p2 = jd.bodyB.getWorldPoint(jd.localAnchorB, new Vec2());
+            d = Vec2.subtract(p2, p1, new Vec2());
+            jd.length = d.length();
+            linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            this.m_joints[6] = this.m_world.createJoint(jd);
 
             jd.bodyA = body3;
             jd.bodyB = body0;
-            jd.localAnchorA.Set(0, -0.5);
-            jd.localAnchorB.Set(0, 0.5);
-            p1 = jd.bodyA.GetWorldPoint(jd.localAnchorA, new Vec2());
-            p2 = jd.bodyB.GetWorldPoint(jd.localAnchorB, new Vec2());
-            d = Vec2.Subtract(p2, p1, new Vec2());
-            jd.length = d.Length();
-            LinearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_joints[7] = this.m_world.CreateJoint(jd);
+            jd.localAnchorA.set(0, -0.5);
+            jd.localAnchorB.set(0, 0.5);
+            p1 = jd.bodyA.getWorldPoint(jd.localAnchorA, new Vec2());
+            p2 = jd.bodyB.getWorldPoint(jd.localAnchorB, new Vec2());
+            d = Vec2.subtract(p2, p1, new Vec2());
+            jd.length = d.length();
+            linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            this.m_joints[7] = this.m_world.createJoint(jd);
         }
     }
 
-    public JointDestroyed(joint: Joint) {
+    public jointDestroyed(joint: Joint) {
         for (let i = 0; i < 8; ++i) {
             if (this.m_joints[i] === joint) {
                 this.m_joints[i] = null;
@@ -181,7 +181,7 @@ class WebTest extends Test {
                 for (let i = 0; i < 4; ++i) {
                     const body = this.m_bodies[i];
                     if (body) {
-                        this.m_world.DestroyBody(body);
+                        this.m_world.destroyBody(body);
                         this.m_bodies[i] = null;
                         break;
                     }
@@ -191,7 +191,7 @@ class WebTest extends Test {
                 for (let i = 0; i < 8; ++i) {
                     const joint = this.m_joints[i];
                     if (joint) {
-                        this.m_world.DestroyJoint(joint);
+                        this.m_world.destroyJoint(joint);
                         this.m_joints[i] = null;
                         break;
                     }
@@ -200,8 +200,8 @@ class WebTest extends Test {
         ];
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): void {
+        super.step(settings, timeStep);
         this.addText("This demonstrates a soft distance joint.");
     }
 }

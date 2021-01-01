@@ -55,22 +55,22 @@ class PlatformerTest extends Test {
 
         // Ground
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
+            ground.createFixture({ shape });
         }
 
         // Platform
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 position: { x: 0, y: 10 },
             });
 
             const shape = new PolygonShape();
-            shape.SetAsBox(3, 0.5);
-            this.m_platform = body.CreateFixture({ shape });
+            shape.setAsBox(3, 0.5);
+            this.m_platform = body.createFixture({ shape });
 
             this.m_bottom = 10 - 0.5;
             this.m_top = 10 + 0.5;
@@ -78,7 +78,7 @@ class PlatformerTest extends Test {
 
         // Actor
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 0, y: 12 },
             });
@@ -86,15 +86,15 @@ class PlatformerTest extends Test {
             this.m_radius = 0.5;
             const shape = new CircleShape();
             shape.m_radius = this.m_radius;
-            this.m_character = body.CreateFixture({ shape, density: 20 });
+            this.m_character = body.createFixture({ shape, density: 20 });
 
-            body.SetLinearVelocity(new Vec2(0, -50));
+            body.setLinearVelocity(new Vec2(0, -50));
 
             this.m_state = OneSidedPlatform_State.Unknown;
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 40;
     }
 
@@ -105,11 +105,11 @@ class PlatformerTest extends Test {
         };
     }
 
-    public PreSolve(contact: Contact, oldManifold: Manifold) {
-        super.PreSolve(contact, oldManifold);
+    public preSolve(contact: Contact, oldManifold: Manifold) {
+        super.preSolve(contact, oldManifold);
 
-        const fixtureA = contact.GetFixtureA();
-        const fixtureB = contact.GetFixtureB();
+        const fixtureA = contact.getFixtureA();
+        const fixtureB = contact.getFixtureB();
 
         if (fixtureA !== this.m_platform && fixtureA !== this.m_character) {
             return;
@@ -119,10 +119,10 @@ class PlatformerTest extends Test {
             return;
         }
 
-        const position = this.m_character.GetBody().GetPosition();
+        const position = this.m_character.getBody().getPosition();
 
         if (position.y < this.m_top + this.m_radius - 3 * LINEAR_SLOP) {
-            contact.SetEnabled(false);
+            contact.setEnabled(false);
         }
     }
 }

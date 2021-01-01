@@ -31,16 +31,16 @@ class BridgeTest extends Test {
         let ground = null;
 
         {
-            ground = this.m_world.CreateBody();
+            ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape });
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.5, 0.125);
+            shape.setAsBox(0.5, 0.125);
 
             const fd: FixtureDef = {
                 shape,
@@ -52,15 +52,15 @@ class BridgeTest extends Test {
 
             let prevBody = ground;
             for (let i = 0; i < BridgeTest.e_count; ++i) {
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: -14.5 + 1 * i, y: 5 },
                 });
-                body.CreateFixture(fd);
+                body.createFixture(fd);
 
                 const anchor = new Vec2(-15 + 1 * i, 5);
-                jd.Initialize(prevBody, body, anchor);
-                this.m_world.CreateJoint(jd);
+                jd.initialize(prevBody, body, anchor);
+                this.m_world.createJoint(jd);
 
                 if (i === BridgeTest.e_count >> 1) {
                     this.m_middle = body;
@@ -69,8 +69,8 @@ class BridgeTest extends Test {
             }
 
             const anchor = new Vec2(-15 + 1 * BridgeTest.e_count, 5);
-            jd.Initialize(prevBody, ground, anchor);
-            this.m_world.CreateJoint(jd);
+            jd.initialize(prevBody, ground, anchor);
+            this.m_world.createJoint(jd);
         }
 
         for (let i = 0; i < 2; ++i) {
@@ -80,13 +80,13 @@ class BridgeTest extends Test {
             vertices[2] = new Vec2(0, 1.5);
 
             const shape = new PolygonShape();
-            shape.Set(vertices);
+            shape.set(vertices);
 
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -8 + 8 * i, y: 12 },
             });
-            body.CreateFixture({
+            body.createFixture({
                 shape,
                 density: 1,
             });
@@ -96,11 +96,11 @@ class BridgeTest extends Test {
             const shape = new CircleShape();
             shape.m_radius = 0.5;
 
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -6 + 6 * i, y: 10 },
             });
-            body.CreateFixture({
+            body.createFixture({
                 shape,
                 density: 1,
             });

@@ -29,16 +29,16 @@ class ChainTest extends Test {
         let ground = null;
 
         {
-            ground = this.m_world.CreateBody();
+            ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape });
         }
 
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(0.6, 0.125);
+            shape.setAsBox(0.6, 0.125);
 
             const fd: FixtureDef = {
                 shape,
@@ -52,7 +52,7 @@ class ChainTest extends Test {
             const y = 25;
             let prevBody = ground;
             for (let i = 0; i < 30; ++i) {
-                const body = this.m_world.CreateBody({
+                const body = this.m_world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: 0.5 + i, y },
                 });
@@ -66,11 +66,11 @@ class ChainTest extends Test {
                     }
                 }
 
-                body.CreateFixture(fd);
+                body.createFixture(fd);
 
                 const anchor = new Vec2(i, y);
-                jd.Initialize(prevBody, body, anchor);
-                this.m_world.CreateJoint(jd);
+                jd.initialize(prevBody, body, anchor);
+                this.m_world.createJoint(jd);
 
                 prevBody = body;
             }

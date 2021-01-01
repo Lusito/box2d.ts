@@ -27,17 +27,17 @@ class PyramidTest extends Test {
         super();
 
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
+            ground.createFixture({ shape });
         }
 
         {
             const a = 0.5;
             const shape = new PolygonShape();
-            shape.SetAsBox(a, a);
+            shape.setAsBox(a, a);
 
             const x = new Vec2(-7, 0.75);
             const y = new Vec2();
@@ -45,19 +45,19 @@ class PyramidTest extends Test {
             const deltaY = new Vec2(1.125, 0);
 
             for (let i = 0; i < PyramidTest.e_count; ++i) {
-                y.Copy(x);
+                y.copy(x);
 
                 for (let j = i; j < PyramidTest.e_count; ++j) {
-                    const body = this.m_world.CreateBody({
+                    const body = this.m_world.createBody({
                         type: BodyType.Dynamic,
                         position: y,
                     });
-                    body.CreateFixture({ shape, density: 5 });
+                    body.createFixture({ shape, density: 5 });
 
-                    y.Add(deltaY);
+                    y.add(deltaY);
                 }
 
-                x.Add(deltaX);
+                x.add(deltaX);
             }
         }
     }

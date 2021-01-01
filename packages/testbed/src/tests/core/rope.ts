@@ -24,12 +24,12 @@ import {
     Rope,
     RopeTuning,
     Vec2,
-    MakeNumberArray,
+    makeNumberArray,
     BendingModel,
     StretchingModel,
     RopeDef,
     XY,
-    MakeArray,
+    makeArray,
 } from "@box2d/core";
 
 import { registerTest, Test } from "../../test";
@@ -69,11 +69,11 @@ class RopeTest extends Test {
         super();
         const N = 20;
         const L = 0.5;
-        const vertices = MakeArray(N, Vec2);
-        const masses = MakeNumberArray(N);
+        const vertices = makeArray(N, Vec2);
+        const masses = makeNumberArray(N);
 
         for (let i = 0; i < N; ++i) {
-            vertices[i].Set(0, L * (N - i));
+            vertices[i].set(0, L * (N - i));
             masses[i] = 1;
         }
         masses[0] = 0;
@@ -101,8 +101,8 @@ class RopeTest extends Test {
         this.m_tuning2.stretchStiffness = 1;
         this.m_tuning2.stretchingModel = StretchingModel.Pbd;
 
-        this.m_position1.Set(-5, 15);
-        this.m_position2.Set(5, 15);
+        this.m_position1.set(-5, 15);
+        this.m_position2.set(5, 15);
 
         const def: RopeDef = {
             position: this.m_position1,
@@ -173,7 +173,7 @@ class RopeTest extends Test {
         ];
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 45;
     }
 
@@ -189,15 +189,15 @@ class RopeTest extends Test {
             hotKeyState("a", "Move Left", this, "m_moveLeft"),
             hotKeyState("d", "Move Right", this, "m_moveRight"),
             hotKeyPress("s", "Reset Ropes", () => {
-                this.m_position1.Set(-5, 15);
-                this.m_position2.Set(5, 15);
-                this.m_rope1.Reset(this.m_position1);
-                this.m_rope2.Reset(this.m_position2);
+                this.m_position1.set(-5, 15);
+                this.m_position2.set(5, 15);
+                this.m_rope1.reset(this.m_position1);
+                this.m_rope2.reset(this.m_position2);
             }),
         ];
     }
 
-    public Step(settings: Settings, timeStep: number): void {
+    public step(settings: Settings, timeStep: number): void {
         let dt = settings.m_hertz > 0 ? 1 / settings.m_hertz : 0;
 
         if (settings.m_pause === true && settings.m_singleStep === false) {
@@ -212,15 +212,15 @@ class RopeTest extends Test {
             this.m_position2.x += moveX * this.m_speed * dt;
         }
 
-        this.m_rope1.SetTuning(this.m_tuning1);
-        this.m_rope2.SetTuning(this.m_tuning2);
-        this.m_rope1.Step(dt, this.m_iterations[0], this.m_position1);
-        this.m_rope2.Step(dt, this.m_iterations[1], this.m_position2);
+        this.m_rope1.setTuning(this.m_tuning1);
+        this.m_rope2.setTuning(this.m_tuning2);
+        this.m_rope1.step(dt, this.m_iterations[0], this.m_position1);
+        this.m_rope2.step(dt, this.m_iterations[1], this.m_position2);
 
-        super.Step(settings, timeStep);
+        super.step(settings, timeStep);
 
-        this.m_rope1.Draw(g_debugDraw);
-        this.m_rope2.Draw(g_debugDraw);
+        this.m_rope1.draw(g_debugDraw);
+        this.m_rope2.draw(g_debugDraw);
     }
 }
 

@@ -26,7 +26,7 @@ declare module "@box2d/core" {
         /**
          * Called when any particle group is about to be destroyed.
          */
-        SayGoodbyeParticleGroup(group: ParticleGroup): void;
+        sayGoodbyeParticleGroup(group: ParticleGroup): void;
 
         /**
          * Called when a particle is about to be destroyed.
@@ -35,40 +35,40 @@ declare module "@box2d/core" {
          * ParticleSystem::GetParticleHandleFromIndex() to determine which
          * particle has been destroyed.
          */
-        SayGoodbyeParticle(system: ParticleSystem, index: number): void;
+        sayGoodbyeParticle(system: ParticleSystem, index: number): void;
     }
 
     interface ContactFilter {
-        ShouldCollideFixtureParticle(fixture: Fixture, system: ParticleSystem, index: number): boolean;
-        ShouldCollideParticleParticle(system: ParticleSystem, indexA: number, indexB: number): boolean;
+        shouldCollideFixtureParticle(fixture: Fixture, system: ParticleSystem, index: number): boolean;
+        shouldCollideParticleParticle(system: ParticleSystem, indexA: number, indexB: number): boolean;
     }
 
     interface ContactListener {
-        BeginContactFixtureParticle(system: ParticleSystem, contact: ParticleBodyContact): void;
-        EndContactFixtureParticle(system: ParticleSystem, contact: ParticleBodyContact): void;
-        BeginContactParticleParticle(system: ParticleSystem, contact: ParticleContact): void;
-        EndContactParticleParticle(system: ParticleSystem, contact: ParticleContact): void;
+        beginContactFixtureParticle(system: ParticleSystem, contact: ParticleBodyContact): void;
+        endContactFixtureParticle(system: ParticleSystem, contact: ParticleBodyContact): void;
+        beginContactParticleParticle(system: ParticleSystem, contact: ParticleContact): void;
+        endContactParticleParticle(system: ParticleSystem, contact: ParticleContact): void;
     }
 }
 
 // Default implementations
 Object.assign(DestructionListener.prototype, {
-    SayGoodbyeParticleGroup() {},
-    SayGoodbyeParticle() {},
+    sayGoodbyeParticleGroup() {},
+    sayGoodbyeParticle() {},
 });
 
 Object.assign(ContactFilter.prototype, {
-    SayGoodbyeParticleGroup() {
+    sayGoodbyeParticleGroup() {
         return true;
     },
-    SayGoodbyeParticle() {
+    sayGoodbyeParticle() {
         return true;
     },
 });
 
 Object.assign(ContactListener.prototype, {
-    BeginContactFixtureParticle() {},
-    EndContactFixtureParticle() {},
-    BeginContactParticleParticle() {},
-    EndContactParticleParticle() {},
+    beginContactFixtureParticle() {},
+    endContactFixtureParticle() {},
+    beginContactParticleParticle() {},
+    endContactParticleParticle() {},
 });

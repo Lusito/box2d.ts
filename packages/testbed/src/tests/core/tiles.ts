@@ -44,7 +44,7 @@ class TilesTest extends Test {
         {
             const a = 0.5;
 
-            const ground = this.m_world.CreateBody({
+            const ground = this.m_world.createBody({
                 position: { x: 0, y: -a },
             });
 
@@ -57,8 +57,8 @@ class TilesTest extends Test {
                     position.x = -N * a;
                     for (let i = 0; i < N; ++i) {
                         const shape = new PolygonShape();
-                        shape.SetAsBox(a, a, position, 0);
-                        ground.CreateFixture({ shape });
+                        shape.setAsBox(a, a, position, 0);
+                        ground.createFixture({ shape });
                         ++this.m_fixtureCount;
                         position.x += 2 * a;
                     }
@@ -77,8 +77,8 @@ class TilesTest extends Test {
             //        for (/*int32*/ let j = 0; j < M; ++j)
             //        {
             //          /*PolygonShape*/ const shape = new PolygonShape();
-            //          shape.SetAsBox(a, a, position, 0);
-            //          ground.CreateFixture({ shape });
+            //          shape.setAsBox(a, a, position, 0);
+            //          ground.createFixture({ shape });
             //          position.y -= 2 * a;
             //        }
             //        position.x += 2 * a;
@@ -89,7 +89,7 @@ class TilesTest extends Test {
         {
             const a = 0.5;
             const shape = new PolygonShape();
-            shape.SetAsBox(a, a);
+            shape.setAsBox(a, a);
 
             const x = new Vec2(-7, 0.75);
             const y = new Vec2();
@@ -97,36 +97,36 @@ class TilesTest extends Test {
             const deltaY = new Vec2(1.125, 0);
 
             for (let i = 0; i < TilesTest.e_count; ++i) {
-                y.Copy(x);
+                y.copy(x);
 
                 for (let j = i; j < TilesTest.e_count; ++j) {
-                    const body = this.m_world.CreateBody({
+                    const body = this.m_world.createBody({
                         type: BodyType.Dynamic,
                         position: y,
                         // allowSleep: i !== 0 || j !== 0,
                     });
-                    body.CreateFixture({ shape, density: 5 });
+                    body.createFixture({ shape, density: 5 });
                     ++this.m_fixtureCount;
-                    y.Add(deltaY);
+                    y.add(deltaY);
                 }
 
-                x.Add(deltaX);
+                x.add(deltaX);
             }
         }
 
-        this.m_createTime = timer.GetMilliseconds();
+        this.m_createTime = timer.getMilliseconds();
     }
 
-    public Step(settings: Settings, timeStep: number): void {
-        const cm = this.m_world.GetContactManager();
-        const height = cm.m_broadPhase.GetTreeHeight();
-        const leafCount = cm.m_broadPhase.GetProxyCount();
+    public step(settings: Settings, timeStep: number): void {
+        const cm = this.m_world.getContactManager();
+        const height = cm.m_broadPhase.getTreeHeight();
+        const leafCount = cm.m_broadPhase.getProxyCount();
         const minimumNodeCount = 2 * leafCount - 1;
         const minimumHeight = Math.ceil(Math.log(minimumNodeCount) / Math.log(2));
         this.addDebug("Dynamic Tree Height", height);
         this.addDebug("Min Height", minimumHeight);
 
-        super.Step(settings, timeStep);
+        super.step(settings, timeStep);
 
         this.addDebug("Create Time", `${this.m_createTime.toFixed(2)} ms`);
         this.addDebug("Fixture Count", this.m_fixtureCount);
@@ -135,7 +135,7 @@ class TilesTest extends Test {
 
         // if (this.m_stepCount === 400)
         // {
-        //  tree.RebuildBottomUp();
+        //  tree.rebuildBottomUp();
         // }
     }
 }

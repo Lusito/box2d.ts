@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { Vec2, ChainShape, FixtureDef, BodyType, CircleShape, Body, RadToDeg, XY } from "@box2d/core";
+import { Vec2, ChainShape, FixtureDef, BodyType, CircleShape, Body, radToDeg, XY } from "@box2d/core";
 import { ChainLight, ConeLight, DirectionalLight, Light, PointLight } from "@box2d/lights";
 
 import { HotKey, hotKeyPress } from "../../utils/hotkeys";
@@ -56,13 +56,13 @@ class Marble {
     public constructor(public readonly sprite: Sprite, public readonly body: Body) {}
 
     public render() {
-        const pos = this.body.GetPosition();
+        const pos = this.body.getPosition();
         this.sprite.setRotatedRect(
             pos.x - RADIUS,
             pos.y - RADIUS,
             SIZE,
             SIZE,
-            RadToDeg(this.body.GetAngle()),
+            radToDeg(this.body.getAngle()),
             RADIUS,
             RADIUS,
         );
@@ -115,15 +115,15 @@ class OfficialDemoTest extends AbstractLightTest {
         const createMarble = () => {
             // Create the BodyDef, set a random position above the
             // ground and create a new body
-            const boxBody = this.m_world.CreateBody({
+            const boxBody = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: {
                     x: 4 + Math.random() * 40,
                     y: 4 + Math.random() * 25,
                 },
             });
-            const fixture = boxBody.CreateFixture(def);
-            fixture.SetFilterData({
+            const fixture = boxBody.createFixture(def);
+            fixture.setFilterData({
                 categoryBits: Category.MARBLE,
                 maskBits: Mask.MARBLE,
             });
@@ -161,7 +161,7 @@ class OfficialDemoTest extends AbstractLightTest {
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 20;
     }
 
@@ -169,13 +169,13 @@ class OfficialDemoTest extends AbstractLightTest {
         return { x: viewportWidth / 2, y: viewportHeight / 2 };
     }
 
-    public Destroy() {
+    public destroy() {
         this.bg.destroy();
         for (const marble of this.marbles) {
             marble.light.dispose();
             marble.sprite.destroy();
         }
-        super.Destroy();
+        super.destroy();
     }
 
     private setLightsType(lightsType: LightsType) {
@@ -198,12 +198,12 @@ class OfficialDemoTest extends AbstractLightTest {
 
     public getHotkeys(): HotKey[] {
         return [
-            hotKeyPress("c", "Random Light Colors", () => {
+            hotKeyPress("c", "random Light Colors", () => {
                 for (const marble of this.marbles) {
                     setRandomLightColor(marble.light);
                 }
             }),
-            hotKeyPress("d", "Random Light Distance", () => {
+            hotKeyPress("d", "random Light Distance", () => {
                 for (const marble of this.marbles) {
                     marble.light.setDistance(random(LIGHT_DISTANCE * 0.5, LIGHT_DISTANCE * 2));
                 }
@@ -211,8 +211,8 @@ class OfficialDemoTest extends AbstractLightTest {
         ];
     }
 
-    public Step(settings: Settings, timeStep: number): number {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): number {
+        super.step(settings, timeStep);
 
         this.bg.render();
         for (const marble of this.marbles) {
@@ -232,17 +232,17 @@ class OfficialDemoTest extends AbstractLightTest {
 
     private createBoundary() {
         const chainShape = new ChainShape();
-        chainShape.CreateLoop([
+        chainShape.createLoop([
             new Vec2(),
             new Vec2(0, viewportHeight),
             new Vec2(viewportWidth, viewportHeight),
             new Vec2(viewportWidth, 0),
         ]);
-        this.groundBody = this.m_world.CreateBody({
+        this.groundBody = this.m_world.createBody({
             type: BodyType.Static,
         });
-        const fixture = this.groundBody.CreateFixture({ shape: chainShape, density: 0 });
-        fixture.SetFilterData({
+        const fixture = this.groundBody.createFixture({ shape: chainShape, density: 0 });
+        fixture.setFilterData({
             categoryBits: Category.WORLD,
             maskBits: Mask.WORLD,
         });

@@ -28,23 +28,23 @@ class ConveyorBeltTest extends Test {
 
         // Ground
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             const shape = new EdgeShape();
-            shape.SetTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
-            ground.CreateFixture({ shape });
+            shape.setTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
+            ground.createFixture({ shape });
         }
 
         // Platform
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 position: { x: -5, y: 5 },
             });
 
             const shape = new PolygonShape();
-            shape.SetAsBox(10, 0.5);
+            shape.setAsBox(10, 0.5);
 
-            this.m_platform = body.CreateFixture({
+            this.m_platform = body.createFixture({
                 shape,
                 friction: 0.8,
             });
@@ -52,34 +52,34 @@ class ConveyorBeltTest extends Test {
 
         // Boxes
         for (let i = 0; i < 5; ++i) {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -10 + 2 * i, y: 7 },
             });
 
             const shape = new PolygonShape();
-            shape.SetAsBox(0.5, 0.5);
-            body.CreateFixture({ shape, density: 20 });
+            shape.setAsBox(0.5, 0.5);
+            body.createFixture({ shape, density: 20 });
         }
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 40;
     }
 
-    public PreSolve(contact: Contact, oldManifold: Manifold) {
-        super.PreSolve(contact, oldManifold);
+    public preSolve(contact: Contact, oldManifold: Manifold) {
+        super.preSolve(contact, oldManifold);
 
-        const fixtureA = contact.GetFixtureA();
+        const fixtureA = contact.getFixtureA();
 
-        const fixtureB = contact.GetFixtureB();
+        const fixtureB = contact.getFixtureB();
 
         if (fixtureA === this.m_platform) {
-            contact.SetTangentSpeed(5);
+            contact.setTangentSpeed(5);
         }
 
         if (fixtureB === this.m_platform) {
-            contact.SetTangentSpeed(-5);
+            contact.setTangentSpeed(-5);
         }
     }
 }

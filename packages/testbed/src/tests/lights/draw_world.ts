@@ -59,11 +59,11 @@ class DrawWorldTest extends AbstractLightTest {
         this.mouseLight = this.createLight();
         this.mouseLight.setColor(1, 0, 0, 1);
 
-        const heartBody = this.m_world.CreateBody();
+        const heartBody = this.m_world.createBody();
         for (const line of heart) {
             const shape = new EdgeShape();
-            shape.SetTwoSided({ x: line.x1, y: line.y1 }, { x: line.x2, y: line.y2 });
-            heartBody.CreateFixture({
+            shape.setTwoSided({ x: line.x1, y: line.y1 }, { x: line.x2, y: line.y2 });
+            heartBody.createFixture({
                 shape,
                 density: 0,
                 restitution: 0,
@@ -93,7 +93,7 @@ class DrawWorldTest extends AbstractLightTest {
         return light;
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 30;
     }
 
@@ -106,30 +106,30 @@ class DrawWorldTest extends AbstractLightTest {
         ];
     }
 
-    public MouseDown(p: Vec2) {
-        super.MouseDown(p);
-        this.dragStart.Copy(p);
+    public mouseDown(p: Vec2) {
+        super.mouseDown(p);
+        this.dragStart.copy(p);
     }
 
-    public MouseUp(p: Vec2) {
-        super.MouseUp(p);
+    public mouseUp(p: Vec2) {
+        super.mouseUp(p);
         this.currentEdgeFixture = null;
         this.currentEdgeBody = null;
     }
 
-    public MouseMove(p: Vec2, leftDrag: boolean) {
-        super.MouseMove(p, leftDrag);
+    public mouseMove(p: Vec2, leftDrag: boolean) {
+        super.mouseMove(p, leftDrag);
         if (leftDrag) {
             if (!this.currentEdgeBody) {
                 const dist = 1 / g_camera.getZoom();
-                this.currentEdgeBody = this.m_world.CreateBody({
+                this.currentEdgeBody = this.m_world.createBody({
                     position: { x: -dist, y: dist },
                 });
             }
-            if (this.currentEdgeFixture) this.currentEdgeBody.DestroyFixture(this.currentEdgeFixture);
+            if (this.currentEdgeFixture) this.currentEdgeBody.destroyFixture(this.currentEdgeFixture);
             const shape = new EdgeShape();
-            shape.SetTwoSided(this.dragStart, p);
-            this.currentEdgeFixture = this.currentEdgeBody.CreateFixture({
+            shape.setTwoSided(this.dragStart, p);
+            this.currentEdgeFixture = this.currentEdgeBody.createFixture({
                 shape,
                 density: 0,
                 restitution: 0,
@@ -137,8 +137,8 @@ class DrawWorldTest extends AbstractLightTest {
         }
     }
 
-    public Step(settings: Settings, timeStep: number): number {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): number {
+        super.step(settings, timeStep);
 
         this.addText("Left drag to draw lines");
 

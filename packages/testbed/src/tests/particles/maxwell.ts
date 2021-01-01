@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { Body, Vec2, ChainShape, PolygonShape, Clamp, XY, RandomFloat } from "@box2d/core";
+import { Body, Vec2, ChainShape, PolygonShape, clamp, XY, randomFloat } from "@box2d/core";
 import { ParticleGroup, ParticleGroupDef, ParticleFlag } from "@box2d/particles";
 
 import { registerTest } from "../../test";
@@ -80,7 +80,7 @@ class MaxwellTest extends AbstractParticleTest {
 
         // Create the container.
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
             const shape = new ChainShape();
             const vertices = [
                 new Vec2(-MaxwellTest.k_containerHalfWidth, 0),
@@ -88,8 +88,8 @@ class MaxwellTest extends AbstractParticleTest {
                 new Vec2(MaxwellTest.k_containerHalfWidth, MaxwellTest.k_containerHeight),
                 new Vec2(-MaxwellTest.k_containerHalfWidth, MaxwellTest.k_containerHeight),
             ];
-            shape.CreateLoop(vertices, 4);
-            ground.CreateFixture({
+            shape.createLoop(vertices, 4);
+            ground.createFixture({
                 shape,
                 density: 0,
                 restitution: 1,
@@ -97,17 +97,17 @@ class MaxwellTest extends AbstractParticleTest {
         }
 
         // Enable the barrier.
-        this.EnableBarrier();
+        this.enableBarrier();
         // Create the particles.
-        this.ResetParticles();
+        this.resetParticles();
     }
 
     /**
      * Disable the barrier.
      */
-    public DisableBarrier() {
+    public disableBarrier() {
         if (this.m_barrierBody) {
-            this.m_world.DestroyBody(this.m_barrierBody);
+            this.m_world.destroyBody(this.m_barrierBody);
             this.m_barrierBody = null;
         }
     }
@@ -115,17 +115,17 @@ class MaxwellTest extends AbstractParticleTest {
     /**
      * Enable the barrier.
      */
-    public EnableBarrier() {
+    public enableBarrier() {
         if (!this.m_barrierBody) {
-            this.m_barrierBody = this.m_world.CreateBody();
+            this.m_barrierBody = this.m_world.createBody();
             const barrierShape = new PolygonShape();
-            barrierShape.SetAsBox(
+            barrierShape.setAsBox(
                 MaxwellTest.k_containerHalfWidth,
                 MaxwellTest.k_barrierHeight,
                 new Vec2(0, this.m_position),
                 0,
             );
-            this.m_barrierBody.CreateFixture({
+            this.m_barrierBody.createFixture({
                 shape: barrierShape,
                 density: 0,
                 restitution: 1,
@@ -136,27 +136,27 @@ class MaxwellTest extends AbstractParticleTest {
     /**
      * Enable / disable the barrier.
      */
-    public ToggleBarrier() {
+    public toggleBarrier() {
         if (this.m_barrierBody) {
-            this.DisableBarrier();
+            this.disableBarrier();
         } else {
-            this.EnableBarrier();
+            this.enableBarrier();
         }
     }
 
     /**
      * Destroy and recreate all particles.
      */
-    public ResetParticles() {
+    public resetParticles() {
         if (this.m_particleGroup !== null) {
-            this.m_particleGroup.DestroyParticles(false);
+            this.m_particleGroup.destroyParticles(false);
             this.m_particleGroup = null;
         }
 
-        this.m_particleSystem.SetRadius(MaxwellTest.k_containerHalfWidth / 20);
+        this.m_particleSystem.setRadius(MaxwellTest.k_containerHalfWidth / 20);
         {
             const shape = new PolygonShape();
-            shape.SetAsBox(
+            shape.setAsBox(
                 this.m_density * MaxwellTest.k_containerHalfWidth,
                 this.m_density * MaxwellTest.k_containerHalfHeight,
                 new Vec2(0, MaxwellTest.k_containerHalfHeight),
@@ -165,49 +165,49 @@ class MaxwellTest extends AbstractParticleTest {
             const pd = new ParticleGroupDef();
             pd.flags = ParticleFlag.Powder;
             pd.shape = shape;
-            this.m_particleGroup = this.m_particleSystem.CreateParticleGroup(pd);
-            const velocities = this.m_particleSystem.GetVelocityBuffer();
-            const index = this.m_particleGroup.GetBufferIndex();
+            this.m_particleGroup = this.m_particleSystem.createParticleGroup(pd);
+            const velocities = this.m_particleSystem.getVelocityBuffer();
+            const index = this.m_particleGroup.getBufferIndex();
 
-            for (let i = 0; i < this.m_particleGroup.GetParticleCount(); ++i) {
+            for (let i = 0; i < this.m_particleGroup.getParticleCount(); ++i) {
                 const v = velocities[index + i];
-                v.Set(RandomFloat(-1, 1) + 1, RandomFloat(-1, 1) + 1);
-                v.Normalize();
-                v.Scale(this.m_temperature);
+                v.set(randomFloat(-1, 1) + 1, randomFloat(-1, 1) + 1);
+                v.normalize();
+                v.scale(this.m_temperature);
             }
         }
     }
 
     public getHotkeys(): HotKey[] {
         return [
-            hotKeyPress("a", "Toggle Barrier", () => this.ToggleBarrier()),
+            hotKeyPress("a", "Toggle Barrier", () => this.toggleBarrier()),
             hotKeyPress("m", "Increase the Particle Density", () => {
                 this.m_density = Math.min(this.m_density * MaxwellTest.k_densityStep, MaxwellTest.k_densityMax);
-                this.Reset();
+                this.reset();
             }),
             hotKeyPress("n", "Reduce the Particle Density", () => {
                 this.m_density = Math.max(this.m_density / MaxwellTest.k_densityStep, MaxwellTest.k_densityMin);
-                this.Reset();
+                this.reset();
             }),
             hotKeyPress("w", "Move the location of the divider up", () =>
-                this.MoveDivider(this.m_position + MaxwellTest.k_barrierMovementIncrement),
+                this.moveDivider(this.m_position + MaxwellTest.k_barrierMovementIncrement),
             ),
             hotKeyPress("s", "Move the location of the divider down", () =>
-                this.MoveDivider(this.m_position - MaxwellTest.k_barrierMovementIncrement),
+                this.moveDivider(this.m_position - MaxwellTest.k_barrierMovementIncrement),
             ),
             hotKeyPress("h", "Reduce the temperature (velocity of particles)", () => {
                 this.m_temperature = Math.max(
                     this.m_temperature - MaxwellTest.k_temperatureStep,
                     MaxwellTest.k_temperatureMin,
                 );
-                this.Reset();
+                this.reset();
             }),
             hotKeyPress("j", "Increase the temperature (velocity of particles)", () => {
                 this.m_temperature = Math.min(
                     this.m_temperature + MaxwellTest.k_temperatureStep,
                     MaxwellTest.k_temperatureMax,
                 );
-                this.Reset();
+                this.reset();
             }),
         ];
     }
@@ -215,7 +215,7 @@ class MaxwellTest extends AbstractParticleTest {
     /**
      * Determine whether a point is in the container.
      */
-    public InContainer(p: Vec2) {
+    public inContainer(p: Vec2) {
         return (
             p.x >= -MaxwellTest.k_containerHalfWidth &&
             p.x <= MaxwellTest.k_containerHalfWidth &&
@@ -224,42 +224,42 @@ class MaxwellTest extends AbstractParticleTest {
         );
     }
 
-    public MouseDown(p: Vec2) {
-        if (!this.InContainer(p)) {
-            super.MouseDown(p);
+    public mouseDown(p: Vec2) {
+        if (!this.inContainer(p)) {
+            super.mouseDown(p);
         }
     }
 
-    public MouseUp(p: Vec2) {
+    public mouseUp(p: Vec2) {
         // If the pointer is in the container.
-        if (this.InContainer(p)) {
+        if (this.inContainer(p)) {
             // Enable / disable the barrier.
-            this.ToggleBarrier();
+            this.toggleBarrier();
         } else {
             // Move the barrier to the touch position.
-            this.MoveDivider(p.y);
+            this.moveDivider(p.y);
 
-            super.MouseUp(p);
+            super.mouseUp(p);
         }
     }
 
-    public Step(settings: Settings, timeStep: number) {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number) {
+        super.step(settings, timeStep);
 
         // Number of particles above (top) and below (bottom) the barrier.
         let top = 0;
         let bottom = 0;
 
         if (this.m_particleGroup) {
-            const index = this.m_particleGroup.GetBufferIndex();
-            const velocities = this.m_particleSystem.GetVelocityBuffer();
-            const positions = this.m_particleSystem.GetPositionBuffer();
+            const index = this.m_particleGroup.getBufferIndex();
+            const velocities = this.m_particleSystem.getVelocityBuffer();
+            const positions = this.m_particleSystem.getPositionBuffer();
 
-            for (let i = 0; i < this.m_particleGroup.GetParticleCount(); i++) {
+            for (let i = 0; i < this.m_particleGroup.getParticleCount(); i++) {
                 // Add energy to particles based upon the temperature.
                 const v = velocities[index + i];
-                v.Normalize();
-                v.Scale(this.m_temperature);
+                v.normalize();
+                v.scale(this.m_temperature);
 
                 // Keep track of the number of particles above / below the
                 // divider / barrier position.
@@ -282,25 +282,25 @@ class MaxwellTest extends AbstractParticleTest {
     /**
      * Reset the particles and the barrier.
      */
-    public Reset() {
-        this.DisableBarrier();
-        this.ResetParticles();
-        this.EnableBarrier();
+    public reset() {
+        this.disableBarrier();
+        this.resetParticles();
+        this.enableBarrier();
     }
 
     /**
      * Move the divider / barrier.
      */
-    public MoveDivider(newPosition: number) {
-        this.m_position = Clamp(
+    public moveDivider(newPosition: number) {
+        this.m_position = clamp(
             newPosition,
             MaxwellTest.k_barrierMovementIncrement,
             MaxwellTest.k_containerHeight - MaxwellTest.k_barrierMovementIncrement,
         );
-        this.Reset();
+        this.reset();
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 250;
     }
 

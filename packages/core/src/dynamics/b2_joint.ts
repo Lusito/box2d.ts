@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// DEBUG: import { Assert } from "../common/b2_common";
+// DEBUG: import { assert } from "../common/b2_common";
 import { Draw, debugColors } from "../common/b2_draw";
 import { Vec2, XY } from "../common/b2_math";
 import type { Body } from "./b2_body";
@@ -119,15 +119,15 @@ export abstract class JointDef implements IJointDef {
 /**
  * Utility to compute linear stiffness values from frequency and damping ratio
  */
-export function LinearStiffness(
+export function linearStiffness(
     def: { stiffness: number; damping: number },
     frequencyHertz: number,
     dampingRatio: number,
     bodyA: Body,
     bodyB: Body,
 ): void {
-    const massA = bodyA.GetMass();
-    const massB = bodyB.GetMass();
+    const massA = bodyA.getMass();
+    const massB = bodyB.getMass();
     let mass: number;
     if (massA > 0 && massB > 0) {
         mass = (massA * massB) / (massA + massB);
@@ -145,15 +145,15 @@ export function LinearStiffness(
 /**
  * Utility to compute rotational stiffness values frequency and damping ratio
  */
-export function AngularStiffness(
+export function angularStiffness(
     def: { stiffness: number; damping: number },
     frequencyHertz: number,
     dampingRatio: number,
     bodyA: Body,
     bodyB: Body,
 ): void {
-    const IA = bodyA.GetInertia();
-    const IB = bodyB.GetInertia();
+    const IA = bodyA.getInertia();
+    const IB = bodyB.getInertia();
     let I: number;
     if (IA > 0 && IB > 0) {
         I = (IA * IB) / (IA + IB);
@@ -202,7 +202,7 @@ export abstract class Joint {
     protected m_userData: any = null;
 
     protected constructor(def: IJointDef) {
-        // DEBUG: Assert(def.bodyA !== def.bodyB);
+        // DEBUG: assert(def.bodyA !== def.bodyB);
 
         this.m_type = def.type;
         this.m_edgeA = new JointEdge(this, def.bodyB);
@@ -218,70 +218,70 @@ export abstract class Joint {
     /**
      * Get the type of the concrete joint.
      */
-    public GetType(): JointType {
+    public getType(): JointType {
         return this.m_type;
     }
 
     /**
      * Get the first body attached to this joint.
      */
-    public GetBodyA(): Body {
+    public getBodyA(): Body {
         return this.m_bodyA;
     }
 
     /**
      * Get the second body attached to this joint.
      */
-    public GetBodyB(): Body {
+    public getBodyB(): Body {
         return this.m_bodyB;
     }
 
     /**
      * Get the anchor point on bodyA in world coordinates.
      */
-    public abstract GetAnchorA<T extends XY>(out: T): T;
+    public abstract getAnchorA<T extends XY>(out: T): T;
 
     /**
      * Get the anchor point on bodyB in world coordinates.
      */
-    public abstract GetAnchorB<T extends XY>(out: T): T;
+    public abstract getAnchorB<T extends XY>(out: T): T;
 
     /**
      * Get the reaction force on bodyB at the joint anchor in Newtons.
      */
-    public abstract GetReactionForce<T extends XY>(inv_dt: number, out: T): T;
+    public abstract getReactionForce<T extends XY>(inv_dt: number, out: T): T;
 
     /**
      * Get the reaction torque on bodyB in N*m.
      */
-    public abstract GetReactionTorque(inv_dt: number): number;
+    public abstract getReactionTorque(inv_dt: number): number;
 
     /**
      * Get the next joint the world joint list.
      */
-    public GetNext(): Joint | null {
+    public getNext(): Joint | null {
         return this.m_next;
     }
 
     /**
      * Get the user data pointer.
      */
-    public GetUserData(): any {
+    public getUserData(): any {
         return this.m_userData;
     }
 
     /**
      * Set the user data pointer.
      */
-    public SetUserData(data: any): void {
+    public setUserData(data: any): void {
         this.m_userData = data;
     }
 
     /**
      * Short-cut function to determine if either body is inactive.
      */
-    public IsEnabled(): boolean {
-        return this.m_bodyA.IsEnabled() && this.m_bodyB.IsEnabled();
+    public isEnabled(): boolean {
+        return this.m_bodyA.isEnabled() && this.m_bodyB.isEnabled();
     }
 
     /**
@@ -289,35 +289,35 @@ export abstract class Joint {
      * Note: modifying the collide connect flag won't work correctly because
      * the flag is only checked when fixture AABBs begin to overlap.
      */
-    public GetCollideConnected(): boolean {
+    public getCollideConnected(): boolean {
         return this.m_collideConnected;
     }
 
     /**
      * Shift the origin for any points stored in world coordinates.
      */
-    public ShiftOrigin(_newOrigin: XY): void {}
+    public shiftOrigin(_newOrigin: XY): void {}
 
     /** @internal protected */
-    public abstract InitVelocityConstraints(data: SolverData): void;
+    public abstract initVelocityConstraints(data: SolverData): void;
 
     /** @internal protected */
-    public abstract SolveVelocityConstraints(data: SolverData): void;
+    public abstract solveVelocityConstraints(data: SolverData): void;
 
     /**
      * This returns true if the position errors are within tolerance.
      *
      * @internal protected
      */
-    public abstract SolvePositionConstraints(data: SolverData): boolean;
+    public abstract solvePositionConstraints(data: SolverData): boolean;
 
-    public Draw(draw: Draw): void {
-        const x1 = this.m_bodyA.GetTransform().p;
-        const x2 = this.m_bodyB.GetTransform().p;
-        const p1 = this.GetAnchorA(temp.pA);
-        const p2 = this.GetAnchorB(temp.pB);
-        draw.DrawSegment(x1, p1, debugColors.joint6);
-        draw.DrawSegment(p1, p2, debugColors.joint6);
-        draw.DrawSegment(x2, p2, debugColors.joint6);
+    public draw(draw: Draw): void {
+        const x1 = this.m_bodyA.getTransform().p;
+        const x2 = this.m_bodyB.getTransform().p;
+        const p1 = this.getAnchorA(temp.pA);
+        const p2 = this.getAnchorB(temp.pB);
+        draw.drawSegment(x1, p1, debugColors.joint6);
+        draw.drawSegment(p1, p2, debugColors.joint6);
+        draw.drawSegment(x2, p2, debugColors.joint6);
     }
 }

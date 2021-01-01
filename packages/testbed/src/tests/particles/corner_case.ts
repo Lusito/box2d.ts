@@ -27,7 +27,7 @@ class CornerCaseTest extends AbstractParticleTestWithControls {
         super(particleParameter);
 
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             // Construct a pathological corner intersection out of many
             // polygons to ensure there's no issue with particle oscillation
@@ -37,8 +37,8 @@ class CornerCaseTest extends AbstractParticleTestWithControls {
             {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(-20, 30), new Vec2(-20, 0), new Vec2(-25, 0), new Vec2(-25, 30)];
-                shape.Set(vertices);
-                ground.CreateFixture({ shape });
+                shape.set(vertices);
+                ground.createFixture({ shape });
             }
 
             const yrange = 30;
@@ -49,38 +49,38 @@ class CornerCaseTest extends AbstractParticleTestWithControls {
             {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(-25, 0), new Vec2(20, 15), new Vec2(25, 0)];
-                shape.Set(vertices);
-                ground.CreateFixture({ shape });
+                shape.set(vertices);
+                ground.createFixture({ shape });
             }
 
             for (let x = -xrange; x < xrange; x += xstep) {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(-25, 0), new Vec2(x, 15), new Vec2(x + xstep, 15)];
-                shape.Set(vertices);
-                ground.CreateFixture({ shape });
+                shape.set(vertices);
+                ground.createFixture({ shape });
             }
 
             for (let y = 0; y < yrange; y += ystep) {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(25, y), new Vec2(25, y + ystep), new Vec2(20, 15)];
-                shape.Set(vertices);
-                ground.CreateFixture({ shape });
+                shape.set(vertices);
+                ground.createFixture({ shape });
             }
         }
 
-        this.m_particleSystem.SetRadius(1);
-        const particleType = particleParameter.GetValue();
+        this.m_particleSystem.setRadius(1);
+        const particleType = particleParameter.getValue();
 
         {
             const shape = new CircleShape();
-            shape.m_p.Set(0, 35);
+            shape.m_p.set(0, 35);
             shape.m_radius = 12;
             const pd = new ParticleGroupDef();
             pd.flags = particleType;
             pd.shape = shape;
-            const group = this.m_particleSystem.CreateParticleGroup(pd);
+            const group = this.m_particleSystem.createParticleGroup(pd);
             if (pd.flags & ParticleFlag.ColorMixing) {
-                this.ColorParticleGroup(group, 0);
+                this.colorParticleGroup(group, 0);
             }
         }
     }

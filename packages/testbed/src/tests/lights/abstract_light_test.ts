@@ -84,12 +84,12 @@ export abstract class AbstractLightTest extends Test {
 
     public abstract setSoft(value: boolean): void;
 
-    public Resize(width: number, height: number) {
+    public resize(width: number, height: number) {
         this.rayHandler.resizeFBO(width / 4, height / 4);
     }
 
-    public Destroy() {
-        super.Destroy();
+    public destroy() {
+        super.destroy();
 
         this.rayHandler.dispose();
         Light.setGlobalContactFilter(null);
@@ -102,8 +102,8 @@ export abstract class AbstractLightTest extends Test {
         else this.rayHandler.diffuseBlendFunc.reset();
     }
 
-    public Step(settings: Settings, timeStep: number): number {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number): number {
+        super.step(settings, timeStep);
 
         this.clearGlCanvas();
         this.blendFunc.apply();
@@ -123,7 +123,7 @@ export abstract class AbstractLightTest extends Test {
         this.rayHandler.render();
 
         if (this.drawDebugLight) {
-            const drawPolygon = g_debugDraw.DrawPolygon.bind(g_debugDraw);
+            const drawPolygon = g_debugDraw.drawPolygon.bind(g_debugDraw);
             for (const light of this.rayHandler.lightList) light.debugRender(drawPolygon);
         }
     }

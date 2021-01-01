@@ -32,69 +32,69 @@ class WaveMachineTest extends AbstractParticleTestWithControls {
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter);
 
-        particleParameter.SetValues(baseParticleTypes, "water");
+        particleParameter.setValues(baseParticleTypes, "water");
 
-        const ground = this.m_world.CreateBody();
+        const ground = this.m_world.createBody();
 
         {
-            const body = this.m_world.CreateBody({
+            const body = this.m_world.createBody({
                 type: BodyType.Dynamic,
                 allowSleep: false,
                 position: { x: 0, y: 1 },
             });
 
             const shape = new PolygonShape();
-            shape.SetAsBox(0.05, 1, new Vec2(2, 0), 0);
-            body.CreateFixture({ shape, density: 5 });
-            shape.SetAsBox(0.05, 1, new Vec2(-2, 0), 0);
-            body.CreateFixture({ shape, density: 5 });
-            shape.SetAsBox(2, 0.05, new Vec2(0, 1), 0);
-            body.CreateFixture({ shape, density: 5 });
-            shape.SetAsBox(2, 0.05, new Vec2(0, -1), 0);
-            body.CreateFixture({ shape, density: 5 });
+            shape.setAsBox(0.05, 1, new Vec2(2, 0), 0);
+            body.createFixture({ shape, density: 5 });
+            shape.setAsBox(0.05, 1, new Vec2(-2, 0), 0);
+            body.createFixture({ shape, density: 5 });
+            shape.setAsBox(2, 0.05, new Vec2(0, 1), 0);
+            body.createFixture({ shape, density: 5 });
+            shape.setAsBox(2, 0.05, new Vec2(0, -1), 0);
+            body.createFixture({ shape, density: 5 });
 
             const jd = new RevoluteJointDef();
             jd.bodyA = ground;
             jd.bodyB = body;
-            jd.localAnchorA.Set(0, 1);
-            jd.localAnchorB.Set(0, 0);
+            jd.localAnchorA.set(0, 1);
+            jd.localAnchorB.set(0, 0);
             jd.referenceAngle = 0;
             jd.motorSpeed = 0.05 * Math.PI;
             jd.maxMotorTorque = 1e7;
             jd.enableMotor = true;
-            this.m_joint = this.m_world.CreateJoint(jd);
+            this.m_joint = this.m_world.createJoint(jd);
         }
 
-        this.m_particleSystem.SetRadius(0.025 * 2); // HACK: increase particle radius
-        const particleType = particleParameter.GetValue();
-        this.m_particleSystem.SetDamping(0.2);
+        this.m_particleSystem.setRadius(0.025 * 2); // HACK: increase particle radius
+        const particleType = particleParameter.getValue();
+        this.m_particleSystem.setDamping(0.2);
 
         {
             const pd = new ParticleGroupDef();
             pd.flags = particleType;
 
             const shape = new PolygonShape();
-            shape.SetAsBox(0.9, 0.9, new Vec2(0, 1), 0);
+            shape.setAsBox(0.9, 0.9, new Vec2(0, 1), 0);
 
             pd.shape = shape;
-            const group = this.m_particleSystem.CreateParticleGroup(pd);
+            const group = this.m_particleSystem.createParticleGroup(pd);
             if (pd.flags & ParticleFlag.ColorMixing) {
-                this.ColorParticleGroup(group, 0);
+                this.colorParticleGroup(group, 0);
             }
         }
 
         this.m_time = 0;
     }
 
-    public Step(settings: Settings, timeStep: number) {
-        super.Step(settings, timeStep);
+    public step(settings: Settings, timeStep: number) {
+        super.step(settings, timeStep);
         if (settings.m_hertz > 0) {
             this.m_time += 1 / settings.m_hertz;
         }
-        this.m_joint.SetMotorSpeed(0.05 * Math.cos(this.m_time) * Math.PI);
+        this.m_joint.setMotorSpeed(0.05 * Math.cos(this.m_time) * Math.PI);
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 250;
     }
 

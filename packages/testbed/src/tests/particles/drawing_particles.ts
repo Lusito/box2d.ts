@@ -56,62 +56,62 @@ class DrawingParticlesTest extends AbstractParticleTestWithControls {
         super(particleParameter);
 
         {
-            const ground = this.m_world.CreateBody();
+            const ground = this.m_world.createBody();
 
             {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(-4, -2), new Vec2(4, -2), new Vec2(4, 0), new Vec2(-4, 0)];
-                shape.Set(vertices, 4);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 4);
+                ground.createFixture({ shape });
             }
 
             {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(-4, -2), new Vec2(-2, -2), new Vec2(-2, 6), new Vec2(-4, 6)];
-                shape.Set(vertices, 4);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 4);
+                ground.createFixture({ shape });
             }
 
             {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(2, -2), new Vec2(4, -2), new Vec2(4, 6), new Vec2(2, 6)];
-                shape.Set(vertices, 4);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 4);
+                ground.createFixture({ shape });
             }
 
             {
                 const shape = new PolygonShape();
                 const vertices = [new Vec2(-4, 4), new Vec2(4, 4), new Vec2(4, 6), new Vec2(-4, 6)];
-                shape.Set(vertices, 4);
-                ground.CreateFixture({ shape });
+                shape.set(vertices, 4);
+                ground.createFixture({ shape });
             }
         }
 
         this.m_colorIndex = 0;
-        this.m_particleSystem.SetRadius(0.05 * 2);
+        this.m_particleSystem.setRadius(0.05 * 2);
         this.m_lastGroup = null;
 
-        particleParameter.SetValues(particleTypes, "water");
-        particleParameter.SetRestartOnChange(false);
+        particleParameter.setValues(particleTypes, "water");
+        particleParameter.setRestartOnChange(false);
     }
 
     public getGroupFlags() {
-        return groupFlagsByKey[this.particleParameter.GetSelectedKey()] ?? 0;
+        return groupFlagsByKey[this.particleParameter.getSelectedKey()] ?? 0;
     }
 
-    public MouseMove(p: Vec2, leftDrag: boolean) {
-        super.MouseMove(p, leftDrag);
+    public mouseMove(p: Vec2, leftDrag: boolean) {
+        super.mouseMove(p, leftDrag);
         if (leftDrag) {
-            const parameterValue = this.particleParameter.GetValue();
+            const parameterValue = this.particleParameter.getValue();
             const shape = new CircleShape();
-            shape.m_p.Copy(p);
+            shape.m_p.copy(p);
             shape.m_radius = 0.2;
 
-            this.m_particleSystem.DestroyParticlesInShape(shape, Transform.IDENTITY);
+            this.m_particleSystem.destroyParticlesInShape(shape, Transform.IDENTITY);
 
             const groupFlags = this.getGroupFlags();
 
-            const joinGroup = this.m_lastGroup && groupFlags === this.m_lastGroup.GetGroupFlags();
+            const joinGroup = this.m_lastGroup && groupFlags === this.m_lastGroup.getGroupFlags();
             if (!joinGroup) this.m_colorIndex = (this.m_colorIndex + 1) % particleColors.length;
 
             const pd = new ParticleGroupDef();
@@ -119,48 +119,48 @@ class DrawingParticlesTest extends AbstractParticleTestWithControls {
             pd.flags = parameterValue;
             if (parameterValue & reactiveParticleFlags) pd.flags |= ParticleFlag.Reactive;
             pd.groupFlags = groupFlags;
-            pd.color.Copy(particleColors[this.m_colorIndex]);
+            pd.color.copy(particleColors[this.m_colorIndex]);
             pd.group = this.m_lastGroup;
-            this.m_lastGroup = this.m_particleSystem.CreateParticleGroup(pd);
+            this.m_lastGroup = this.m_particleSystem.createParticleGroup(pd);
             this.m_mouseTracing = false;
         }
     }
 
-    public MouseUp(p: Vec2) {
-        super.MouseUp(p);
+    public mouseUp(p: Vec2) {
+        super.mouseUp(p);
         this.m_lastGroup = null;
     }
 
-    public ParticleGroupDestroyed(group: ParticleGroup) {
-        super.ParticleGroupDestroyed(group);
+    public particleGroupDestroyed(group: ParticleGroup) {
+        super.particleGroupDestroyed(group);
         if (group === this.m_lastGroup) {
             this.m_lastGroup = null;
         }
     }
 
-    public SplitParticleGroups() {
-        for (let group = this.m_particleSystem.GetParticleGroupList(); group; group = group.GetNext()) {
+    public splitParticleGroups() {
+        for (let group = this.m_particleSystem.getParticleGroupList(); group; group = group.getNext()) {
             if (
                 group !== this.m_lastGroup &&
-                group.GetGroupFlags() & ParticleGroupFlag.Rigid &&
-                group.GetAllParticleFlags() & ParticleFlag.Zombie
+                group.getGroupFlags() & ParticleGroupFlag.Rigid &&
+                group.getAllParticleFlags() & ParticleFlag.Zombie
             ) {
                 // Split a rigid particle group which may be disconnected
                 // by destroying particles.
-                this.m_particleSystem.SplitParticleGroup(group);
+                this.m_particleSystem.splitParticleGroup(group);
             }
         }
     }
 
-    public Step(settings: Settings, timeStep: number) {
-        if (this.m_particleSystem.GetAllParticleFlags() & ParticleFlag.Zombie) {
-            this.SplitParticleGroups();
+    public step(settings: Settings, timeStep: number) {
+        if (this.m_particleSystem.getAllParticleFlags() & ParticleFlag.Zombie) {
+            this.splitParticleGroups();
         }
 
-        super.Step(settings, timeStep);
+        super.step(settings, timeStep);
     }
 
-    public GetDefaultViewZoom() {
+    public getDefaultViewZoom() {
         return 250;
     }
 
