@@ -144,13 +144,13 @@ export function calculateParticleIterations(gravity: number, radius: number, tim
 }
 
 export class ParticleHandle {
-    public m_index = INVALID_PARTICLE_INDEX;
+    public index = INVALID_PARTICLE_INDEX;
 
     public getIndex(): number {
-        return this.m_index;
+        return this.index;
     }
 
     public setIndex(index: number): void {
-        this.m_index = index;
+        this.index = index;
     }
 }

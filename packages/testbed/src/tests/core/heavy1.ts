@@ -25,27 +25,27 @@ class Heavy1Test extends Test {
         super();
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.createFixture({ shape });
         }
 
-        let body = this.m_world.createBody({
+        let body = this.world.createBody({
             type: BodyType.Dynamic,
             position: { x: 0, y: 0.5 },
         });
 
         const shape = new CircleShape();
-        shape.m_radius = 0.5;
+        shape.radius = 0.5;
         body.createFixture({ shape, density: 10 });
 
-        body = this.m_world.createBody({
+        body = this.world.createBody({
             type: BodyType.Dynamic,
             position: { x: 0, y: 6 },
         });
-        shape.m_radius = 5;
+        shape.radius = 5;
         body.createFixture({ shape, density: 10 });
     }
 }

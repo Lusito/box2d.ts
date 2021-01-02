@@ -26,8 +26,8 @@ class AddPairTest extends Test {
 
         {
             const shape = new CircleShape();
-            shape.m_p.setZero();
-            shape.m_radius = 0.1;
+            shape.p.setZero();
+            shape.radius = 0.1;
 
             const minX = -6;
             const maxX = 0;
@@ -35,7 +35,7 @@ class AddPairTest extends Test {
             const maxY = 6;
 
             for (let i = 0; i < 400; ++i) {
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: {
                         x: randomFloat(minX, maxX),
@@ -49,7 +49,7 @@ class AddPairTest extends Test {
         {
             const shape = new PolygonShape();
             shape.setAsBox(1.5, 1.5);
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: {
                     x: -40,

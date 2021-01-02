@@ -60,57 +60,57 @@ import {
  */
 export class World {
     /** @internal */
-    public readonly m_contactManager = new ContactManager();
+    public readonly contactManager = new ContactManager();
 
-    private m_bodyList: Body | null = null;
+    private bodyList: Body | null = null;
 
-    private m_jointList: Joint | null = null;
+    private jointList: Joint | null = null;
 
-    private m_bodyCount = 0;
+    private bodyCount = 0;
 
-    private m_jointCount = 0;
+    private jointCount = 0;
 
-    private readonly m_gravity = new Vec2();
+    private readonly gravity = new Vec2();
 
-    private m_allowSleep = true;
+    private allowSleep = true;
 
-    private m_destructionListener: DestructionListener | null = null;
+    private destructionListener: DestructionListener | null = null;
 
     /**
      * This is used to compute the time step ratio to
      * support a variable time step.
      */
-    private m_inv_dt0 = 0;
+    private inv_dt0 = 0;
 
     /** @internal */
-    public m_newContacts = false;
+    public newContacts = false;
 
-    private m_locked = false;
+    private locked = false;
 
-    private m_clearForces = true;
+    private autoClearForces = true;
 
     // These are for debugging the solver.
-    private m_warmStarting = true;
+    private warmStarting = true;
 
-    private m_continuousPhysics = true;
+    private continuousPhysics = true;
 
-    private m_subStepping = false;
+    private subStepping = false;
 
-    private m_stepComplete = true;
+    private stepComplete = true;
 
-    private readonly m_profile = new Profile();
+    private readonly profile = new Profile();
 
-    private readonly m_island = new Island(
+    private readonly island = new Island(
         2 * MAX_TOI_CONTACTS,
         MAX_TOI_CONTACTS,
         0,
-        this.m_contactManager.m_contactListener,
+        this.contactManager.contactListener,
     );
 
     private readonly s_stack: Array<Body | null> = [];
 
     private constructor(gravity: XY) {
-        this.m_gravity.copy(gravity);
+        this.gravity.copy(gravity);
     }
 
     /**
@@ -127,14 +127,14 @@ export class World {
      * remain in scope.
      */
     public setDestructionListener(listener: DestructionListener | null): void {
-        this.m_destructionListener = listener;
+        this.destructionListener = listener;
     }
 
     /**
      * Get the current destruction listener
      */
     public getDestructionListener() {
-        return this.m_destructionListener;
+        return this.destructionListener;
     }
 
     /**
@@ -143,7 +143,7 @@ export class World {
      * owned by you and must remain in scope.
      */
     public setContactFilter(filter: ContactFilter): void {
-        this.m_contactManager.m_contactFilter = filter;
+        this.contactManager.contactFilter = filter;
     }
 
     /**
@@ -151,8 +151,8 @@ export class World {
      * remain in scope.
      */
     public setContactListener(listener: ContactListener): void {
-        this.m_contactManager.m_contactListener = listener;
-        this.m_island.m_listener = listener;
+        this.contactManager.contactListener = listener;
+        this.island.listener = listener;
     }
 
     /**
@@ -167,13 +167,13 @@ export class World {
         const b = new Body(def, this);
 
         // Add to world doubly linked list.
-        b.m_prev = null;
-        b.m_next = this.m_bodyList;
-        if (this.m_bodyList) {
-            this.m_bodyList.m_prev = b;
+        b.prev = null;
+        b.next = this.bodyList;
+        if (this.bodyList) {
+            this.bodyList.prev = b;
         }
-        this.m_bodyList = b;
-        ++this.m_bodyCount;
+        this.bodyList = b;
+        ++this.bodyCount;
 
         return b;
     }
@@ -186,63 +186,63 @@ export class World {
      * @warning This function is locked during callbacks.
      */
     public destroyBody(b: Body): void {
-        // DEBUG: assert(this.m_bodyCount > 0);
+        // DEBUG: assert(this.bodyCount > 0);
         assert(!this.isLocked());
 
         // Delete the attached joints.
-        let je = b.m_jointList;
+        let je = b.jointList;
         while (je) {
             const je0 = je;
             je = je.next;
 
-            this.m_destructionListener?.sayGoodbyeJoint(je0.joint);
+            this.destructionListener?.sayGoodbyeJoint(je0.joint);
 
             this.destroyJoint(je0.joint);
 
-            b.m_jointList = je;
+            b.jointList = je;
         }
-        b.m_jointList = null;
+        b.jointList = null;
 
         // Delete the attached contacts.
-        let ce = b.m_contactList;
+        let ce = b.contactList;
         while (ce) {
             const ce0 = ce;
             ce = ce.next;
-            this.m_contactManager.destroy(ce0.contact);
+            this.contactManager.destroy(ce0.contact);
         }
-        b.m_contactList = null;
+        b.contactList = null;
 
         // Delete the attached fixtures. This destroys broad-phase proxies.
-        const broadPhase = this.m_contactManager.m_broadPhase;
-        let f = b.m_fixtureList;
+        const { broadPhase } = this.contactManager;
+        let f = b.fixtureList;
         while (f) {
             const f0 = f;
-            f = f.m_next;
+            f = f.next;
 
-            this.m_destructionListener?.sayGoodbyeFixture(f0);
+            this.destructionListener?.sayGoodbyeFixture(f0);
 
             f0.destroyProxies(broadPhase);
 
-            b.m_fixtureList = f;
-            b.m_fixtureCount -= 1;
+            b.fixtureList = f;
+            b.fixtureCount -= 1;
         }
-        b.m_fixtureList = null;
-        b.m_fixtureCount = 0;
+        b.fixtureList = null;
+        b.fixtureCount = 0;
 
         // Remove world body list.
-        if (b.m_prev) {
-            b.m_prev.m_next = b.m_next;
+        if (b.prev) {
+            b.prev.next = b.next;
         }
 
-        if (b.m_next) {
-            b.m_next.m_prev = b.m_prev;
+        if (b.next) {
+            b.next.prev = b.prev;
         }
 
-        if (b === this.m_bodyList) {
-            this.m_bodyList = b.m_next;
+        if (b === this.bodyList) {
+            this.bodyList = b.next;
         }
 
-        --this.m_bodyCount;
+        --this.bodyCount;
     }
 
     private static joint_Create(def: IJointDef): Joint {
@@ -307,27 +307,26 @@ export class World {
         const j = World.joint_Create(def);
 
         // Connect to the world list.
-        j.m_prev = null;
-        j.m_next = this.m_jointList;
-        if (this.m_jointList) {
-            this.m_jointList.m_prev = j;
+        j.prev = null;
+        j.next = this.jointList;
+        if (this.jointList) {
+            this.jointList.prev = j;
         }
-        this.m_jointList = j;
-        ++this.m_jointCount;
+        this.jointList = j;
+        ++this.jointCount;
 
         // Connect to the bodies' doubly linked lists.
-        j.m_edgeA.prev = null;
-        j.m_edgeA.next = j.m_bodyA.m_jointList;
-        if (j.m_bodyA.m_jointList) j.m_bodyA.m_jointList.prev = j.m_edgeA;
-        j.m_bodyA.m_jointList = j.m_edgeA;
+        j.edgeA.prev = null;
+        j.edgeA.next = j.bodyA.jointList;
+        if (j.bodyA.jointList) j.bodyA.jointList.prev = j.edgeA;
+        j.bodyA.jointList = j.edgeA;
 
-        j.m_edgeB.prev = null;
-        j.m_edgeB.next = j.m_bodyB.m_jointList;
-        if (j.m_bodyB.m_jointList) j.m_bodyB.m_jointList.prev = j.m_edgeB;
-        j.m_bodyB.m_jointList = j.m_edgeB;
+        j.edgeB.prev = null;
+        j.edgeB.next = j.bodyB.jointList;
+        if (j.bodyB.jointList) j.bodyB.jointList.prev = j.edgeB;
+        j.bodyB.jointList = j.edgeB;
 
-        const bodyA = j.m_bodyA;
-        const bodyB = j.m_bodyB;
+        const { bodyA, bodyB } = j;
 
         // If the joint prevents collisions, then flag any contacts for filtering.
         if (!def.collideConnected) {
@@ -357,61 +356,59 @@ export class World {
         assert(!this.isLocked());
 
         // Remove from the doubly linked list.
-        if (j.m_prev) {
-            j.m_prev.m_next = j.m_next;
+        if (j.prev) {
+            j.prev.next = j.next;
         }
 
-        if (j.m_next) {
-            j.m_next.m_prev = j.m_prev;
+        if (j.next) {
+            j.next.prev = j.prev;
         }
 
-        if (j === this.m_jointList) {
-            this.m_jointList = j.m_next;
+        if (j === this.jointList) {
+            this.jointList = j.next;
         }
 
         // Disconnect from island graph.
-        const bodyA = j.m_bodyA;
-        const bodyB = j.m_bodyB;
-        const collideConnected = j.m_collideConnected;
+        const { bodyA, bodyB, collideConnected } = j;
 
         // Wake up connected bodies.
         bodyA.setAwake(true);
         bodyB.setAwake(true);
 
         // Remove from body 1.
-        if (j.m_edgeA.prev) {
-            j.m_edgeA.prev.next = j.m_edgeA.next;
+        if (j.edgeA.prev) {
+            j.edgeA.prev.next = j.edgeA.next;
         }
 
-        if (j.m_edgeA.next) {
-            j.m_edgeA.next.prev = j.m_edgeA.prev;
+        if (j.edgeA.next) {
+            j.edgeA.next.prev = j.edgeA.prev;
         }
 
-        if (j.m_edgeA === bodyA.m_jointList) {
-            bodyA.m_jointList = j.m_edgeA.next;
+        if (j.edgeA === bodyA.jointList) {
+            bodyA.jointList = j.edgeA.next;
         }
 
-        j.m_edgeA.prev = null;
-        j.m_edgeA.next = null;
+        j.edgeA.prev = null;
+        j.edgeA.next = null;
 
         // Remove from body 2
-        if (j.m_edgeB.prev) {
-            j.m_edgeB.prev.next = j.m_edgeB.next;
+        if (j.edgeB.prev) {
+            j.edgeB.prev.next = j.edgeB.next;
         }
 
-        if (j.m_edgeB.next) {
-            j.m_edgeB.next.prev = j.m_edgeB.prev;
+        if (j.edgeB.next) {
+            j.edgeB.next.prev = j.edgeB.prev;
         }
 
-        if (j.m_edgeB === bodyB.m_jointList) {
-            bodyB.m_jointList = j.m_edgeB.next;
+        if (j.edgeB === bodyB.jointList) {
+            bodyB.jointList = j.edgeB.next;
         }
 
-        j.m_edgeB.prev = null;
-        j.m_edgeB.next = null;
+        j.edgeB.prev = null;
+        j.edgeB.next = null;
 
-        // DEBUG: assert(this.m_jointCount > 0);
-        --this.m_jointCount;
+        // DEBUG: assert(this.jointCount > 0);
+        --this.jointCount;
 
         // If the joint prevents collisions, then flag any contacts for filtering.
         if (!collideConnected) {
@@ -446,12 +443,12 @@ export class World {
         const stepTimer = World.Step_s_stepTimer.reset();
 
         // If new fixtures were added, we need to find the new contacts.
-        if (this.m_newContacts) {
-            this.m_contactManager.findNewContacts();
-            this.m_newContacts = false;
+        if (this.newContacts) {
+            this.contactManager.findNewContacts();
+            this.newContacts = false;
         }
 
-        this.m_locked = true;
+        this.locked = true;
 
         const step = World.Step_s_step;
         step.dt = dt;
@@ -464,42 +461,42 @@ export class World {
             step.inv_dt = 0;
         }
 
-        step.dtRatio = this.m_inv_dt0 * dt;
+        step.dtRatio = this.inv_dt0 * dt;
 
-        step.warmStarting = this.m_warmStarting;
+        step.warmStarting = this.warmStarting;
 
         // Update contacts. This is where some contacts are destroyed.
         {
             const timer = World.Step_s_timer.reset();
-            this.m_contactManager.collide();
-            this.m_profile.collide = timer.getMilliseconds();
+            this.contactManager.collide();
+            this.profile.collide = timer.getMilliseconds();
         }
 
         // Integrate velocities, solve velocity constraints, and integrate positions.
-        if (this.m_stepComplete && step.dt > 0) {
+        if (this.stepComplete && step.dt > 0) {
             const timer = World.Step_s_timer.reset();
             this.solve(step);
-            this.m_profile.solve = timer.getMilliseconds();
+            this.profile.solve = timer.getMilliseconds();
         }
 
         // Handle TOI events.
-        if (this.m_continuousPhysics && step.dt > 0) {
+        if (this.continuousPhysics && step.dt > 0) {
             const timer = World.Step_s_timer.reset();
             this.solveTOI(step);
-            this.m_profile.solveTOI = timer.getMilliseconds();
+            this.profile.solveTOI = timer.getMilliseconds();
         }
 
         if (step.dt > 0) {
-            this.m_inv_dt0 = step.inv_dt;
+            this.inv_dt0 = step.inv_dt;
         }
 
-        if (this.m_clearForces) {
+        if (this.autoClearForces) {
             this.clearForces();
         }
 
-        this.m_locked = false;
+        this.locked = false;
 
-        this.m_profile.step = stepTimer.getMilliseconds();
+        this.profile.step = stepTimer.getMilliseconds();
     }
 
     /**
@@ -513,9 +510,9 @@ export class World {
      * @see SetAutoClearForces
      */
     public clearForces(): void {
-        for (let body = this.m_bodyList; body; body = body.getNext()) {
-            body.m_force.setZero();
-            body.m_torque = 0;
+        for (let body = this.bodyList; body; body = body.getNext()) {
+            body.force.setZero();
+            body.torque = 0;
         }
     }
 
@@ -527,7 +524,7 @@ export class World {
      * @param callback A user implemented callback class or function.
      */
     public queryAABB(aabb: AABB, callback: QueryCallback): void {
-        this.m_contactManager.m_broadPhase.query(aabb, (proxy) => {
+        this.contactManager.broadPhase.query(aabb, (proxy) => {
             const fixture_proxy = verify(proxy.userData);
             // DEBUG: assert(fixture_proxy instanceof FixtureProxy);
             return callback(fixture_proxy.fixture);
@@ -550,7 +547,7 @@ export class World {
      * @param callback A user implemented callback class or function.
      */
     public queryPointAABB(point: XY, callback: QueryCallback): void {
-        this.m_contactManager.m_broadPhase.queryPoint(point, (proxy) => {
+        this.contactManager.broadPhase.queryPoint(point, (proxy) => {
             const fixture_proxy = verify(proxy.userData);
             // DEBUG: assert(fixture_proxy instanceof FixtureProxy);
             return callback(fixture_proxy.fixture);
@@ -570,7 +567,7 @@ export class World {
     public queryFixtureShape(shape: Shape, index: number, transform: Transform, callback: QueryCallback): void {
         const aabb = World.QueryFixtureShape_s_aabb;
         shape.computeAABB(aabb, transform, index);
-        this.m_contactManager.m_broadPhase.query(aabb, (proxy) => {
+        this.contactManager.broadPhase.query(aabb, (proxy) => {
             const fixture_proxy = verify(proxy.userData);
             // DEBUG: assert(fixture_proxy instanceof FixtureProxy);
             const { fixture } = fixture_proxy;
@@ -595,7 +592,7 @@ export class World {
     }
 
     public queryFixturePoint(point: XY, callback: QueryCallback): void {
-        this.m_contactManager.m_broadPhase.queryPoint(point, (proxy) => {
+        this.contactManager.broadPhase.queryPoint(point, (proxy) => {
             const fixture_proxy = verify(proxy.userData);
             // DEBUG: assert(fixture_proxy instanceof FixtureProxy);
             const { fixture } = fixture_proxy;
@@ -632,7 +629,7 @@ export class World {
         input.maxFraction = 1;
         input.p1.copy(point1);
         input.p2.copy(point2);
-        this.m_contactManager.m_broadPhase.rayCast(input, (input2, proxy) => {
+        this.contactManager.broadPhase.rayCast(input, (input2, proxy) => {
             const fixture_proxy = verify(proxy.userData);
             // DEBUG: assert(fixture_proxy instanceof FixtureProxy);
             const { fixture } = fixture_proxy;
@@ -680,7 +677,7 @@ export class World {
      * @returns The head of the world body list.
      */
     public getBodyList(): Body | null {
-        return this.m_bodyList;
+        return this.bodyList;
     }
 
     /**
@@ -690,7 +687,7 @@ export class World {
      * @returns The head of the world joint list.
      */
     public getJointList(): Joint | null {
-        return this.m_jointList;
+        return this.jointList;
     }
 
     /**
@@ -702,102 +699,102 @@ export class World {
      * Use ContactListener to avoid missing contacts.
      */
     public getContactList(): Contact | null {
-        return this.m_contactManager.m_contactList;
+        return this.contactManager.contactList;
     }
 
     /**
      * Enable/disable sleep.
      */
     public setAllowSleeping(flag: boolean): void {
-        if (flag === this.m_allowSleep) {
+        if (flag === this.allowSleep) {
             return;
         }
 
-        this.m_allowSleep = flag;
-        if (!this.m_allowSleep) {
-            for (let b = this.m_bodyList; b; b = b.m_next) {
+        this.allowSleep = flag;
+        if (!this.allowSleep) {
+            for (let b = this.bodyList; b; b = b.next) {
                 b.setAwake(true);
             }
         }
     }
 
     public getAllowSleeping(): boolean {
-        return this.m_allowSleep;
+        return this.allowSleep;
     }
 
     /**
      * Enable/disable warm starting. For testing.
      */
     public setWarmStarting(flag: boolean): void {
-        this.m_warmStarting = flag;
+        this.warmStarting = flag;
     }
 
     public getWarmStarting(): boolean {
-        return this.m_warmStarting;
+        return this.warmStarting;
     }
 
     /**
      * Enable/disable continuous physics. For testing.
      */
     public setContinuousPhysics(flag: boolean): void {
-        this.m_continuousPhysics = flag;
+        this.continuousPhysics = flag;
     }
 
     public getContinuousPhysics(): boolean {
-        return this.m_continuousPhysics;
+        return this.continuousPhysics;
     }
 
     /**
      * Enable/disable single stepped continuous physics. For testing.
      */
     public setSubStepping(flag: boolean): void {
-        this.m_subStepping = flag;
+        this.subStepping = flag;
     }
 
     public getSubStepping(): boolean {
-        return this.m_subStepping;
+        return this.subStepping;
     }
 
     /**
      * Get the number of broad-phase proxies.
      */
     public getProxyCount(): number {
-        return this.m_contactManager.m_broadPhase.getProxyCount();
+        return this.contactManager.broadPhase.getProxyCount();
     }
 
     /**
      * Get the number of bodies.
      */
     public getBodyCount(): number {
-        return this.m_bodyCount;
+        return this.bodyCount;
     }
 
     /**
      * Get the number of joints.
      */
     public getJointCount(): number {
-        return this.m_jointCount;
+        return this.jointCount;
     }
 
     /**
      * Get the number of contacts (each may have 0 or more contact points).
      */
     public getContactCount(): number {
-        return this.m_contactManager.m_contactCount;
+        return this.contactManager.contactCount;
     }
 
     /**
      * Get the height of the dynamic tree.
      */
     public getTreeHeight(): number {
-        return this.m_contactManager.m_broadPhase.getTreeHeight();
+        return this.contactManager.broadPhase.getTreeHeight();
     }
 
     /**
      * Get the balance of the dynamic tree.
      */
     public getTreeBalance(): number {
-        return this.m_contactManager.m_broadPhase.getTreeBalance();
+        return this.contactManager.broadPhase.getTreeBalance();
     }
 
     /**
@@ -805,42 +802,42 @@ export class World {
      * The minimum is 1.
      */
     public getTreeQuality(): number {
-        return this.m_contactManager.m_broadPhase.getTreeQuality();
+        return this.contactManager.broadPhase.getTreeQuality();
     }
 
     /**
      * Change the global gravity vector.
      */
     public setGravity(gravity: XY) {
-        this.m_gravity.copy(gravity);
+        this.gravity.copy(gravity);
     }
 
     /**
      * Get the global gravity vector.
      */
     public getGravity(): Readonly<Vec2> {
-        return this.m_gravity;
+        return this.gravity;
     }
 
     /**
      * Is the world locked (in the middle of a time step).
      */
     public isLocked(): boolean {
-        return this.m_locked;
+        return this.locked;
     }
 
     /**
      * Set flag to control automatic clearing of forces after each time step.
      */
     public setAutoClearForces(flag: boolean): void {
-        this.m_clearForces = flag;
+        this.autoClearForces = flag;
     }
 
     /**
      * Get the flag that controls automatic clearing of forces after each time step.
      */
     public getAutoClearForces(): boolean {
-        return this.m_clearForces;
+        return this.autoClearForces;
     }
 
     /**
@@ -852,59 +849,59 @@ export class World {
     public shiftOrigin(newOrigin: XY): void {
         assert(!this.isLocked());
 
-        for (let b = this.m_bodyList; b; b = b.m_next) {
-            b.m_xf.p.subtract(newOrigin);
-            b.m_sweep.c0.subtract(newOrigin);
-            b.m_sweep.c.subtract(newOrigin);
+        for (let b = this.bodyList; b; b = b.next) {
+            b.xf.p.subtract(newOrigin);
+            b.sweep.c0.subtract(newOrigin);
+            b.sweep.c.subtract(newOrigin);
         }
 
-        for (let j = this.m_jointList; j; j = j.m_next) {
+        for (let j = this.jointList; j; j = j.next) {
             j.shiftOrigin(newOrigin);
         }
 
-        this.m_contactManager.m_broadPhase.shiftOrigin(newOrigin);
+        this.contactManager.broadPhase.shiftOrigin(newOrigin);
     }
 
     /**
      * Get the contact manager for testing.
      */
     public getContactManager(): ContactManager {
-        return this.m_contactManager;
+        return this.contactManager;
     }
 
     /**
      * Get the current profile.
      */
     public getProfile(): Profile {
-        return this.m_profile;
+        return this.profile;
     }
 
     private solve(step: TimeStep): void {
-        this.m_profile.solveInit = 0;
-        this.m_profile.solveVelocity = 0;
-        this.m_profile.solvePosition = 0;
+        this.profile.solveInit = 0;
+        this.profile.solveVelocity = 0;
+        this.profile.solvePosition = 0;
 
         // Size the island for the worst case.
-        const island = this.m_island;
-        island.resize(this.m_bodyCount);
+        const { island } = this;
+        island.resize(this.bodyCount);
         island.clear();
 
         // Clear all the island flags.
-        for (let b = this.m_bodyList; b; b = b.m_next) {
-            b.m_islandFlag = false;
+        for (let b = this.bodyList; b; b = b.next) {
+            b.islandFlag = false;
         }
-        for (let c = this.m_contactManager.m_contactList; c; c = c.m_next) {
-            c.m_islandFlag = false;
+        for (let c = this.contactManager.contactList; c; c = c.next) {
+            c.islandFlag = false;
         }
-        for (let j = this.m_jointList; j; j = j.m_next) {
-            j.m_islandFlag = false;
+        for (let j = this.jointList; j; j = j.next) {
+            j.islandFlag = false;
         }
 
         // Build and simulate all awake islands.
-        // DEBUG: const stackSize = this.m_bodyCount;
+        // DEBUG: const stackSize = this.bodyCount;
         const stack = this.s_stack;
-        for (let seed = this.m_bodyList; seed; seed = seed.m_next) {
-            if (seed.m_islandFlag) {
+        for (let seed = this.bodyList; seed; seed = seed.next) {
+            if (seed.islandFlag) {
                 continue;
             }
 
@@ -921,7 +918,7 @@ export class World {
             island.clear();
             let stackCount = 0;
             stack[stackCount++] = seed;
-            seed.m_islandFlag = true;
+            seed.islandFlag = true;
 
             // Perform a depth first search (DFS) on the constraint graph.
             while (stackCount > 0) {
@@ -938,14 +935,14 @@ export class World {
                 }
 
                 // Make sure the body is awake (without resetting sleep timer).
-                b.m_awakeFlag = true;
+                b.awakeFlag = true;
 
                 // Search all contacts connected to this body.
-                for (let ce = b.m_contactList; ce; ce = ce.next) {
+                for (let ce = b.contactList; ce; ce = ce.next) {
                     const { contact } = ce;
 
                     // Has this contact already been added to an island?
-                    if (contact.m_islandFlag) {
+                    if (contact.islandFlag) {
                         continue;
                     }
 
@@ -955,30 +952,30 @@ export class World {
                     }
 
                     // Skip sensors.
-                    const sensorA = contact.m_fixtureA.m_isSensor;
-                    const sensorB = contact.m_fixtureB.m_isSensor;
+                    const sensorA = contact.fixtureA.m_isSensor;
+                    const sensorB = contact.fixtureB.m_isSensor;
                     if (sensorA || sensorB) {
                         continue;
                     }
 
                     island.addContact(contact);
-                    contact.m_islandFlag = true;
+                    contact.islandFlag = true;
 
                     const { other } = ce;
 
                     // Was the other body already added to this island?
-                    if (other.m_islandFlag) {
+                    if (other.islandFlag) {
                         continue;
                     }
 
                     // DEBUG: assert(stackCount < stackSize);
                     stack[stackCount++] = other;
-                    other.m_islandFlag = true;
+                    other.islandFlag = true;
                 }
 
                 // Search all joints connect to this body.
-                for (let je = b.m_jointList; je; je = je.next) {
-                    if (je.joint.m_islandFlag) {
+                for (let je = b.jointList; je; je = je.next) {
+                    if (je.joint.islandFlag) {
                         continue;
                     }
 
@@ -990,30 +987,30 @@ export class World {
                     }
 
                     island.addJoint(je.joint);
-                    je.joint.m_islandFlag = true;
+                    je.joint.islandFlag = true;
 
-                    if (other.m_islandFlag) {
+                    if (other.islandFlag) {
                         continue;
                     }
 
                     // DEBUG: assert(stackCount < stackSize);
                     stack[stackCount++] = other;
-                    other.m_islandFlag = true;
+                    other.islandFlag = true;
                 }
             }
 
             const profile = new Profile();
-            island.solve(profile, step, this.m_gravity, this.m_allowSleep);
-            this.m_profile.solveInit += profile.solveInit;
-            this.m_profile.solveVelocity += profile.solveVelocity;
-            this.m_profile.solvePosition += profile.solvePosition;
+            island.solve(profile, step, this.gravity, this.allowSleep);
+            this.profile.solveInit += profile.solveInit;
+            this.profile.solveVelocity += profile.solveVelocity;
+            this.profile.solvePosition += profile.solvePosition;
 
             // Post solve cleanup.
-            for (let i = 0; i < island.m_bodyCount; ++i) {
+            for (let i = 0; i < island.bodyCount; ++i) {
                 // Allow static bodies to participate in other islands.
-                const b = island.m_bodies[i];
+                const b = island.bodies[i];
                 if (b.getType() === BodyType.Static) {
-                    b.m_islandFlag = false;
+                    b.islandFlag = false;
                 }
             }
         }
@@ -1028,9 +1025,9 @@ export class World {
         const timer = new Timer();
 
         // Synchronize fixtures, check for out of range bodies.
-        for (let b = this.m_bodyList; b; b = b.m_next) {
+        for (let b = this.bodyList; b; b = b.next) {
             // If a body was not in an island then it did not move.
-            if (!b.m_islandFlag) {
+            if (!b.islandFlag) {
                 continue;
             }
 
@@ -1043,8 +1040,8 @@ export class World {
         }
 
         // Look for new contacts.
-        this.m_contactManager.findNewContacts();
-        this.m_profile.broadphase = timer.getMilliseconds();
+        this.contactManager.findNewContacts();
+        this.profile.broadphase = timer.getMilliseconds();
     }
 
     private static SolveTOI_s_subStep = TimeStep.create();
@@ -1061,21 +1058,21 @@ export class World {
 
     /** @internal */
     public solveTOI(step: TimeStep): void {
-        const island = this.m_island;
+        const { island } = this;
         island.clear();
 
-        if (this.m_stepComplete) {
-            for (let b = this.m_bodyList; b; b = b.m_next) {
-                b.m_islandFlag = false;
-                b.m_sweep.alpha0 = 0;
+        if (this.stepComplete) {
+            for (let b = this.bodyList; b; b = b.next) {
+                b.islandFlag = false;
+                b.sweep.alpha0 = 0;
             }
 
-            for (let c = this.m_contactManager.m_contactList; c; c = c.m_next) {
+            for (let c = this.contactManager.contactList; c; c = c.next) {
                 // Invalidate TOI
-                c.m_toiFlag = false;
-                c.m_islandFlag = false;
-                c.m_toiCount = 0;
-                c.m_toi = 1;
+                c.toiFlag = false;
+                c.islandFlag = false;
+                c.toiCount = 0;
+                c.toi = 1;
             }
         }
 
@@ -1085,21 +1082,21 @@ export class World {
             let minContact = null;
             let minAlpha = 1;
 
-            for (let c = this.m_contactManager.m_contactList; c; c = c.m_next) {
+            for (let c = this.contactManager.contactList; c; c = c.next) {
                 // Is this contact disabled?
                 if (!c.isEnabled()) {
                     continue;
                 }
 
                 // Prevent excessive sub-stepping.
-                if (c.m_toiCount > MAX_SUB_STEPS) {
+                if (c.toiCount > MAX_SUB_STEPS) {
                     continue;
                 }
 
                 let alpha = 1;
-                if (c.m_toiFlag) {
+                if (c.toiFlag) {
                     // This contact has a valid cached TOI.
-                    alpha = c.m_toi;
+                    alpha = c.toi;
                 } else {
                     const fA = c.getFixtureA();
                     const fB = c.getFixtureB();
@@ -1112,8 +1109,8 @@ export class World {
                     const bA = fA.getBody();
                     const bB = fB.getBody();
 
-                    const typeA = bA.m_type;
-                    const typeB = bB.m_type;
+                    const typeA = bA.type;
+                    const typeB = bB.type;
                     // DEBUG: assert(typeA === BodyType.Dynamic || typeB === BodyType.Dynamic);
 
                     const activeA = bA.isAwake() && typeA !== BodyType.Static;
@@ -1134,14 +1131,14 @@ export class World {
 
                     // Compute the TOI for this contact.
                     // Put the sweeps onto the same time interval.
-                    let { alpha0 } = bA.m_sweep;
+                    let { alpha0 } = bA.sweep;
 
-                    if (bA.m_sweep.alpha0 < bB.m_sweep.alpha0) {
-                        alpha0 = bB.m_sweep.alpha0;
-                        bA.m_sweep.advance(alpha0);
-                    } else if (bB.m_sweep.alpha0 < bA.m_sweep.alpha0) {
-                        alpha0 = bA.m_sweep.alpha0;
-                        bB.m_sweep.advance(alpha0);
+                    if (bA.sweep.alpha0 < bB.sweep.alpha0) {
+                        alpha0 = bB.sweep.alpha0;
+                        bA.sweep.advance(alpha0);
+                    } else if (bB.sweep.alpha0 < bA.sweep.alpha0) {
+                        alpha0 = bA.sweep.alpha0;
+                        bB.sweep.advance(alpha0);
                     }
 
                     // DEBUG: assert(alpha0 < 1);
@@ -1153,8 +1150,8 @@ export class World {
                     const input = World.SolveTOI_s_toi_input;
                     input.proxyA.setShape(fA.getShape(), indexA);
                     input.proxyB.setShape(fB.getShape(), indexB);
-                    input.sweepA.copy(bA.m_sweep);
-                    input.sweepB.copy(bB.m_sweep);
+                    input.sweepA.copy(bA.sweep);
+                    input.sweepB.copy(bB.sweep);
                     input.tMax = 1;
 
                     const output = World.SolveTOI_s_toi_output;
@@ -1168,8 +1165,8 @@ export class World {
                         alpha = 1;
                     }
 
-                    c.m_toi = alpha;
-                    c.m_toiFlag = true;
+                    c.toi = alpha;
+                    c.toiFlag = true;
                 }
 
                 if (alpha < minAlpha) {
@@ -1181,7 +1178,7 @@ export class World {
 
             if (minContact === null || 1 - 10 * EPSILON < minAlpha) {
                 // No more TOI events. Done!
-                this.m_stepComplete = true;
+                this.stepComplete = true;
                 break;
             }
 
@@ -1191,23 +1188,23 @@ export class World {
             const bA = fA.getBody();
             const bB = fB.getBody();
 
-            const backup1 = World.SolveTOI_s_backup1.copy(bA.m_sweep);
-            const backup2 = World.SolveTOI_s_backup2.copy(bB.m_sweep);
+            const backup1 = World.SolveTOI_s_backup1.copy(bA.sweep);
+            const backup2 = World.SolveTOI_s_backup2.copy(bB.sweep);
 
             bA.advance(minAlpha);
             bB.advance(minAlpha);
 
             // The TOI contact likely has some new contact points.
-            minContact.update(this.m_contactManager.m_contactListener);
-            minContact.m_toiFlag = false;
-            ++minContact.m_toiCount;
+            minContact.update(this.contactManager.contactListener);
+            minContact.toiFlag = false;
+            ++minContact.toiCount;
 
             // Is the contact solid?
             if (!minContact.isEnabled() || !minContact.isTouching()) {
                 // Restore the sweeps.
                 minContact.setEnabled(false);
-                bA.m_sweep.copy(backup1);
-                bB.m_sweep.copy(backup2);
+                bA.sweep.copy(backup1);
+                bB.sweep.copy(backup2);
                 bA.synchronizeTransform();
                 bB.synchronizeTransform();
                 continue;
@@ -1222,79 +1219,79 @@ export class World {
             island.addBody(bB);
             island.addContact(minContact);
 
-            bA.m_islandFlag = true;
-            bB.m_islandFlag = true;
-            minContact.m_islandFlag = true;
+            bA.islandFlag = true;
+            bB.islandFlag = true;
+            minContact.islandFlag = true;
 
             // Get contacts on bodyA and bodyB.
             for (let i = 0; i < 2; ++i) {
                 const body = i === 0 ? bA : bB;
-                if (body.m_type === BodyType.Dynamic) {
-                    for (let ce = body.m_contactList; ce; ce = ce.next) {
-                        if (island.m_bodyCount === island.m_bodyCapacity) {
+                if (body.type === BodyType.Dynamic) {
+                    for (let ce = body.contactList; ce; ce = ce.next) {
+                        if (island.bodyCount === island.bodyCapacity) {
                             break;
                         }
 
-                        if (island.m_contactCount === MAX_TOI_CONTACTS) {
+                        if (island.contactCount === MAX_TOI_CONTACTS) {
                             break;
                         }
 
                         const { contact } = ce;
 
                         // Has this contact already been added to the island?
-                        if (contact.m_islandFlag) {
+                        if (contact.islandFlag) {
                             continue;
                         }
 
                         // Only add static, kinematic, or bullet bodies.
                         const { other } = ce;
-                        if (other.m_type === BodyType.Dynamic && !body.isBullet() && !other.isBullet()) {
+                        if (other.type === BodyType.Dynamic && !body.isBullet() && !other.isBullet()) {
                             continue;
                         }
 
                         // Skip sensors.
-                        const sensorA = contact.m_fixtureA.m_isSensor;
-                        const sensorB = contact.m_fixtureB.m_isSensor;
+                        const sensorA = contact.fixtureA.m_isSensor;
+                        const sensorB = contact.fixtureB.m_isSensor;
                         if (sensorA || sensorB) {
                             continue;
                         }
 
                         // Tentatively advance the body to the TOI.
-                        const backup = World.SolveTOI_s_backup.copy(other.m_sweep);
-                        if (!other.m_islandFlag) {
+                        const backup = World.SolveTOI_s_backup.copy(other.sweep);
+                        if (!other.islandFlag) {
                             other.advance(minAlpha);
                         }
 
                         // Update the contact points
-                        contact.update(this.m_contactManager.m_contactListener);
+                        contact.update(this.contactManager.contactListener);
 
                         // Was the contact disabled by the user?
                         if (!contact.isEnabled()) {
-                            other.m_sweep.copy(backup);
+                            other.sweep.copy(backup);
                             other.synchronizeTransform();
                             continue;
                         }
 
                         // Are there contact points?
                         if (!contact.isTouching()) {
-                            other.m_sweep.copy(backup);
+                            other.sweep.copy(backup);
                             other.synchronizeTransform();
                             continue;
                         }
 
                         // Add the contact to the island
-                        contact.m_islandFlag = true;
+                        contact.islandFlag = true;
                         island.addContact(contact);
 
                         // Has the other body already been added to the island?
-                        if (other.m_islandFlag) {
+                        if (other.islandFlag) {
                             continue;
                         }
 
                         // Add the other body to the island.
-                        other.m_islandFlag = true;
+                        other.islandFlag = true;
 
-                        if (other.m_type !== BodyType.Static) {
+                        if (other.type !== BodyType.Static) {
                             other.setAwake(true);
                         }
 
@@ -1312,32 +1309,32 @@ export class World {
                 positionIterations: 20,
             };
             subStep.warmStarting = false;
-            island.solveTOI(subStep, bA.m_islandIndex, bB.m_islandIndex);
+            island.solveTOI(subStep, bA.islandIndex, bB.islandIndex);
 
             // Reset island flags and synchronize broad-phase proxies.
-            for (let i = 0; i < island.m_bodyCount; ++i) {
-                const body = island.m_bodies[i];
-                body.m_islandFlag = false;
+            for (let i = 0; i < island.bodyCount; ++i) {
+                const body = island.bodies[i];
+                body.islandFlag = false;
 
-                if (body.m_type !== BodyType.Dynamic) {
+                if (body.type !== BodyType.Dynamic) {
                     continue;
                 }
 
                 body.synchronizeFixtures();
 
                 // Invalidate all contact TOIs on this displaced body.
-                for (let ce = body.m_contactList; ce; ce = ce.next) {
-                    ce.contact.m_toiFlag = false;
-                    ce.contact.m_islandFlag = false;
+                for (let ce = body.contactList; ce; ce = ce.next) {
+                    ce.contact.toiFlag = false;
+                    ce.contact.islandFlag = false;
                 }
             }
 
             // Commit fixture proxy movements to the broad-phase so that new contacts are created.
             // Also, some contacts can be destroyed.
-            this.m_contactManager.findNewContacts();
+            this.contactManager.findNewContacts();
 
-            if (this.m_subStepping) {
-                this.m_stepComplete = false;
+            if (this.subStepping) {
+                this.stepComplete = false;
                 break;
             }
         }

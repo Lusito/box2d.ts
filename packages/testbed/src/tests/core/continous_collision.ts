@@ -25,7 +25,7 @@ class ContinousCollisionTest extends Test {
         super();
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new ChainShape();
             shape.createLoop([new Vec2(-30, 0), new Vec2(-30, 40), new Vec2(30, 40), new Vec2(30, 0)]);
@@ -33,11 +33,11 @@ class ContinousCollisionTest extends Test {
         }
 
         // Always on, even if default is off
-        this.m_world.setContinuousPhysics(true);
+        this.world.setContinuousPhysics(true);
 
         // Create 'basket'
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 bullet: true,
                 position: { x: 15, y: 5 },
@@ -68,7 +68,7 @@ class ContinousCollisionTest extends Test {
         // add some small circles for effect
         for (let i = 0; i < 5; i++) {
             const cd = new CircleShape(Math.random() * 1 + 0.5);
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 bullet: true,
                 position: {

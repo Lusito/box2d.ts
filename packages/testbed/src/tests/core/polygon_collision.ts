@@ -24,27 +24,27 @@ import { g_debugDraw } from "../../utils/draw";
 import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 
 class PolygonCollisionTest extends Test {
-    public m_polygonA = new PolygonShape();
+    public polygonA = new PolygonShape();
 
-    public m_polygonB = new PolygonShape();
+    public polygonB = new PolygonShape();
 
-    public m_transformA = new Transform();
+    public transformA = new Transform();
 
-    public m_transformB = new Transform();
+    public transformB = new Transform();
 
-    public m_positionB = new Vec2();
+    public positionB = new Vec2();
 
-    public m_angleB = 0;
+    public angleB = 0;
 
     public constructor() {
         super();
 
-        this.m_polygonA.setAsBox(0.2, 0.4);
-        this.m_transformA.setPositionAngle(new Vec2(), 0);
-        this.m_polygonB.setAsBox(0.5, 0.5);
-        this.m_positionB.set(1, 1);
-        this.m_angleB = 1.9160721;
-        this.m_transformB.setPositionAngle(this.m_positionB, this.m_angleB);
+        this.polygonA.setAsBox(0.2, 0.4);
+        this.transformA.setPositionAngle(new Vec2(), 0);
+        this.polygonB.setAsBox(0.5, 0.5);
+        this.positionB.set(1, 1);
+        this.angleB = 1.9160721;
+        this.transformB.setPositionAngle(this.positionB, this.angleB);
     }
 
     public getDefaultViewZoom() {
@@ -63,24 +63,24 @@ class PolygonCollisionTest extends Test {
     }
 
     private adjust(x: number, y: number, angle: number) {
-        this.m_positionB.x += x;
-        this.m_positionB.y += y;
-        this.m_angleB += angle;
-        this.m_transformB.setPositionAngle(this.m_positionB, this.m_angleB);
+        this.positionB.x += x;
+        this.positionB.y += y;
+        this.angleB += angle;
+        this.transformB.setPositionAngle(this.positionB, this.angleB);
     }
 
     public step(settings: Settings, timeStep: number): void {
         super.step(settings, timeStep);
         const manifold = new Manifold();
-        collidePolygons(manifold, this.m_polygonA, this.m_transformA, this.m_polygonB, this.m_transformB);
+        collidePolygons(manifold, this.polygonA, this.transformA, this.polygonB, this.transformB);
 
         const worldManifold = new WorldManifold();
         worldManifold.initialize(
             manifold,
-            this.m_transformA,
-            this.m_polygonA.m_radius,
-            this.m_transformB,
-            this.m_polygonB.m_radius,
+            this.transformA,
+            this.polygonA.radius,
+            this.transformB,
+            this.polygonB.radius,
         );
 
         this.addDebug("Point Count", manifold.pointCount);
@@ -88,15 +88,15 @@ class PolygonCollisionTest extends Test {
         {
             const color = new Color(0.9, 0.9, 0.9);
             const v = [];
-            for (let i = 0; i < this.m_polygonA.m_count; ++i) {
-                v[i] = Transform.multiplyVec2(this.m_transformA, this.m_polygonA.m_vertices[i], new Vec2());
+            for (let i = 0; i < this.polygonA.count; ++i) {
+                v[i] = Transform.multiplyVec2(this.transformA, this.polygonA.vertices[i], new Vec2());
             }
-            g_debugDraw.drawPolygon(v, this.m_polygonA.m_count, color);
+            g_debugDraw.drawPolygon(v, this.polygonA.count, color);
 
-            for (let i = 0; i < this.m_polygonB.m_count; ++i) {
-                v[i] = Transform.multiplyVec2(this.m_transformB, this.m_polygonB.m_vertices[i], new Vec2());
+            for (let i = 0; i < this.polygonB.count; ++i) {
+                v[i] = Transform.multiplyVec2(this.transformB, this.polygonB.vertices[i], new Vec2());
             }
-            g_debugDraw.drawPolygon(v, this.m_polygonB.m_count, color);
+            g_debugDraw.drawPolygon(v, this.polygonB.count, color);
         }
 
         for (let i = 0; i < manifold.pointCount; ++i) {

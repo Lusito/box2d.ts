@@ -203,51 +203,50 @@ class PositionSolverManifold {
 
 /** @internal */
 export class ContactSolver {
-    public readonly m_step = TimeStep.create();
+    public readonly step = TimeStep.create();
 
-    public m_positions!: Position[];
+    public positions!: Position[];
 
-    public m_velocities!: Velocity[];
+    public velocities!: Velocity[];
 
-    public readonly m_positionConstraints = makeArray(1024, ContactPositionConstraint); // TODO: Settings
+    public readonly positionConstraints = makeArray(1024, ContactPositionConstraint); // TODO: Settings
 
-    public readonly m_velocityConstraints = makeArray(1024, ContactVelocityConstraint); // TODO: Settings
+    public readonly velocityConstraints = makeArray(1024, ContactVelocityConstraint); // TODO: Settings
 
-    public m_contacts!: Contact[];
+    public contacts!: Contact[];
 
-    public m_count = 0;
+    public count = 0;
 
     public initialize(def: ContactSolverDef): ContactSolver {
-        this.m_step.copy(def.step);
-        this.m_count = def.count;
+        this.step.copy(def.step);
+        this.count = def.count;
         // TODO:
-        if (this.m_positionConstraints.length < this.m_count) {
-            const new_length = Math.max(this.m_positionConstraints.length * 2, this.m_count);
-            while (this.m_positionConstraints.length < new_length) {
-                this.m_positionConstraints[this.m_positionConstraints.length] = new ContactPositionConstraint();
+        if (this.positionConstraints.length < this.count) {
+            const new_length = Math.max(this.positionConstraints.length * 2, this.count);
+            while (this.positionConstraints.length < new_length) {
+                this.positionConstraints[this.positionConstraints.length] = new ContactPositionConstraint();
             }
         }
         // TODO:
-        if (this.m_velocityConstraints.length < this.m_count) {
-            const new_length = Math.max(this.m_velocityConstraints.length * 2, this.m_count);
-            while (this.m_velocityConstraints.length < new_length) {
-                this.m_velocityConstraints[this.m_velocityConstraints.length] = new ContactVelocityConstraint();
+        if (this.velocityConstraints.length < this.count) {
+            const new_length = Math.max(this.velocityConstraints.length * 2, this.count);
+            while (this.velocityConstraints.length < new_length) {
+                this.velocityConstraints[this.velocityConstraints.length] = new ContactVelocityConstraint();
             }
         }
-        this.m_positions = def.positions;
-        this.m_velocities = def.velocities;
-        this.m_contacts = def.contacts;
+        this.positions = def.positions;
+        this.velocities = def.velocities;
+        this.contacts = def.contacts;
 
         // Initialize position independent portions of the constraints.
-        for (let i = 0; i < this.m_count; ++i) {
-            const contact = this.m_contacts[i];
+        for (let i = 0; i < this.count; ++i) {
+            const contact = this.contacts[i];
 
-            const fixtureA = contact.m_fixtureA;
-            const fixtureB = contact.m_fixtureB;
+            const { fixtureA, fixtureB } = contact;
             const shapeA = fixtureA.getShape();
             const shapeB = fixtureB.getShape();
-            const radiusA = shapeA.m_radius;
-            const radiusB = shapeB.m_radius;
+            const radiusA = shapeA.radius;
+            const radiusB = shapeB.radius;
             const bodyA = fixtureA.getBody();
             const bodyB = fixtureB.getBody();
             const manifold = contact.getManifold();
@@ -255,31 +254,31 @@ export class ContactSolver {
             const { pointCount } = manifold;
             // DEBUG: assert(pointCount > 0);
 
-            const vc = this.m_velocityConstraints[i];
-            vc.friction = contact.m_friction;
-            vc.restitution = contact.m_restitution;
-            vc.threshold = contact.m_restitutionThreshold;
-            vc.tangentSpeed = contact.m_tangentSpeed;
-            vc.indexA = bodyA.m_islandIndex;
-            vc.indexB = bodyB.m_islandIndex;
-            vc.invMassA = bodyA.m_invMass;
-            vc.invMassB = bodyB.m_invMass;
-            vc.invIA = bodyA.m_invI;
-            vc.invIB = bodyB.m_invI;
+            const vc = this.velocityConstraints[i];
+            vc.friction = contact.friction;
+            vc.restitution = contact.restitution;
+            vc.threshold = contact.restitutionThreshold;
+            vc.tangentSpeed = contact.tangentSpeed;
+            vc.indexA = bodyA.islandIndex;
+            vc.indexB = bodyB.islandIndex;
+            vc.invMassA = bodyA.invMass;
+            vc.invMassB = bodyB.invMass;
+            vc.invIA = bodyA.invI;
+            vc.invIB = bodyB.invI;
             vc.contactIndex = i;
             vc.pointCount = pointCount;
             vc.K.setZero();
             vc.normalMass.setZero();
 
-            const pc = this.m_positionConstraints[i];
-            pc.indexA = bodyA.m_islandIndex;
-            pc.indexB = bodyB.m_islandIndex;
-            pc.invMassA = bodyA.m_invMass;
-            pc.invMassB = bodyB.m_invMass;
-            pc.localCenterA.copy(bodyA.m_sweep.localCenter);
-            pc.localCenterB.copy(bodyB.m_sweep.localCenter);
-            pc.invIA = bodyA.m_invI;
-            pc.invIB = bodyB.m_invI;
+            const pc = this.positionConstraints[i];
+            pc.indexA = bodyA.islandIndex;
+            pc.indexB = bodyB.islandIndex;
+            pc.invMassA = bodyA.invMass;
+            pc.invMassB = bodyB.invMass;
+            pc.localCenterA.copy(bodyA.sweep.localCenter);
+            pc.localCenterB.copy(bodyB.sweep.localCenter);
+            pc.invIA = bodyA.invI;
+            pc.invIB = bodyB.invI;
             pc.localNormal.copy(manifold.localNormal);
             pc.localPoint.copy(manifold.localPoint);
             pc.pointCount = pointCount;
@@ -291,9 +290,9 @@ export class ContactSolver {
                 const cp = manifold.points[j];
                 const vcp = vc.points[j];
 
-                if (this.m_step.warmStarting) {
-                    vcp.normalImpulse = this.m_step.dtRatio * cp.normalImpulse;
-                    vcp.tangentImpulse = this.m_step.dtRatio * cp.tangentImpulse;
+                if (this.step.warmStarting) {
+                    vcp.normalImpulse = this.step.dtRatio * cp.normalImpulse;
+                    vcp.tangentImpulse = this.step.dtRatio * cp.tangentImpulse;
                 } else {
                     vcp.normalImpulse = 0;
                     vcp.tangentImpulse = 0;
@@ -325,12 +324,12 @@ export class ContactSolver {
 
         const k_maxConditionNumber = 1000;
 
-        for (let i = 0; i < this.m_count; ++i) {
-            const vc = this.m_velocityConstraints[i];
-            const pc = this.m_positionConstraints[i];
+        for (let i = 0; i < this.count; ++i) {
+            const vc = this.velocityConstraints[i];
+            const pc = this.positionConstraints[i];
 
             const { radiusA, radiusB, localCenterA, localCenterB } = pc;
-            const manifold = this.m_contacts[vc.contactIndex].getManifold();
+            const manifold = this.contacts[vc.contactIndex].getManifold();
 
             const { indexA, indexB, tangent, pointCount } = vc;
 
@@ -339,15 +338,15 @@ export class ContactSolver {
             const iA = vc.invIA;
             const iB = vc.invIB;
 
-            const cA = this.m_positions[indexA].c;
-            const aA = this.m_positions[indexA].a;
-            const vA = this.m_velocities[indexA].v;
-            const wA = this.m_velocities[indexA].w;
+            const cA = this.positions[indexA].c;
+            const aA = this.positions[indexA].a;
+            const vA = this.velocities[indexA].v;
+            const wA = this.velocities[indexA].w;
 
-            const cB = this.m_positions[indexB].c;
-            const aB = this.m_positions[indexB].a;
-            const vB = this.m_velocities[indexB].v;
-            const wB = this.m_velocities[indexB].w;
+            const cB = this.positions[indexB].c;
+            const aB = this.positions[indexB].a;
+            const vB = this.velocities[indexB].v;
+            const wB = this.velocities[indexB].w;
 
             // DEBUG: assert(manifold.pointCount > 0);
 
@@ -432,8 +431,8 @@ export class ContactSolver {
         const P = ContactSolver.WarmStart_s_P;
 
         // Warm start.
-        for (let i = 0; i < this.m_count; ++i) {
-            const vc = this.m_velocityConstraints[i];
+        for (let i = 0; i < this.count; ++i) {
+            const vc = this.velocityConstraints[i];
 
             const { indexA, indexB, pointCount, normal, tangent } = vc;
             const mA = vc.invMassA;
@@ -441,10 +440,10 @@ export class ContactSolver {
             const mB = vc.invMassB;
             const iB = vc.invIB;
 
-            const vA = this.m_velocities[indexA].v;
-            let wA = this.m_velocities[indexA].w;
-            const vB = this.m_velocities[indexB].v;
-            let wB = this.m_velocities[indexB].w;
+            const vA = this.velocities[indexA].v;
+            let wA = this.velocities[indexA].w;
+            const vB = this.velocities[indexB].v;
+            let wB = this.velocities[indexB].w;
 
             for (let j = 0; j < pointCount; ++j) {
                 const vcp = vc.points[j];
@@ -459,8 +458,8 @@ export class ContactSolver {
                 vB.addScaled(mB, P);
             }
 
-            this.m_velocities[indexA].w = wA;
-            this.m_velocities[indexB].w = wB;
+            this.velocities[indexA].w = wA;
+            this.velocities[indexB].w = wB;
         }
     }
 
@@ -499,8 +498,8 @@ export class ContactSolver {
         const P2 = ContactSolver.SolveVelocityConstraints_s_P2;
         const P1P2 = ContactSolver.SolveVelocityConstraints_s_P1P2;
 
-        for (let i = 0; i < this.m_count; ++i) {
-            const vc = this.m_velocityConstraints[i];
+        for (let i = 0; i < this.count; ++i) {
+            const vc = this.velocityConstraints[i];
 
             const { indexA, indexB, pointCount, normal, tangent, friction } = vc;
             const mA = vc.invMassA;
@@ -508,10 +507,10 @@ export class ContactSolver {
             const mB = vc.invMassB;
             const iB = vc.invIB;
 
-            const vA = this.m_velocities[indexA].v;
-            let wA = this.m_velocities[indexA].w;
-            const vB = this.m_velocities[indexB].v;
-            let wB = this.m_velocities[indexB].w;
+            const vA = this.velocities[indexA].v;
+            let wA = this.velocities[indexA].w;
+            const vB = this.velocities[indexB].v;
+            let wB = this.velocities[indexB].w;
 
             // DEBUG: assert(pointCount === 1 || pointCount === 2);
 
@@ -771,15 +770,15 @@ export class ContactSolver {
                 }
             }
 
-            this.m_velocities[indexA].w = wA;
-            this.m_velocities[indexB].w = wB;
+            this.velocities[indexA].w = wA;
+            this.velocities[indexB].w = wB;
         }
     }
 
     public storeImpulses(): void {
-        for (let i = 0; i < this.m_count; ++i) {
-            const vc = this.m_velocityConstraints[i];
-            const manifold = this.m_contacts[vc.contactIndex].getManifold();
+        for (let i = 0; i < this.count; ++i) {
+            const vc = this.velocityConstraints[i];
+            const manifold = this.contacts[vc.contactIndex].getManifold();
 
             for (let j = 0; j < vc.pointCount; ++j) {
                 manifold.points[j].normalImpulse = vc.points[j].normalImpulse;
@@ -810,8 +809,8 @@ export class ContactSolver {
 
         let minSeparation = 0;
 
-        for (let i = 0; i < this.m_count; ++i) {
-            const pc = this.m_positionConstraints[i];
+        for (let i = 0; i < this.count; ++i) {
+            const pc = this.positionConstraints[i];
 
             const { indexA, indexB, localCenterA, localCenterB, pointCount } = pc;
             const mA = pc.invMassA;
@@ -819,11 +818,11 @@ export class ContactSolver {
             const mB = pc.invMassB;
             const iB = pc.invIB;
 
-            const cA = this.m_positions[indexA].c;
-            let aA = this.m_positions[indexA].a;
+            const cA = this.positions[indexA].c;
+            let aA = this.positions[indexA].a;
 
-            const cB = this.m_positions[indexB].c;
-            let aB = this.m_positions[indexB].a;
+            const cB = this.positions[indexB].c;
+            let aB = this.positions[indexB].a;
 
             // Solve normal constraints
             for (let j = 0; j < pointCount; ++j) {
@@ -861,11 +860,11 @@ export class ContactSolver {
                 aB += iB * Vec2.cross(rB, P);
             }
 
-            this.m_positions[indexA].c.copy(cA);
-            this.m_positions[indexA].a = aA;
+            this.positions[indexA].c.copy(cA);
+            this.positions[indexA].a = aA;
 
-            this.m_positions[indexB].c.copy(cB);
-            this.m_positions[indexB].a = aB;
+            this.positions[indexB].c.copy(cB);
+            this.positions[indexB].a = aB;
         }
 
         // We can't expect minSpeparation >= -LINEAR_SLOP because we don't
@@ -895,8 +894,8 @@ export class ContactSolver {
 
         let minSeparation = 0;
 
-        for (let i = 0; i < this.m_count; ++i) {
-            const pc = this.m_positionConstraints[i];
+        for (let i = 0; i < this.count; ++i) {
+            const pc = this.positionConstraints[i];
 
             const { indexA, indexB, localCenterA, localCenterB, pointCount } = pc;
 
@@ -914,11 +913,11 @@ export class ContactSolver {
                 iB = pc.invIB;
             }
 
-            const cA = this.m_positions[indexA].c;
-            let aA = this.m_positions[indexA].a;
+            const cA = this.positions[indexA].c;
+            let aA = this.positions[indexA].a;
 
-            const cB = this.m_positions[indexB].c;
-            let aB = this.m_positions[indexB].a;
+            const cB = this.positions[indexB].c;
+            let aB = this.positions[indexB].a;
 
             // Solve normal constraints
             for (let j = 0; j < pointCount; ++j) {
@@ -956,9 +955,9 @@ export class ContactSolver {
                 aB += iB * Vec2.cross(rB, P);
             }
 
-            this.m_positions[indexA].a = aA;
+            this.positions[indexA].a = aA;
 
-            this.m_positions[indexB].a = aB;
+            this.positions[indexB].a = aB;
         }
 
         // We can't expect minSpeparation >= -LINEAR_SLOP because we don't

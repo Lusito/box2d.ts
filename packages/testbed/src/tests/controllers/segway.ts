@@ -99,7 +99,7 @@ class SegwayTest extends Test {
         // });
         // pendulumBody.addShape(new p2.box({ width: 1, height: PENDULUM_LENGTH }));
         // world.addBody(pendulumBody);
-        this.pendulumBody = this.m_world.createBody({
+        this.pendulumBody = this.world.createBody({
             type: BodyType.Dynamic,
             position: {
                 x: 0,
@@ -121,12 +121,12 @@ class SegwayTest extends Test {
         // });
         // wheelBody.addShape(new p2.circle({ radius: 0.6 }));
         // world.addBody(wheelBody);
-        this.wheelBody = this.m_world.createBody({
+        this.wheelBody = this.world.createBody({
             type: BodyType.Dynamic,
             position: Vec2.UNITY,
         });
         const wheelShape = new CircleShape();
-        wheelShape.m_radius = 0.6;
+        wheelShape.radius = 0.6;
         fd.shape = wheelShape;
         fd.density = 1 / (Math.PI * 0.6 * 0.6); // TODO: specify mass
         // fd.mass = 1;
@@ -150,7 +150,7 @@ class SegwayTest extends Test {
         jd.collideConnected = false;
         jd.enableMotor = true;
         jd.maxMotorTorque = 40;
-        this.wheelJoint = this.m_world.createJoint(jd);
+        this.wheelJoint = this.world.createJoint(jd);
 
         // Create ground
         // var groundShape = new p2.plane();
@@ -159,7 +159,7 @@ class SegwayTest extends Test {
         // });
         // groundBody.addShape(groundShape);
         // world.addBody(groundBody);
-        this.groundBody = this.m_world.createBody({
+        this.groundBody = this.world.createBody({
             type: BodyType.Static,
             position: Vec2.ZERO,
         });
@@ -178,9 +178,9 @@ class SegwayTest extends Test {
     }
 
     public step(settings: Settings, timeStep: number): void {
-        let dt = settings.m_hertz > 0 ? 1 / settings.m_hertz : 0;
+        let dt = settings.hertz > 0 ? 1 / settings.hertz : 0;
 
-        if (settings.m_pause && !settings.m_singleStep) {
+        if (settings.pause && !settings.singleStep) {
             dt = 0;
         }
 
@@ -205,7 +205,7 @@ class SegwayTest extends Test {
             // targetLinAccel = clamp(targetLinAccel, -10, 10);
             targetLinAccel = clamp(targetLinAccel, -10, 10);
             // targetAngle = targetLinAccel / world.gravity[1];
-            targetAngle = targetLinAccel / this.m_world.getGravity().y;
+            targetAngle = targetLinAccel / this.world.getGravity().y;
             // targetAngle = clamp(targetAngle, -15 * DEGTORAD, 15 * DEGTORAD);
             targetAngle = clamp(targetAngle, degToRad(-15), degToRad(15));
         }

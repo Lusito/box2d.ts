@@ -38,17 +38,17 @@ class BoxStackTest extends Test {
 
     public static readonly e_rowCount = 15;
 
-    public m_bullet: Body | null = null;
+    public bullet: Body | null = null;
 
-    public m_bodies = new Array<Body>(BoxStackTest.e_rowCount * BoxStackTest.e_columnCount);
+    public bodies = new Array<Body>(BoxStackTest.e_rowCount * BoxStackTest.e_columnCount);
 
-    public m_indices = makeNumberArray(BoxStackTest.e_rowCount * BoxStackTest.e_columnCount);
+    public indices = makeNumberArray(BoxStackTest.e_rowCount * BoxStackTest.e_columnCount);
 
     public constructor() {
         super();
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
@@ -73,18 +73,18 @@ class BoxStackTest extends Test {
             for (let i = 0; i < BoxStackTest.e_rowCount; ++i) {
                 const n = j * BoxStackTest.e_rowCount + i;
                 // DEBUG: assert(n < VerticalStack.e_rowCount * VerticalStack.e_columnCount);
-                this.m_indices[n] = n;
+                this.indices[n] = n;
 
                 const x = 0;
                 // const x = randomFloat(-0.02, 0.02);
                 // const x = i % 2 === 0 ? -0.01 : 0.01;
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: xs[j] + x, y: 0.55 + 1.1 * i },
-                    userData: this.m_indices[n],
+                    userData: this.indices[n],
                 });
 
-                this.m_bodies[n] = body;
+                this.bodies[n] = body;
 
                 body.createFixture(fd);
             }
@@ -103,14 +103,14 @@ class BoxStackTest extends Test {
     }
 
     private launchBullet() {
-        if (this.m_bullet) {
-            this.m_world.destroyBody(this.m_bullet);
-            this.m_bullet = null;
+        if (this.bullet) {
+            this.world.destroyBody(this.bullet);
+            this.bullet = null;
         }
 
         {
             const shape = new CircleShape();
-            shape.m_radius = 0.25;
+            shape.radius = 0.25;
 
             const fd: FixtureDef = {
                 shape,
@@ -118,42 +118,42 @@ class BoxStackTest extends Test {
                 restitution: 0.05,
             };
 
-            this.m_bullet = this.m_world.createBody({
+            this.bullet = this.world.createBody({
                 type: BodyType.Dynamic,
                 bullet: true,
                 position: { x: -31, y: 5 },
             });
-            this.m_bullet.createFixture(fd);
+            this.bullet.createFixture(fd);
 
-            this.m_bullet.setLinearVelocity(new Vec2(400, 0));
+            this.bullet.setLinearVelocity(new Vec2(400, 0));
         }
     }
 
     public step(settings: Settings, timeStep: number): void {
         super.step(settings, timeStep);
         this.addDebug("Blocksolve", getBlockSolve());
-        // if (this.m_stepCount === 300) {
-        //     if (this.m_bullet !== null) {
-        //         this.m_world.destroyBody(this.m_bullet);
-        //         this.m_bullet = null;
+        // if (this.stepCount === 300) {
+        //     if (this.bullet !== null) {
+        //         this.world.destroyBody(this.bullet);
+        //         this.bullet = null;
         //     }
 
         //     {
         //         const shape = new CircleShape();
-        //         shape.m_radius = 0.25;
+        //         shape.radius = 0.25;
 
-        //         this.m_bullet = this.m_world.createBody({
+        //         this.bullet = this.world.createBody({
         //             type: BodyType.Dynamic,
         //             bullet: true,
         //             position: { x: -31, y: 5 },
         //         });
-        //         this.m_bullet.createFixture({
+        //         this.bullet.createFixture({
         //             shape,
         //             density: 20,
         //             restitution: 0.05,
         //         });
 
-        //         this.m_bullet.setLinearVelocity(new Vec2(400, 0));
+        //         this.bullet.setLinearVelocity(new Vec2(400, 0));
         //     }
         // }
     }

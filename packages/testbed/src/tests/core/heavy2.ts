@@ -22,29 +22,29 @@ import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 import { registerTest, Test } from "../../test";
 
 class Heavy2Test extends Test {
-    public m_heavy: Body | null = null;
+    public heavy: Body | null = null;
 
     public constructor() {
         super();
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.createFixture({ shape });
         }
 
-        let body = this.m_world.createBody({
+        let body = this.world.createBody({
             type: BodyType.Dynamic,
             position: { x: 0, y: 2.5 },
         });
 
         const shape = new CircleShape();
-        shape.m_radius = 0.5;
+        shape.radius = 0.5;
         body.createFixture({ shape, density: 10 });
 
-        body = this.m_world.createBody({
+        body = this.world.createBody({
             type: BodyType.Dynamic,
             position: { x: 0, y: 3.5 },
         });
@@ -52,18 +52,18 @@ class Heavy2Test extends Test {
     }
 
     public toggleHeavy() {
-        if (this.m_heavy !== null) {
-            this.m_world.destroyBody(this.m_heavy);
-            this.m_heavy = null;
+        if (this.heavy !== null) {
+            this.world.destroyBody(this.heavy);
+            this.heavy = null;
         } else {
-            this.m_heavy = this.m_world.createBody({
+            this.heavy = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 0, y: 9 },
             });
 
             const shape = new CircleShape();
-            shape.m_radius = 5;
-            this.m_heavy.createFixture({ shape, density: 10 });
+            shape.radius = 5;
+            this.heavy.createFixture({ shape, density: 10 });
         }
     }
 

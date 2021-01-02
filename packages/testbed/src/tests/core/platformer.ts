@@ -38,24 +38,24 @@ enum OneSidedPlatform_State {
 }
 
 class PlatformerTest extends Test {
-    public m_radius = 0;
+    public radius = 0;
 
-    public m_top = 0;
+    public top = 0;
 
-    public m_bottom = 0;
+    public bottom = 0;
 
-    public m_state = OneSidedPlatform_State.Unknown;
+    public state = OneSidedPlatform_State.Unknown;
 
-    public m_platform: Fixture;
+    public platform: Fixture;
 
-    public m_character: Fixture;
+    public character: Fixture;
 
     public constructor() {
         super();
 
         // Ground
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
@@ -64,33 +64,33 @@ class PlatformerTest extends Test {
 
         // Platform
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 position: { x: 0, y: 10 },
             });
 
             const shape = new PolygonShape();
             shape.setAsBox(3, 0.5);
-            this.m_platform = body.createFixture({ shape });
+            this.platform = body.createFixture({ shape });
 
-            this.m_bottom = 10 - 0.5;
-            this.m_top = 10 + 0.5;
+            this.bottom = 10 - 0.5;
+            this.top = 10 + 0.5;
         }
 
         // Actor
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 0, y: 12 },
             });
 
-            this.m_radius = 0.5;
+            this.radius = 0.5;
             const shape = new CircleShape();
-            shape.m_radius = this.m_radius;
-            this.m_character = body.createFixture({ shape, density: 20 });
+            shape.radius = this.radius;
+            this.character = body.createFixture({ shape, density: 20 });
 
             body.setLinearVelocity(new Vec2(0, -50));
 
-            this.m_state = OneSidedPlatform_State.Unknown;
+            this.state = OneSidedPlatform_State.Unknown;
         }
     }
 
@@ -111,17 +111,17 @@ class PlatformerTest extends Test {
         const fixtureA = contact.getFixtureA();
         const fixtureB = contact.getFixtureB();
 
-        if (fixtureA !== this.m_platform && fixtureA !== this.m_character) {
+        if (fixtureA !== this.platform && fixtureA !== this.character) {
             return;
         }
 
-        if (fixtureB !== this.m_platform && fixtureB !== this.m_character) {
+        if (fixtureB !== this.platform && fixtureB !== this.character) {
             return;
         }
 
-        const position = this.m_character.getBody().getPosition();
+        const position = this.character.getBody().getPosition();
 
-        if (position.y < this.m_top + this.m_radius - 3 * LINEAR_SLOP) {
+        if (position.y < this.top + this.radius - 3 * LINEAR_SLOP) {
             contact.setEnabled(false);
         }
     }

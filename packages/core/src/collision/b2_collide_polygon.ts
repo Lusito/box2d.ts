@@ -37,11 +37,11 @@ function findMaxSeparation(
     poly2: PolygonShape,
     xf2: Transform,
 ) {
-    const count1 = poly1.m_count;
-    const count2 = poly2.m_count;
-    const n1s = poly1.m_normals;
-    const v1s = poly1.m_vertices;
-    const v2s = poly2.m_vertices;
+    const count1 = poly1.count;
+    const count2 = poly2.count;
+    const n1s = poly1.normals;
+    const v1s = poly1.vertices;
+    const v2s = poly2.vertices;
     const xf = Transform.transposeMultiply(xf2, xf1, FindMaxSeparation_s_xf);
 
     let bestIndex = 0;
@@ -81,13 +81,13 @@ function findIncidentEdge(
     poly2: PolygonShape,
     xf2: Transform,
 ): void {
-    const normals1 = poly1.m_normals;
+    const normals1 = poly1.normals;
 
-    const count2 = poly2.m_count;
-    const vertices2 = poly2.m_vertices;
-    const normals2 = poly2.m_normals;
+    const count2 = poly2.count;
+    const vertices2 = poly2.vertices;
+    const normals2 = poly2.normals;
 
-    // DEBUG: assert(0 <= edge1 && edge1 < poly1.m_count);
+    // DEBUG: assert(0 <= edge1 && edge1 < poly1.count);
 
     // Get the normal of the reference edge in poly2's frame.
     const normal1 = Rot.transposeMultiplyVec2(
@@ -159,7 +159,7 @@ export function collidePolygons(
     xfB: Transform,
 ): void {
     manifold.pointCount = 0;
-    const totalRadius = polyA.m_radius + polyB.m_radius;
+    const totalRadius = polyA.radius + polyB.radius;
 
     const edgeIndexA = CollidePolygons_s_edgeA;
     const separationA = findMaxSeparation(edgeIndexA, polyA, xfA, polyB, xfB);
@@ -204,8 +204,8 @@ export function collidePolygons(
     const incidentEdge = CollidePolygons_s_incidentEdge;
     findIncidentEdge(incidentEdge, poly1, xf1, edge1, poly2, xf2);
 
-    const count1 = poly1.m_count;
-    const vertices1 = poly1.m_vertices;
+    const count1 = poly1.count;
+    const vertices1 = poly1.vertices;
 
     const iv1 = edge1;
     const iv2 = edge1 + 1 < count1 ? edge1 + 1 : 0;

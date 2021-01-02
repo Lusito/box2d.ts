@@ -33,22 +33,22 @@ import {
 import { registerTest, Test } from "../../test";
 
 class GearJointTest extends Test {
-    public m_joint1: RevoluteJoint;
+    public joint1: RevoluteJoint;
 
-    public m_joint2: RevoluteJoint;
+    public joint2: RevoluteJoint;
 
-    public m_joint3: PrismaticJoint;
+    public joint3: PrismaticJoint;
 
-    public m_joint4: GearJoint;
+    public joint4: GearJoint;
 
-    public m_joint5: GearJoint;
+    public joint5: GearJoint;
 
     public constructor() {
         super();
 
         let ground = null;
         {
-            ground = this.m_world.createBody();
+            ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-50, 0), new Vec2(50, 0));
@@ -57,32 +57,32 @@ class GearJointTest extends Test {
 
         {
             const circle1 = new CircleShape();
-            circle1.m_radius = 1;
+            circle1.radius = 1;
 
             const box = new PolygonShape();
             box.setAsBox(0.5, 5);
 
             const circle2 = new CircleShape();
-            circle2.m_radius = 2;
+            circle2.radius = 2;
 
             const bdPosition1 = {
                 x: 10,
                 y: 9,
             };
-            const body1 = this.m_world.createBody({
+            const body1 = this.world.createBody({
                 type: BodyType.Static,
                 position: bdPosition1,
             });
             body1.createFixture({ shape: circle1, density: 5 });
 
-            const body2 = this.m_world.createBody({
+            const body2 = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 10, y: 8 },
             });
             body2.createFixture({ shape: box, density: 5 });
 
             const bdPosition3 = { x: 10, y: 6 };
-            const body3 = this.m_world.createBody({
+            const body3 = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: bdPosition3,
             });
@@ -90,33 +90,33 @@ class GearJointTest extends Test {
 
             const jd1 = new RevoluteJointDef();
             jd1.initialize(body2, body1, bdPosition1);
-            const joint1 = this.m_world.createJoint(jd1);
+            const joint1 = this.world.createJoint(jd1);
 
             const jd2 = new RevoluteJointDef();
             jd2.initialize(body2, body3, bdPosition3);
-            const joint2 = this.m_world.createJoint(jd2);
+            const joint2 = this.world.createJoint(jd2);
 
             const jd4 = new GearJointDef();
             jd4.bodyA = body1;
             jd4.bodyB = body3;
             jd4.joint1 = joint1;
             jd4.joint2 = joint2;
-            jd4.ratio = circle2.m_radius / circle1.m_radius;
-            this.m_world.createJoint(jd4);
+            jd4.ratio = circle2.radius / circle1.radius;
+            this.world.createJoint(jd4);
         }
 
         {
             const circle1 = new CircleShape();
-            circle1.m_radius = 1;
+            circle1.radius = 1;
 
             const circle2 = new CircleShape();
-            circle2.m_radius = 2;
+            circle2.radius = 2;
 
             const box = new PolygonShape();
             box.setAsBox(0.5, 5);
 
             const bdPosition1 = { x: -3, y: 12 };
-            const body1 = this.m_world.createBody({
+            const body1 = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: bdPosition1,
             });
@@ -128,10 +128,10 @@ class GearJointTest extends Test {
             ground.getLocalPoint(bdPosition1, jd1.localAnchorA);
             body1.getLocalPoint(bdPosition1, jd1.localAnchorB);
             jd1.referenceAngle = body1.getAngle() - ground.getAngle();
-            this.m_joint1 = this.m_world.createJoint(jd1);
+            this.joint1 = this.world.createJoint(jd1);
 
             const bdPosition2 = { x: 0, y: 12 };
-            const body2 = this.m_world.createBody({
+            const body2 = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: bdPosition2,
             });
@@ -139,10 +139,10 @@ class GearJointTest extends Test {
 
             const jd2 = new RevoluteJointDef();
             jd2.initialize(ground, body2, bdPosition2);
-            this.m_joint2 = this.m_world.createJoint(jd2);
+            this.joint2 = this.world.createJoint(jd2);
 
             const bdPosition3 = { x: 2.5, y: 12 };
-            const body3 = this.m_world.createBody({
+            const body3 = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: bdPosition3,
             });
@@ -154,23 +154,23 @@ class GearJointTest extends Test {
             jd3.upperTranslation = 5;
             jd3.enableLimit = true;
 
-            this.m_joint3 = this.m_world.createJoint(jd3);
+            this.joint3 = this.world.createJoint(jd3);
 
             const jd4 = new GearJointDef();
             jd4.bodyA = body1;
             jd4.bodyB = body2;
-            jd4.joint1 = this.m_joint1;
-            jd4.joint2 = this.m_joint2;
-            jd4.ratio = circle2.m_radius / circle1.m_radius;
-            this.m_joint4 = this.m_world.createJoint(jd4);
+            jd4.joint1 = this.joint1;
+            jd4.joint2 = this.joint2;
+            jd4.ratio = circle2.radius / circle1.radius;
+            this.joint4 = this.world.createJoint(jd4);
 
             const jd5 = new GearJointDef();
             jd5.bodyA = body2;
             jd5.bodyB = body3;
-            jd5.joint1 = this.m_joint2;
-            jd5.joint2 = this.m_joint3;
-            jd5.ratio = -1 / circle2.m_radius;
-            this.m_joint5 = this.m_world.createJoint(jd5);
+            jd5.joint1 = this.joint2;
+            jd5.joint2 = this.joint3;
+            jd5.ratio = -1 / circle2.radius;
+            this.joint5 = this.world.createJoint(jd5);
         }
     }
 }

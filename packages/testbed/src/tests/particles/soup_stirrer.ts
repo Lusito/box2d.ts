@@ -24,49 +24,49 @@ import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 import { registerTest, TestContext } from "../../test";
 
 class SoupStirrerTest extends SoupTest {
-    public m_stirrer: Body;
+    public stirrer: Body;
 
-    public m_joint: Joint | null = null;
+    public joint: Joint | null = null;
 
-    public m_oscillationOffset = 0;
+    public oscillationOffset = 0;
 
     public constructor(context: TestContext) {
         super(context);
 
-        this.m_particleSystem.setDamping(1);
+        this.particleSystem.setDamping(1);
 
         // Shape of the stirrer.
         const shape = new CircleShape();
-        shape.m_p.set(0, 0.7);
-        shape.m_radius = 0.4;
+        shape.p.set(0, 0.7);
+        shape.radius = 0.4;
 
         // Create the stirrer.
-        this.m_stirrer = this.m_world.createBody({
+        this.stirrer = this.world.createBody({
             type: BodyType.Dynamic,
         });
-        this.m_stirrer.createFixture({ shape, density: 1 });
+        this.stirrer.createFixture({ shape, density: 1 });
 
         // Destroy all particles under the stirrer.
         const xf = new Transform();
         xf.setIdentity();
-        this.m_particleSystem.destroyParticlesInShape(shape, xf);
+        this.particleSystem.destroyParticlesInShape(shape, xf);
 
         // By default attach the body to a joint to restrict movement.
         this.createJoint();
     }
 
     public createJoint() {
-        // DEBUG: assert(!this.m_joint);
+        // DEBUG: assert(!this.joint);
         // Create a prismatic joint and connect to the ground, and have it
         // slide along the x axis.
         // Disconnect the body from this joint to have more fun.
         const prismaticJointDef = new PrismaticJointDef();
-        prismaticJointDef.bodyA = this.m_groundBody;
-        prismaticJointDef.bodyB = this.m_stirrer;
+        prismaticJointDef.bodyA = this.groundBody;
+        prismaticJointDef.bodyB = this.stirrer;
         prismaticJointDef.collideConnected = true;
         prismaticJointDef.localAxisA.set(1, 0);
-        prismaticJointDef.localAnchorA.copy(this.m_stirrer.getPosition());
-        this.m_joint = this.m_world.createJoint(prismaticJointDef);
+        prismaticJointDef.localAnchorA.copy(this.stirrer.getPosition());
+        this.joint = this.world.createJoint(prismaticJointDef);
     }
 
     /**
@@ -74,9 +74,9 @@ class SoupStirrerTest extends SoupTest {
      * enabled.
      */
     public toggleJoint() {
-        if (this.m_joint) {
-            this.m_world.destroyJoint(this.m_joint);
-            this.m_joint = null;
+        if (this.joint) {
+            this.world.destroyJoint(this.joint);
+            this.joint = null;
         } else {
             this.createJoint();
         }
@@ -118,18 +118,18 @@ class SoupStirrerTest extends SoupTest {
         // Maximum speed of the body.
         const k_maxSpeed = 2;
 
-        this.m_oscillationOffset += 1 / settings.m_hertz;
-        if (this.m_oscillationOffset > k_forceOscillationPeriod) {
-            this.m_oscillationOffset -= k_forceOscillationPeriod;
+        this.oscillationOffset += 1 / settings.hertz;
+        if (this.oscillationOffset > k_forceOscillationPeriod) {
+            this.oscillationOffset -= k_forceOscillationPeriod;
         }
 
         // Calculate the force vector.
-        const forceAngle = this.m_oscillationOffset * k_forceOscillationPerSecond * 2 * Math.PI;
+        const forceAngle = this.oscillationOffset * k_forceOscillationPerSecond * 2 * Math.PI;
         const forceVector = new Vec2(Math.sin(forceAngle), Math.cos(forceAngle)).scale(k_forceMagnitude);
 
         // Only apply force to the body when it's within the soup.
-        if (this.inSoup(this.m_stirrer.getPosition()) && this.m_stirrer.getLinearVelocity().length() < k_maxSpeed) {
-            this.m_stirrer.applyForceToCenter(forceVector, true);
+        if (this.inSoup(this.stirrer.getPosition()) && this.stirrer.getLinearVelocity().length() < k_maxSpeed) {
+            this.stirrer.applyForceToCenter(forceVector, true);
         }
         super.step(settings, timeStep);
     }

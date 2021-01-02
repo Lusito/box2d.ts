@@ -39,7 +39,7 @@ class DumpShellTest extends Test {
         const bodies = new Array<Body>(4);
 
         const joints = new Array(2);
-        bodies[0] = this.m_world.createBody({
+        bodies[0] = this.world.createBody({
             type: BodyType.Static,
             angle: 0,
             angularVelocity: 0,
@@ -55,13 +55,13 @@ class DumpShellTest extends Test {
 
         {
             const shape = new EdgeShape();
-            shape.m_radius = 0.009999999776483;
-            shape.m_vertex0.set(0, 0);
-            shape.m_vertex1.set(0, 0);
-            shape.m_vertex2.set(44.521739959716797, 0);
-            shape.m_vertex3.set(0, 0);
-            // shape.m_hasVertex0 = false;
-            // shape.m_hasVertex3 = false;
+            shape.radius = 0.009999999776483;
+            shape.vertex0.set(0, 0);
+            shape.vertex1.set(0, 0);
+            shape.vertex2.set(44.521739959716797, 0);
+            shape.vertex3.set(0, 0);
+            // shape.hasVertex0 = false;
+            // shape.hasVertex3 = false;
             bodies[0].createFixture({
                 friction: 10,
                 restitution: 0,
@@ -77,13 +77,13 @@ class DumpShellTest extends Test {
         }
         {
             const shape = new EdgeShape();
-            shape.m_radius = 0.009999999776483;
-            shape.m_vertex0.set(0, 0);
-            shape.m_vertex1.set(0, 16.695652008056641);
-            shape.m_vertex2.set(44.521739959716797, 16.695652008056641);
-            shape.m_vertex3.set(0, 0);
-            // shape.m_hasVertex0 = false;
-            // shape.m_hasVertex3 = false;
+            shape.radius = 0.009999999776483;
+            shape.vertex0.set(0, 0);
+            shape.vertex1.set(0, 16.695652008056641);
+            shape.vertex2.set(44.521739959716797, 16.695652008056641);
+            shape.vertex3.set(0, 0);
+            // shape.hasVertex0 = false;
+            // shape.hasVertex3 = false;
 
             bodies[0].createFixture({
                 friction: 10,
@@ -100,13 +100,13 @@ class DumpShellTest extends Test {
         }
         {
             const shape = new EdgeShape();
-            shape.m_radius = 0.009999999776483;
-            shape.m_vertex0.set(0, 0);
-            shape.m_vertex1.set(0, 16.695652008056641);
-            shape.m_vertex2.set(0, 0);
-            shape.m_vertex3.set(0, 0);
-            // shape.m_hasVertex0 = false;
-            // shape.m_hasVertex3 = false;
+            shape.radius = 0.009999999776483;
+            shape.vertex0.set(0, 0);
+            shape.vertex1.set(0, 16.695652008056641);
+            shape.vertex2.set(0, 0);
+            shape.vertex3.set(0, 0);
+            // shape.hasVertex0 = false;
+            // shape.hasVertex3 = false;
 
             bodies[0].createFixture({
                 friction: 10,
@@ -123,13 +123,13 @@ class DumpShellTest extends Test {
         }
         {
             const shape = new EdgeShape();
-            shape.m_radius = 0.009999999776483;
-            shape.m_vertex0.set(0, 0);
-            shape.m_vertex1.set(44.521739959716797, 16.695652008056641);
-            shape.m_vertex2.set(44.521739959716797, 0);
-            shape.m_vertex3.set(0, 0);
-            // shape.m_hasVertex0 = false;
-            // shape.m_hasVertex3 = false;
+            shape.radius = 0.009999999776483;
+            shape.vertex0.set(0, 0);
+            shape.vertex1.set(44.521739959716797, 16.695652008056641);
+            shape.vertex2.set(44.521739959716797, 0);
+            shape.vertex3.set(0, 0);
+            // shape.hasVertex0 = false;
+            // shape.hasVertex3 = false;
 
             bodies[0].createFixture({
                 friction: 10,
@@ -144,7 +144,7 @@ class DumpShellTest extends Test {
                 shape,
             });
         }
-        bodies[1] = this.m_world.createBody({
+        bodies[1] = this.world.createBody({
             type: BodyType.Dynamic,
             position: { x: 0.847826063632965, y: 2.5 },
             angle: 0,
@@ -181,7 +181,7 @@ class DumpShellTest extends Test {
                 shape,
             });
         }
-        bodies[2] = this.m_world.createBody({
+        bodies[2] = this.world.createBody({
             type: BodyType.Dynamic,
             position: { x: 13.043478012084959, y: 2.5 },
             angle: 0,
@@ -218,7 +218,7 @@ class DumpShellTest extends Test {
                 shape,
             });
         }
-        bodies[3] = this.m_world.createBody({
+        bodies[3] = this.world.createBody({
             type: BodyType.Static,
             angle: 0,
             angularVelocity: 0,
@@ -247,7 +247,7 @@ class DumpShellTest extends Test {
             jd.enableMotor = false;
             jd.motorSpeed = 0;
             jd.maxMotorTorque = 0;
-            joints[0] = this.m_world.createJoint(jd);
+            joints[0] = this.world.createJoint(jd);
         }
         {
             const jd = new PrismaticJointDef();
@@ -266,7 +266,7 @@ class DumpShellTest extends Test {
             jd.enableMotor = true;
             jd.motorSpeed = 0;
             jd.maxMotorForce = 10;
-            joints[1] = this.m_world.createJoint(jd);
+            joints[1] = this.world.createJoint(jd);
         }
         // dump end
     }

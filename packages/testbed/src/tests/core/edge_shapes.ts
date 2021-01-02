@@ -26,28 +26,28 @@ import { hotKeyPress, HotKey } from "../../utils/hotkeys";
 class EdgeShapesTest extends Test {
     public static readonly e_maxBodies = 256;
 
-    public m_bodyIndex = 0;
+    public bodyIndex = 0;
 
-    public m_bodies: Array<Body | null>;
+    public bodies: Array<Body | null>;
 
-    public m_polygons: PolygonShape[];
+    public polygons: PolygonShape[];
 
-    public m_circle = new CircleShape();
+    public circle = new CircleShape();
 
-    public m_angle = 0;
+    public angle = 0;
 
     public constructor() {
         super();
 
-        this.m_bodies = new Array<Body>(EdgeShapesTest.e_maxBodies);
-        this.m_polygons = new Array<PolygonShape>(4);
+        this.bodies = new Array<Body>(EdgeShapesTest.e_maxBodies);
+        this.polygons = new Array<PolygonShape>(4);
         for (let i = 0; i < 4; ++i) {
-            this.m_polygons[i] = new PolygonShape();
+            this.polygons[i] = new PolygonShape();
         }
 
         // Ground body
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             let x1 = -20;
             let y1 = 2 * Math.cos((x1 / 10) * Math.PI);
@@ -69,7 +69,7 @@ class EdgeShapesTest extends Test {
             vertices[0] = new Vec2(-0.5, 0);
             vertices[1] = new Vec2(0.5, 0);
             vertices[2] = new Vec2(0, 1.5);
-            this.m_polygons[0].set(vertices, 3);
+            this.polygons[0].set(vertices, 3);
         }
 
         {
@@ -77,7 +77,7 @@ class EdgeShapesTest extends Test {
             vertices[0] = new Vec2(-0.1, 0);
             vertices[1] = new Vec2(0.1, 0);
             vertices[2] = new Vec2(0, 1.5);
-            this.m_polygons[1].set(vertices, 3);
+            this.polygons[1].set(vertices, 3);
         }
 
         {
@@ -95,25 +95,25 @@ class EdgeShapesTest extends Test {
             vertices[6] = new Vec2(-0.5 * w, b);
             vertices[7] = new Vec2(-0.5 * s, 0);
 
-            this.m_polygons[2].set(vertices, 8);
+            this.polygons[2].set(vertices, 8);
         }
 
-        this.m_polygons[3].setAsBox(0.5, 0.5);
-        this.m_circle.m_radius = 0.5;
+        this.polygons[3].setAsBox(0.5, 0.5);
+        this.circle.radius = 0.5;
 
         for (let i = 0; i < EdgeShapesTest.e_maxBodies; ++i) {
-            this.m_bodies[i] = null;
+            this.bodies[i] = null;
         }
     }
 
     public createBody(index: number) {
-        const old_body = this.m_bodies[this.m_bodyIndex];
+        const old_body = this.bodies[this.bodyIndex];
         if (old_body !== null) {
-            this.m_world.destroyBody(old_body);
-            this.m_bodies[this.m_bodyIndex] = null;
+            this.world.destroyBody(old_body);
+            this.bodies[this.bodyIndex] = null;
         }
 
-        const new_body = (this.m_bodies[this.m_bodyIndex] = this.m_world.createBody({
+        const new_body = (this.bodies[this.bodyIndex] = this.world.createBody({
             position: { x: randomFloat(-10, 10), y: randomFloat(10, 20) },
             angle: randomFloat(-Math.PI, Math.PI),
             type: BodyType.Dynamic,
@@ -122,27 +122,27 @@ class EdgeShapesTest extends Test {
 
         if (index < 4) {
             new_body.createFixture({
-                shape: this.m_polygons[index],
+                shape: this.polygons[index],
                 friction: 0.3,
                 density: 20,
             });
         } else {
             new_body.createFixture({
-                shape: this.m_circle,
+                shape: this.circle,
                 friction: 0.3,
                 density: 20,
             });
         }
 
-        this.m_bodyIndex = (this.m_bodyIndex + 1) % EdgeShapesTest.e_maxBodies;
+        this.bodyIndex = (this.bodyIndex + 1) % EdgeShapesTest.e_maxBodies;
     }
 
     public destroyBody() {
         for (let i = 0; i < EdgeShapesTest.e_maxBodies; ++i) {
-            const body = this.m_bodies[i];
+            const body = this.bodies[i];
             if (body !== null) {
-                this.m_world.destroyBody(body);
-                this.m_bodies[i] = null;
+                this.world.destroyBody(body);
+                this.bodies[i] = null;
                 return;
             }
         }
@@ -160,18 +160,18 @@ class EdgeShapesTest extends Test {
     }
 
     public step(settings: Settings, timeStep: number): void {
-        const advanceRay = !settings.m_pause || settings.m_singleStep;
+        const advanceRay = !settings.pause || settings.singleStep;
         super.step(settings, timeStep);
 
         const L = 25;
         const point1 = new Vec2(0, 10);
-        const d = new Vec2(L * Math.cos(this.m_angle), -L * Math.abs(Math.sin(this.m_angle)));
+        const d = new Vec2(L * Math.cos(this.angle), -L * Math.abs(Math.sin(this.angle)));
         const point2 = Vec2.add(point1, d, new Vec2());
 
         let resultFixture: Fixture | null = null;
         const resultPoint = new Vec2();
         const resultNormal = new Vec2();
-        this.m_world.rayCast(point1, point2, (fixture, point, normal, fraction) => {
+        this.world.rayCast(point1, point2, (fixture, point, normal, fraction) => {
             resultFixture = fixture;
             resultPoint.copy(point);
             resultNormal.copy(normal);
@@ -188,7 +188,7 @@ class EdgeShapesTest extends Test {
         }
 
         if (advanceRay) {
-            this.m_angle += (0.25 * Math.PI) / 180;
+            this.angle += (0.25 * Math.PI) / 180;
         }
     }
 }

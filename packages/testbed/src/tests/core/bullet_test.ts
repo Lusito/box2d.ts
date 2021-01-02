@@ -26,17 +26,17 @@ function formatValueAveMax(step: number, ave: number, max: number) {
 }
 
 class BulletTest extends Test {
-    public m_body: Body;
+    public body: Body;
 
-    public m_bullet: Body;
+    public bullet: Body;
 
-    public m_x = 0;
+    public x = 0;
 
     public constructor() {
         super();
 
         {
-            const body = this.m_world.createBody();
+            const body = this.world.createBody();
 
             const edge = new EdgeShape();
 
@@ -52,43 +52,43 @@ class BulletTest extends Test {
             const box = new PolygonShape();
             box.setAsBox(2, 0.1);
 
-            this.m_body = this.m_world.createBody({
+            this.body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: {
                     x: 0,
                     y: 4,
                 },
             });
-            this.m_body.createFixture({ shape: box, density: 1 });
+            this.body.createFixture({ shape: box, density: 1 });
 
             box.setAsBox(0.25, 0.25);
 
-            // this.m_x = randomFloat(-1, 1);
-            this.m_x = 0.20352793;
+            // this.x = randomFloat(-1, 1);
+            this.x = 0.20352793;
 
-            this.m_bullet = this.m_world.createBody({
+            this.bullet = this.world.createBody({
                 type: BodyType.Dynamic,
                 bullet: true,
                 position: {
-                    x: this.m_x,
+                    x: this.x,
                     y: 10,
                 },
             });
-            this.m_bullet.createFixture({ shape: box, density: 100 });
+            this.bullet.createFixture({ shape: box, density: 100 });
 
-            this.m_bullet.setLinearVelocity(new Vec2(0, -50));
+            this.bullet.setLinearVelocity(new Vec2(0, -50));
         }
     }
 
     public launch() {
-        this.m_body.setTransformVec(new Vec2(0, 4), 0);
-        this.m_body.setLinearVelocity(Vec2.ZERO);
-        this.m_body.setAngularVelocity(0);
+        this.body.setTransformVec(new Vec2(0, 4), 0);
+        this.body.setLinearVelocity(Vec2.ZERO);
+        this.body.setAngularVelocity(0);
 
-        this.m_x = randomFloat(-1, 1);
-        this.m_bullet.setTransformVec(new Vec2(this.m_x, 10), 0);
-        this.m_bullet.setLinearVelocity(new Vec2(0, -50));
-        this.m_bullet.setAngularVelocity(0);
+        this.x = randomFloat(-1, 1);
+        this.bullet.setTransformVec(new Vec2(this.x, 10), 0);
+        this.bullet.setLinearVelocity(new Vec2(0, -50));
+        this.bullet.setAngularVelocity(0);
 
         Gjk.reset();
         Toi.reset();
@@ -116,7 +116,7 @@ class BulletTest extends Test {
             Toi.calls > 0 && `[${(Toi.rootIters / Toi.calls).toFixed(1)}] (${Toi.maxRootIters})`,
         );
 
-        if (this.m_stepCount % 60 === 0) {
+        if (this.stepCount % 60 === 0) {
             this.launch();
         }
     }

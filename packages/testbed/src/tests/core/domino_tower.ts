@@ -17,7 +17,7 @@ class DominoTowerTest extends Test {
          */
         let dominoDensity: number;
 
-        const world = this.m_world;
+        const { world } = this;
         function makeDomino(x: number, y: number, horizontal: boolean) {
             const sd = new PolygonShape();
             sd.setAsBox(0.5 * DOMINO_WIDTH, 0.5 * DOMINO_HEIGHT);

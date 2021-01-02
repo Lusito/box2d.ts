@@ -30,13 +30,13 @@ import { baseParticleTypes } from "../../utils/particles/particle_parameter";
  */
 
 class AntiPointyTest extends AbstractParticleTestWithControls {
-    public m_particlesToCreate = 300;
+    public particlesToCreate = 300;
 
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter);
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             // Construct a valley out of many polygons to ensure there's no
             // issue with particles falling directly on an ambiguous set of
@@ -63,12 +63,12 @@ class AntiPointyTest extends AbstractParticleTestWithControls {
         }
 
         // Cap the number of generated particles or we'll fill forever
-        this.m_particlesToCreate = 300;
+        this.particlesToCreate = 300;
 
-        this.m_particleSystem.setRadius(0.25 * 2); // HACK: increase particle radius
+        this.particleSystem.setRadius(0.25 * 2); // HACK: increase particle radius
         const particleType = particleParameter.getValue();
         if (particleType === ParticleFlag.Water) {
-            this.m_particleSystem.setDamping(0.2);
+            this.particleSystem.setDamping(0.2);
         }
         particleParameter.setValues(baseParticleTypes, "water");
     }
@@ -76,11 +76,11 @@ class AntiPointyTest extends AbstractParticleTestWithControls {
     public step(settings: Settings, timeStep: number) {
         super.step(settings, timeStep);
 
-        if (this.m_particlesToCreate <= 0) {
+        if (this.particlesToCreate <= 0) {
             return;
         }
 
-        --this.m_particlesToCreate;
+        --this.particlesToCreate;
 
         const flags = this.particleParameter.getValue();
         const pd = new ParticleDef();
@@ -90,12 +90,12 @@ class AntiPointyTest extends AbstractParticleTestWithControls {
         pd.flags = flags;
 
         if (flags & (ParticleFlag.Spring | ParticleFlag.Elastic)) {
-            const count = this.m_particleSystem.getParticleCount();
+            const count = this.particleSystem.getParticleCount();
             pd.velocity.set(count & 1 ? -1 : 1, -5);
             pd.flags |= ParticleFlag.Reactive;
         }
 
-        this.m_particleSystem.createParticle(pd);
+        this.particleSystem.createParticle(pd);
     }
 
     public getCenter(): XY {

@@ -150,283 +150,283 @@ export class WheelJointDef extends JointDef implements IWheelJointDef {
  * initialized upon creation. This joint is designed for vehicle suspensions.
  */
 export class WheelJoint extends Joint {
-    protected readonly m_localAnchorA = new Vec2();
+    protected readonly localAnchorA = new Vec2();
 
-    protected readonly m_localAnchorB = new Vec2();
+    protected readonly localAnchorB = new Vec2();
 
-    protected readonly m_localXAxisA = new Vec2();
+    protected readonly localXAxisA = new Vec2();
 
-    protected readonly m_localYAxisA = new Vec2();
+    protected readonly localYAxisA = new Vec2();
 
-    protected m_impulse = 0;
+    protected impulse = 0;
 
-    protected m_motorImpulse = 0;
+    protected motorImpulse = 0;
 
-    protected m_springImpulse = 0;
+    protected springImpulse = 0;
 
-    protected m_lowerImpulse = 0;
+    protected lowerImpulse = 0;
 
-    protected m_upperImpulse = 0;
+    protected upperImpulse = 0;
 
-    protected m_translation = 0;
+    protected translation = 0;
 
-    protected m_lowerTranslation = 0;
+    protected lowerTranslation = 0;
 
-    protected m_upperTranslation = 0;
+    protected upperTranslation = 0;
 
-    protected m_maxMotorTorque = 0;
+    protected maxMotorTorque = 0;
 
-    protected m_motorSpeed = 0;
+    protected motorSpeed = 0;
 
     protected m_enableLimit = false;
 
     protected m_enableMotor = false;
 
-    protected m_stiffness = 0;
+    protected stiffness = 0;
 
-    protected m_damping = 0;
+    protected damping = 0;
 
     // Solver temp
-    protected m_indexA = 0;
+    protected indexA = 0;
 
-    protected m_indexB = 0;
+    protected indexB = 0;
 
-    protected readonly m_localCenterA = new Vec2();
+    protected readonly localCenterA = new Vec2();
 
-    protected readonly m_localCenterB = new Vec2();
+    protected readonly localCenterB = new Vec2();
 
-    protected m_invMassA = 0;
+    protected invMassA = 0;
 
-    protected m_invMassB = 0;
+    protected invMassB = 0;
 
-    protected m_invIA = 0;
+    protected invIA = 0;
 
-    protected m_invIB = 0;
+    protected invIB = 0;
 
-    protected readonly m_ax = new Vec2();
+    protected readonly ax = new Vec2();
 
-    protected readonly m_ay = new Vec2();
+    protected readonly ay = new Vec2();
 
-    protected m_sAx = 0;
+    protected sAx = 0;
 
-    protected m_sBx = 0;
+    protected sBx = 0;
 
-    protected m_sAy = 0;
+    protected sAy = 0;
 
-    protected m_sBy = 0;
+    protected sBy = 0;
 
-    protected m_mass = 0;
+    protected mass = 0;
 
-    protected m_motorMass = 0;
+    protected motorMass = 0;
 
-    protected m_axialMass = 0;
+    protected axialMass = 0;
 
-    protected m_springMass = 0;
+    protected springMass = 0;
 
-    protected m_bias = 0;
+    protected bias = 0;
 
-    protected m_gamma = 0;
+    protected gamma = 0;
 
     /** @internal protected */
     public constructor(def: IWheelJointDef) {
         super(def);
 
-        this.m_localAnchorA.copy(def.localAnchorA ?? Vec2.ZERO);
-        this.m_localAnchorB.copy(def.localAnchorB ?? Vec2.ZERO);
-        this.m_localXAxisA.copy(def.localAxisA ?? Vec2.UNITX);
-        Vec2.crossOneVec2(this.m_localXAxisA, this.m_localYAxisA);
+        this.localAnchorA.copy(def.localAnchorA ?? Vec2.ZERO);
+        this.localAnchorB.copy(def.localAnchorB ?? Vec2.ZERO);
+        this.localXAxisA.copy(def.localAxisA ?? Vec2.UNITX);
+        Vec2.crossOneVec2(this.localXAxisA, this.localYAxisA);
 
-        this.m_lowerTranslation = def.lowerTranslation ?? 0;
-        this.m_upperTranslation = def.upperTranslation ?? 0;
+        this.lowerTranslation = def.lowerTranslation ?? 0;
+        this.upperTranslation = def.upperTranslation ?? 0;
         this.m_enableLimit = def.enableLimit ?? false;
 
-        this.m_maxMotorTorque = def.maxMotorTorque ?? 0;
-        this.m_motorSpeed = def.motorSpeed ?? 0;
+        this.maxMotorTorque = def.maxMotorTorque ?? 0;
+        this.motorSpeed = def.motorSpeed ?? 0;
         this.m_enableMotor = def.enableMotor ?? false;
 
-        this.m_ax.setZero();
-        this.m_ay.setZero();
+        this.ax.setZero();
+        this.ay.setZero();
 
-        this.m_stiffness = def.stiffness ?? 0;
-        this.m_damping = def.damping ?? 0;
+        this.stiffness = def.stiffness ?? 0;
+        this.damping = def.damping ?? 0;
     }
 
     public getMotorSpeed(): number {
-        return this.m_motorSpeed;
+        return this.motorSpeed;
     }
 
     public getMaxMotorTorque(): number {
-        return this.m_maxMotorTorque;
+        return this.maxMotorTorque;
     }
 
     public setStiffness(stiffness: number): void {
-        this.m_stiffness = stiffness;
+        this.stiffness = stiffness;
     }
 
     public getStiffness(): number {
-        return this.m_stiffness;
+        return this.stiffness;
     }
 
     public setDamping(damping: number): void {
-        this.m_damping = damping;
+        this.damping = damping;
     }
 
     public getDamping(): number {
-        return this.m_damping;
+        return this.damping;
     }
 
     /** @internal protected */
     public initVelocityConstraints(data: SolverData): void {
-        this.m_indexA = this.m_bodyA.m_islandIndex;
-        this.m_indexB = this.m_bodyB.m_islandIndex;
-        this.m_localCenterA.copy(this.m_bodyA.m_sweep.localCenter);
-        this.m_localCenterB.copy(this.m_bodyB.m_sweep.localCenter);
-        this.m_invMassA = this.m_bodyA.m_invMass;
-        this.m_invMassB = this.m_bodyB.m_invMass;
-        this.m_invIA = this.m_bodyA.m_invI;
-        this.m_invIB = this.m_bodyB.m_invI;
+        this.indexA = this.bodyA.islandIndex;
+        this.indexB = this.bodyB.islandIndex;
+        this.localCenterA.copy(this.bodyA.sweep.localCenter);
+        this.localCenterB.copy(this.bodyB.sweep.localCenter);
+        this.invMassA = this.bodyA.invMass;
+        this.invMassB = this.bodyB.invMass;
+        this.invIA = this.bodyA.invI;
+        this.invIB = this.bodyB.invI;
 
-        const mA = this.m_invMassA;
-        const mB = this.m_invMassB;
-        const iA = this.m_invIA;
-        const iB = this.m_invIB;
+        const mA = this.invMassA;
+        const mB = this.invMassB;
+        const iA = this.invIA;
+        const iB = this.invIB;
 
-        const cA = data.positions[this.m_indexA].c;
-        const aA = data.positions[this.m_indexA].a;
-        const vA = data.velocities[this.m_indexA].v;
-        let wA = data.velocities[this.m_indexA].w;
+        const cA = data.positions[this.indexA].c;
+        const aA = data.positions[this.indexA].a;
+        const vA = data.velocities[this.indexA].v;
+        let wA = data.velocities[this.indexA].w;
 
-        const cB = data.positions[this.m_indexB].c;
-        const aB = data.positions[this.m_indexB].a;
-        const vB = data.velocities[this.m_indexB].v;
-        let wB = data.velocities[this.m_indexB].w;
+        const cB = data.positions[this.indexB].c;
+        const aB = data.positions[this.indexB].a;
+        const vB = data.velocities[this.indexB].v;
+        let wB = data.velocities[this.indexB].w;
 
         const { qA, qB, lalcA, lalcB, rA, rB, d } = temp;
         qA.set(aA);
         qB.set(aB);
 
         // Compute the effective masses.
-        Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), rA);
-        Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), rB);
+        Rot.multiplyVec2(qA, Vec2.subtract(this.localAnchorA, this.localCenterA, lalcA), rA);
+        Rot.multiplyVec2(qB, Vec2.subtract(this.localAnchorB, this.localCenterB, lalcB), rB);
         Vec2.add(cB, rB, d).subtract(cA).subtract(rA);
 
         // Point to line constraint
-        Rot.multiplyVec2(qA, this.m_localYAxisA, this.m_ay);
-        this.m_sAy = Vec2.cross(Vec2.add(d, rA, Vec2.s_t0), this.m_ay);
-        this.m_sBy = Vec2.cross(rB, this.m_ay);
+        Rot.multiplyVec2(qA, this.localYAxisA, this.ay);
+        this.sAy = Vec2.cross(Vec2.add(d, rA, Vec2.s_t0), this.ay);
+        this.sBy = Vec2.cross(rB, this.ay);
 
-        this.m_mass = mA + mB + iA * this.m_sAy * this.m_sAy + iB * this.m_sBy * this.m_sBy;
+        this.mass = mA + mB + iA * this.sAy * this.sAy + iB * this.sBy * this.sBy;
 
-        if (this.m_mass > 0) {
-            this.m_mass = 1 / this.m_mass;
+        if (this.mass > 0) {
+            this.mass = 1 / this.mass;
         }
 
         // Spring constraint
-        Rot.multiplyVec2(qA, this.m_localXAxisA, this.m_ax);
-        this.m_sAx = Vec2.cross(Vec2.add(d, rA, Vec2.s_t0), this.m_ax);
-        this.m_sBx = Vec2.cross(rB, this.m_ax);
+        Rot.multiplyVec2(qA, this.localXAxisA, this.ax);
+        this.sAx = Vec2.cross(Vec2.add(d, rA, Vec2.s_t0), this.ax);
+        this.sBx = Vec2.cross(rB, this.ax);
 
-        const invMass = mA + mB + iA * this.m_sAx * this.m_sAx + iB * this.m_sBx * this.m_sBx;
+        const invMass = mA + mB + iA * this.sAx * this.sAx + iB * this.sBx * this.sBx;
         if (invMass > 0) {
-            this.m_axialMass = 1 / invMass;
+            this.axialMass = 1 / invMass;
         } else {
-            this.m_axialMass = 0;
+            this.axialMass = 0;
         }
 
-        this.m_springMass = 0;
-        this.m_bias = 0;
-        this.m_gamma = 0;
+        this.springMass = 0;
+        this.bias = 0;
+        this.gamma = 0;
 
-        if (this.m_stiffness > 0 && invMass > 0) {
-            this.m_springMass = 1 / invMass;
+        if (this.stiffness > 0 && invMass > 0) {
+            this.springMass = 1 / invMass;
 
-            const C = Vec2.dot(d, this.m_ax);
+            const C = Vec2.dot(d, this.ax);
 
             // magic formulas
             const h = data.step.dt;
-            this.m_gamma = h * (this.m_damping + h * this.m_stiffness);
-            if (this.m_gamma > 0) {
-                this.m_gamma = 1 / this.m_gamma;
+            this.gamma = h * (this.damping + h * this.stiffness);
+            if (this.gamma > 0) {
+                this.gamma = 1 / this.gamma;
             }
 
-            this.m_bias = C * h * this.m_stiffness * this.m_gamma;
+            this.bias = C * h * this.stiffness * this.gamma;
 
-            this.m_springMass = invMass + this.m_gamma;
-            if (this.m_springMass > 0) {
-                this.m_springMass = 1 / this.m_springMass;
+            this.springMass = invMass + this.gamma;
+            if (this.springMass > 0) {
+                this.springMass = 1 / this.springMass;
             }
         } else {
-            this.m_springImpulse = 0;
+            this.springImpulse = 0;
         }
 
         if (this.m_enableLimit) {
-            this.m_translation = Vec2.dot(this.m_ax, d);
+            this.translation = Vec2.dot(this.ax, d);
         } else {
-            this.m_lowerImpulse = 0;
-            this.m_upperImpulse = 0;
+            this.lowerImpulse = 0;
+            this.upperImpulse = 0;
         }
 
         if (this.m_enableMotor) {
-            this.m_motorMass = iA + iB;
-            if (this.m_motorMass > 0) {
-                this.m_motorMass = 1 / this.m_motorMass;
+            this.motorMass = iA + iB;
+            if (this.motorMass > 0) {
+                this.motorMass = 1 / this.motorMass;
             }
         } else {
-            this.m_motorMass = 0;
-            this.m_motorImpulse = 0;
+            this.motorMass = 0;
+            this.motorImpulse = 0;
         }
 
         if (data.step.warmStarting) {
             // Account for variable time step.
-            this.m_impulse *= data.step.dtRatio;
-            this.m_springImpulse *= data.step.dtRatio;
-            this.m_motorImpulse *= data.step.dtRatio;
+            this.impulse *= data.step.dtRatio;
+            this.springImpulse *= data.step.dtRatio;
+            this.motorImpulse *= data.step.dtRatio;
 
-            const axialImpulse = this.m_springImpulse + this.m_lowerImpulse - this.m_upperImpulse;
+            const axialImpulse = this.springImpulse + this.lowerImpulse - this.upperImpulse;
             const { P } = temp;
-            Vec2.scale(this.m_impulse, this.m_ay, P).addScaled(axialImpulse, this.m_ax);
-            const LA = this.m_impulse * this.m_sAy + axialImpulse * this.m_sAx + this.m_motorImpulse;
-            const LB = this.m_impulse * this.m_sBy + axialImpulse * this.m_sBx + this.m_motorImpulse;
+            Vec2.scale(this.impulse, this.ay, P).addScaled(axialImpulse, this.ax);
+            const LA = this.impulse * this.sAy + axialImpulse * this.sAx + this.motorImpulse;
+            const LB = this.impulse * this.sBy + axialImpulse * this.sBx + this.motorImpulse;
 
-            vA.subtractScaled(this.m_invMassA, P);
-            wA -= this.m_invIA * LA;
+            vA.subtractScaled(this.invMassA, P);
+            wA -= this.invIA * LA;
 
-            vB.addScaled(this.m_invMassB, P);
-            wB += this.m_invIB * LB;
+            vB.addScaled(this.invMassB, P);
+            wB += this.invIB * LB;
         } else {
-            this.m_impulse = 0;
-            this.m_springImpulse = 0;
-            this.m_motorImpulse = 0;
-            this.m_lowerImpulse = 0;
-            this.m_upperImpulse = 0;
+            this.impulse = 0;
+            this.springImpulse = 0;
+            this.motorImpulse = 0;
+            this.lowerImpulse = 0;
+            this.upperImpulse = 0;
         }
 
-        data.velocities[this.m_indexA].w = wA;
-        data.velocities[this.m_indexB].w = wB;
+        data.velocities[this.indexA].w = wA;
+        data.velocities[this.indexB].w = wB;
     }
 
     /** @internal protected */
     public solveVelocityConstraints(data: SolverData): void {
-        const mA = this.m_invMassA;
-        const mB = this.m_invMassB;
-        const iA = this.m_invIA;
-        const iB = this.m_invIB;
+        const mA = this.invMassA;
+        const mB = this.invMassB;
+        const iA = this.invIA;
+        const iB = this.invIB;
 
-        const vA = data.velocities[this.m_indexA].v;
-        let wA = data.velocities[this.m_indexA].w;
-        const vB = data.velocities[this.m_indexB].v;
-        let wB = data.velocities[this.m_indexB].w;
+        const vA = data.velocities[this.indexA].v;
+        let wA = data.velocities[this.indexA].w;
+        const vB = data.velocities[this.indexB].v;
+        let wB = data.velocities[this.indexB].w;
 
         const { P } = temp;
         // Solve spring constraint
         {
-            const Cdot = Vec2.dot(this.m_ax, Vec2.subtract(vB, vA, Vec2.s_t0)) + this.m_sBx * wB - this.m_sAx * wA;
-            const impulse = -this.m_springMass * (Cdot + this.m_bias + this.m_gamma * this.m_springImpulse);
-            this.m_springImpulse += impulse;
+            const Cdot = Vec2.dot(this.ax, Vec2.subtract(vB, vA, Vec2.s_t0)) + this.sBx * wB - this.sAx * wA;
+            const impulse = -this.springMass * (Cdot + this.bias + this.gamma * this.springImpulse);
+            this.springImpulse += impulse;
 
-            Vec2.scale(impulse, this.m_ax, P);
-            const LA = impulse * this.m_sAx;
-            const LB = impulse * this.m_sBx;
+            Vec2.scale(impulse, this.ax, P);
+            const LA = impulse * this.sAx;
+            const LB = impulse * this.sBx;
 
             vA.subtractScaled(mA, P);
             wA -= iA * LA;
@@ -437,13 +437,13 @@ export class WheelJoint extends Joint {
 
         // Solve rotational motor constraint
         {
-            const Cdot = wB - wA - this.m_motorSpeed;
-            let impulse = -this.m_motorMass * Cdot;
+            const Cdot = wB - wA - this.motorSpeed;
+            let impulse = -this.motorMass * Cdot;
 
-            const oldImpulse = this.m_motorImpulse;
-            const maxImpulse = data.step.dt * this.m_maxMotorTorque;
-            this.m_motorImpulse = clamp(this.m_motorImpulse + impulse, -maxImpulse, maxImpulse);
-            impulse = this.m_motorImpulse - oldImpulse;
+            const oldImpulse = this.motorImpulse;
+            const maxImpulse = data.step.dt * this.maxMotorTorque;
+            this.motorImpulse = clamp(this.motorImpulse + impulse, -maxImpulse, maxImpulse);
+            impulse = this.motorImpulse - oldImpulse;
 
             wA -= iA * impulse;
             wB += iB * impulse;
@@ -452,16 +452,16 @@ export class WheelJoint extends Joint {
         if (this.m_enableLimit) {
             // Lower limit
             {
-                const C = this.m_translation - this.m_lowerTranslation;
-                const Cdot = Vec2.dot(this.m_ax, Vec2.subtract(vB, vA, Vec2.s_t0)) + this.m_sBx * wB - this.m_sAx * wA;
-                let impulse = -this.m_axialMass * (Cdot + Math.max(C, 0) * data.step.inv_dt);
-                const oldImpulse = this.m_lowerImpulse;
-                this.m_lowerImpulse = Math.max(this.m_lowerImpulse + impulse, 0);
-                impulse = this.m_lowerImpulse - oldImpulse;
+                const C = this.translation - this.lowerTranslation;
+                const Cdot = Vec2.dot(this.ax, Vec2.subtract(vB, vA, Vec2.s_t0)) + this.sBx * wB - this.sAx * wA;
+                let impulse = -this.axialMass * (Cdot + Math.max(C, 0) * data.step.inv_dt);
+                const oldImpulse = this.lowerImpulse;
+                this.lowerImpulse = Math.max(this.lowerImpulse + impulse, 0);
+                impulse = this.lowerImpulse - oldImpulse;
 
-                Vec2.scale(impulse, this.m_ax, P);
-                const LA = impulse * this.m_sAx;
-                const LB = impulse * this.m_sBx;
+                Vec2.scale(impulse, this.ax, P);
+                const LA = impulse * this.sAx;
+                const LB = impulse * this.sBx;
 
                 vA.subtractScaled(mA, P);
                 wA -= iA * LA;
@@ -473,16 +473,16 @@ export class WheelJoint extends Joint {
             // Note: signs are flipped to keep C positive when the constraint is satisfied.
             // This also keeps the impulse positive when the limit is active.
             {
-                const C = this.m_upperTranslation - this.m_translation;
-                const Cdot = Vec2.dot(this.m_ax, Vec2.subtract(vA, vB, Vec2.s_t0)) + this.m_sAx * wA - this.m_sBx * wB;
-                let impulse = -this.m_axialMass * (Cdot + Math.max(C, 0) * data.step.inv_dt);
-                const oldImpulse = this.m_upperImpulse;
-                this.m_upperImpulse = Math.max(this.m_upperImpulse + impulse, 0);
-                impulse = this.m_upperImpulse - oldImpulse;
+                const C = this.upperTranslation - this.translation;
+                const Cdot = Vec2.dot(this.ax, Vec2.subtract(vA, vB, Vec2.s_t0)) + this.sAx * wA - this.sBx * wB;
+                let impulse = -this.axialMass * (Cdot + Math.max(C, 0) * data.step.inv_dt);
+                const oldImpulse = this.upperImpulse;
+                this.upperImpulse = Math.max(this.upperImpulse + impulse, 0);
+                impulse = this.upperImpulse - oldImpulse;
 
-                Vec2.scale(impulse, this.m_ax, P);
-                const LA = impulse * this.m_sAx;
-                const LB = impulse * this.m_sBx;
+                Vec2.scale(impulse, this.ax, P);
+                const LA = impulse * this.sAx;
+                const LB = impulse * this.sBx;
 
                 vA.addScaled(mA, P);
                 wA += iA * LA;
@@ -493,13 +493,13 @@ export class WheelJoint extends Joint {
 
         // Solve point to line constraint
         {
-            const Cdot = Vec2.dot(this.m_ay, Vec2.subtract(vB, vA, Vec2.s_t0)) + this.m_sBy * wB - this.m_sAy * wA;
-            const impulse = -this.m_mass * Cdot;
-            this.m_impulse += impulse;
+            const Cdot = Vec2.dot(this.ay, Vec2.subtract(vB, vA, Vec2.s_t0)) + this.sBy * wB - this.sAy * wA;
+            const impulse = -this.mass * Cdot;
+            this.impulse += impulse;
 
-            Vec2.scale(impulse, this.m_ay, P);
-            const LA = impulse * this.m_sAy;
-            const LB = impulse * this.m_sBy;
+            Vec2.scale(impulse, this.ay, P);
+            const LA = impulse * this.sAy;
+            const LB = impulse * this.sBy;
 
             vA.subtractScaled(mA, P);
             wA -= iA * LA;
@@ -508,16 +508,16 @@ export class WheelJoint extends Joint {
             wB += iB * LB;
         }
 
-        data.velocities[this.m_indexA].w = wA;
-        data.velocities[this.m_indexB].w = wB;
+        data.velocities[this.indexA].w = wA;
+        data.velocities[this.indexB].w = wB;
     }
 
     /** @internal protected */
     public solvePositionConstraints(data: SolverData): boolean {
-        const cA = data.positions[this.m_indexA].c;
-        let aA = data.positions[this.m_indexA].a;
-        const cB = data.positions[this.m_indexB].c;
-        let aB = data.positions[this.m_indexB].a;
+        const cA = data.positions[this.indexA].c;
+        let aA = data.positions[this.indexA].a;
+        const cB = data.positions[this.indexB].c;
+        let aB = data.positions[this.indexB].a;
 
         let linearError = 0;
 
@@ -527,26 +527,26 @@ export class WheelJoint extends Joint {
             qA.set(aA);
             qB.set(aB);
 
-            Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), rA);
-            Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), rB);
+            Rot.multiplyVec2(qA, Vec2.subtract(this.localAnchorA, this.localCenterA, lalcA), rA);
+            Rot.multiplyVec2(qB, Vec2.subtract(this.localAnchorB, this.localCenterB, lalcB), rB);
             Vec2.subtract(cB, cA, d).add(rB).subtract(rA);
 
-            const ax = Rot.multiplyVec2(qA, this.m_localXAxisA, this.m_ax);
-            const sAx = Vec2.cross(Vec2.add(d, rA, Vec2.s_t0), this.m_ax);
-            const sBx = Vec2.cross(rB, this.m_ax);
+            const ax = Rot.multiplyVec2(qA, this.localXAxisA, this.ax);
+            const sAx = Vec2.cross(Vec2.add(d, rA, Vec2.s_t0), this.ax);
+            const sBx = Vec2.cross(rB, this.ax);
 
             let C = 0;
             const translation = Vec2.dot(ax, d);
-            if (Math.abs(this.m_upperTranslation - this.m_lowerTranslation) < 2 * LINEAR_SLOP) {
+            if (Math.abs(this.upperTranslation - this.lowerTranslation) < 2 * LINEAR_SLOP) {
                 C = translation;
-            } else if (translation <= this.m_lowerTranslation) {
-                C = Math.min(translation - this.m_lowerTranslation, 0);
-            } else if (translation >= this.m_upperTranslation) {
-                C = Math.max(translation - this.m_upperTranslation, 0);
+            } else if (translation <= this.lowerTranslation) {
+                C = Math.min(translation - this.lowerTranslation, 0);
+            } else if (translation >= this.upperTranslation) {
+                C = Math.max(translation - this.upperTranslation, 0);
             }
 
             if (C !== 0) {
-                const invMass = this.m_invMassA + this.m_invMassB + this.m_invIA * sAx * sAx + this.m_invIB * sBx * sBx;
+                const invMass = this.invMassA + this.invMassB + this.invIA * sAx * sAx + this.invIB * sBx * sBx;
                 let impulse = 0;
                 if (invMass !== 0) {
                     impulse = -C / invMass;
@@ -556,10 +556,10 @@ export class WheelJoint extends Joint {
                 const LA = impulse * sAx;
                 const LB = impulse * sBx;
 
-                cA.subtractScaled(this.m_invMassA, P);
-                aA -= this.m_invIA * LA;
-                cB.addScaled(this.m_invMassB, P);
-                aB += this.m_invIB * LB;
+                cA.subtractScaled(this.invMassA, P);
+                aA -= this.invIA * LA;
+                cB.addScaled(this.invMassB, P);
+                aB += this.invIB * LB;
 
                 linearError = Math.abs(C);
             }
@@ -570,11 +570,11 @@ export class WheelJoint extends Joint {
             qA.set(aA);
             qB.set(aB);
 
-            Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), rA);
-            Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), rB);
+            Rot.multiplyVec2(qA, Vec2.subtract(this.localAnchorA, this.localCenterA, lalcA), rA);
+            Rot.multiplyVec2(qB, Vec2.subtract(this.localAnchorB, this.localCenterB, lalcB), rB);
             Vec2.subtract(cB, cA, d).add(rB).subtract(rA);
 
-            Rot.multiplyVec2(qA, this.m_localYAxisA, ay);
+            Rot.multiplyVec2(qA, this.localYAxisA, ay);
 
             const sAy = Vec2.cross(Vec2.add(d, rA, Vec2.s_t0), ay);
             const sBy = Vec2.cross(rB, ay);
@@ -582,10 +582,7 @@ export class WheelJoint extends Joint {
             const C = Vec2.dot(d, ay);
 
             const invMass =
-                this.m_invMassA +
-                this.m_invMassB +
-                this.m_invIA * this.m_sAy * this.m_sAy +
-                this.m_invIB * this.m_sBy * this.m_sBy;
+                this.invMassA + this.invMassB + this.invIA * this.sAy * this.sAy + this.invIB * this.sBy * this.sBy;
 
             let impulse = 0;
             if (invMass !== 0) {
@@ -596,81 +593,81 @@ export class WheelJoint extends Joint {
             const LA = impulse * sAy;
             const LB = impulse * sBy;
 
-            cA.subtractScaled(this.m_invMassA, P);
-            aA -= this.m_invIA * LA;
-            cB.addScaled(this.m_invMassB, P);
-            aB += this.m_invIB * LB;
+            cA.subtractScaled(this.invMassA, P);
+            aA -= this.invIA * LA;
+            cB.addScaled(this.invMassB, P);
+            aB += this.invIB * LB;
 
             linearError = Math.max(linearError, Math.abs(C));
         }
 
-        data.positions[this.m_indexA].a = aA;
-        data.positions[this.m_indexB].a = aB;
+        data.positions[this.indexA].a = aA;
+        data.positions[this.indexB].a = aB;
 
         return linearError <= LINEAR_SLOP;
     }
 
     public getAnchorA<T extends XY>(out: T): T {
-        return this.m_bodyA.getWorldPoint(this.m_localAnchorA, out);
+        return this.bodyA.getWorldPoint(this.localAnchorA, out);
     }
 
     public getAnchorB<T extends XY>(out: T): T {
-        return this.m_bodyB.getWorldPoint(this.m_localAnchorB, out);
+        return this.bodyB.getWorldPoint(this.localAnchorB, out);
     }
 
     public getReactionForce<T extends XY>(inv_dt: number, out: T): T {
-        const f = this.m_springImpulse + this.m_lowerImpulse - this.m_upperImpulse;
-        out.x = inv_dt * (this.m_impulse * this.m_ay.x + f * this.m_ax.x);
-        out.y = inv_dt * (this.m_impulse * this.m_ay.y + f * this.m_ax.y);
+        const f = this.springImpulse + this.lowerImpulse - this.upperImpulse;
+        out.x = inv_dt * (this.impulse * this.ay.x + f * this.ax.x);
+        out.y = inv_dt * (this.impulse * this.ay.y + f * this.ax.y);
         return out;
     }
 
     public getReactionTorque(inv_dt: number): number {
-        return inv_dt * this.m_motorImpulse;
+        return inv_dt * this.motorImpulse;
     }
 
     public getLocalAnchorA(): Readonly<Vec2> {
-        return this.m_localAnchorA;
+        return this.localAnchorA;
     }
 
     public getLocalAnchorB(): Readonly<Vec2> {
-        return this.m_localAnchorB;
+        return this.localAnchorB;
     }
 
     public getLocalAxisA(): Readonly<Vec2> {
-        return this.m_localXAxisA;
+        return this.localXAxisA;
     }
 
     public getJointTranslation(): number {
-        const bA = this.m_bodyA;
-        const bB = this.m_bodyB;
+        const bA = this.bodyA;
+        const bB = this.bodyB;
 
         const { pA, pB, d, axis } = temp;
-        bA.getWorldPoint(this.m_localAnchorA, pA);
-        bB.getWorldPoint(this.m_localAnchorB, pB);
+        bA.getWorldPoint(this.localAnchorA, pA);
+        bB.getWorldPoint(this.localAnchorB, pB);
         Vec2.subtract(pB, pA, d);
-        bA.getWorldVector(this.m_localXAxisA, axis);
+        bA.getWorldVector(this.localXAxisA, axis);
 
         const translation = Vec2.dot(d, axis);
         return translation;
     }
 
     public getJointLinearSpeed(): number {
-        const bA = this.m_bodyA;
-        const bB = this.m_bodyB;
+        const bA = this.bodyA;
+        const bB = this.bodyB;
 
         const { rA, rB, lalcA, lalcB, axis } = temp;
-        Rot.multiplyVec2(bA.m_xf.q, Vec2.subtract(this.m_localAnchorA, bA.m_sweep.localCenter, lalcA), rA);
-        Rot.multiplyVec2(bB.m_xf.q, Vec2.subtract(this.m_localAnchorB, bB.m_sweep.localCenter, lalcB), rB);
-        const p1 = Vec2.add(bA.m_sweep.c, rA, Vec2.s_t0);
-        const p2 = Vec2.add(bB.m_sweep.c, rB, Vec2.s_t1);
+        Rot.multiplyVec2(bA.xf.q, Vec2.subtract(this.localAnchorA, bA.sweep.localCenter, lalcA), rA);
+        Rot.multiplyVec2(bB.xf.q, Vec2.subtract(this.localAnchorB, bB.sweep.localCenter, lalcB), rB);
+        const p1 = Vec2.add(bA.sweep.c, rA, Vec2.s_t0);
+        const p2 = Vec2.add(bB.sweep.c, rB, Vec2.s_t1);
         const d = Vec2.subtract(p2, p1, Vec2.s_t2);
-        Rot.multiplyVec2(bA.m_xf.q, this.m_localXAxisA, axis);
+        Rot.multiplyVec2(bA.xf.q, this.localXAxisA, axis);
 
-        const vA = bA.m_linearVelocity;
-        const vB = bB.m_linearVelocity;
-        const wA = bA.m_angularVelocity;
-        const wB = bB.m_angularVelocity;
+        const vA = bA.linearVelocity;
+        const vB = bB.linearVelocity;
+        const wA = bA.angularVelocity;
+        const wB = bB.angularVelocity;
 
         const speed =
             Vec2.dot(d, Vec2.crossScalarVec2(wA, axis, Vec2.s_t0)) +
@@ -684,12 +681,12 @@ export class WheelJoint extends Joint {
     }
 
     public getJointAngle(): number {
-        return this.m_bodyB.m_sweep.a - this.m_bodyA.m_sweep.a;
+        return this.bodyB.sweep.a - this.bodyA.sweep.a;
     }
 
     public getJointAngularSpeed(): number {
-        const wA = this.m_bodyA.m_angularVelocity;
-        const wB = this.m_bodyB.m_angularVelocity;
+        const wA = this.bodyA.angularVelocity;
+        const wB = this.bodyB.angularVelocity;
         return wB - wA;
     }
 
@@ -699,32 +696,32 @@ export class WheelJoint extends Joint {
 
     public enableMotor(flag: boolean): boolean {
         if (flag !== this.m_enableMotor) {
-            this.m_bodyA.setAwake(true);
-            this.m_bodyB.setAwake(true);
+            this.bodyA.setAwake(true);
+            this.bodyB.setAwake(true);
             this.m_enableMotor = flag;
         }
         return flag;
     }
 
     public setMotorSpeed(speed: number): number {
-        if (speed !== this.m_motorSpeed) {
-            this.m_bodyA.setAwake(true);
-            this.m_bodyB.setAwake(true);
-            this.m_motorSpeed = speed;
+        if (speed !== this.motorSpeed) {
+            this.bodyA.setAwake(true);
+            this.bodyB.setAwake(true);
+            this.motorSpeed = speed;
         }
         return speed;
     }
 
     public setMaxMotorTorque(torque: number): void {
-        if (torque !== this.m_maxMotorTorque) {
-            this.m_bodyA.setAwake(true);
-            this.m_bodyB.setAwake(true);
-            this.m_maxMotorTorque = torque;
+        if (torque !== this.maxMotorTorque) {
+            this.bodyA.setAwake(true);
+            this.bodyB.setAwake(true);
+            this.maxMotorTorque = torque;
         }
     }
 
     public getMotorTorque(inv_dt: number): number {
-        return inv_dt * this.m_motorImpulse;
+        return inv_dt * this.motorImpulse;
     }
 
     /**
@@ -739,11 +736,11 @@ export class WheelJoint extends Joint {
      */
     public enableLimit(flag: boolean): boolean {
         if (flag !== this.m_enableLimit) {
-            this.m_bodyA.setAwake(true);
-            this.m_bodyB.setAwake(true);
+            this.bodyA.setAwake(true);
+            this.bodyB.setAwake(true);
             this.m_enableLimit = flag;
-            this.m_lowerImpulse = 0;
-            this.m_upperImpulse = 0;
+            this.lowerImpulse = 0;
+            this.upperImpulse = 0;
         }
         return flag;
     }
@@ -752,14 +749,14 @@ export class WheelJoint extends Joint {
      * Get the lower joint translation limit, usually in meters.
      */
     public getLowerLimit(): number {
-        return this.m_lowerTranslation;
+        return this.lowerTranslation;
     }
 
     /**
      * Get the upper joint translation limit, usually in meters.
      */
     public getUpperLimit(): number {
-        return this.m_upperTranslation;
+        return this.upperTranslation;
     }
 
     /**
@@ -767,32 +764,32 @@ export class WheelJoint extends Joint {
      */
     public setLimits(lower: number, upper: number): void {
         // assert(lower <= upper);
-        if (lower !== this.m_lowerTranslation || upper !== this.m_upperTranslation) {
-            this.m_bodyA.setAwake(true);
-            this.m_bodyB.setAwake(true);
-            this.m_lowerTranslation = lower;
-            this.m_upperTranslation = upper;
-            this.m_lowerImpulse = 0;
-            this.m_upperImpulse = 0;
+        if (lower !== this.lowerTranslation || upper !== this.upperTranslation) {
+            this.bodyA.setAwake(true);
+            this.bodyB.setAwake(true);
+            this.lowerTranslation = lower;
+            this.upperTranslation = upper;
+            this.lowerImpulse = 0;
+            this.upperImpulse = 0;
         }
     }
 
     public draw(draw: Draw): void {
         const { p1, p2, pA, pB, axis } = temp.Draw;
-        const xfA = this.m_bodyA.getTransform();
-        const xfB = this.m_bodyB.getTransform();
-        Transform.multiplyVec2(xfA, this.m_localAnchorA, pA);
-        Transform.multiplyVec2(xfB, this.m_localAnchorB, pB);
+        const xfA = this.bodyA.getTransform();
+        const xfB = this.bodyB.getTransform();
+        Transform.multiplyVec2(xfA, this.localAnchorA, pA);
+        Transform.multiplyVec2(xfB, this.localAnchorB, pB);
 
-        Rot.multiplyVec2(xfA.q, this.m_localXAxisA, axis);
+        Rot.multiplyVec2(xfA.q, this.localXAxisA, axis);
 
         draw.drawSegment(pA, pB, debugColors.joint5);
 
         if (this.m_enableLimit) {
             const { lower, upper, perp } = temp.Draw;
-            Vec2.addScaled(pA, this.m_lowerTranslation, axis, lower);
-            Vec2.addScaled(pA, this.m_upperTranslation, axis, upper);
-            Rot.multiplyVec2(xfA.q, this.m_localYAxisA, perp);
+            Vec2.addScaled(pA, this.lowerTranslation, axis, lower);
+            Vec2.addScaled(pA, this.upperTranslation, axis, upper);
+            Rot.multiplyVec2(xfA.q, this.localYAxisA, perp);
             draw.drawSegment(lower, upper, debugColors.joint1);
             draw.drawSegment(
                 Vec2.subtractScaled(lower, 0.5, perp, p1),

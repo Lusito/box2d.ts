@@ -21,14 +21,14 @@ import { Fixture, EdgeShape, Vec2, PolygonShape, BodyType, Contact, Manifold } f
 import { registerTest, Test } from "../../test";
 
 class ConveyorBeltTest extends Test {
-    public m_platform: Fixture;
+    public platform: Fixture;
 
     public constructor() {
         super();
 
         // Ground
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
@@ -37,14 +37,14 @@ class ConveyorBeltTest extends Test {
 
         // Platform
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 position: { x: -5, y: 5 },
             });
 
             const shape = new PolygonShape();
             shape.setAsBox(10, 0.5);
 
-            this.m_platform = body.createFixture({
+            this.platform = body.createFixture({
                 shape,
                 friction: 0.8,
             });
@@ -52,7 +52,7 @@ class ConveyorBeltTest extends Test {
 
         // Boxes
         for (let i = 0; i < 5; ++i) {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -10 + 2 * i, y: 7 },
             });
@@ -74,11 +74,11 @@ class ConveyorBeltTest extends Test {
 
         const fixtureB = contact.getFixtureB();
 
-        if (fixtureA === this.m_platform) {
+        if (fixtureA === this.platform) {
             contact.setTangentSpeed(5);
         }
 
-        if (fixtureB === this.m_platform) {
+        if (fixtureB === this.platform) {
             contact.setTangentSpeed(-5);
         }
     }

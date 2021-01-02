@@ -26,7 +26,7 @@ class ParticlesTest extends AbstractParticleTestWithControls {
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter);
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             {
                 const shape = new PolygonShape();
@@ -50,30 +50,30 @@ class ParticlesTest extends AbstractParticleTestWithControls {
             }
         }
 
-        this.m_particleSystem.setRadius(0.035 * 2); // HACK: increase particle radius
+        this.particleSystem.setRadius(0.035 * 2); // HACK: increase particle radius
         const particleType = particleParameter.getValue();
-        this.m_particleSystem.setDamping(0.2);
+        this.particleSystem.setDamping(0.2);
 
         {
             const shape = new CircleShape();
-            shape.m_p.set(0, 3);
-            shape.m_radius = 2;
+            shape.p.set(0, 3);
+            shape.radius = 2;
             const pd = new ParticleGroupDef();
             pd.flags = particleType;
             pd.shape = shape;
-            const group = this.m_particleSystem.createParticleGroup(pd);
+            const group = this.particleSystem.createParticleGroup(pd);
             if (pd.flags & ParticleFlag.ColorMixing) {
                 this.colorParticleGroup(group, 0);
             }
         }
 
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
             });
             const shape = new CircleShape();
-            shape.m_p.set(0, 8);
-            shape.m_radius = 0.5;
+            shape.p.set(0, 8);
+            shape.radius = 0.5;
             body.createFixture({ shape, density: 0.5 });
         }
     }

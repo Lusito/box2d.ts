@@ -93,221 +93,221 @@ export class GearJointDef extends JointDef implements IGearJointDef {
  * is destroyed.
  */
 export class GearJoint extends Joint {
-    protected m_joint1: RevoluteJoint | PrismaticJoint;
+    protected joint1: RevoluteJoint | PrismaticJoint;
 
-    protected m_joint2: RevoluteJoint | PrismaticJoint;
+    protected joint2: RevoluteJoint | PrismaticJoint;
 
-    protected m_typeA = JointType.Unknown;
+    protected typeA = JointType.Unknown;
 
-    protected m_typeB = JointType.Unknown;
+    protected typeB = JointType.Unknown;
 
     /** Body A is connected to body C */
-    protected m_bodyC: Body;
+    protected bodyC: Body;
 
     /** Body B is connected to body D */
-    protected m_bodyD: Body;
+    protected bodyD: Body;
 
     // Solver shared
-    protected readonly m_localAnchorA = new Vec2();
+    protected readonly localAnchorA = new Vec2();
 
-    protected readonly m_localAnchorB = new Vec2();
+    protected readonly localAnchorB = new Vec2();
 
-    protected readonly m_localAnchorC = new Vec2();
+    protected readonly localAnchorC = new Vec2();
 
-    protected readonly m_localAnchorD = new Vec2();
+    protected readonly localAnchorD = new Vec2();
 
-    protected readonly m_localAxisC = new Vec2();
+    protected readonly localAxisC = new Vec2();
 
-    protected readonly m_localAxisD = new Vec2();
+    protected readonly localAxisD = new Vec2();
 
-    protected m_referenceAngleA = 0;
+    protected referenceAngleA = 0;
 
-    protected m_referenceAngleB = 0;
+    protected referenceAngleB = 0;
 
-    protected m_constant = 0;
+    protected constant = 0;
 
-    protected m_ratio = 0;
+    protected ratio = 0;
 
-    protected m_impulse = 0;
+    protected impulse = 0;
 
     // Solver temp
-    protected m_indexA = 0;
+    protected indexA = 0;
 
-    protected m_indexB = 0;
+    protected indexB = 0;
 
-    protected m_indexC = 0;
+    protected indexC = 0;
 
-    protected m_indexD = 0;
+    protected indexD = 0;
 
-    protected readonly m_lcA = new Vec2();
+    protected readonly lcA = new Vec2();
 
-    protected readonly m_lcB = new Vec2();
+    protected readonly lcB = new Vec2();
 
-    protected readonly m_lcC = new Vec2();
+    protected readonly lcC = new Vec2();
 
-    protected readonly m_lcD = new Vec2();
+    protected readonly lcD = new Vec2();
 
-    protected m_mA = 0;
+    protected mA = 0;
 
-    protected m_mB = 0;
+    protected mB = 0;
 
-    protected m_mC = 0;
+    protected mC = 0;
 
-    protected m_mD = 0;
+    protected mD = 0;
 
-    protected m_iA = 0;
+    protected iA = 0;
 
-    protected m_iB = 0;
+    protected iB = 0;
 
-    protected m_iC = 0;
+    protected iC = 0;
 
-    protected m_iD = 0;
+    protected iD = 0;
 
-    protected readonly m_JvAC = new Vec2();
+    protected readonly JvAC = new Vec2();
 
-    protected readonly m_JvBD = new Vec2();
+    protected readonly JvBD = new Vec2();
 
-    protected m_JwA = 0;
+    protected JwA = 0;
 
-    protected m_JwB = 0;
+    protected JwB = 0;
 
-    protected m_JwC = 0;
+    protected JwC = 0;
 
-    protected m_JwD = 0;
+    protected JwD = 0;
 
-    protected m_mass = 0;
+    protected mass = 0;
 
     /** @internal protected */
     public constructor(def: IGearJointDef) {
         super(def);
 
-        this.m_joint1 = def.joint1;
-        this.m_joint2 = def.joint2;
+        this.joint1 = def.joint1;
+        this.joint2 = def.joint2;
 
-        this.m_typeA = this.m_joint1.getType();
-        this.m_typeB = this.m_joint2.getType();
+        this.typeA = this.joint1.getType();
+        this.typeB = this.joint2.getType();
 
-        // DEBUG: assert(this.m_typeA === JointType.Revolute || this.m_typeA === JointType.Prismatic);
-        // DEBUG: assert(this.m_typeB === JointType.Revolute || this.m_typeB === JointType.Prismatic);
+        // DEBUG: assert(this.typeA === JointType.Revolute || this.typeA === JointType.Prismatic);
+        // DEBUG: assert(this.typeB === JointType.Revolute || this.typeB === JointType.Prismatic);
 
         let coordinateA: number;
         let coordinateB: number;
 
         // TODO_ERIN there might be some problem with the joint edges in Joint.
 
-        this.m_bodyC = this.m_joint1.getBodyA();
-        this.m_bodyA = this.m_joint1.getBodyB();
+        this.bodyC = this.joint1.getBodyA();
+        this.bodyA = this.joint1.getBodyB();
 
         // Body B on joint1 must be dynamic
-        // DEBUG: assert(this.m_bodyA.m_type === BodyType.Dynamic);
+        // DEBUG: assert(this.bodyA.type === BodyType.Dynamic);
 
         // Get geometry of joint1
-        const xfA = this.m_bodyA.m_xf;
-        const aA = this.m_bodyA.m_sweep.a;
-        const xfC = this.m_bodyC.m_xf;
-        const aC = this.m_bodyC.m_sweep.a;
+        const xfA = this.bodyA.xf;
+        const aA = this.bodyA.sweep.a;
+        const xfC = this.bodyC.xf;
+        const aC = this.bodyC.sweep.a;
 
-        if (this.m_typeA === JointType.Revolute) {
+        if (this.typeA === JointType.Revolute) {
             const revolute = def.joint1 as RevoluteJoint;
-            this.m_localAnchorC.copy(revolute.m_localAnchorA);
-            this.m_localAnchorA.copy(revolute.m_localAnchorB);
-            this.m_referenceAngleA = revolute.m_referenceAngle;
-            this.m_localAxisC.setZero();
+            this.localAnchorC.copy(revolute.localAnchorA);
+            this.localAnchorA.copy(revolute.localAnchorB);
+            this.referenceAngleA = revolute.referenceAngle;
+            this.localAxisC.setZero();
 
-            coordinateA = aA - aC - this.m_referenceAngleA;
+            coordinateA = aA - aC - this.referenceAngleA;
         } else {
             const prismatic = def.joint1 as PrismaticJoint;
-            this.m_localAnchorC.copy(prismatic.m_localAnchorA);
-            this.m_localAnchorA.copy(prismatic.m_localAnchorB);
-            this.m_referenceAngleA = prismatic.m_referenceAngle;
-            this.m_localAxisC.copy(prismatic.m_localXAxisA);
+            this.localAnchorC.copy(prismatic.localAnchorA);
+            this.localAnchorA.copy(prismatic.localAnchorB);
+            this.referenceAngleA = prismatic.referenceAngle;
+            this.localAxisC.copy(prismatic.localXAxisA);
 
-            const pC = this.m_localAnchorC;
+            const pC = this.localAnchorC;
             const pA = Rot.transposeMultiplyVec2(
                 xfC.q,
-                Rot.multiplyVec2(xfA.q, this.m_localAnchorA, Vec2.s_t0).add(xfA.p).subtract(xfC.p),
+                Rot.multiplyVec2(xfA.q, this.localAnchorA, Vec2.s_t0).add(xfA.p).subtract(xfC.p),
                 Vec2.s_t0,
             );
-            coordinateA = Vec2.dot(pA.subtract(pC), this.m_localAxisC);
+            coordinateA = Vec2.dot(pA.subtract(pC), this.localAxisC);
         }
 
-        this.m_bodyD = this.m_joint2.getBodyA();
-        this.m_bodyB = this.m_joint2.getBodyB();
+        this.bodyD = this.joint2.getBodyA();
+        this.bodyB = this.joint2.getBodyB();
 
         // Body B on joint2 must be dynamic
-        // DEBUG: assert(this.m_bodyB.m_type === BodyType.Dynamic);
+        // DEBUG: assert(this.bodyB.type === BodyType.Dynamic);
 
         // Get geometry of joint2
-        const xfB = this.m_bodyB.m_xf;
-        const aB = this.m_bodyB.m_sweep.a;
-        const xfD = this.m_bodyD.m_xf;
-        const aD = this.m_bodyD.m_sweep.a;
+        const xfB = this.bodyB.xf;
+        const aB = this.bodyB.sweep.a;
+        const xfD = this.bodyD.xf;
+        const aD = this.bodyD.sweep.a;
 
-        if (this.m_typeB === JointType.Revolute) {
+        if (this.typeB === JointType.Revolute) {
             const revolute = def.joint2 as RevoluteJoint;
-            this.m_localAnchorD.copy(revolute.m_localAnchorA);
-            this.m_localAnchorB.copy(revolute.m_localAnchorB);
-            this.m_referenceAngleB = revolute.m_referenceAngle;
-            this.m_localAxisD.setZero();
+            this.localAnchorD.copy(revolute.localAnchorA);
+            this.localAnchorB.copy(revolute.localAnchorB);
+            this.referenceAngleB = revolute.referenceAngle;
+            this.localAxisD.setZero();
 
-            coordinateB = aB - aD - this.m_referenceAngleB;
+            coordinateB = aB - aD - this.referenceAngleB;
         } else {
             const prismatic = def.joint2 as PrismaticJoint;
-            this.m_localAnchorD.copy(prismatic.m_localAnchorA);
-            this.m_localAnchorB.copy(prismatic.m_localAnchorB);
-            this.m_referenceAngleB = prismatic.m_referenceAngle;
-            this.m_localAxisD.copy(prismatic.m_localXAxisA);
+            this.localAnchorD.copy(prismatic.localAnchorA);
+            this.localAnchorB.copy(prismatic.localAnchorB);
+            this.referenceAngleB = prismatic.referenceAngle;
+            this.localAxisD.copy(prismatic.localXAxisA);
 
-            const pD = this.m_localAnchorD;
+            const pD = this.localAnchorD;
             const pB = Rot.transposeMultiplyVec2(
                 xfD.q,
-                Rot.multiplyVec2(xfB.q, this.m_localAnchorB, Vec2.s_t0).add(xfB.p).subtract(xfD.p),
+                Rot.multiplyVec2(xfB.q, this.localAnchorB, Vec2.s_t0).add(xfB.p).subtract(xfD.p),
                 Vec2.s_t0,
             );
-            coordinateB = Vec2.dot(pB.subtract(pD), this.m_localAxisD);
+            coordinateB = Vec2.dot(pB.subtract(pD), this.localAxisD);
         }
 
-        this.m_ratio = def.ratio ?? 1;
+        this.ratio = def.ratio ?? 1;
 
-        this.m_constant = coordinateA + this.m_ratio * coordinateB;
+        this.constant = coordinateA + this.ratio * coordinateB;
 
-        this.m_impulse = 0;
+        this.impulse = 0;
     }
 
     /** @internal protected */
     public initVelocityConstraints(data: SolverData): void {
-        this.m_indexA = this.m_bodyA.m_islandIndex;
-        this.m_indexB = this.m_bodyB.m_islandIndex;
-        this.m_indexC = this.m_bodyC.m_islandIndex;
-        this.m_indexD = this.m_bodyD.m_islandIndex;
-        this.m_lcA.copy(this.m_bodyA.m_sweep.localCenter);
-        this.m_lcB.copy(this.m_bodyB.m_sweep.localCenter);
-        this.m_lcC.copy(this.m_bodyC.m_sweep.localCenter);
-        this.m_lcD.copy(this.m_bodyD.m_sweep.localCenter);
-        this.m_mA = this.m_bodyA.m_invMass;
-        this.m_mB = this.m_bodyB.m_invMass;
-        this.m_mC = this.m_bodyC.m_invMass;
-        this.m_mD = this.m_bodyD.m_invMass;
-        this.m_iA = this.m_bodyA.m_invI;
-        this.m_iB = this.m_bodyB.m_invI;
-        this.m_iC = this.m_bodyC.m_invI;
-        this.m_iD = this.m_bodyD.m_invI;
+        this.indexA = this.bodyA.islandIndex;
+        this.indexB = this.bodyB.islandIndex;
+        this.indexC = this.bodyC.islandIndex;
+        this.indexD = this.bodyD.islandIndex;
+        this.lcA.copy(this.bodyA.sweep.localCenter);
+        this.lcB.copy(this.bodyB.sweep.localCenter);
+        this.lcC.copy(this.bodyC.sweep.localCenter);
+        this.lcD.copy(this.bodyD.sweep.localCenter);
+        this.mA = this.bodyA.invMass;
+        this.mB = this.bodyB.invMass;
+        this.mC = this.bodyC.invMass;
+        this.mD = this.bodyD.invMass;
+        this.iA = this.bodyA.invI;
+        this.iB = this.bodyB.invI;
+        this.iC = this.bodyC.invI;
+        this.iD = this.bodyD.invI;
 
-        const aA = data.positions[this.m_indexA].a;
-        const vA = data.velocities[this.m_indexA].v;
-        let wA = data.velocities[this.m_indexA].w;
+        const aA = data.positions[this.indexA].a;
+        const vA = data.velocities[this.indexA].v;
+        let wA = data.velocities[this.indexA].w;
 
-        const aB = data.positions[this.m_indexB].a;
-        const vB = data.velocities[this.m_indexB].v;
-        let wB = data.velocities[this.m_indexB].w;
+        const aB = data.positions[this.indexB].a;
+        const vB = data.velocities[this.indexB].v;
+        let wB = data.velocities[this.indexB].w;
 
-        const aC = data.positions[this.m_indexC].a;
-        const vC = data.velocities[this.m_indexC].v;
-        let wC = data.velocities[this.m_indexC].w;
+        const aC = data.positions[this.indexC].a;
+        const vC = data.velocities[this.indexC].v;
+        let wC = data.velocities[this.indexC].w;
 
-        const aD = data.positions[this.m_indexD].a;
-        const vD = data.velocities[this.m_indexD].v;
-        let wD = data.velocities[this.m_indexD].w;
+        const aD = data.positions[this.indexD].a;
+        const vD = data.velocities[this.indexD].v;
+        let wD = data.velocities[this.indexD].w;
 
         const { qA, qB, qC, qD } = temp;
         qA.set(aA);
@@ -315,110 +315,109 @@ export class GearJoint extends Joint {
         qC.set(aC);
         qD.set(aD);
 
-        this.m_mass = 0;
+        this.mass = 0;
 
-        if (this.m_typeA === JointType.Revolute) {
-            this.m_JvAC.setZero();
-            this.m_JwA = 1;
-            this.m_JwC = 1;
-            this.m_mass += this.m_iA + this.m_iC;
+        if (this.typeA === JointType.Revolute) {
+            this.JvAC.setZero();
+            this.JwA = 1;
+            this.JwC = 1;
+            this.mass += this.iA + this.iC;
         } else {
             const { u, rC, rA, lalcA, lalcC } = temp;
-            Rot.multiplyVec2(qC, this.m_localAxisC, u);
-            Rot.multiplyVec2(qC, Vec2.subtract(this.m_localAnchorC, this.m_lcC, lalcC), rC);
-            Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_lcA, lalcA), rA);
-            this.m_JvAC.copy(u);
-            this.m_JwC = Vec2.cross(rC, u);
-            this.m_JwA = Vec2.cross(rA, u);
-            this.m_mass +=
-                this.m_mC + this.m_mA + this.m_iC * this.m_JwC * this.m_JwC + this.m_iA * this.m_JwA * this.m_JwA;
+            Rot.multiplyVec2(qC, this.localAxisC, u);
+            Rot.multiplyVec2(qC, Vec2.subtract(this.localAnchorC, this.lcC, lalcC), rC);
+            Rot.multiplyVec2(qA, Vec2.subtract(this.localAnchorA, this.lcA, lalcA), rA);
+            this.JvAC.copy(u);
+            this.JwC = Vec2.cross(rC, u);
+            this.JwA = Vec2.cross(rA, u);
+            this.mass += this.mC + this.mA + this.iC * this.JwC * this.JwC + this.iA * this.JwA * this.JwA;
         }
 
-        if (this.m_typeB === JointType.Revolute) {
-            this.m_JvBD.setZero();
-            this.m_JwB = this.m_ratio;
-            this.m_JwD = this.m_ratio;
-            this.m_mass += this.m_ratio * this.m_ratio * (this.m_iB + this.m_iD);
+        if (this.typeB === JointType.Revolute) {
+            this.JvBD.setZero();
+            this.JwB = this.ratio;
+            this.JwD = this.ratio;
+            this.mass += this.ratio * this.ratio * (this.iB + this.iD);
         } else {
             const { u, rB, rD, lalcB, lalcD } = temp;
-            Rot.multiplyVec2(qD, this.m_localAxisD, u);
-            Rot.multiplyVec2(qD, Vec2.subtract(this.m_localAnchorD, this.m_lcD, lalcD), rD);
-            Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_lcB, lalcB), rB);
-            Vec2.scale(this.m_ratio, u, this.m_JvBD);
-            this.m_JwD = this.m_ratio * Vec2.cross(rD, u);
-            this.m_JwB = this.m_ratio * Vec2.cross(rB, u);
-            this.m_mass +=
-                this.m_ratio * this.m_ratio * (this.m_mD + this.m_mB) +
-                this.m_iD * this.m_JwD * this.m_JwD +
-                this.m_iB * this.m_JwB * this.m_JwB;
+            Rot.multiplyVec2(qD, this.localAxisD, u);
+            Rot.multiplyVec2(qD, Vec2.subtract(this.localAnchorD, this.lcD, lalcD), rD);
+            Rot.multiplyVec2(qB, Vec2.subtract(this.localAnchorB, this.lcB, lalcB), rB);
+            Vec2.scale(this.ratio, u, this.JvBD);
+            this.JwD = this.ratio * Vec2.cross(rD, u);
+            this.JwB = this.ratio * Vec2.cross(rB, u);
+            this.mass +=
+                this.ratio * this.ratio * (this.mD + this.mB) +
+                this.iD * this.JwD * this.JwD +
+                this.iB * this.JwB * this.JwB;
         }
 
         // Compute effective mass.
-        this.m_mass = this.m_mass > 0 ? 1 / this.m_mass : 0;
+        this.mass = this.mass > 0 ? 1 / this.mass : 0;
 
         if (data.step.warmStarting) {
-            vA.addScaled(this.m_mA * this.m_impulse, this.m_JvAC);
-            wA += this.m_iA * this.m_impulse * this.m_JwA;
-            vB.addScaled(this.m_mB * this.m_impulse, this.m_JvBD);
-            wB += this.m_iB * this.m_impulse * this.m_JwB;
-            vC.subtractScaled(this.m_mC * this.m_impulse, this.m_JvAC);
-            wC -= this.m_iC * this.m_impulse * this.m_JwC;
-            vD.subtractScaled(this.m_mD * this.m_impulse, this.m_JvBD);
-            wD -= this.m_iD * this.m_impulse * this.m_JwD;
+            vA.addScaled(this.mA * this.impulse, this.JvAC);
+            wA += this.iA * this.impulse * this.JwA;
+            vB.addScaled(this.mB * this.impulse, this.JvBD);
+            wB += this.iB * this.impulse * this.JwB;
+            vC.subtractScaled(this.mC * this.impulse, this.JvAC);
+            wC -= this.iC * this.impulse * this.JwC;
+            vD.subtractScaled(this.mD * this.impulse, this.JvBD);
+            wD -= this.iD * this.impulse * this.JwD;
         } else {
-            this.m_impulse = 0;
+            this.impulse = 0;
         }
 
-        data.velocities[this.m_indexA].w = wA;
-        data.velocities[this.m_indexB].w = wB;
-        data.velocities[this.m_indexC].w = wC;
-        data.velocities[this.m_indexD].w = wD;
+        data.velocities[this.indexA].w = wA;
+        data.velocities[this.indexB].w = wB;
+        data.velocities[this.indexC].w = wC;
+        data.velocities[this.indexD].w = wD;
     }
 
     /** @internal protected */
     public solveVelocityConstraints(data: SolverData): void {
-        const vA = data.velocities[this.m_indexA].v;
-        let wA = data.velocities[this.m_indexA].w;
-        const vB = data.velocities[this.m_indexB].v;
-        let wB = data.velocities[this.m_indexB].w;
-        const vC = data.velocities[this.m_indexC].v;
-        let wC = data.velocities[this.m_indexC].w;
-        const vD = data.velocities[this.m_indexD].v;
-        let wD = data.velocities[this.m_indexD].w;
+        const vA = data.velocities[this.indexA].v;
+        let wA = data.velocities[this.indexA].w;
+        const vB = data.velocities[this.indexB].v;
+        let wB = data.velocities[this.indexB].w;
+        const vC = data.velocities[this.indexC].v;
+        let wC = data.velocities[this.indexC].w;
+        const vD = data.velocities[this.indexD].v;
+        let wD = data.velocities[this.indexD].w;
 
         let Cdot =
-            Vec2.dot(this.m_JvAC, Vec2.subtract(vA, vC, Vec2.s_t0)) +
-            Vec2.dot(this.m_JvBD, Vec2.subtract(vB, vD, Vec2.s_t0));
-        Cdot += this.m_JwA * wA - this.m_JwC * wC + (this.m_JwB * wB - this.m_JwD * wD);
+            Vec2.dot(this.JvAC, Vec2.subtract(vA, vC, Vec2.s_t0)) +
+            Vec2.dot(this.JvBD, Vec2.subtract(vB, vD, Vec2.s_t0));
+        Cdot += this.JwA * wA - this.JwC * wC + (this.JwB * wB - this.JwD * wD);
 
-        const impulse = -this.m_mass * Cdot;
-        this.m_impulse += impulse;
+        const impulse = -this.mass * Cdot;
+        this.impulse += impulse;
 
-        vA.addScaled(this.m_mA * impulse, this.m_JvAC);
-        wA += this.m_iA * impulse * this.m_JwA;
-        vB.addScaled(this.m_mB * impulse, this.m_JvBD);
-        wB += this.m_iB * impulse * this.m_JwB;
-        vC.subtractScaled(this.m_mC * impulse, this.m_JvAC);
-        wC -= this.m_iC * impulse * this.m_JwC;
-        vD.subtractScaled(this.m_mD * impulse, this.m_JvBD);
-        wD -= this.m_iD * impulse * this.m_JwD;
+        vA.addScaled(this.mA * impulse, this.JvAC);
+        wA += this.iA * impulse * this.JwA;
+        vB.addScaled(this.mB * impulse, this.JvBD);
+        wB += this.iB * impulse * this.JwB;
+        vC.subtractScaled(this.mC * impulse, this.JvAC);
+        wC -= this.iC * impulse * this.JwC;
+        vD.subtractScaled(this.mD * impulse, this.JvBD);
+        wD -= this.iD * impulse * this.JwD;
 
-        data.velocities[this.m_indexA].w = wA;
-        data.velocities[this.m_indexB].w = wB;
-        data.velocities[this.m_indexC].w = wC;
-        data.velocities[this.m_indexD].w = wD;
+        data.velocities[this.indexA].w = wA;
+        data.velocities[this.indexB].w = wB;
+        data.velocities[this.indexC].w = wC;
+        data.velocities[this.indexD].w = wD;
     }
 
     /** @internal protected */
     public solvePositionConstraints(data: SolverData): boolean {
-        const cA = data.positions[this.m_indexA].c;
-        let aA = data.positions[this.m_indexA].a;
-        const cB = data.positions[this.m_indexB].c;
-        let aB = data.positions[this.m_indexB].a;
-        const cC = data.positions[this.m_indexC].c;
-        let aC = data.positions[this.m_indexC].a;
-        const cD = data.positions[this.m_indexD].c;
-        let aD = data.positions[this.m_indexD].a;
+        const cA = data.positions[this.indexA].c;
+        let aA = data.positions[this.indexA].a;
+        const cB = data.positions[this.indexB].c;
+        let aB = data.positions[this.indexB].a;
+        const cC = data.positions[this.indexC].c;
+        let aC = data.positions[this.indexC].a;
+        const cD = data.positions[this.indexD].c;
+        let aD = data.positions[this.indexD].a;
 
         const { qA, qB, qC, qD, JvAC, JvBD } = temp;
         qA.set(aA);
@@ -437,106 +436,105 @@ export class GearJoint extends Joint {
         let JwD: number;
         let mass = 0;
 
-        if (this.m_typeA === JointType.Revolute) {
+        if (this.typeA === JointType.Revolute) {
             JvAC.setZero();
             JwA = 1;
             JwC = 1;
-            mass += this.m_iA + this.m_iC;
+            mass += this.iA + this.iC;
 
-            coordinateA = aA - aC - this.m_referenceAngleA;
+            coordinateA = aA - aC - this.referenceAngleA;
         } else {
             const { u, rC, rA, lalcC, lalcA } = temp;
-            Rot.multiplyVec2(qC, this.m_localAxisC, u);
-            Rot.multiplyVec2(qC, Vec2.subtract(this.m_localAnchorC, this.m_lcC, lalcC), rC);
-            Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_lcA, lalcA), rA);
+            Rot.multiplyVec2(qC, this.localAxisC, u);
+            Rot.multiplyVec2(qC, Vec2.subtract(this.localAnchorC, this.lcC, lalcC), rC);
+            Rot.multiplyVec2(qA, Vec2.subtract(this.localAnchorA, this.lcA, lalcA), rA);
             JvAC.copy(u);
             JwC = Vec2.cross(rC, u);
             JwA = Vec2.cross(rA, u);
-            mass += this.m_mC + this.m_mA + this.m_iC * JwC * JwC + this.m_iA * JwA * JwA;
+            mass += this.mC + this.mA + this.iC * JwC * JwC + this.iA * JwA * JwA;
 
             const pC = lalcC;
             const pA = Rot.transposeMultiplyVec2(qC, Vec2.add(rA, cA, Vec2.s_t0).subtract(cC), Vec2.s_t0);
-            coordinateA = Vec2.dot(Vec2.subtract(pA, pC, Vec2.s_t0), this.m_localAxisC);
+            coordinateA = Vec2.dot(Vec2.subtract(pA, pC, Vec2.s_t0), this.localAxisC);
         }
 
-        if (this.m_typeB === JointType.Revolute) {
+        if (this.typeB === JointType.Revolute) {
             JvBD.setZero();
-            JwB = this.m_ratio;
-            JwD = this.m_ratio;
-            mass += this.m_ratio * this.m_ratio * (this.m_iB + this.m_iD);
+            JwB = this.ratio;
+            JwD = this.ratio;
+            mass += this.ratio * this.ratio * (this.iB + this.iD);
 
-            coordinateB = aB - aD - this.m_referenceAngleB;
+            coordinateB = aB - aD - this.referenceAngleB;
         } else {
             const { u, rD, rB, lalcD, lalcB } = temp;
-            Rot.multiplyVec2(qD, this.m_localAxisD, u);
-            Rot.multiplyVec2(qD, Vec2.subtract(this.m_localAnchorD, this.m_lcD, lalcD), rD);
-            Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_lcB, lalcB), rB);
-            Vec2.scale(this.m_ratio, u, JvBD);
-            JwD = this.m_ratio * Vec2.cross(rD, u);
-            JwB = this.m_ratio * Vec2.cross(rB, u);
-            mass +=
-                this.m_ratio * this.m_ratio * (this.m_mD + this.m_mB) + this.m_iD * JwD * JwD + this.m_iB * JwB * JwB;
+            Rot.multiplyVec2(qD, this.localAxisD, u);
+            Rot.multiplyVec2(qD, Vec2.subtract(this.localAnchorD, this.lcD, lalcD), rD);
+            Rot.multiplyVec2(qB, Vec2.subtract(this.localAnchorB, this.lcB, lalcB), rB);
+            Vec2.scale(this.ratio, u, JvBD);
+            JwD = this.ratio * Vec2.cross(rD, u);
+            JwB = this.ratio * Vec2.cross(rB, u);
+            mass += this.ratio * this.ratio * (this.mD + this.mB) + this.iD * JwD * JwD + this.iB * JwB * JwB;
 
             const pD = lalcD;
             const pB = Rot.transposeMultiplyVec2(qD, Vec2.add(rB, cB, Vec2.s_t0).subtract(cD), Vec2.s_t0);
-            coordinateB = Vec2.dot(pB.subtract(pD), this.m_localAxisD);
+            coordinateB = Vec2.dot(pB.subtract(pD), this.localAxisD);
         }
 
-        const C = coordinateA + this.m_ratio * coordinateB - this.m_constant;
+        const C = coordinateA + this.ratio * coordinateB - this.constant;
 
         let impulse = 0;
         if (mass > 0) {
             impulse = -C / mass;
         }
 
-        cA.addScaled(this.m_mA * impulse, JvAC);
-        aA += this.m_iA * impulse * JwA;
-        cB.addScaled(this.m_mB * impulse, JvBD);
-        aB += this.m_iB * impulse * JwB;
-        cC.subtractScaled(this.m_mC * impulse, JvAC);
-        aC -= this.m_iC * impulse * JwC;
-        cD.subtractScaled(this.m_mD * impulse, JvBD);
-        aD -= this.m_iD * impulse * JwD;
+        cA.addScaled(this.mA * impulse, JvAC);
+        aA += this.iA * impulse * JwA;
+        cB.addScaled(this.mB * impulse, JvBD);
+        aB += this.iB * impulse * JwB;
+        cC.subtractScaled(this.mC * impulse, JvAC);
+        aC -= this.iC * impulse * JwC;
+        cD.subtractScaled(this.mD * impulse, JvBD);
+        aD -= this.iD * impulse * JwD;
 
-        data.positions[this.m_indexA].a = aA;
-        data.positions[this.m_indexB].a = aB;
-        data.positions[this.m_indexC].a = aC;
-        data.positions[this.m_indexD].a = aD;
+        data.positions[this.indexA].a = aA;
+        data.positions[this.indexB].a = aB;
+        data.positions[this.indexC].a = aC;
+        data.positions[this.indexD].a = aD;
 
         // TODO_ERIN not implemented
         return linearError < LINEAR_SLOP;
     }
 
     public getAnchorA<T extends XY>(out: T): T {
-        return this.m_bodyA.getWorldPoint(this.m_localAnchorA, out);
+        return this.bodyA.getWorldPoint(this.localAnchorA, out);
     }
 
     public getAnchorB<T extends XY>(out: T): T {
-        return this.m_bodyB.getWorldPoint(this.m_localAnchorB, out);
+        return this.bodyB.getWorldPoint(this.localAnchorB, out);
     }
 
     public getReactionForce<T extends XY>(inv_dt: number, out: T): T {
-        return Vec2.scale(inv_dt * this.m_impulse, this.m_JvAC, out);
+        return Vec2.scale(inv_dt * this.impulse, this.JvAC, out);
     }
 
     public getReactionTorque(inv_dt: number): number {
-        return inv_dt * this.m_impulse * this.m_JwA;
+        return inv_dt * this.impulse * this.JwA;
     }
 
     public getJoint1() {
-        return this.m_joint1;
+        return this.joint1;
     }
 
     public getJoint2() {
-        return this.m_joint2;
+        return this.joint2;
     }
 
     public getRatio() {
-        return this.m_ratio;
+        return this.ratio;
     }
 
     public setRatio(ratio: number): void {
         // DEBUG: assert(Number.isFinite(ratio));
-        this.m_ratio = ratio;
+        this.ratio = ratio;
     }
 }

@@ -33,27 +33,27 @@ type Pair<T> = [TreeNode<T>, TreeNode<T>];
  * It is up to the client to consume the new pairs and to track subsequent overlap.
  */
 export class BroadPhase<T> {
-    private readonly m_tree = new DynamicTree<T>();
+    private readonly tree = new DynamicTree<T>();
 
-    private m_proxyCount = 0;
+    private proxyCount = 0;
 
-    private m_moveCount = 0;
+    private moveCount = 0;
 
-    private readonly m_moveBuffer: Array<TreeNode<T> | null> = [];
+    private readonly moveBuffer: Array<TreeNode<T> | null> = [];
 
-    private m_pairCount = 0;
+    private pairCount = 0;
 
-    private readonly m_pairBuffer: Array<Pair<T>> = [];
+    private readonly pairBuffer: Array<Pair<T>> = [];
 
-    private m_queryProxy = new TreeNode<T>();
+    private queryProxy = new TreeNode<T>();
 
     /**
      * Create a proxy with an initial AABB. Pairs are not reported until
      * UpdatePairs is called.
      */
     public createProxy(aabb: AABB, userData: T): TreeNode<T> {
-        const proxy = this.m_tree.createProxy(aabb, userData);
-        ++this.m_proxyCount;
+        const proxy = this.tree.createProxy(aabb, userData);
+        ++this.proxyCount;
         this.bufferMove(proxy);
         return proxy;
     }
@@ -63,8 +63,8 @@ export class BroadPhase<T> {
      */
     public destroyProxy(proxy: TreeNode<T>): void {
         this.unBufferMove(proxy);
-        --this.m_proxyCount;
-        this.m_tree.destroyProxy(proxy);
+        --this.proxyCount;
+        this.tree.destroyProxy(proxy);
     }
 
     /**
@@ -72,7 +72,7 @@ export class BroadPhase<T> {
      * call UpdatePairs to finalized the proxy pairs (for your time step).
      */
     public moveProxy(proxy: TreeNode<T>, aabb: AABB, displacement: Vec2): void {
-        const buffer = this.m_tree.moveProxy(proxy, aabb, displacement);
+        const buffer = this.tree.moveProxy(proxy, aabb, displacement);
         if (buffer) {
             this.bufferMove(proxy);
         }
@@ -89,7 +89,7 @@ export class BroadPhase<T> {
      * Get the number of proxies.
      */
     public getProxyCount(): number {
-        return this.m_proxyCount;
+        return this.proxyCount;
     }
 
     /**
@@ -97,25 +97,25 @@ export class BroadPhase<T> {
      */
     public updatePairs(callback: (a: T, b: T) => void): void {
         // Reset pair buffer
-        this.m_pairCount = 0;
+        this.pairCount = 0;
 
         // Perform tree queries for all moving proxies.
-        for (let i = 0; i < this.m_moveCount; ++i) {
-            const queryProxy = this.m_moveBuffer[i];
+        for (let i = 0; i < this.moveCount; ++i) {
+            const queryProxy = this.moveBuffer[i];
             if (queryProxy === null) continue;
-            this.m_queryProxy = queryProxy;
+            this.queryProxy = queryProxy;
 
             // We have to query the tree with the fat AABB so that
             // we don't fail to create a pair that may touch later.
             const fatAABB = queryProxy.aabb;
 
             // Query tree, create pairs and add them pair buffer.
-            this.m_tree.query(fatAABB, this.queryCallback);
+            this.tree.query(fatAABB, this.queryCallback);
         }
 
         // Send pairs to caller
-        for (let i = 0; i < this.m_pairCount; ++i) {
-            const primaryPair = this.m_pairBuffer[i];
+        for (let i = 0; i < this.pairCount; ++i) {
+            const primaryPair = this.pairBuffer[i];
             const userDataA = verify(primaryPair[0].userData);
             const userDataB = verify(primaryPair[1].userData);
 
@@ -123,13 +123,13 @@ export class BroadPhase<T> {
         }
 
         // Clear move flags
-        for (let i = 0; i < this.m_moveCount; ++i) {
-            const proxy = this.m_moveBuffer[i];
+        for (let i = 0; i < this.moveCount; ++i) {
+            const proxy = this.moveBuffer[i];
             if (proxy) proxy.moved = false;
         }
 
         // Reset move buffer
-        this.m_moveCount = 0;
+        this.moveCount = 0;
     }
 
     /**
@@ -137,28 +137,28 @@ export class BroadPhase<T> {
      * is called for each proxy that overlaps the supplied AABB.
      */
     public query(aabb: AABB, callback: (node: TreeNode<T>) => boolean): void {
-        this.m_tree.query(aabb, callback);
+        this.tree.query(aabb, callback);
     }
 
     public queryPoint(point: XY, callback: (node: TreeNode<T>) => boolean): void {
-        this.m_tree.queryPoint(point, callback);
+        this.tree.queryPoint(point, callback);
     }
 
     private queryCallback = (proxy: TreeNode<T>) => {
         // A proxy cannot form a pair with itself.
-        if (proxy.id === this.m_queryProxy.id) {
+        if (proxy.id === this.queryProxy.id) {
             return true;
         }
 
-        if (proxy.moved && proxy.id > this.m_queryProxy.id) {
+        if (proxy.moved && proxy.id > this.queryProxy.id) {
             // Both proxies are moving. Avoid duplicate pairs.
             return true;
         }
 
         // Grows the pair buffer as needed.
-        this.m_pairBuffer[this.m_pairCount] =
-            proxy.id < this.m_queryProxy.id ? [proxy, this.m_queryProxy] : [this.m_queryProxy, proxy];
-        ++this.m_pairCount;
+        this.pairBuffer[this.pairCount] =
+            proxy.id < this.queryProxy.id ? [proxy, this.queryProxy] : [this.queryProxy, proxy];
+        ++this.pairCount;
 
         return true;
     };
@@ -174,28 +174,28 @@ export class BroadPhase<T> {
      * @param callback A callback class that is called for each proxy that is hit by the ray.
      */
     public rayCast(input: RayCastInput, callback: (input: RayCastInput, node: TreeNode<T>) => number): void {
-        this.m_tree.rayCast(input, callback);
+        this.tree.rayCast(input, callback);
     }
 
     /**
      * Get the height of the embedded tree.
      */
     public getTreeHeight(): number {
-        return this.m_tree.getHeight();
+        return this.tree.getHeight();
     }
 
     /**
      * Get the balance of the embedded tree.
      */
     public getTreeBalance(): number {
-        return this.m_tree.getMaxBalance();
+        return this.tree.getMaxBalance();
     }
 
     /**
      * Get the quality metric of the embedded tree.
      */
     public getTreeQuality(): number {
-        return this.m_tree.getAreaRatio();
+        return this.tree.getAreaRatio();
     }
 
     /**
@@ -205,16 +205,16 @@ export class BroadPhase<T> {
      * @param newOrigin The new origin with respect to the old origin
      */
     public shiftOrigin(newOrigin: XY): void {
-        this.m_tree.shiftOrigin(newOrigin);
+        this.tree.shiftOrigin(newOrigin);
     }
 
     private bufferMove(proxy: TreeNode<T>): void {
-        this.m_moveBuffer[this.m_moveCount] = proxy;
-        ++this.m_moveCount;
+        this.moveBuffer[this.moveCount] = proxy;
+        ++this.moveCount;
     }
 
     private unBufferMove(proxy: TreeNode<T>): void {
-        const i = this.m_moveBuffer.indexOf(proxy);
-        this.m_moveBuffer[i] = null;
+        const i = this.moveBuffer.indexOf(proxy);
+        this.moveBuffer[i] = null;
     }
 }

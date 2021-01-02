@@ -61,13 +61,13 @@ enum Fracker_Material {
  * specified period of time.
  */
 class EmitterTracker {
-    public m_emitterLifetime: Array<{ emitter: RadialEmitter; lifetime: number }> = [];
+    public emitterLifetime: Array<{ emitter: RadialEmitter; lifetime: number }> = [];
 
     /**
      * Delete all emitters.
      */
     public destroy() {
-        for (const emitter of this.m_emitterLifetime) {
+        for (const emitter of this.emitterLifetime) {
             emitter.emitter.destroy();
         }
     }
@@ -78,7 +78,7 @@ class EmitterTracker {
      * of the object is handed to this class.
      */
     public add(emitter: RadialEmitter, lifetime: number): void {
-        this.m_emitterLifetime.push({ emitter, lifetime });
+        this.emitterLifetime.push({ emitter, lifetime });
     }
 
     /**
@@ -86,7 +86,7 @@ class EmitterTracker {
      */
     public step(dt: number): void {
         const emittersToDestroy: RadialEmitter[] = [];
-        for (const el of this.m_emitterLifetime) {
+        for (const el of this.emitterLifetime) {
             const lifetime = el.lifetime - dt;
             if (lifetime <= 0) {
                 emittersToDestroy.push(el.emitter);
@@ -98,7 +98,7 @@ class EmitterTracker {
 
         for (const emitter of emittersToDestroy) {
             emitter.destroy();
-            this.m_emitterLifetime = this.m_emitterLifetime.filter((value) => {
+            this.emitterLifetime = this.emitterLifetime.filter((value) => {
                 return value.emitter !== emitter;
             });
         }
@@ -110,7 +110,7 @@ class EmitterTracker {
  * they're destroyed.
  */
 class ParticleGroupTracker extends DestructionListener {
-    public m_particleGroups: ParticleGroup[] = [];
+    public particleGroups: ParticleGroup[] = [];
 
     /**
      * Called when any particle group is about to be destroyed.
@@ -123,18 +123,18 @@ class ParticleGroupTracker extends DestructionListener {
      * Add a particle group to the tracker.
      */
     public addParticleGroup(group: ParticleGroup): void {
-        this.m_particleGroups.push(group);
+        this.particleGroups.push(group);
     }
 
     /**
      * Remove a particle group from the tracker.
      */
     public removeParticleGroup(group: ParticleGroup): void {
-        this.m_particleGroups.splice(this.m_particleGroups.indexOf(group), 1);
+        this.particleGroups.splice(this.particleGroups.indexOf(group), 1);
     }
 
     public getParticleGroups(): ParticleGroup[] {
-        return this.m_particleGroups;
+        return this.particleGroups;
     }
 }
 
@@ -228,13 +228,13 @@ class FrackerSettings {
  * tracks the score of the game.
  */
 class Fracker_DestructionListener extends ParticleGroupTracker {
-    public m_score = 0;
+    public score = 0;
 
-    public m_oil = 0;
+    public oil = 0;
 
-    public m_world: World;
+    public world: World;
 
-    public m_previousListener: DestructionListener | null = null;
+    public previousListener: DestructionListener | null = null;
 
     /**
      * Initialize the particle system and world, setting this class
@@ -243,14 +243,14 @@ class Fracker_DestructionListener extends ParticleGroupTracker {
     public constructor(world: World) {
         super();
         // DEBUG: assert(world !== null);
-        this.m_world = world;
-        this.m_previousListener = world.getDestructionListener();
-        this.m_world.setDestructionListener(this);
+        this.world = world;
+        this.previousListener = world.getDestructionListener();
+        this.world.setDestructionListener(this);
     }
 
     public destroy() {
-        if (this.m_world) {
-            this.m_world.setDestructionListener(this.m_previousListener);
+        if (this.world) {
+            this.world.setDestructionListener(this.previousListener);
         }
     }
 
@@ -258,28 +258,28 @@ class Fracker_DestructionListener extends ParticleGroupTracker {
      * Add to the current score.
      */
     public addScore(score: number): void {
-        this.m_score += score;
+        this.score += score;
     }
 
     /**
      * Get the current score.
      */
     public getScore(): number {
-        return this.m_score;
+        return this.score;
     }
 
     /**
      * Add to the remaining oil.
      */
     public addOil(oil: number): void {
-        this.m_oil += oil;
+        this.oil += oil;
     }
 
     /**
      * Get the total oil.
      */
     public getOil(): number {
-        return this.m_oil;
+        return this.oil;
     }
 
     /**
@@ -314,31 +314,31 @@ class Fracker_DestructionListener extends ParticleGroupTracker {
  * fluids to the well head and ultimately score points.
  */
 class FrackerTest extends AbstractParticleTest {
-    public m_player!: Body;
+    public player!: Body;
 
-    public m_wellX = FrackerSettings.k_worldWidthTiles - FrackerSettings.k_worldWidthTiles / 4;
+    public wellX = FrackerSettings.k_worldWidthTiles - FrackerSettings.k_worldWidthTiles / 4;
 
-    public m_wellTop = FrackerSettings.k_worldHeightTiles - 1;
+    public wellTop = FrackerSettings.k_worldHeightTiles - 1;
 
-    public m_wellBottom = FrackerSettings.k_worldHeightTiles / 8;
+    public wellBottom = FrackerSettings.k_worldHeightTiles / 8;
 
-    public m_tracker = new EmitterTracker();
+    public tracker = new EmitterTracker();
 
-    public m_allowInput = false;
+    public allowInput = false;
 
-    public m_frackingFluidChargeTime = -1;
+    public frackingFluidChargeTime = -1;
 
-    public m_material: Fracker_Material[] = [];
+    public material: Fracker_Material[] = [];
 
-    public m_bodies: Array<Body | null> = [];
+    public bodies: Array<Body | null> = [];
 
     /** Set of particle groups the well has influence over. */
-    public m_listener = new Fracker_DestructionListener(this.m_world);
+    public listener = new Fracker_DestructionListener(this.world);
 
     public constructor() {
         super();
 
-        this.m_particleSystem.setRadius(FrackerSettings.k_particleRadius);
+        this.particleSystem.setRadius(FrackerSettings.k_particleRadius);
         this.initializeLayout();
         // Create the boundaries of the play area.
         this.createGround();
@@ -351,7 +351,7 @@ class FrackerTest extends AbstractParticleTest {
     }
 
     public destroy() {
-        this.m_listener.destroy();
+        this.listener.destroy();
     }
 
     /**
@@ -360,8 +360,8 @@ class FrackerTest extends AbstractParticleTest {
      */
     public initializeLayout(): void {
         for (let i = 0; i < FrackerSettings.k_worldTiles; ++i) {
-            this.m_material[i] = Fracker_Material.EMPTY;
-            this.m_bodies[i] = null;
+            this.material[i] = Fracker_Material.EMPTY;
+            this.bodies[i] = null;
         }
     }
 
@@ -369,39 +369,39 @@ class FrackerTest extends AbstractParticleTest {
      * Get the material of the tile at the specified tile position.
      */
     public getMaterial(x: number, y: number): Fracker_Material {
-        return this.m_material[FrackerTest.tileToArrayOffset(x, y)];
+        return this.material[FrackerTest.tileToArrayOffset(x, y)];
     }
 
     /**
      * Set the material of the tile at the specified tile position.
      */
     public setMaterial(x: number, y: number, material: Fracker_Material): void {
-        this.m_material[FrackerTest.tileToArrayOffset(x, y)] = material;
+        this.material[FrackerTest.tileToArrayOffset(x, y)] = material;
     }
 
     /**
      * Get the body associated with the specified tile position.
      */
     public getBody(x: number, y: number): Body | null {
-        return this.m_bodies[FrackerTest.tileToArrayOffset(x, y)];
+        return this.bodies[FrackerTest.tileToArrayOffset(x, y)];
     }
 
     /**
      * Set the body associated with the specified tile position.
      */
     public setBody(x: number, y: number, body: Body | null): void {
-        const currentBody = this.m_bodies[FrackerTest.tileToArrayOffset(x, y)];
+        const currentBody = this.bodies[FrackerTest.tileToArrayOffset(x, y)];
         if (currentBody) {
-            this.m_world.destroyBody(currentBody);
+            this.world.destroyBody(currentBody);
         }
-        this.m_bodies[FrackerTest.tileToArrayOffset(x, y)] = body;
+        this.bodies[FrackerTest.tileToArrayOffset(x, y)] = body;
     }
 
     /**
      * Create the player.
      */
     public createPlayer(): void {
-        this.m_player = this.m_world.createBody({
+        this.player = this.world.createBody({
             type: BodyType.Kinematic,
         });
         const shape = new PolygonShape();
@@ -411,8 +411,8 @@ class FrackerTest extends AbstractParticleTest {
             new Vec2(FrackerSettings.k_tileHalfWidth, FrackerSettings.k_tileHalfHeight),
             0,
         );
-        this.m_player.createFixture({ shape, density: FrackerSettings.k_density });
-        this.m_player.setTransformVec(
+        this.player.createFixture({ shape, density: FrackerSettings.k_density });
+        this.player.setTransformVec(
             FrackerTest.tileToWorld(FrackerSettings.k_worldWidthTiles / 2, FrackerSettings.k_worldHeightTiles / 2),
             0,
         );
@@ -456,7 +456,7 @@ class FrackerTest extends AbstractParticleTest {
      * Create the boundary of the world.
      */
     public createGround(): void {
-        const ground = this.m_world.createBody();
+        const ground = this.world.createBody();
         const shape = new ChainShape();
         const bottomLeft = new Vec2();
         const topRight = new Vec2();
@@ -476,7 +476,7 @@ class FrackerTest extends AbstractParticleTest {
      */
     public createDirtBlock(x: number, y: number): void {
         const position = FrackerTest.tileToWorld(x, y);
-        const body = this.m_world.createBody();
+        const body = this.world.createBody();
         const shape = new PolygonShape();
         shape.setAsBox(
             FrackerSettings.k_tileHalfWidth,
@@ -506,19 +506,19 @@ class FrackerTest extends AbstractParticleTest {
         pd.flags = ParticleFlag.Tensile | ParticleFlag.Viscous | ParticleFlag.DestructionListener;
         pd.shape = shape;
         pd.color.copy(material === Fracker_Material.OIL ? FrackerSettings.k_oilColor : FrackerSettings.k_waterColor);
-        const group = this.m_particleSystem.createParticleGroup(pd);
-        this.m_listener.addParticleGroup(group);
+        const group = this.particleSystem.createParticleGroup(pd);
+        this.listener.addParticleGroup(group);
 
         // Tag each particle with its type.
         const particleCount = group.getParticleCount();
-        const userDataBuffer = this.m_particleSystem.getUserDataBuffer();
+        const userDataBuffer = this.particleSystem.getUserDataBuffer();
         const index = group.getBufferIndex();
         for (let i = 0; i < particleCount; ++i) {
-            userDataBuffer[index + i] = this.m_material[FrackerTest.tileToArrayOffset(x, y)];
+            userDataBuffer[index + i] = this.material[FrackerTest.tileToArrayOffset(x, y)];
         }
         // Keep track of the total available oil.
         if (material === Fracker_Material.OIL) {
-            this.m_listener.addOil(particleCount);
+            this.listener.addOil(particleCount);
         }
     }
 
@@ -527,8 +527,8 @@ class FrackerTest extends AbstractParticleTest {
      * to suck out fluid.
      */
     public createWell(): void {
-        for (let y = this.m_wellBottom; y <= this.m_wellTop; y++) {
-            this.setMaterial(this.m_wellX, y, Fracker_Material.WELL);
+        for (let y = this.wellBottom; y <= this.wellTop; y++) {
+            this.setMaterial(this.wellX, y, Fracker_Material.WELL);
         }
     }
 
@@ -537,11 +537,11 @@ class FrackerTest extends AbstractParticleTest {
      */
     public createFrackingFluidEmitter(position: Vec2): void {
         const groupDef = new ParticleGroupDef();
-        const group = this.m_particleSystem.createParticleGroup(groupDef);
-        this.m_listener.addParticleGroup(group);
+        const group = this.particleSystem.createParticleGroup(groupDef);
+        this.listener.addParticleGroup(group);
         const emitter = new RadialEmitter();
         emitter.setGroup(group);
-        emitter.setParticleSystem(this.m_particleSystem);
+        emitter.setParticleSystem(this.particleSystem);
         emitter.setPosition(FrackerTest.centeredPosition(position));
         emitter.setVelocity(new Vec2(0, -FrackerSettings.k_tileHalfHeight));
         emitter.setSpeed(FrackerSettings.k_tileHalfWidth * 0.1);
@@ -549,15 +549,15 @@ class FrackerTest extends AbstractParticleTest {
         emitter.setEmitRate(20);
         emitter.setColor(FrackerSettings.k_frackingFluidColor);
         emitter.setParticleFlags(ParticleFlag.Tensile | ParticleFlag.Viscous);
-        this.m_tracker.add(emitter, FrackerSettings.k_frackingFluidEmitterLifetime);
-        this.m_listener.addScore(FrackerSettings.k_scorePerFrackingDeployment);
+        this.tracker.add(emitter, FrackerSettings.k_frackingFluidEmitterLifetime);
+        this.listener.addScore(FrackerSettings.k_scorePerFrackingDeployment);
     }
 
     /**
      * Update the player's position.
      */
     public setPlayerPosition(playerX: number, playerY: number): void {
-        const playerPosition = this.m_player.getTransform().p;
+        const playerPosition = this.player.getTransform().p;
         const currentPlayerX: [number] = [0];
         const currentPlayerY: [number] = [0];
         FrackerTest.worldToTile(playerPosition, currentPlayerX, currentPlayerY);
@@ -574,7 +574,7 @@ class FrackerTest extends AbstractParticleTest {
             // Try to deploy any fracking fluid that was charging.
             this.deployFrackingFluid();
             // Move the player.
-            this.m_player.setTransformVec(FrackerTest.tileToWorld(playerX, playerY), 0);
+            this.player.setTransformVec(FrackerTest.tileToWorld(playerX, playerY), 0);
         }
     }
 
@@ -584,12 +584,12 @@ class FrackerTest extends AbstractParticleTest {
      */
     public deployFrackingFluid(): boolean {
         let deployed = false;
-        const playerPosition = this.m_player.getTransform().p;
-        if (this.m_frackingFluidChargeTime > FrackerSettings.k_frackingFluidChargeTime) {
+        const playerPosition = this.player.getTransform().p;
+        if (this.frackingFluidChargeTime > FrackerSettings.k_frackingFluidChargeTime) {
             this.createFrackingFluidEmitter(playerPosition);
             deployed = true;
         }
-        this.m_frackingFluidChargeTime = -1;
+        this.frackingFluidChargeTime = -1;
         return deployed;
     }
 
@@ -606,7 +606,7 @@ class FrackerTest extends AbstractParticleTest {
         shape.setAsBox(FrackerSettings.k_tileHalfWidth * width, FrackerSettings.k_tileHalfHeight * height);
         const killLocation = new Transform();
         killLocation.setPositionAngle(FrackerTest.centeredPosition(FrackerTest.tileToWorld(centerX, centerY)), 0);
-        this.m_particleSystem.destroyParticlesInShape(shape, killLocation);
+        this.particleSystem.destroyParticlesInShape(shape, killLocation);
     }
 
     public jointDestroyed(joint: Joint): void {
@@ -641,8 +641,8 @@ class FrackerTest extends AbstractParticleTest {
             hotKeyPress("s", "Down", () => this.adjustPlayerPosition(0, -1)),
             hotKeyPress("e", "Deploy Fracking", () => {
                 // Start charging the fracking fluid.
-                if (this.m_frackingFluidChargeTime < 0) {
-                    this.m_frackingFluidChargeTime = 0;
+                if (this.frackingFluidChargeTime < 0) {
+                    this.frackingFluidChargeTime = 0;
                 } else {
                     // KeyboardUp() in freeglut (at least on OSX) is called
                     // repeatedly while a key is held.  This means there isn't
@@ -657,21 +657,21 @@ class FrackerTest extends AbstractParticleTest {
 
     private adjustPlayerPosition(x: number, y: number) {
         // Only allow 1 move per simulation step.
-        if (!this.m_allowInput) {
+        if (!this.allowInput) {
             return;
         }
-        const playerPosition = this.m_player.getTransform().p;
+        const playerPosition = this.player.getTransform().p;
         const playerX: [number] = [0];
         const playerY: [number] = [0];
         FrackerTest.worldToTile(playerPosition, playerX, playerY);
 
         this.setPlayerPosition(playerX[0] + x, playerY[0] + y);
-        this.m_allowInput = false;
+        this.allowInput = false;
     }
 
     public mouseDown(p: Vec2): void {
         super.mouseDown(p);
-        this.m_frackingFluidChargeTime = 0;
+        this.frackingFluidChargeTime = 0;
     }
 
     /**
@@ -679,13 +679,13 @@ class FrackerTest extends AbstractParticleTest {
      */
     public mouseUp(p: Vec2): void {
         super.mouseUp(p);
-        if (!this.m_allowInput) {
+        if (!this.allowInput) {
             return;
         }
 
         // If fracking fluid isn't being released, move the player.
         if (!this.deployFrackingFluid()) {
-            const playerPosition = this.m_player.getTransform().p;
+            const playerPosition = this.player.getTransform().p;
             const playerX: [number] = [0];
             const playerY: [number] = [0];
             FrackerTest.worldToTile(playerPosition, playerX, playerY);
@@ -701,26 +701,26 @@ class FrackerTest extends AbstractParticleTest {
             }
             this.setPlayerPosition(playerX[0], playerY[0]);
         }
-        this.m_allowInput = false;
+        this.allowInput = false;
     }
 
     public step(settings: Settings, timeStep: number): void {
-        let dt = settings.m_hertz > 0 ? 1 / settings.m_hertz : 0;
-        if (settings.m_pause && !settings.m_singleStep) {
+        let dt = settings.hertz > 0 ? 1 / settings.hertz : 0;
+        if (settings.pause && !settings.singleStep) {
             dt = 0;
         }
 
         super.step(settings, timeStep);
 
-        this.m_tracker.step(dt);
+        this.tracker.step(dt);
         // Allow the user to move again.
-        this.m_allowInput = true;
+        this.allowInput = true;
         // Charge up fracking fluid.
-        if (this.m_frackingFluidChargeTime >= 0) {
-            this.m_frackingFluidChargeTime += dt;
+        if (this.frackingFluidChargeTime >= 0) {
+            this.frackingFluidChargeTime += dt;
         }
 
-        const playerPosition = this.m_player.getTransform().p;
+        const playerPosition = this.player.getTransform().p;
         const playerX: [number] = [0];
         const playerY: [number] = [0];
         FrackerTest.worldToTile(playerPosition, playerX, playerY);
@@ -731,22 +731,20 @@ class FrackerTest extends AbstractParticleTest {
         }
 
         // Destroy particles at the top of the well.
-        this.destroyParticlesInTiles(this.m_wellX, this.m_wellTop, this.m_wellX, this.m_wellTop);
+        this.destroyParticlesInTiles(this.wellX, this.wellTop, this.wellX, this.wellTop);
 
         // Only move particles in the groups being tracked.
-        const particleGroups = this.m_listener.getParticleGroups();
+        const particleGroups = this.listener.getParticleGroups();
 
         for (const particleGroup of particleGroups) {
             const index = particleGroup.getBufferIndex();
-            const positionBuffer = this.m_particleSystem.getPositionBuffer();
-            const velocityBuffer = this.m_particleSystem.getVelocityBuffer();
+            const positionBuffer = this.particleSystem.getPositionBuffer();
+            const velocityBuffer = this.particleSystem.getVelocityBuffer();
             const particleCount = particleGroup.getParticleCount();
             for (let i = 0; i < particleCount; ++i) {
                 // Apply velocity to particles near the bottom or in the well
                 // sucking them up to the top.
-                const wellEnd = FrackerTest.centeredPosition(
-                    FrackerTest.tileToWorld(this.m_wellX, this.m_wellBottom - 2),
-                );
+                const wellEnd = FrackerTest.centeredPosition(FrackerTest.tileToWorld(this.wellX, this.wellBottom - 2));
                 const particlePosition = positionBuffer[index + i];
                 // Distance from the well's bottom.
                 const distance = Vec2.subtract(particlePosition, wellEnd, new Vec2());
@@ -783,8 +781,8 @@ class FrackerTest extends AbstractParticleTest {
      * Render the well.
      */
     public drawWell(): void {
-        for (let y = this.m_wellBottom; y <= this.m_wellTop; ++y) {
-            this.drawQuad(FrackerTest.tileToWorld(this.m_wellX, y), FrackerSettings.k_wellColor);
+        for (let y = this.wellBottom; y <= this.wellTop; ++y) {
+            this.drawQuad(FrackerTest.tileToWorld(this.wellX, y), FrackerSettings.k_wellColor);
         }
     }
 
@@ -793,11 +791,11 @@ class FrackerTest extends AbstractParticleTest {
      */
     public drawPlayer(): void {
         this.drawQuad(
-            this.m_player.getTransform().p,
+            this.player.getTransform().p,
             FrackerTest.lerpColor(
                 FrackerSettings.k_playerColor,
                 FrackerSettings.k_playerFrackColor,
-                Math.max(this.m_frackingFluidChargeTime / FrackerSettings.k_frackingFluidChargeTime, 0),
+                Math.max(this.frackingFluidChargeTime / FrackerSettings.k_frackingFluidChargeTime, 0),
             ),
             true,
         );
@@ -807,8 +805,8 @@ class FrackerTest extends AbstractParticleTest {
      * Render the score and the instructions / keys.
      */
     public drawScore(): void {
-        this.addDebug("Score", this.m_listener.getScore());
-        this.addDebug("Remaining Oil", this.m_listener.getOil());
+        this.addDebug("Score", this.listener.getScore());
+        this.addDebug("Remaining Oil", this.listener.getOil());
     }
 
     /**
@@ -833,14 +831,14 @@ class FrackerTest extends AbstractParticleTest {
     //  // Get a pointer to the material of the tile at the specified position.
     //  Material* GetMaterialStorage(const int32 x, const int32 y)
     //  {
-    //    return &m_material[FrackerTest.tileToArrayOffset(x, y)];
+    //    return &material[FrackerTest.tileToArrayOffset(x, y)];
     //  }
 
     //  // A pointer to the body storage associated with the specified tile
     //  // position.
     //  Body** GetBodyStorage(const int32 x, const int32 y)
     //  {
-    //    return &m_bodies[FrackerTest.tileToArrayOffset(x, y)];
+    //    return &bodies[FrackerTest.tileToArrayOffset(x, y)];
     //  }
 
     public getDefaultViewZoom(): number {

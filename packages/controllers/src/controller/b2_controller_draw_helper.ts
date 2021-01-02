@@ -42,7 +42,7 @@ function drawBuoyancyController(debugDraw: Draw, controller: BuoyancyController)
 // function drawTensorDampingController(_draw: Draw) {}
 
 export function drawControllers(draw: Draw, world: World) {
-    for (let c = world.m_controllerList; c; c = c.m_next) {
+    for (let c = world.controllerList; c; c = c.next) {
         // fixme: introduce type instead? which is faster? does it matter much?
         if (c instanceof BuoyancyController) {
             drawBuoyancyController(draw, c);

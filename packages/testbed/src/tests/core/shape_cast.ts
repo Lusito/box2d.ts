@@ -44,76 +44,76 @@ const colorHit = new Color(0.9, 0.3, 0.3);
 class ShapeCastTest extends Test {
     public static e_vertexCount = 8;
 
-    public m_vAs = makeArray(MAX_POLYGON_VERTICES, Vec2);
+    public vAs = makeArray(MAX_POLYGON_VERTICES, Vec2);
 
-    public m_countA = 0;
+    public countA = 0;
 
-    public m_radiusA = 0;
+    public radiusA = 0;
 
-    public m_vBs = makeArray(MAX_POLYGON_VERTICES, Vec2);
+    public vBs = makeArray(MAX_POLYGON_VERTICES, Vec2);
 
-    public m_countB = 0;
+    public countB = 0;
 
-    public m_radiusB = 0;
+    public radiusB = 0;
 
-    public m_transformA = new Transform();
+    public transformA = new Transform();
 
-    public m_transformB = new Transform();
+    public transformB = new Transform();
 
-    public m_translationB = new Vec2();
+    public translationB = new Vec2();
 
     public constructor() {
         super();
 
         // #if 1
-        this.m_vAs[0].set(-0.5, 1);
-        this.m_vAs[1].set(0.5, 1);
-        this.m_vAs[2].set(0, 0);
-        this.m_countA = 3;
-        this.m_radiusA = POLYGON_RADIUS;
+        this.vAs[0].set(-0.5, 1);
+        this.vAs[1].set(0.5, 1);
+        this.vAs[2].set(0, 0);
+        this.countA = 3;
+        this.radiusA = POLYGON_RADIUS;
 
-        this.m_vBs[0].set(-0.5, -0.5);
-        this.m_vBs[1].set(0.5, -0.5);
-        this.m_vBs[2].set(0.5, 0.5);
-        this.m_vBs[3].set(-0.5, 0.5);
-        this.m_countB = 4;
-        this.m_radiusB = POLYGON_RADIUS;
+        this.vBs[0].set(-0.5, -0.5);
+        this.vBs[1].set(0.5, -0.5);
+        this.vBs[2].set(0.5, 0.5);
+        this.vBs[3].set(-0.5, 0.5);
+        this.countB = 4;
+        this.radiusB = POLYGON_RADIUS;
 
-        this.m_transformA.p.set(0, 0.25);
-        this.m_transformA.q.setIdentity();
-        this.m_transformB.p.set(-4, 0);
-        this.m_transformB.q.setIdentity();
-        this.m_translationB.set(8, 0);
+        this.transformA.p.set(0, 0.25);
+        this.transformA.q.setIdentity();
+        this.transformB.p.set(-4, 0);
+        this.transformB.q.setIdentity();
+        this.translationB.set(8, 0);
         // #elif 0
-        // this.m_vAs[0].set(0, 0);
-        // this.m_countA = 1;
-        // this.m_radiusA = 0.5;
+        // this.vAs[0].set(0, 0);
+        // this.countA = 1;
+        // this.radiusA = 0.5;
 
-        // this.m_vBs[0].set(0, 0);
-        // this.m_countB = 1;
-        // this.m_radiusB = 0.5;
+        // this.vBs[0].set(0, 0);
+        // this.countB = 1;
+        // this.radiusB = 0.5;
 
-        // this.m_transformA.p.set(0, 0.25);
-        // this.m_transformA.q.setIdentity();
-        // this.m_transformB.p.set(-4, 0);
-        // this.m_transformB.q.setIdentity();
-        // this.m_translationB.set(8, 0);
+        // this.transformA.p.set(0, 0.25);
+        // this.transformA.q.setIdentity();
+        // this.transformB.p.set(-4, 0);
+        // this.transformB.q.setIdentity();
+        // this.translationB.set(8, 0);
         // #else
-        // this.m_vAs[0].set(0, 0);
-        // this.m_vAs[1].set(2, 0);
-        // this.m_countA = 2;
-        // this.m_radiusA = POLYGON_RADIUS;
+        // this.vAs[0].set(0, 0);
+        // this.vAs[1].set(2, 0);
+        // this.countA = 2;
+        // this.radiusA = POLYGON_RADIUS;
 
-        // this.m_vBs[0].set(0, 0);
-        // this.m_countB = 1;
-        // this.m_radiusB = 0.25;
+        // this.vBs[0].set(0, 0);
+        // this.countB = 1;
+        // this.radiusB = 0.25;
 
         // // Initial overlap
-        // this.m_transformA.p.set(0, 0);
-        // this.m_transformA.q.setIdentity();
-        // this.m_transformB.p.set(-0.244360745, 0.05999358);
-        // this.m_transformB.q.setIdentity();
-        // this.m_translationB.set(0, 0.0399999991);
+        // this.transformA.p.set(0, 0);
+        // this.transformA.q.setIdentity();
+        // this.transformB.p.set(-0.244360745, 0.05999358);
+        // this.transformB.q.setIdentity();
+        // this.translationB.set(0, 0.0399999991);
         // #endif
     }
 
@@ -121,23 +121,23 @@ class ShapeCastTest extends Test {
         super.step(settings, timeStep);
 
         const input = new ShapeCastInput();
-        input.proxyA.setVerticesRadius(this.m_vAs, this.m_countA, this.m_radiusA);
-        input.proxyB.setVerticesRadius(this.m_vBs, this.m_countB, this.m_radiusB);
-        input.transformA.copy(this.m_transformA);
-        input.transformB.copy(this.m_transformB);
-        input.translationB.copy(this.m_translationB);
+        input.proxyA.setVerticesRadius(this.vAs, this.countA, this.radiusA);
+        input.proxyB.setVerticesRadius(this.vBs, this.countB, this.radiusB);
+        input.transformA.copy(this.transformA);
+        input.transformB.copy(this.transformB);
+        input.translationB.copy(this.translationB);
 
         const output = new ShapeCastOutput();
         const hit = shapeCast(output, input);
 
         const transformB2 = new Transform();
-        transformB2.q.copy(this.m_transformB.q);
-        transformB2.p.copy(this.m_transformB.p).addScaled(output.lambda, input.translationB);
+        transformB2.q.copy(this.transformB.q);
+        transformB2.p.copy(this.transformB.p).addScaled(output.lambda, input.translationB);
 
         const distanceInput = new DistanceInput();
-        distanceInput.proxyA.setVerticesRadius(this.m_vAs, this.m_countA, this.m_radiusA);
-        distanceInput.proxyB.setVerticesRadius(this.m_vBs, this.m_countB, this.m_radiusB);
-        distanceInput.transformA.copy(this.m_transformA);
+        distanceInput.proxyA.setVerticesRadius(this.vAs, this.countA, this.radiusA);
+        distanceInput.proxyB.setVerticesRadius(this.vBs, this.countB, this.radiusB);
+        distanceInput.transformA.copy(this.transformA);
         distanceInput.transformB.copy(transformB2);
         distanceInput.useRadii = false;
         const simplexCache = new SimplexCache();
@@ -153,34 +153,34 @@ class ShapeCastTest extends Test {
 
         const vertices = makeArray(MAX_POLYGON_VERTICES, Vec2);
 
-        for (let i = 0; i < this.m_countA; ++i) {
-            Transform.multiplyVec2(this.m_transformA, this.m_vAs[i], vertices[i]);
+        for (let i = 0; i < this.countA; ++i) {
+            Transform.multiplyVec2(this.transformA, this.vAs[i], vertices[i]);
         }
 
-        if (this.m_countA === 1) {
-            g_debugDraw.drawCircle(vertices[0], this.m_radiusA, colorA);
+        if (this.countA === 1) {
+            g_debugDraw.drawCircle(vertices[0], this.radiusA, colorA);
         } else {
-            g_debugDraw.drawPolygon(vertices, this.m_countA, colorA);
+            g_debugDraw.drawPolygon(vertices, this.countA, colorA);
         }
 
-        for (let i = 0; i < this.m_countB; ++i) {
-            Transform.multiplyVec2(this.m_transformB, this.m_vBs[i], vertices[i]);
+        for (let i = 0; i < this.countB; ++i) {
+            Transform.multiplyVec2(this.transformB, this.vBs[i], vertices[i]);
         }
 
-        if (this.m_countB === 1) {
-            g_debugDraw.drawCircle(vertices[0], this.m_radiusB, colorB);
+        if (this.countB === 1) {
+            g_debugDraw.drawCircle(vertices[0], this.radiusB, colorB);
         } else {
-            g_debugDraw.drawPolygon(vertices, this.m_countB, colorB);
+            g_debugDraw.drawPolygon(vertices, this.countB, colorB);
         }
 
-        for (let i = 0; i < this.m_countB; ++i) {
-            Transform.multiplyVec2(transformB2, this.m_vBs[i], vertices[i]);
+        for (let i = 0; i < this.countB; ++i) {
+            Transform.multiplyVec2(transformB2, this.vBs[i], vertices[i]);
         }
 
-        if (this.m_countB === 1) {
-            g_debugDraw.drawCircle(vertices[0], this.m_radiusB, colorB2);
+        if (this.countB === 1) {
+            g_debugDraw.drawCircle(vertices[0], this.radiusB, colorB2);
         } else {
-            g_debugDraw.drawPolygon(vertices, this.m_countB, colorB2);
+            g_debugDraw.drawPolygon(vertices, this.countB, colorB2);
         }
 
         if (hit) {

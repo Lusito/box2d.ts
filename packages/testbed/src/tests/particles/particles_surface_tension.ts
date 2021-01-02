@@ -27,7 +27,7 @@ class ParticlesSurfaceTensionTest extends AbstractParticleTest {
         super(); // base class constructor
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             {
                 const shape = new PolygonShape();
@@ -51,28 +51,28 @@ class ParticlesSurfaceTensionTest extends AbstractParticleTest {
             }
         }
 
-        this.m_particleSystem.setRadius(0.035 * 2); // HACK: increase particle radius
+        this.particleSystem.setRadius(0.035 * 2); // HACK: increase particle radius
 
         {
             const shape = new CircleShape();
-            shape.m_p.set(0, 2);
-            shape.m_radius = 0.5;
+            shape.p.set(0, 2);
+            shape.radius = 0.5;
             const pd = new ParticleGroupDef();
             pd.flags = ParticleFlag.Tensile | ParticleFlag.ColorMixing;
             pd.shape = shape;
             pd.color.setRGBA(1, 0, 0, 1);
-            this.m_particleSystem.createParticleGroup(pd);
+            this.particleSystem.createParticleGroup(pd);
         }
 
         {
             const shape = new CircleShape();
-            shape.m_p.set(-1, 2);
-            shape.m_radius = 0.5;
+            shape.p.set(-1, 2);
+            shape.radius = 0.5;
             const pd = new ParticleGroupDef();
             pd.flags = ParticleFlag.Tensile | ParticleFlag.ColorMixing;
             pd.shape = shape;
             pd.color.setRGBA(0, 1, 0, 1);
-            this.m_particleSystem.createParticleGroup(pd);
+            this.particleSystem.createParticleGroup(pd);
         }
 
         {
@@ -83,16 +83,16 @@ class ParticlesSurfaceTensionTest extends AbstractParticleTest {
             pd.flags = ParticleFlag.Tensile | ParticleFlag.ColorMixing;
             pd.shape = shape;
             pd.color.setRGBA(0, 0, 1, 1);
-            this.m_particleSystem.createParticleGroup(pd);
+            this.particleSystem.createParticleGroup(pd);
         }
 
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
             });
             const shape = new CircleShape();
-            shape.m_p.set(0, 8);
-            shape.m_radius = 0.5;
+            shape.p.set(0, 8);
+            shape.radius = 0.5;
             body.createFixture({ shape, density: 0.5 });
         }
     }

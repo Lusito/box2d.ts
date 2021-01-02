@@ -32,7 +32,7 @@ class PyramidToppleTest extends Test {
             });
         };
 
-        const world = this.m_world;
+        const { world } = this;
         // settings.positionIterations = 30; // cpSpaceSetIterations(space, 30);
         // world.setGravity(new Vec2(0, -300)); // cpSpaceSetGravity(space, cpv(0, -300));
         // b2_timeToSleep = 0.5; // cpSpaceSetSleepTimeThreshold(space, 0.5 );

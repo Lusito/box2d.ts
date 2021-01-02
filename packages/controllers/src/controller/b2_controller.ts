@@ -52,13 +52,13 @@ export class ControllerEdge {
  * encapsulating common per-step functionality.
  */
 export abstract class Controller {
-    public m_bodyList: ControllerEdge | null = null;
+    public bodyList: ControllerEdge | null = null;
 
-    public m_bodyCount = 0;
+    public bodyCount = 0;
 
-    public m_prev: Controller | null = null;
+    public prev: Controller | null = null;
 
-    public m_next: Controller | null = null;
+    public next: Controller | null = null;
 
     /**
      * Controllers override this to implement per-step functionality.
@@ -69,21 +69,21 @@ export abstract class Controller {
      * Get the next controller in the world's body list.
      */
     public getNext(): Controller | null {
-        return this.m_next;
+        return this.next;
     }
 
     /**
      * Get the previous controller in the world's body list.
      */
     public getPrev(): Controller | null {
-        return this.m_prev;
+        return this.prev;
     }
 
     /**
      * Get the attached body list
      */
     public getBodyList(): ControllerEdge | null {
-        return this.m_bodyList;
+        return this.bodyList;
     }
 
     /**
@@ -93,33 +93,33 @@ export abstract class Controller {
         const edge = new ControllerEdge(this, body);
 
         // Add edge to controller list
-        edge.nextBody = this.m_bodyList;
+        edge.nextBody = this.bodyList;
         edge.prevBody = null;
-        if (this.m_bodyList) {
-            this.m_bodyList.prevBody = edge;
+        if (this.bodyList) {
+            this.bodyList.prevBody = edge;
         }
-        this.m_bodyList = edge;
-        ++this.m_bodyCount;
+        this.bodyList = edge;
+        ++this.bodyCount;
 
         // Add edge to body list
-        edge.nextController = body.m_controllerList;
+        edge.nextController = body.controllerList;
         edge.prevController = null;
-        if (body.m_controllerList) {
-            body.m_controllerList.prevController = edge;
+        if (body.controllerList) {
+            body.controllerList.prevController = edge;
         }
-        body.m_controllerList = edge;
-        ++body.m_controllerCount;
+        body.controllerList = edge;
+        ++body.controllerCount;
     }
 
     /**
      * Removes a body from the controller list.
      */
     public removeBody(body: Body): void {
-        assert(this.m_bodyCount > 0, "Controller is empty");
+        assert(this.bodyCount > 0, "Controller is empty");
 
         // Find the corresponding edge
         /* ControllerEdge */
-        let edge = this.m_bodyList;
+        let edge = this.bodyList;
         while (edge && edge.body !== body) {
             edge = edge.nextBody;
         }
@@ -133,10 +133,10 @@ export abstract class Controller {
         if (edge.nextBody) {
             edge.nextBody.prevBody = edge.prevBody;
         }
-        if (this.m_bodyList === edge) {
-            this.m_bodyList = edge.nextBody;
+        if (this.bodyList === edge) {
+            this.bodyList = edge.nextBody;
         }
-        --this.m_bodyCount;
+        --this.bodyCount;
 
         // Remove edge from body list
         if (edge.nextController) {
@@ -145,20 +145,20 @@ export abstract class Controller {
         if (edge.prevController) {
             edge.prevController.nextController = edge.nextController;
         }
-        if (body.m_controllerList === edge) {
-            body.m_controllerList = edge.nextController;
+        if (body.controllerList === edge) {
+            body.controllerList = edge.nextController;
         }
-        --body.m_controllerCount;
+        --body.controllerCount;
     }
 
     /**
      * Removes all bodies from the controller list.
      */
     public clear(): void {
-        while (this.m_bodyList) {
-            this.removeBody(this.m_bodyList.body);
+        while (this.bodyList) {
+            this.removeBody(this.bodyList.body);
         }
 
-        this.m_bodyCount = 0;
+        this.bodyCount = 0;
     }
 }

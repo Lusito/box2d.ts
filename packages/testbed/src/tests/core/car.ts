@@ -38,26 +38,26 @@ import { HotKey, hotKey } from "../../utils/hotkeys";
 
 // This is a fun demo that shows off the wheel joint
 class CarTest extends Test {
-    public m_car: Body;
+    public car: Body;
 
-    public m_wheel1: Body;
+    public wheel1: Body;
 
-    public m_wheel2: Body;
+    public wheel2: Body;
 
-    public m_speed = 0;
+    public speed = 0;
 
-    public m_spring1: WheelJoint;
+    public spring1: WheelJoint;
 
-    public m_spring2: WheelJoint;
+    public spring2: WheelJoint;
 
     public constructor() {
         super();
 
-        this.m_speed = 50;
+        this.speed = 50;
 
         let ground: Body;
         {
-            ground = this.m_world.createBody();
+            ground = this.world.createBody();
 
             const shape = new EdgeShape();
 
@@ -114,7 +114,7 @@ class CarTest extends Test {
 
         // Teeter
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 140, y: 1 },
             });
@@ -128,7 +128,7 @@ class CarTest extends Test {
             jd.lowerAngle = (-8 * Math.PI) / 180;
             jd.upperAngle = (8 * Math.PI) / 180;
             jd.enableLimit = true;
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
 
             body.applyAngularImpulse(100);
         }
@@ -148,7 +148,7 @@ class CarTest extends Test {
 
             let prevBody = ground;
             for (let i = 0; i < N; ++i) {
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: 161 + 2 * i, y: -0.125 },
                 });
@@ -156,14 +156,14 @@ class CarTest extends Test {
 
                 const anchor = new Vec2(160 + 2 * i, -0.125);
                 jd.initialize(prevBody, body, anchor);
-                this.m_world.createJoint(jd);
+                this.world.createJoint(jd);
 
                 prevBody = body;
             }
 
             const anchor = new Vec2(160 + 2 * N, -0.125);
             jd.initialize(prevBody, ground, anchor);
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
         }
 
         // Boxes
@@ -179,23 +179,23 @@ class CarTest extends Test {
             };
 
             position.set(230, 0.5);
-            body = this.m_world.createBody(bd);
+            body = this.world.createBody(bd);
             body.createFixture({ shape: box, density: 0.5 });
 
             position.set(230, 1.5);
-            body = this.m_world.createBody(bd);
+            body = this.world.createBody(bd);
             body.createFixture({ shape: box, density: 0.5 });
 
             position.set(230, 2.5);
-            body = this.m_world.createBody(bd);
+            body = this.world.createBody(bd);
             body.createFixture({ shape: box, density: 0.5 });
 
             position.set(230, 3.5);
-            body = this.m_world.createBody(bd);
+            body = this.world.createBody(bd);
             body.createFixture({ shape: box, density: 0.5 });
 
             position.set(230, 4.5);
-            body = this.m_world.createBody(bd);
+            body = this.world.createBody(bd);
             body.createFixture({ shape: box, density: 0.5 });
         }
 
@@ -212,13 +212,13 @@ class CarTest extends Test {
             chassis.set(vertices, 6);
 
             const circle = new CircleShape();
-            circle.m_radius = 0.4;
+            circle.radius = 0.4;
 
             const position = new Vec2();
             const bd: BodyDef = { type: BodyType.Dynamic, position };
             position.set(0, 1);
-            this.m_car = this.m_world.createBody(bd);
-            this.m_car.createFixture({ shape: chassis, density: 1 });
+            this.car = this.world.createBody(bd);
+            this.car.createFixture({ shape: chassis, density: 1 });
 
             const fd: FixtureDef = {
                 shape: circle,
@@ -227,24 +227,24 @@ class CarTest extends Test {
             };
 
             position.set(-1, 0.35);
-            this.m_wheel1 = this.m_world.createBody(bd);
-            this.m_wheel1.createFixture(fd);
+            this.wheel1 = this.world.createBody(bd);
+            this.wheel1.createFixture(fd);
 
             position.set(1, 0.4);
-            this.m_wheel2 = this.m_world.createBody(bd);
-            this.m_wheel2.createFixture(fd);
+            this.wheel2 = this.world.createBody(bd);
+            this.wheel2.createFixture(fd);
 
             const jd = new WheelJointDef();
             const axis = new Vec2(0, 1);
 
-            const mass1 = this.m_wheel1.getMass();
-            const mass2 = this.m_wheel2.getMass();
+            const mass1 = this.wheel1.getMass();
+            const mass2 = this.wheel2.getMass();
 
             const hertz = 4;
             const dampingRatio = 0.7;
             const omega = 2 * Math.PI * hertz;
 
-            jd.initialize(this.m_car, this.m_wheel1, this.m_wheel1.getPosition(), axis);
+            jd.initialize(this.car, this.wheel1, this.wheel1.getPosition(), axis);
             jd.motorSpeed = 0;
             jd.maxMotorTorque = 20;
             jd.enableMotor = true;
@@ -253,9 +253,9 @@ class CarTest extends Test {
             jd.lowerTranslation = -0.25;
             jd.upperTranslation = 0.25;
             jd.enableLimit = true;
-            this.m_spring1 = this.m_world.createJoint(jd);
+            this.spring1 = this.world.createJoint(jd);
 
-            jd.initialize(this.m_car, this.m_wheel2, this.m_wheel2.getPosition(), axis);
+            jd.initialize(this.car, this.wheel2, this.wheel2.getPosition(), axis);
             jd.motorSpeed = 0;
             jd.maxMotorTorque = 10;
             jd.enableMotor = false;
@@ -264,20 +264,20 @@ class CarTest extends Test {
             jd.lowerTranslation = -0.25;
             jd.upperTranslation = 0.25;
             jd.enableLimit = true;
-            this.m_spring2 = this.m_world.createJoint(jd);
+            this.spring2 = this.world.createJoint(jd);
         }
     }
 
     public getHotkeys(): HotKey[] {
         return [
-            hotKey("a", "Decelerate", (down) => this.m_spring1.setMotorSpeed(down ? this.m_speed : 0)),
-            hotKey("d", "Accelerate", (down) => this.m_spring1.setMotorSpeed(down ? -this.m_speed : 0)),
+            hotKey("a", "Decelerate", (down) => this.spring1.setMotorSpeed(down ? this.speed : 0)),
+            hotKey("d", "Accelerate", (down) => this.spring1.setMotorSpeed(down ? -this.speed : 0)),
         ];
     }
 
     public step(settings: Settings, timeStep: number): void {
         const center = g_camera.getCenter();
-        g_camera.setPosition(this.m_car.getPosition().x, center.y);
+        g_camera.setPosition(this.car.getPosition().x, center.y);
         super.step(settings, timeStep);
     }
 }

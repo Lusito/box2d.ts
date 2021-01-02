@@ -77,14 +77,14 @@ export class BuoyancyController extends Controller {
     public readonly gravity = new Vec2();
 
     public step(_step: TimeStep) {
-        if (!this.m_bodyList) {
+        if (!this.bodyList) {
             return;
         }
         if (this.useWorldGravity) {
-            this.gravity.copy(this.m_bodyList.body.getWorld().getGravity());
+            this.gravity.copy(this.bodyList.body.getWorld().getGravity());
         }
         const { buoyancyForce } = temp;
-        for (let i: ControllerEdge | null = this.m_bodyList; i; i = i.nextBody) {
+        for (let i: ControllerEdge | null = this.bodyList; i; i = i.nextBody) {
             const { body } = i;
             if (!body.isAwake()) {
                 // Buoyancy force is just a function of position,

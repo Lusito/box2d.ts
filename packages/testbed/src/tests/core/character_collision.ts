@@ -27,14 +27,14 @@ import { Settings } from "../../settings";
  * Instead this is used to test smooth collision on edge chains.
  */
 class CharacterCollisionTest extends Test {
-    public m_character: Body;
+    public character: Body;
 
     public constructor() {
         super();
 
         // Ground body
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
@@ -45,7 +45,7 @@ class CharacterCollisionTest extends Test {
         // This shows the problematic case where a box shape can hit
         // an internal vertex.
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-8, 1), new Vec2(-6, 1));
@@ -58,7 +58,7 @@ class CharacterCollisionTest extends Test {
 
         // Chain shape
         {
-            const ground = this.m_world.createBody({
+            const ground = this.world.createBody({
                 angle: 0.25 * Math.PI,
             });
 
@@ -77,7 +77,7 @@ class CharacterCollisionTest extends Test {
         // have non-smooth collision. There is no solution
         // to this problem.
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new PolygonShape();
             shape.setAsBox(1, 1, new Vec2(4, 3), 0);
@@ -90,7 +90,7 @@ class CharacterCollisionTest extends Test {
 
         // Square made from an edge loop. Collision should be smooth.
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const vs = makeArray(4, Vec2);
             vs[0].set(-1, 3);
@@ -105,7 +105,7 @@ class CharacterCollisionTest extends Test {
 
         // Edge loop. Collision should be smooth.
         {
-            const ground = this.m_world.createBody({
+            const ground = this.world.createBody({
                 position: { x: -10, y: 4 },
             });
 
@@ -128,7 +128,7 @@ class CharacterCollisionTest extends Test {
 
         // Square character 1
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 position: { x: -3, y: 8 },
                 type: BodyType.Dynamic,
                 fixedRotation: true,
@@ -146,7 +146,7 @@ class CharacterCollisionTest extends Test {
 
         // Square character 2
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 position: { x: -5, y: 5 },
                 type: BodyType.Dynamic,
                 fixedRotation: true,
@@ -164,7 +164,7 @@ class CharacterCollisionTest extends Test {
 
         // Hexagon character
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 position: { x: -5, y: 8 },
                 type: BodyType.Dynamic,
                 fixedRotation: true,
@@ -190,7 +190,7 @@ class CharacterCollisionTest extends Test {
 
         // Circle character
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 position: { x: 3, y: 5 },
                 type: BodyType.Dynamic,
                 fixedRotation: true,
@@ -198,7 +198,7 @@ class CharacterCollisionTest extends Test {
             });
 
             const shape = new CircleShape();
-            shape.m_radius = 0.5;
+            shape.radius = 0.5;
 
             body.createFixture({
                 shape,
@@ -208,16 +208,16 @@ class CharacterCollisionTest extends Test {
 
         // Circle character
         {
-            this.m_character = this.m_world.createBody({
+            this.character = this.world.createBody({
                 position: { x: -7, y: 6 },
                 type: BodyType.Dynamic,
                 allowSleep: false,
             });
 
             const shape = new CircleShape();
-            shape.m_radius = 0.25;
+            shape.radius = 0.25;
 
-            this.m_character.createFixture({
+            this.character.createFixture({
                 shape,
                 density: 20,
                 friction: 1,
@@ -237,8 +237,8 @@ class CharacterCollisionTest extends Test {
     }
 
     public step(settings: Settings, timeStep: number): void {
-        const v = this.m_character.getLinearVelocity();
-        this.m_character.setLinearVelocity({
+        const v = this.character.getLinearVelocity();
+        this.character.setLinearVelocity({
             x: -5,
             y: v.y,
         });

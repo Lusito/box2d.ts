@@ -11,9 +11,9 @@ export type TestControl = SliderDef | CheckboxDef | SeparatorDef | RadioDef | Se
 export type KeysByType<T, T2> = { [P in keyof T]: T[P] extends T2 ? P : never }[keyof T];
 
 export function settingsCheckboxDef(manager: TestManager, option: KeysByType<Settings, boolean>, name: string) {
-    const initialValue = manager.m_settings[option];
+    const initialValue = manager.settings[option];
     return checkboxDef(name, initialValue, (value) => {
-        manager.m_settings[option] = value;
+        manager.settings[option] = value;
     });
 }
 
@@ -25,8 +25,8 @@ export function settingsSliderDef(
     max: number,
     step: number,
 ) {
-    const initialValue = manager.m_settings[option];
+    const initialValue = manager.settings[option];
     return sliderDef(name, min, max, step, initialValue, (value) => {
-        manager.m_settings[option] = value;
+        manager.settings[option] = value;
     });
 }

@@ -19,45 +19,45 @@
 import { assert } from "@box2d/core";
 
 export class StackQueue<T> {
-    public readonly m_buffer: Array<T | null> = [];
+    public readonly buffer: Array<T | null> = [];
 
-    public m_front = 0;
+    public front = 0;
 
-    public m_back = 0;
+    public back = 0;
 
-    public get m_capacity(): number {
-        return this.m_buffer.length;
+    public get capacity(): number {
+        return this.buffer.length;
     }
 
     public constructor(capacity: number) {
-        this.m_buffer.fill(null, 0, capacity);
+        this.buffer.fill(null, 0, capacity);
     }
 
     public push(item: T): void {
-        if (this.m_back >= this.m_capacity) {
-            for (let i = this.m_front; i < this.m_back; i++) {
-                this.m_buffer[i - this.m_front] = this.m_buffer[i];
+        if (this.back >= this.capacity) {
+            for (let i = this.front; i < this.back; i++) {
+                this.buffer[i - this.front] = this.buffer[i];
             }
-            this.m_back -= this.m_front;
-            this.m_front = 0;
+            this.back -= this.front;
+            this.front = 0;
         }
-        this.m_buffer[this.m_back] = item;
-        this.m_back++;
+        this.buffer[this.back] = item;
+        this.back++;
     }
 
     public pop(): void {
-        // DEBUG: assert(this.m_front < this.m_back);
-        this.m_buffer[this.m_front] = null;
-        this.m_front++;
+        // DEBUG: assert(this.front < this.back);
+        this.buffer[this.front] = null;
+        this.front++;
     }
 
-    public empty(): boolean {
-        // DEBUG: assert(this.m_front <= this.m_back);
-        return this.m_front === this.m_back;
+    public isEmpty(): boolean {
+        // DEBUG: assert(this.front <= this.back);
+        return this.front === this.back;
     }
 
-    public front(): T {
-        const item = this.m_buffer[this.m_front];
+    public getFront(): T {
+        const item = this.buffer[this.front];
         assert(item !== null);
         return item;
     }

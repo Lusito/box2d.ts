@@ -50,13 +50,13 @@ const tempCenter = new Vec2();
 
 const implementations: Array<ComputeDistanceFn<any>> = [
     (shape: CircleShape, xf, p, normal) => {
-        const center = Transform.multiplyVec2(xf, shape.m_p, tempCenter);
+        const center = Transform.multiplyVec2(xf, shape.p, tempCenter);
         Vec2.subtract(p, center, normal);
-        return normal.normalize() - shape.m_radius;
+        return normal.normalize() - shape.radius;
     },
     (shape: EdgeShape, xf, p, normal) => {
-        const v1 = Transform.multiplyVec2(xf, shape.m_vertex1, tempV1);
-        const v2 = Transform.multiplyVec2(xf, shape.m_vertex2, tempV2);
+        const v1 = Transform.multiplyVec2(xf, shape.vertex1, tempV1);
+        const v2 = Transform.multiplyVec2(xf, shape.vertex2, tempV2);
 
         const d = Vec2.subtract(p, v1, tempD);
         const s = Vec2.subtract(v2, v1, tempS);
@@ -77,19 +77,19 @@ const implementations: Array<ComputeDistanceFn<any>> = [
         let maxDistance = -MAX_FLOAT;
         const normalForMaxDistance = tempNormalForMaxDistance.copy(pLocal);
 
-        for (let i = 0; i < shape.m_count; ++i) {
-            const dot = Vec2.dot(shape.m_normals[i], Vec2.subtract(pLocal, shape.m_vertices[i], Vec2.s_t0));
+        for (let i = 0; i < shape.count; ++i) {
+            const dot = Vec2.dot(shape.normals[i], Vec2.subtract(pLocal, shape.vertices[i], Vec2.s_t0));
             if (dot > maxDistance) {
                 maxDistance = dot;
-                normalForMaxDistance.copy(shape.m_normals[i]);
+                normalForMaxDistance.copy(shape.normals[i]);
             }
         }
 
         if (maxDistance > 0) {
             const minDistance = tempMinDistance.copy(normalForMaxDistance);
             let minDistance2 = maxDistance * maxDistance;
-            for (let i = 0; i < shape.m_count; ++i) {
-                const distance = Vec2.subtract(pLocal, shape.m_vertices[i], tempDistance);
+            for (let i = 0; i < shape.count; ++i) {
+                const distance = Vec2.subtract(pLocal, shape.vertices[i], tempDistance);
                 const distance2 = distance.lengthSquared();
                 if (minDistance2 > distance2) {
                     minDistance.copy(distance);

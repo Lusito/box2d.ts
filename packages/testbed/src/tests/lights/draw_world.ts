@@ -59,7 +59,7 @@ class DrawWorldTest extends AbstractLightTest {
         this.mouseLight = this.createLight();
         this.mouseLight.setColor(1, 0, 0, 1);
 
-        const heartBody = this.m_world.createBody();
+        const heartBody = this.world.createBody();
         for (const line of heart) {
             const shape = new EdgeShape();
             shape.setTwoSided({ x: line.x1, y: line.y1 }, { x: line.x2, y: line.y2 });
@@ -88,7 +88,7 @@ class DrawWorldTest extends AbstractLightTest {
     public createLight() {
         const light = new PointLight(this.rayHandler, NUM_RAYS, Light.DefaultColor, LIGHT_DISTANCE, 0, 0);
         setRandomLightColor(light);
-        light.setPositionV(this.m_mouseWorld);
+        light.setPositionV(this.mouseWorld);
         light.setSoft(this.soft);
         return light;
     }
@@ -122,7 +122,7 @@ class DrawWorldTest extends AbstractLightTest {
         if (leftDrag) {
             if (!this.currentEdgeBody) {
                 const dist = 1 / g_camera.getZoom();
-                this.currentEdgeBody = this.m_world.createBody({
+                this.currentEdgeBody = this.world.createBody({
                     position: { x: -dist, y: dist },
                 });
             }
@@ -142,7 +142,7 @@ class DrawWorldTest extends AbstractLightTest {
 
         this.addText("Left drag to draw lines");
 
-        this.mouseLight.setPositionV(this.m_mouseWorld);
+        this.mouseLight.setPositionV(this.mouseWorld);
         const center = g_camera.getCenter();
         this.rayHandler.setCombinedMatrix(
             g_camera.combined,

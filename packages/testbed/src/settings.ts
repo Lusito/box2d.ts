@@ -23,60 +23,60 @@ import { calculateParticleIterations } from "@box2d/particles";
 // SOFTWARE.
 
 export class Settings {
-    public m_testIndex = 0;
+    public testIndex = 0;
 
-    public m_windowWidth = 1600;
+    public windowWidth = 1600;
 
-    public m_windowHeight = 900;
+    public windowHeight = 900;
 
-    public m_hertz = 60;
+    public hertz = 60;
 
-    public m_velocityIterations = 8;
+    public velocityIterations = 8;
 
-    public m_positionIterations = 3;
+    public positionIterations = 3;
 
     // Particle iterations are needed for numerical stability in particle
     // simulations with small particles and relatively high gravity.
     // CalculateParticleIterations helps to determine the number.
-    public m_particleIterations = calculateParticleIterations(10, 0.04, 1 / this.m_hertz);
+    public particleIterations = calculateParticleIterations(10, 0.04, 1 / this.hertz);
 
-    public m_drawShapes = true;
+    public drawShapes = true;
 
-    public m_drawParticles = true;
+    public drawParticles = true;
 
-    public m_drawJoints = true;
+    public drawJoints = true;
 
-    public m_drawAABBs = false;
+    public drawAABBs = false;
 
-    public m_drawContactPoints = false;
+    public drawContactPoints = false;
 
-    public m_drawContactNormals = false;
+    public drawContactNormals = false;
 
-    public m_drawContactImpulse = false;
+    public drawContactImpulse = false;
 
-    public m_drawFrictionImpulse = false;
+    public drawFrictionImpulse = false;
 
-    public m_drawCOMs = false;
+    public drawCOMs = false;
 
-    public m_drawControllers = true;
+    public drawControllers = true;
 
-    public m_drawStats = false;
+    public drawStats = false;
 
-    public m_drawInputHelp = true;
+    public drawInputHelp = true;
 
-    public m_drawFpsMeter = true;
+    public drawFpsMeter = true;
 
-    public m_drawProfile = false;
+    public drawProfile = false;
 
-    public m_enableWarmStarting = true;
+    public enableWarmStarting = true;
 
-    public m_enableContinuous = true;
+    public enableContinuous = true;
 
-    public m_enableSubStepping = false;
+    public enableSubStepping = false;
 
-    public m_enableSleep = true;
+    public enableSleep = true;
 
-    public m_pause = false;
+    public pause = false;
 
-    public m_singleStep = false;
+    public singleStep = false;
 }

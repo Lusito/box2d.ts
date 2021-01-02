@@ -35,17 +35,17 @@ import { MassData, Shape, ShapeType } from "./b2_shape";
  */
 export class EdgeShape extends Shape {
     /** These are the edge vertices */
-    public readonly m_vertex1 = new Vec2();
+    public readonly vertex1 = new Vec2();
 
-    public readonly m_vertex2 = new Vec2();
+    public readonly vertex2 = new Vec2();
 
     /** Optional adjacent vertices. These are used for smooth collision. */
-    public readonly m_vertex0 = new Vec2();
+    public readonly vertex0 = new Vec2();
 
-    public readonly m_vertex3 = new Vec2();
+    public readonly vertex3 = new Vec2();
 
-    /** Uses m_vertex0 and m_vertex3 to create smooth collision. */
-    public m_oneSided = false;
+    /** Uses vertex0 and vertex3 to create smooth collision. */
+    public oneSided = false;
 
     public constructor() {
         super(ShapeType.Edge, POLYGON_RADIUS);
@@ -58,11 +58,11 @@ export class EdgeShape extends Shape {
      * normal points to the right looking from v1 to v2.
      */
     public setOneSided(v0: XY, v1: XY, v2: XY, v3: XY): EdgeShape {
-        this.m_vertex0.copy(v0);
-        this.m_vertex1.copy(v1);
-        this.m_vertex2.copy(v2);
-        this.m_vertex3.copy(v3);
-        this.m_oneSided = true;
+        this.vertex0.copy(v0);
+        this.vertex1.copy(v1);
+        this.vertex2.copy(v2);
+        this.vertex3.copy(v3);
+        this.oneSided = true;
         return this;
     }
 
@@ -70,9 +70,9 @@ export class EdgeShape extends Shape {
      * Set this as an isolated edge. Collision is two-sided.
      */
     public setTwoSided(v1: XY, v2: XY): EdgeShape {
-        this.m_vertex1.copy(v1);
-        this.m_vertex2.copy(v2);
-        this.m_oneSided = false;
+        this.vertex1.copy(v1);
+        this.vertex2.copy(v2);
+        this.oneSided = false;
         return this;
     }
 
@@ -88,11 +88,11 @@ export class EdgeShape extends Shape {
 
         // DEBUG: assert(other instanceof EdgeShape);
 
-        this.m_vertex1.copy(other.m_vertex1);
-        this.m_vertex2.copy(other.m_vertex2);
-        this.m_vertex0.copy(other.m_vertex0);
-        this.m_vertex3.copy(other.m_vertex3);
-        this.m_oneSided = other.m_oneSided;
+        this.vertex1.copy(other.vertex1);
+        this.vertex2.copy(other.vertex2);
+        this.vertex0.copy(other.vertex0);
+        this.vertex3.copy(other.vertex3);
+        this.oneSided = other.oneSided;
 
         return this;
     }
@@ -137,8 +137,8 @@ export class EdgeShape extends Shape {
         const p2 = Transform.transposeMultiplyVec2(xf, input.p2, EdgeShape.RayCast_s_p2);
         const d = Vec2.subtract(p2, p1, EdgeShape.RayCast_s_d);
 
-        const v1 = this.m_vertex1;
-        const v2 = this.m_vertex2;
+        const v1 = this.vertex1;
+        const v2 = this.vertex2;
         const e = Vec2.subtract(v2, v1, EdgeShape.RayCast_s_e);
 
         // Normal points to the right, looking from v1 at v2
@@ -149,7 +149,7 @@ export class EdgeShape extends Shape {
         // dot(normal, q - v1) = 0
         // dot(normal, p1 - v1) + t * dot(normal, d) = 0
         const numerator = Vec2.dot(normal, Vec2.subtract(v1, p1, Vec2.s_t0));
-        if (this.m_oneSided && numerator > 0) {
+        if (this.oneSided && numerator > 0) {
             return false;
         }
 
@@ -195,13 +195,13 @@ export class EdgeShape extends Shape {
      * @see Shape::ComputeAABB
      */
     public computeAABB(aabb: AABB, xf: Transform, _childIndex: number): void {
-        const v1 = Transform.multiplyVec2(xf, this.m_vertex1, EdgeShape.ComputeAABB_s_v1);
-        const v2 = Transform.multiplyVec2(xf, this.m_vertex2, EdgeShape.ComputeAABB_s_v2);
+        const v1 = Transform.multiplyVec2(xf, this.vertex1, EdgeShape.ComputeAABB_s_v1);
+        const v2 = Transform.multiplyVec2(xf, this.vertex2, EdgeShape.ComputeAABB_s_v2);
 
         Vec2.min(v1, v2, aabb.lowerBound);
         Vec2.max(v1, v2, aabb.upperBound);
 
-        const r = this.m_radius;
+        const r = this.radius;
         aabb.lowerBound.subtractXY(r, r);
         aabb.upperBound.addXY(r, r);
     }
@@ -211,24 +211,24 @@ export class EdgeShape extends Shape {
      */
     public computeMass(massData: MassData, _density: number): void {
         massData.mass = 0;
-        Vec2.mid(this.m_vertex1, this.m_vertex2, massData.center);
+        Vec2.mid(this.vertex1, this.vertex2, massData.center);
         massData.I = 0;
     }
 
     public setupDistanceProxy(proxy: DistanceProxy, _index: number): void {
-        proxy.m_vertices = proxy.m_buffer;
-        proxy.m_vertices[0].copy(this.m_vertex1);
-        proxy.m_vertices[1].copy(this.m_vertex2);
-        proxy.m_count = 2;
-        proxy.m_radius = this.m_radius;
+        proxy.vertices = proxy.buffer;
+        proxy.vertices[0].copy(this.vertex1);
+        proxy.vertices[1].copy(this.vertex2);
+        proxy.count = 2;
+        proxy.radius = this.radius;
     }
 
     public draw(draw: Draw, color: Color): void {
-        const v1 = this.m_vertex1;
-        const v2 = this.m_vertex2;
+        const v1 = this.vertex1;
+        const v2 = this.vertex2;
         draw.drawSegment(v1, v2, color);
 
-        if (this.m_oneSided === false) {
+        if (this.oneSided === false) {
             draw.drawPoint(v1, 4, color);
             draw.drawPoint(v2, 4, color);
         }

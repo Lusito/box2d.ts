@@ -81,8 +81,6 @@ class OfficialDemoTest extends AbstractLightTest {
 
     private readonly marbles: Marble[];
 
-    private groundBody!: Body;
-
     private sunDirection = -90;
 
     private lightsType: LightsType = "Point";
@@ -115,7 +113,7 @@ class OfficialDemoTest extends AbstractLightTest {
         const createMarble = () => {
             // Create the BodyDef, set a random position above the
             // ground and create a new body
-            const boxBody = this.m_world.createBody({
+            const boxBody = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: {
                     x: 4 + Math.random() * 40,
@@ -238,9 +236,6 @@ class OfficialDemoTest extends AbstractLightTest {
             new Vec2(viewportWidth, viewportHeight),
             new Vec2(viewportWidth, 0),
         ]);
-        this.groundBody = this.m_world.createBody({
-            type: BodyType.Static,
-        });
         const fixture = this.groundBody.createFixture({ shape: chainShape, density: 0 });
         fixture.setFilterData({
             categoryBits: Category.WORLD,

@@ -24,7 +24,7 @@ class BlobTest extends Test {
     public constructor() {
         super();
 
-        const ground = this.m_world.createBody();
+        const ground = this.world.createBody();
 
         {
             const shape = new EdgeShape();
@@ -48,7 +48,7 @@ class BlobTest extends Test {
             for (let i = 0; i < nBodies; ++i) {
                 const angle = (i * 2 * Math.PI) / nBodies;
 
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     // isBullet: true,
                     fixedRotation: true,
@@ -66,7 +66,7 @@ class BlobTest extends Test {
             const frequencyHz = 10;
             const dampingRatio = 1;
             linearStiffness(ajd, frequencyHz, dampingRatio, ajd.bodyA, ajd.bodyB);
-            this.m_world.createJoint(ajd);
+            this.world.createJoint(ajd);
         }
     }
 

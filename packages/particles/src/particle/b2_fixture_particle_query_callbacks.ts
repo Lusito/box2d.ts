@@ -17,10 +17,10 @@ import { ParticleFlag } from "./b2_particle";
 import type { ParticleSystem } from "./b2_particle_system";
 
 export abstract class FixtureParticleQueryCallback {
-    protected m_system: ParticleSystem;
+    protected system: ParticleSystem;
 
     public constructor(system: ParticleSystem) {
-        this.m_system = system;
+        this.system = system;
     }
 
     public reportFixture(fixture: Fixture): boolean {
@@ -31,7 +31,7 @@ export abstract class FixtureParticleQueryCallback {
         const childCount = shape.getChildCount();
         for (let childIndex = 0; childIndex < childCount; childIndex++) {
             const aabb = fixture.getAABB(childIndex);
-            const enumerator = this.m_system.getInsideBoundsEnumerator(aabb);
+            const enumerator = this.system.getInsideBoundsEnumerator(aabb);
             let index: number;
             // eslint-disable-next-line no-cond-assign
             while ((index = enumerator.getNext()) >= 0) {
@@ -45,16 +45,16 @@ export abstract class FixtureParticleQueryCallback {
 }
 
 export class ParticleSystem_UpdateBodyContactsCallback extends FixtureParticleQueryCallback {
-    public m_contactFilter: ContactFilter | null = null;
+    public contactFilter: ContactFilter | null = null;
 
     public shouldCollideFixtureParticle(fixture: Fixture, particleIndex: number): boolean {
         // Call the contact filter if it's set, to determine whether to
         // filter this contact.  Returns true if contact calculations should
         // be performed, false otherwise.
-        if (this.m_contactFilter) {
-            const flags = this.m_system.getFlagsBuffer();
+        if (this.contactFilter) {
+            const flags = this.system.getFlagsBuffer();
             if (flags[particleIndex] & ParticleFlag.FixtureContactFilter) {
-                return this.m_contactFilter.shouldCollideFixtureParticle(fixture, this.m_system, particleIndex);
+                return this.contactFilter.shouldCollideFixtureParticle(fixture, this.system, particleIndex);
             }
         }
         return true;
@@ -63,33 +63,32 @@ export class ParticleSystem_UpdateBodyContactsCallback extends FixtureParticleQu
     public reportFixtureAndParticle(fixture: Fixture, childIndex: number, a: number): void {
         const s_n = ParticleSystem_UpdateBodyContactsCallback.ReportFixtureAndParticle_s_n;
         const s_rp = ParticleSystem_UpdateBodyContactsCallback.ReportFixtureAndParticle_s_rp;
-        const ap = this.m_system.m_positionBuffer.data[a];
+        const ap = this.system.positionBuffer.data[a];
         const n = s_n;
 
         const d = computeDistance(fixture.getShape(), fixture.getBody().getTransform(), ap, n, childIndex);
-        if (d < this.m_system.m_particleDiameter && this.shouldCollideFixtureParticle(fixture, a)) {
+        if (d < this.system.particleDiameter && this.shouldCollideFixtureParticle(fixture, a)) {
             const b = fixture.getBody();
             const bp = b.getWorldCenter();
             const bm = b.getMass();
             const bI = b.getInertia() - bm * b.getLocalCenter().lengthSquared();
             const invBm = bm > 0 ? 1 / bm : 0;
             const invBI = bI > 0 ? 1 / bI : 0;
-            const invAm =
-                this.m_system.m_flagsBuffer.data[a] & ParticleFlag.Wall ? 0 : this.m_system.getParticleInvMass();
+            const invAm = this.system.flagsBuffer.data[a] & ParticleFlag.Wall ? 0 : this.system.getParticleInvMass();
 
             const rp = Vec2.subtract(ap, bp, s_rp);
             const rpn = Vec2.cross(rp, n);
             const invM = invAm + invBm + invBI * rpn * rpn;
 
-            const contact = this.m_system.m_bodyContactBuffer.data[this.m_system.m_bodyContactBuffer.append()];
+            const contact = this.system.bodyContactBuffer.data[this.system.bodyContactBuffer.append()];
             contact.index = a;
             contact.body = b;
             contact.fixture = fixture;
-            contact.weight = 1 - d * this.m_system.m_inverseDiameter;
+            contact.weight = 1 - d * this.system.inverseDiameter;
 
             contact.normal.copy(n.negate());
             contact.mass = invM > 0 ? 1 / invM : 0;
-            this.m_system.detectStuckParticle(a);
+            this.system.detectStuckParticle(a);
         }
     }
 
@@ -99,7 +98,7 @@ export class ParticleSystem_UpdateBodyContactsCallback extends FixtureParticleQu
 }
 
 export class ParticleSystem_SolveCollisionCallback extends FixtureParticleQueryCallback {
-    public m_step: TimeStep | null = null;
+    public step: TimeStep | null = null;
 
     public reportFixtureAndParticle(fixture: Fixture, childIndex: number, a: number): void {
         const s_p1 = ParticleSystem_SolveCollisionCallback.ReportFixtureAndParticle_s_p1;
@@ -110,19 +109,19 @@ export class ParticleSystem_SolveCollisionCallback extends FixtureParticleQueryC
         const s_f = ParticleSystem_SolveCollisionCallback.ReportFixtureAndParticle_s_f;
 
         const body = fixture.getBody();
-        const ap = this.m_system.m_positionBuffer.data[a];
-        const av = this.m_system.m_velocityBuffer.data[a];
+        const ap = this.system.positionBuffer.data[a];
+        const av = this.system.velocityBuffer.data[a];
         const output = s_output;
         const input = s_input;
-        if (this.m_system.m_iterationIndex === 0) {
+        if (this.system.iterationIndex === 0) {
             const xf = body.getTransform();
             // Put 'ap' in the local space of the previous frame
-            const p1 = Transform.transposeMultiplyVec2(body.m_xf0, ap, s_p1);
+            const p1 = Transform.transposeMultiplyVec2(body.xf0, ap, s_p1);
             if (fixture.getShape().getType() === ShapeType.Circle) {
                 // Make relative to the center of the circle
                 p1.subtract(body.getLocalCenter());
                 // Re-apply rotation about the center of the circle
-                Rot.multiplyVec2(body.m_xf0.q, p1, p1);
+                Rot.multiplyVec2(body.xf0.q, p1, p1);
                 // Subtract rotation of the current frame
                 Rot.transposeMultiplyVec2(xf.q, p1, p1);
                 // Return to local space
@@ -134,7 +133,7 @@ export class ParticleSystem_SolveCollisionCallback extends FixtureParticleQueryC
             input.p1.copy(ap);
         }
 
-        const step = verify(this.m_step);
+        const step = verify(this.step);
         Vec2.addScaled(ap, step.dt, av, input.p2);
         input.maxFraction = 1;
         if (fixture.rayCast(output, input, childIndex)) {
@@ -145,11 +144,11 @@ export class ParticleSystem_SolveCollisionCallback extends FixtureParticleQueryC
             const v = s_v;
             v.x = step.inv_dt * (p.x - ap.x);
             v.y = step.inv_dt * (p.y - ap.y);
-            this.m_system.m_velocityBuffer.data[a].copy(v);
+            this.system.velocityBuffer.data[a].copy(v);
             const f = s_f;
-            f.x = step.inv_dt * this.m_system.getParticleMass() * (av.x - v.x);
-            f.y = step.inv_dt * this.m_system.getParticleMass() * (av.y - v.y);
-            this.m_system.particleApplyForce(a, f);
+            f.x = step.inv_dt * this.system.getParticleMass() * (av.x - v.x);
+            f.y = step.inv_dt * this.system.getParticleMass() * (av.y - v.y);
+            this.system.particleApplyForce(a, f);
         }
     }
 

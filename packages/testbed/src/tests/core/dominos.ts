@@ -40,7 +40,7 @@ class DominosTest extends Test {
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
 
-            b1 = this.m_world.createBody();
+            b1 = this.world.createBody();
             b1.createFixture({ shape });
         }
 
@@ -48,7 +48,7 @@ class DominosTest extends Test {
             const shape = new PolygonShape();
             shape.setAsBox(6, 0.25);
 
-            const ground = this.m_world.createBody({
+            const ground = this.world.createBody({
                 position: { x: -1.5, y: 10 },
             });
             ground.createFixture({ shape });
@@ -65,7 +65,7 @@ class DominosTest extends Test {
             };
 
             for (let i = 0; i < 10; ++i) {
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: -6 + 1 * i, y: 11.25 },
                 });
@@ -77,7 +77,7 @@ class DominosTest extends Test {
             const shape = new PolygonShape();
             shape.setAsBox(7, 0.25, Vec2.ZERO, 0.3);
 
-            const ground = this.m_world.createBody({
+            const ground = this.world.createBody({
                 position: { x: 1, y: 6 },
             });
             ground.createFixture({ shape });
@@ -88,7 +88,7 @@ class DominosTest extends Test {
             const shape = new PolygonShape();
             shape.setAsBox(0.25, 1.5);
 
-            b2 = this.m_world.createBody({
+            b2 = this.world.createBody({
                 position: { x: -7, y: 4 },
             });
             b2.createFixture({ shape });
@@ -99,7 +99,7 @@ class DominosTest extends Test {
             const shape = new PolygonShape();
             shape.setAsBox(6, 0.125);
 
-            b3 = this.m_world.createBody({
+            b3 = this.world.createBody({
                 type: BodyType.Dynamic,
                 angle: -0.15,
                 position: { x: -0.9, y: 1 },
@@ -113,14 +113,14 @@ class DominosTest extends Test {
         anchor.set(-2, 1);
         jd.initialize(b1, b3, anchor);
         jd.collideConnected = true;
-        this.m_world.createJoint(jd);
+        this.world.createJoint(jd);
 
         let b4 = null;
         {
             const shape = new PolygonShape();
             shape.setAsBox(0.25, 0.25);
 
-            b4 = this.m_world.createBody({
+            b4 = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -10, y: 15 },
             });
@@ -129,11 +129,11 @@ class DominosTest extends Test {
 
         anchor.set(-7, 15);
         jd.initialize(b2, b4, anchor);
-        this.m_world.createJoint(jd);
+        this.world.createJoint(jd);
 
         let b5 = null;
         {
-            b5 = this.m_world.createBody({
+            b5 = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 6.5, y: 3 },
             });
@@ -157,14 +157,14 @@ class DominosTest extends Test {
 
         anchor.set(6, 2);
         jd.initialize(b1, b5, anchor);
-        this.m_world.createJoint(jd);
+        this.world.createJoint(jd);
 
         let b6 = null;
         {
             const shape = new PolygonShape();
             shape.setAsBox(1, 0.1);
 
-            b6 = this.m_world.createBody({
+            b6 = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 6.5, y: 4.1 },
             });
@@ -173,14 +173,14 @@ class DominosTest extends Test {
 
         anchor.set(7.5, 4);
         jd.initialize(b5, b6, anchor);
-        this.m_world.createJoint(jd);
+        this.world.createJoint(jd);
 
         let b7 = null;
         {
             const shape = new PolygonShape();
             shape.setAsBox(0.1, 1);
 
-            b7 = this.m_world.createBody({
+            b7 = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 7.4, y: 1 },
             });
@@ -199,16 +199,16 @@ class DominosTest extends Test {
         );
         djd.length = d.length();
         linearStiffness(djd, 1, 1, djd.bodyA, djd.bodyB);
-        this.m_world.createJoint(djd);
+        this.world.createJoint(djd);
 
         {
             const radius = 0.2;
 
             const shape = new CircleShape();
-            shape.m_radius = radius;
+            shape.radius = radius;
 
             for (let i = 0; i < 4; ++i) {
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: 5.9 + 2 * radius * i, y: 2.4 },
                 });

@@ -25,7 +25,7 @@ class TestStackTest extends Test {
         super();
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new ChainShape();
             shape.createLoop([new Vec2(-30, 0), new Vec2(-30, 40), new Vec2(30, 40), new Vec2(30, 0)]);
@@ -50,15 +50,15 @@ class TestStackTest extends Test {
         // Create 3 stacks
         for (let i = 0; i < 10; ++i) {
             position.set(0 + Math.random() * 0.2 - 0.1, 30 - i * 2.5);
-            this.m_world.createBody(bd).createFixture(fd);
+            this.world.createBody(bd).createFixture(fd);
         }
         for (let i = 0; i < 10; ++i) {
             position.set(10 + Math.random() * 0.2 - 0.1, 30 - i * 2.5);
-            this.m_world.createBody(bd).createFixture(fd);
+            this.world.createBody(bd).createFixture(fd);
         }
         for (let i = 0; i < 10; ++i) {
             position.set(20 + Math.random() * 0.2 - 0.1, 30 - i * 2.5);
-            this.m_world.createBody(bd).createFixture(fd);
+            this.world.createBody(bd).createFixture(fd);
         }
         // Create ramp
         bd.type = BodyType.Static;
@@ -66,7 +66,7 @@ class TestStackTest extends Test {
         const vxs = [new Vec2(-30, 0), new Vec2(-10, 0), new Vec2(-30, 10)];
         polygon.set(vxs, vxs.length);
         fd.density = 0;
-        this.m_world.createBody(bd).createFixture(fd);
+        this.world.createBody(bd).createFixture(fd);
 
         // Create ball
         bd.type = BodyType.Dynamic;
@@ -75,7 +75,7 @@ class TestStackTest extends Test {
         fd.density = 2;
         fd.restitution = 0.2;
         fd.friction = 0.5;
-        this.m_world.createBody(bd).createFixture(fd);
+        this.world.createBody(bd).createFixture(fd);
     }
 
     public getDefaultViewZoom() {

@@ -31,7 +31,7 @@ class ConfinedTest extends Test {
         super(Vec2.ZERO);
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
 
@@ -54,8 +54,8 @@ class ConfinedTest extends Test {
 
         const radius = 0.5;
         const shape = new CircleShape();
-        shape.m_p.setZero();
-        shape.m_radius = radius;
+        shape.p.setZero();
+        shape.radius = radius;
 
         const fd: FixtureDef = {
             shape,
@@ -65,7 +65,7 @@ class ConfinedTest extends Test {
 
         for (let j = 0; j < ConfinedTest.e_columnCount; ++j) {
             for (let i = 0; i < ConfinedTest.e_rowCount; ++i) {
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: -10 + (2.1 * j + 1 + 0.01 * i) * radius, y: (2 * i + 1) * radius },
                 });
@@ -89,11 +89,11 @@ class ConfinedTest extends Test {
     public createCircle() {
         const radius = 2;
         const shape = new CircleShape();
-        shape.m_p.setZero();
-        shape.m_radius = radius;
+        shape.p.setZero();
+        shape.radius = radius;
 
         // bd.allowSleep = false;
-        const body = this.m_world.createBody({
+        const body = this.world.createBody({
             type: BodyType.Dynamic,
             position: {
                 x: random(),
@@ -114,7 +114,7 @@ class ConfinedTest extends Test {
 
     public step(settings: Settings, timeStep: number): void {
         // let sleeping = true;
-        for (let b = this.m_world.getBodyList(); b; b = b.getNext()) {
+        for (let b = this.world.getBodyList(); b; b = b.getNext()) {
             if (b.getType() !== BodyType.Dynamic) {
                 continue;
             }
@@ -124,8 +124,8 @@ class ConfinedTest extends Test {
             // }
         }
 
-        if (this.m_stepCount === 180) {
-            this.m_stepCount += 0;
+        if (this.stepCount === 180) {
+            this.stepCount += 0;
         }
 
         // if (sleeping) {
@@ -134,7 +134,7 @@ class ConfinedTest extends Test {
 
         super.step(settings, timeStep);
 
-        for (let b = this.m_world.getBodyList(); b; b = b.getNext()) {
+        for (let b = this.world.getBodyList(); b; b = b.getNext()) {
             if (b.getType() !== BodyType.Dynamic) {
                 continue;
             }

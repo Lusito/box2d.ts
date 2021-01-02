@@ -27,7 +27,7 @@ class CornerCaseTest extends AbstractParticleTestWithControls {
         super(particleParameter);
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             // Construct a pathological corner intersection out of many
             // polygons to ensure there's no issue with particle oscillation
@@ -68,17 +68,17 @@ class CornerCaseTest extends AbstractParticleTestWithControls {
             }
         }
 
-        this.m_particleSystem.setRadius(1);
+        this.particleSystem.setRadius(1);
         const particleType = particleParameter.getValue();
 
         {
             const shape = new CircleShape();
-            shape.m_p.set(0, 35);
-            shape.m_radius = 12;
+            shape.p.set(0, 35);
+            shape.radius = 12;
             const pd = new ParticleGroupDef();
             pd.flags = particleType;
             pd.shape = shape;
-            const group = this.m_particleSystem.createParticleGroup(pd);
+            const group = this.particleSystem.createParticleGroup(pd);
             if (pd.flags & ParticleFlag.ColorMixing) {
                 this.colorParticleGroup(group, 0);
             }

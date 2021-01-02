@@ -70,7 +70,7 @@ export abstract class Light {
 
     protected f: number[] = [];
 
-    protected m_index = 0;
+    protected index = 0;
 
     protected gl: WebGLRenderingContext;
 
@@ -502,9 +502,9 @@ export abstract class Light {
         // if (fixture.isSensor())
         // return -1;
 
-        this.mx[this.m_index] = point.x;
-        this.my[this.m_index] = point.y;
-        this.f[this.m_index] = fraction;
+        this.mx[this.index] = point.x;
+        this.my[this.index] = point.y;
+        this.f[this.index] = fraction;
         return fraction;
     }
 

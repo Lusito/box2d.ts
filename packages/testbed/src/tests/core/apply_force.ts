@@ -36,7 +36,7 @@ import { HotKey, hotKeyStep } from "../../utils/hotkeys";
 // It also shows how to use the friction joint that can be useful
 // for overhead games.
 class ApplyForceTest extends Test {
-    public m_body: Body;
+    public body: Body;
 
     public positiveForce = false;
 
@@ -51,7 +51,7 @@ class ApplyForceTest extends Test {
 
         const k_restitution = 0.4;
 
-        const ground = this.m_world.createBody({
+        const ground = this.world.createBody({
             position: {
                 x: 0,
                 y: 20,
@@ -108,24 +108,24 @@ class ApplyForceTest extends Test {
             const poly2 = new PolygonShape();
             poly2.set(vertices, 3);
 
-            this.m_body = this.m_world.createBody({
+            this.body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 0, y: 3 },
                 angle: Math.PI,
                 allowSleep: false,
             });
-            this.m_body.createFixture({
+            this.body.createFixture({
                 shape: poly1,
                 density: 2,
             });
-            this.m_body.createFixture({
+            this.body.createFixture({
                 shape: poly2,
                 density: 2,
             });
 
             const gravity = 10;
-            const I = this.m_body.getInertia();
-            const mass = this.m_body.getMass();
+            const I = this.body.getInertia();
+            const mass = this.body.getMass();
 
             // Compute an effective radius that can be used to
             // set the max torque for a friction joint
@@ -134,14 +134,14 @@ class ApplyForceTest extends Test {
 
             const jd = new FrictionJointDef();
             jd.bodyA = ground;
-            jd.bodyB = this.m_body;
+            jd.bodyB = this.body;
             jd.localAnchorA.setZero();
-            jd.localAnchorB.copy(this.m_body.getLocalCenter());
+            jd.localAnchorB.copy(this.body.getLocalCenter());
             jd.collideConnected = true;
             jd.maxForce = 0.5 * mass * gravity;
             jd.maxTorque = 0.2 * mass * radius * gravity;
 
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
         }
 
         {
@@ -155,7 +155,7 @@ class ApplyForceTest extends Test {
             };
 
             for (let i = 0; i < 10; ++i) {
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
 
                     position: {
@@ -182,7 +182,7 @@ class ApplyForceTest extends Test {
                 jd.maxForce = mass * gravity;
                 jd.maxTorque = 0.1 * mass * radius * gravity;
 
-                this.m_world.createJoint(jd);
+                this.world.createJoint(jd);
             }
         }
     }
@@ -191,15 +191,15 @@ class ApplyForceTest extends Test {
         return [
             hotKeyStep("w", "Apply Force", () => this.applyForce(-50)),
             hotKeyStep("s", "Apply Backward Force", () => this.applyForce(50)),
-            hotKeyStep("a", "Apply Torque Counter-Clockwise", () => this.m_body.applyTorque(10)),
-            hotKeyStep("d", "Apply Torque Clockwise", () => this.m_body.applyTorque(-10)),
+            hotKeyStep("a", "Apply Torque Counter-Clockwise", () => this.body.applyTorque(10)),
+            hotKeyStep("d", "Apply Torque Clockwise", () => this.body.applyTorque(-10)),
         ];
     }
 
     private applyForce(value: number) {
-        const f = this.m_body.getWorldVector(new Vec2(0, value), new Vec2());
-        const p = this.m_body.getWorldPoint(new Vec2(0, 3), new Vec2());
-        this.m_body.applyForce(f, p);
+        const f = this.body.getWorldVector(new Vec2(0, value), new Vec2());
+        const p = this.body.getWorldPoint(new Vec2(0, 3), new Vec2());
+        this.body.applyForce(f, p);
     }
 
     public getCenter(): XY {

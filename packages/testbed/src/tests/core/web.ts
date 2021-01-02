@@ -24,16 +24,16 @@ import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 
 // Test distance joints, body destruction, and joint destruction.
 class WebTest extends Test {
-    public m_bodies = new Array<Body | null>(4);
+    public bodies = new Array<Body | null>(4);
 
-    public m_joints = new Array<Joint | null>(8);
+    public joints = new Array<Joint | null>(8);
 
     public constructor() {
         super();
 
         let ground = null;
         {
-            ground = this.m_world.createBody();
+            ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
@@ -44,25 +44,25 @@ class WebTest extends Test {
             const shape = new PolygonShape();
             shape.setAsBox(0.5, 0.5);
 
-            const body0 = (this.m_bodies[0] = this.m_world.createBody({
+            const body0 = (this.bodies[0] = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -5, y: 5 },
             }));
             body0.createFixture({ shape, density: 5 });
 
-            const body1 = (this.m_bodies[1] = this.m_world.createBody({
+            const body1 = (this.bodies[1] = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 5, y: 5 },
             }));
             body1.createFixture({ shape, density: 5 });
 
-            const body2 = (this.m_bodies[2] = this.m_world.createBody({
+            const body2 = (this.bodies[2] = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 5, y: 15 },
             }));
             body2.createFixture({ shape, density: 5 });
 
-            const body3 = (this.m_bodies[3] = this.m_world.createBody({
+            const body3 = (this.bodies[3] = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -5, y: 15 },
             }));
@@ -85,7 +85,7 @@ class WebTest extends Test {
             d = Vec2.subtract(p2, p1, new Vec2());
             jd.length = d.length();
             linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_joints[0] = this.m_world.createJoint(jd);
+            this.joints[0] = this.world.createJoint(jd);
 
             jd.bodyA = ground;
             jd.bodyB = body1;
@@ -96,7 +96,7 @@ class WebTest extends Test {
             d = Vec2.subtract(p2, p1, new Vec2());
             jd.length = d.length();
             linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_joints[1] = this.m_world.createJoint(jd);
+            this.joints[1] = this.world.createJoint(jd);
 
             jd.bodyA = ground;
             jd.bodyB = body2;
@@ -107,7 +107,7 @@ class WebTest extends Test {
             d = Vec2.subtract(p2, p1, new Vec2());
             jd.length = d.length();
             linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_joints[2] = this.m_world.createJoint(jd);
+            this.joints[2] = this.world.createJoint(jd);
 
             jd.bodyA = ground;
             jd.bodyB = body3;
@@ -118,7 +118,7 @@ class WebTest extends Test {
             d = Vec2.subtract(p2, p1, new Vec2());
             jd.length = d.length();
             linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_joints[3] = this.m_world.createJoint(jd);
+            this.joints[3] = this.world.createJoint(jd);
 
             jd.bodyA = body0;
             jd.bodyB = body1;
@@ -129,7 +129,7 @@ class WebTest extends Test {
             d = Vec2.subtract(p2, p1, new Vec2());
             jd.length = d.length();
             linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_joints[4] = this.m_world.createJoint(jd);
+            this.joints[4] = this.world.createJoint(jd);
 
             jd.bodyA = body1;
             jd.bodyB = body2;
@@ -140,7 +140,7 @@ class WebTest extends Test {
             d = Vec2.subtract(p2, p1, new Vec2());
             jd.length = d.length();
             linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_joints[5] = this.m_world.createJoint(jd);
+            this.joints[5] = this.world.createJoint(jd);
 
             jd.bodyA = body2;
             jd.bodyB = body3;
@@ -151,7 +151,7 @@ class WebTest extends Test {
             d = Vec2.subtract(p2, p1, new Vec2());
             jd.length = d.length();
             linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_joints[6] = this.m_world.createJoint(jd);
+            this.joints[6] = this.world.createJoint(jd);
 
             jd.bodyA = body3;
             jd.bodyB = body0;
@@ -162,14 +162,14 @@ class WebTest extends Test {
             d = Vec2.subtract(p2, p1, new Vec2());
             jd.length = d.length();
             linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_joints[7] = this.m_world.createJoint(jd);
+            this.joints[7] = this.world.createJoint(jd);
         }
     }
 
     public jointDestroyed(joint: Joint) {
         for (let i = 0; i < 8; ++i) {
-            if (this.m_joints[i] === joint) {
-                this.m_joints[i] = null;
+            if (this.joints[i] === joint) {
+                this.joints[i] = null;
                 break;
             }
         }
@@ -179,20 +179,20 @@ class WebTest extends Test {
         return [
             hotKeyPress("b", "Delete a Body", () => {
                 for (let i = 0; i < 4; ++i) {
-                    const body = this.m_bodies[i];
+                    const body = this.bodies[i];
                     if (body) {
-                        this.m_world.destroyBody(body);
-                        this.m_bodies[i] = null;
+                        this.world.destroyBody(body);
+                        this.bodies[i] = null;
                         break;
                     }
                 }
             }),
             hotKeyPress("j", "Delete a Joint", () => {
                 for (let i = 0; i < 8; ++i) {
-                    const joint = this.m_joints[i];
+                    const joint = this.joints[i];
                     if (joint) {
-                        this.m_world.destroyJoint(joint);
-                        this.m_joints[i] = null;
+                        this.world.destroyJoint(joint);
+                        this.joints[i] = null;
                         break;
                     }
                 }

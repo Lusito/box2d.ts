@@ -30,21 +30,21 @@ import { Settings } from "../../settings";
 class TilesTest extends Test {
     public static readonly e_count = 20;
 
-    public m_fixtureCount = 0;
+    public fixtureCount = 0;
 
-    public m_createTime = 0;
+    public createTime = 0;
 
     public constructor() {
         super();
 
-        this.m_fixtureCount = 0;
+        this.fixtureCount = 0;
 
         const timer = new Timer();
 
         {
             const a = 0.5;
 
-            const ground = this.m_world.createBody({
+            const ground = this.world.createBody({
                 position: { x: 0, y: -a },
             });
 
@@ -59,7 +59,7 @@ class TilesTest extends Test {
                         const shape = new PolygonShape();
                         shape.setAsBox(a, a, position, 0);
                         ground.createFixture({ shape });
-                        ++this.m_fixtureCount;
+                        ++this.fixtureCount;
                         position.x += 2 * a;
                     }
                     position.y -= 2 * a;
@@ -100,13 +100,13 @@ class TilesTest extends Test {
                 y.copy(x);
 
                 for (let j = i; j < TilesTest.e_count; ++j) {
-                    const body = this.m_world.createBody({
+                    const body = this.world.createBody({
                         type: BodyType.Dynamic,
                         position: y,
                         // allowSleep: i !== 0 || j !== 0,
                     });
                     body.createFixture({ shape, density: 5 });
-                    ++this.m_fixtureCount;
+                    ++this.fixtureCount;
                     y.add(deltaY);
                 }
 
@@ -114,13 +114,13 @@ class TilesTest extends Test {
             }
         }
 
-        this.m_createTime = timer.getMilliseconds();
+        this.createTime = timer.getMilliseconds();
     }
 
     public step(settings: Settings, timeStep: number): void {
-        const cm = this.m_world.getContactManager();
-        const height = cm.m_broadPhase.getTreeHeight();
-        const leafCount = cm.m_broadPhase.getProxyCount();
+        const cm = this.world.getContactManager();
+        const height = cm.broadPhase.getTreeHeight();
+        const leafCount = cm.broadPhase.getProxyCount();
         const minimumNodeCount = 2 * leafCount - 1;
         const minimumHeight = Math.ceil(Math.log(minimumNodeCount) / Math.log(2));
         this.addDebug("Dynamic Tree Height", height);
@@ -128,12 +128,12 @@ class TilesTest extends Test {
 
         super.step(settings, timeStep);
 
-        this.addDebug("Create Time", `${this.m_createTime.toFixed(2)} ms`);
-        this.addDebug("Fixture Count", this.m_fixtureCount);
+        this.addDebug("Create Time", `${this.createTime.toFixed(2)} ms`);
+        this.addDebug("Fixture Count", this.fixtureCount);
 
-        // DynamicTree* tree = this.m_world.this.m_contactManager.m_broadPhase.m_tree;
+        // DynamicTree* tree = this.world.this.contactManager.broadPhase.tree;
 
-        // if (this.m_stepCount === 400)
+        // if (this.stepCount === 400)
         // {
         //  tree.rebuildBottomUp();
         // }

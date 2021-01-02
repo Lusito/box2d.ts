@@ -35,14 +35,14 @@ const particleTypes = {
 };
 
 class ParticleLifetimeRandomizer extends EmittedParticleCallback {
-    public m_minLifetime = 0;
+    public minLifetime = 0;
 
-    public m_maxLifetime = 0;
+    public maxLifetime = 0;
 
     public constructor(minLifetime: number, maxLifetime: number) {
         super();
-        this.m_minLifetime = minLifetime;
-        this.m_maxLifetime = maxLifetime;
+        this.minLifetime = minLifetime;
+        this.maxLifetime = maxLifetime;
     }
 
     /**
@@ -51,7 +51,7 @@ class ParticleLifetimeRandomizer extends EmittedParticleCallback {
     public particleCreated(system: ParticleSystem, particleIndex: number): void {
         system.setParticleLifetime(
             particleIndex,
-            Math.random() * (this.m_maxLifetime - this.m_minLifetime) + this.m_minLifetime,
+            Math.random() * (this.maxLifetime - this.minLifetime) + this.minLifetime,
         );
     }
 }
@@ -63,13 +63,13 @@ class ParticleLifetimeRandomizer extends EmittedParticleCallback {
  */
 class FaucetTest extends AbstractParticleTestWithControls {
     /** Used to cycle through particle colors. */
-    public m_particleColorOffset = 0;
+    public particleColorOffset = 0;
 
     /** Particle emitter. */
-    public m_emitter: RadialEmitter;
+    public emitter: RadialEmitter;
 
     /** Callback which sets the lifetime of emitted particles. */
-    public m_lifetimeRandomizer: ParticleLifetimeRandomizer;
+    public lifetimeRandomizer: ParticleLifetimeRandomizer;
 
     /** Minimum lifetime of particles in seconds. */
     public static readonly k_particleLifetimeMin = 30;
@@ -128,18 +128,18 @@ class FaucetTest extends AbstractParticleTestWithControls {
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter); // base class constructor
 
-        this.m_emitter = new RadialEmitter();
-        this.m_lifetimeRandomizer = new ParticleLifetimeRandomizer(
+        this.emitter = new RadialEmitter();
+        this.lifetimeRandomizer = new ParticleLifetimeRandomizer(
             FaucetTest.k_particleLifetimeMin,
             FaucetTest.k_particleLifetimeMax,
         );
 
         // Configure particle system parameters.
-        this.m_particleSystem.setRadius(0.035);
-        this.m_particleSystem.setMaxParticleCount(FaucetTest.k_maxParticleCount);
-        this.m_particleSystem.setDestructionByAge(true);
+        this.particleSystem.setRadius(0.035);
+        this.particleSystem.setMaxParticleCount(FaucetTest.k_maxParticleCount);
+        this.particleSystem.setDestructionByAge(true);
 
-        const ground = this.m_world.createBody();
+        const ground = this.world.createBody();
 
         // Create the container / trough style sink.
         {
@@ -183,7 +183,7 @@ class FaucetTest extends AbstractParticleTestWithControls {
         // Create the faucet spout.
         {
             const shape = new PolygonShape();
-            const particleDiameter = this.m_particleSystem.getRadius() * 2;
+            const particleDiameter = this.particleSystem.getRadius() * 2;
             const faucetLength = FaucetTest.k_faucetLength * particleDiameter;
             // Dimensions of the faucet in world units.
             const length = faucetLength * FaucetTest.k_spoutLength;
@@ -206,20 +206,20 @@ class FaucetTest extends AbstractParticleTestWithControls {
 
         // Initialize the particle emitter.
         {
-            const faucetLength = this.m_particleSystem.getRadius() * 2 * FaucetTest.k_faucetLength;
-            this.m_emitter.setParticleSystem(this.m_particleSystem);
-            this.m_emitter.setCallback(this.m_lifetimeRandomizer);
-            this.m_emitter.setPosition(
+            const faucetLength = this.particleSystem.getRadius() * 2 * FaucetTest.k_faucetLength;
+            this.emitter.setParticleSystem(this.particleSystem);
+            this.emitter.setCallback(this.lifetimeRandomizer);
+            this.emitter.setPosition(
                 new Vec2(
                     FaucetTest.k_containerWidth * FaucetTest.k_faucetWidth,
                     FaucetTest.k_containerHeight * FaucetTest.k_faucetHeight + faucetLength * 0.5,
                 ),
             );
-            this.m_emitter.setVelocity(new Vec2());
-            this.m_emitter.setSize(new Vec2(0, faucetLength));
-            this.m_emitter.setColor(new Color(1, 1, 1, 1));
-            this.m_emitter.setEmitRate(120);
-            this.m_emitter.setParticleFlags(particleParameter.getValue());
+            this.emitter.setVelocity(new Vec2());
+            this.emitter.setSize(new Vec2(0, faucetLength));
+            this.emitter.setColor(new Color(1, 1, 1, 1));
+            this.emitter.setEmitRate(120);
+            this.emitter.setParticleFlags(particleParameter.getValue());
         }
 
         // Don't restart the test when changing particle types.
@@ -229,50 +229,44 @@ class FaucetTest extends AbstractParticleTestWithControls {
     }
 
     public step(settings: Settings, timeStep: number): void {
-        let dt = settings.m_hertz > 0 ? 1 / settings.m_hertz : 0;
+        let dt = settings.hertz > 0 ? 1 / settings.hertz : 0;
 
-        if (settings.m_pause && !settings.m_singleStep) {
+        if (settings.pause && !settings.singleStep) {
             dt = 0;
         }
 
         super.step(settings, timeStep);
-        this.m_particleColorOffset += dt;
-        // Keep m_particleColorOffset in the range 0..k_ParticleColorsCount.
-        if (this.m_particleColorOffset >= particleColors.length) {
-            this.m_particleColorOffset -= particleColors.length;
+        this.particleColorOffset += dt;
+        // Keep particleColorOffset in the range 0..k_ParticleColorsCount.
+        if (this.particleColorOffset >= particleColors.length) {
+            this.particleColorOffset -= particleColors.length;
         }
 
         // Propagate the currently selected particle flags.
-        this.m_emitter.setParticleFlags(this.particleParameter.getValue());
+        this.emitter.setParticleFlags(this.particleParameter.getValue());
 
         // If this is a color mixing particle, add some color.
-        if (this.m_emitter.getParticleFlags() & ParticleFlag.ColorMixing) {
+        if (this.emitter.getParticleFlags() & ParticleFlag.ColorMixing) {
             // Each second, select a different color.
-            this.m_emitter.setColor(particleColors[Math.floor(this.m_particleColorOffset) % particleColors.length]);
+            this.emitter.setColor(particleColors[Math.floor(this.particleColorOffset) % particleColors.length]);
         } else {
-            this.m_emitter.setColor(new Color(1, 1, 1, 1));
+            this.emitter.setColor(new Color(1, 1, 1, 1));
         }
 
         // Create the particles.
-        this.m_emitter.step(dt);
+        this.emitter.step(dt);
     }
 
     public getHotkeys(): HotKey[] {
         return [
             hotKeyPress("m", "Increase Flow", () =>
-                this.m_emitter.setEmitRate(
-                    Math.max(
-                        FaucetTest.k_emitRateMin,
-                        this.m_emitter.getEmitRate() * FaucetTest.k_emitRateChangeFactor,
-                    ),
+                this.emitter.setEmitRate(
+                    Math.max(FaucetTest.k_emitRateMin, this.emitter.getEmitRate() * FaucetTest.k_emitRateChangeFactor),
                 ),
             ),
             hotKeyPress("n", "Decrease Flow", () =>
-                this.m_emitter.setEmitRate(
-                    Math.min(
-                        FaucetTest.k_emitRateMax,
-                        this.m_emitter.getEmitRate() / FaucetTest.k_emitRateChangeFactor,
-                    ),
+                this.emitter.setEmitRate(
+                    Math.min(FaucetTest.k_emitRateMax, this.emitter.getEmitRate() / FaucetTest.k_emitRateChangeFactor),
                 ),
             ),
         ];

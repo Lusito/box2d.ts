@@ -22,7 +22,7 @@ import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
 
 class PulleyJointTest extends Test {
-    public m_joint1: PulleyJoint;
+    public joint1: PulleyJoint;
 
     public constructor() {
         super();
@@ -34,15 +34,15 @@ class PulleyJointTest extends Test {
 
         let ground = null;
         {
-            ground = this.m_world.createBody();
+            ground = this.world.createBody();
 
             const circle = new CircleShape();
-            circle.m_radius = 2;
+            circle.radius = 2;
 
-            circle.m_p.set(-10, y + b + L);
+            circle.p.set(-10, y + b + L);
             ground.createFixture({ shape: circle });
 
-            circle.m_p.set(10, y + b + L);
+            circle.p.set(10, y + b + L);
             ground.createFixture({ shape: circle });
         }
 
@@ -50,14 +50,14 @@ class PulleyJointTest extends Test {
             const shape = new PolygonShape();
             shape.setAsBox(a, b);
 
-            const body1 = this.m_world.createBody({
+            const body1 = this.world.createBody({
                 type: BodyType.Dynamic,
                 // fixedRotation: true,
                 position: { x: -10, y },
             });
             body1.createFixture({ shape, density: 5 });
 
-            const body2 = this.m_world.createBody({
+            const body2 = this.world.createBody({
                 type: BodyType.Dynamic,
                 // fixedRotation: true,
                 position: { x: 10, y },
@@ -71,7 +71,7 @@ class PulleyJointTest extends Test {
             const groundAnchor2 = new Vec2(10, y + b + L);
             pulleyDef.initialize(body1, body2, groundAnchor1, groundAnchor2, anchor1, anchor2, 1.5);
 
-            this.m_joint1 = this.m_world.createJoint(pulleyDef);
+            this.joint1 = this.world.createJoint(pulleyDef);
         }
     }
 
@@ -84,9 +84,9 @@ class PulleyJointTest extends Test {
 
     public step(settings: Settings, timeStep: number): void {
         super.step(settings, timeStep);
-        this.addDebug("Ratio", this.m_joint1.getRatio().toFixed(2));
-        this.addDebug("Length A", this.m_joint1.getCurrentLengthA().toFixed(2));
-        this.addDebug("Length B", this.m_joint1.getCurrentLengthB().toFixed(2));
+        this.addDebug("Ratio", this.joint1.getRatio().toFixed(2));
+        this.addDebug("Length A", this.joint1.getCurrentLengthA().toFixed(2));
+        this.addDebug("Length B", this.joint1.getCurrentLengthB().toFixed(2));
     }
 }
 

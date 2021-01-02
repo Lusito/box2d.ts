@@ -34,30 +34,30 @@ import { g_debugDraw } from "../../utils/draw";
 import { hotKeyPress, HotKey } from "../../utils/hotkeys";
 
 class DistanceTest extends Test {
-    public m_positionB = new Vec2();
+    public positionB = new Vec2();
 
-    public m_angleB = 0;
+    public angleB = 0;
 
-    public m_transformA = new Transform();
+    public transformA = new Transform();
 
-    public m_transformB = new Transform();
+    public transformB = new Transform();
 
-    public m_polygonA = new PolygonShape();
+    public polygonA = new PolygonShape();
 
-    public m_polygonB = new PolygonShape();
+    public polygonB = new PolygonShape();
 
     public constructor() {
         super();
 
-        this.m_transformA.setIdentity();
-        this.m_transformA.p.set(0, -0.2);
-        this.m_polygonA.setAsBox(10, 0.2);
+        this.transformA.setIdentity();
+        this.transformA.p.set(0, -0.2);
+        this.polygonA.setAsBox(10, 0.2);
 
-        this.m_positionB.set(12.017401, 0.13678508);
-        this.m_angleB = -0.0109265;
-        this.m_transformB.setPositionAngle(this.m_positionB, this.m_angleB);
+        this.positionB.set(12.017401, 0.13678508);
+        this.angleB = -0.0109265;
+        this.transformB.setPositionAngle(this.positionB, this.angleB);
 
-        this.m_polygonB.setAsBox(2, 0.1);
+        this.polygonB.setAsBox(2, 0.1);
     }
 
     public getDefaultViewZoom() {
@@ -83,20 +83,20 @@ class DistanceTest extends Test {
     }
 
     private adjust(x: number, y: number, angle: number) {
-        this.m_positionB.x += x;
-        this.m_positionB.y += y;
-        this.m_angleB += angle;
-        this.m_transformB.setPositionAngle(this.m_positionB, this.m_angleB);
+        this.positionB.x += x;
+        this.positionB.y += y;
+        this.angleB += angle;
+        this.transformB.setPositionAngle(this.positionB, this.angleB);
     }
 
     public step(settings: Settings, timeStep: number): void {
         super.step(settings, timeStep);
 
         const input = new DistanceInput();
-        input.proxyA.setShape(this.m_polygonA, 0);
-        input.proxyB.setShape(this.m_polygonB, 0);
-        input.transformA.copy(this.m_transformA);
-        input.transformB.copy(this.m_transformB);
+        input.proxyA.setShape(this.polygonA, 0);
+        input.proxyB.setShape(this.polygonB, 0);
+        input.transformA.copy(this.transformA);
+        input.transformB.copy(this.transformB);
         input.useRadii = true;
         const cache = new SimplexCache();
         cache.count = 0;
@@ -109,15 +109,15 @@ class DistanceTest extends Test {
         {
             const color = new Color(0.9, 0.9, 0.9);
             const v = [];
-            for (let i = 0; i < this.m_polygonA.m_count; ++i) {
-                v[i] = Transform.multiplyVec2(this.m_transformA, this.m_polygonA.m_vertices[i], new Vec2());
+            for (let i = 0; i < this.polygonA.count; ++i) {
+                v[i] = Transform.multiplyVec2(this.transformA, this.polygonA.vertices[i], new Vec2());
             }
-            g_debugDraw.drawPolygon(v, this.m_polygonA.m_count, color);
+            g_debugDraw.drawPolygon(v, this.polygonA.count, color);
 
-            for (let i = 0; i < this.m_polygonB.m_count; ++i) {
-                v[i] = Transform.multiplyVec2(this.m_transformB, this.m_polygonB.m_vertices[i], new Vec2());
+            for (let i = 0; i < this.polygonB.count; ++i) {
+                v[i] = Transform.multiplyVec2(this.transformB, this.polygonB.vertices[i], new Vec2());
             }
-            g_debugDraw.drawPolygon(v, this.m_polygonB.m_count, color);
+            g_debugDraw.drawPolygon(v, this.polygonB.count, color);
         }
 
         const x1 = output.pointA;

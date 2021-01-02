@@ -24,17 +24,17 @@ import { Settings } from "../../settings";
 class TumblerTest extends Test {
     public static readonly e_count = 800;
 
-    public m_joint: RevoluteJoint;
+    public joint: RevoluteJoint;
 
-    public m_count = 0;
+    public count = 0;
 
     public constructor() {
         super();
 
-        const ground = this.m_world.createBody();
+        const ground = this.world.createBody();
 
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 allowSleep: false,
                 position: { x: 0, y: 10 },
@@ -59,10 +59,10 @@ class TumblerTest extends Test {
             jd.motorSpeed = 0.05 * Math.PI;
             jd.maxMotorTorque = 1e8;
             jd.enableMotor = true;
-            this.m_joint = this.m_world.createJoint(jd);
+            this.joint = this.world.createJoint(jd);
         }
 
-        this.m_count = 0;
+        this.count = 0;
     }
 
     public getCenter(): XY {
@@ -75,8 +75,8 @@ class TumblerTest extends Test {
     public step(settings: Settings, timeStep: number): void {
         super.step(settings, timeStep);
 
-        if (this.m_count < TumblerTest.e_count) {
-            const body = this.m_world.createBody({
+        if (this.count < TumblerTest.e_count) {
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 0, y: 10 },
             });
@@ -85,7 +85,7 @@ class TumblerTest extends Test {
             shape.setAsBox(0.125, 0.125);
             body.createFixture({ shape, density: 1 });
 
-            ++this.m_count;
+            ++this.count;
         }
     }
 }

@@ -48,15 +48,15 @@ const groupFlagsByKey: Record<string, number> = {
 const reactiveParticleFlags = ParticleFlag.Wall | ParticleFlag.Spring | ParticleFlag.Elastic;
 
 class DrawingParticlesTest extends AbstractParticleTestWithControls {
-    public m_lastGroup: ParticleGroup | null;
+    public lastGroup: ParticleGroup | null;
 
-    public m_colorIndex = 0;
+    public colorIndex = 0;
 
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter);
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             {
                 const shape = new PolygonShape();
@@ -87,9 +87,9 @@ class DrawingParticlesTest extends AbstractParticleTestWithControls {
             }
         }
 
-        this.m_colorIndex = 0;
-        this.m_particleSystem.setRadius(0.05 * 2);
-        this.m_lastGroup = null;
+        this.colorIndex = 0;
+        this.particleSystem.setRadius(0.05 * 2);
+        this.lastGroup = null;
 
         particleParameter.setValues(particleTypes, "water");
         particleParameter.setRestartOnChange(false);
@@ -104,56 +104,56 @@ class DrawingParticlesTest extends AbstractParticleTestWithControls {
         if (leftDrag) {
             const parameterValue = this.particleParameter.getValue();
             const shape = new CircleShape();
-            shape.m_p.copy(p);
-            shape.m_radius = 0.2;
+            shape.p.copy(p);
+            shape.radius = 0.2;
 
-            this.m_particleSystem.destroyParticlesInShape(shape, Transform.IDENTITY);
+            this.particleSystem.destroyParticlesInShape(shape, Transform.IDENTITY);
 
             const groupFlags = this.getGroupFlags();
 
-            const joinGroup = this.m_lastGroup && groupFlags === this.m_lastGroup.getGroupFlags();
-            if (!joinGroup) this.m_colorIndex = (this.m_colorIndex + 1) % particleColors.length;
+            const joinGroup = this.lastGroup && groupFlags === this.lastGroup.getGroupFlags();
+            if (!joinGroup) this.colorIndex = (this.colorIndex + 1) % particleColors.length;
 
             const pd = new ParticleGroupDef();
             pd.shape = shape;
             pd.flags = parameterValue;
             if (parameterValue & reactiveParticleFlags) pd.flags |= ParticleFlag.Reactive;
             pd.groupFlags = groupFlags;
-            pd.color.copy(particleColors[this.m_colorIndex]);
-            pd.group = this.m_lastGroup;
-            this.m_lastGroup = this.m_particleSystem.createParticleGroup(pd);
-            this.m_mouseTracing = false;
+            pd.color.copy(particleColors[this.colorIndex]);
+            pd.group = this.lastGroup;
+            this.lastGroup = this.particleSystem.createParticleGroup(pd);
+            this.mouseTracing = false;
         }
     }
 
     public mouseUp(p: Vec2) {
         super.mouseUp(p);
-        this.m_lastGroup = null;
+        this.lastGroup = null;
     }
 
     public particleGroupDestroyed(group: ParticleGroup) {
         super.particleGroupDestroyed(group);
-        if (group === this.m_lastGroup) {
-            this.m_lastGroup = null;
+        if (group === this.lastGroup) {
+            this.lastGroup = null;
         }
     }
 
     public splitParticleGroups() {
-        for (let group = this.m_particleSystem.getParticleGroupList(); group; group = group.getNext()) {
+        for (let group = this.particleSystem.getParticleGroupList(); group; group = group.getNext()) {
             if (
-                group !== this.m_lastGroup &&
+                group !== this.lastGroup &&
                 group.getGroupFlags() & ParticleGroupFlag.Rigid &&
                 group.getAllParticleFlags() & ParticleFlag.Zombie
             ) {
                 // Split a rigid particle group which may be disconnected
                 // by destroying particles.
-                this.m_particleSystem.splitParticleGroup(group);
+                this.particleSystem.splitParticleGroup(group);
             }
         }
     }
 
     public step(settings: Settings, timeStep: number) {
-        if (this.m_particleSystem.getAllParticleFlags() & ParticleFlag.Zombie) {
+        if (this.particleSystem.getAllParticleFlags() & ParticleFlag.Zombie) {
             this.splitParticleGroups();
         }
 

@@ -85,172 +85,172 @@ export class MouseJointDef extends JointDef implements IMouseJointDef {
  * use the mouse joint, look at the testbed.
  */
 export class MouseJoint extends Joint {
-    protected readonly m_localAnchorB = new Vec2();
+    protected readonly localAnchorB = new Vec2();
 
-    protected readonly m_targetA = new Vec2();
+    protected readonly targetA = new Vec2();
 
-    protected m_stiffness = 0;
+    protected stiffness = 0;
 
-    protected m_damping = 0;
+    protected damping = 0;
 
-    protected m_beta = 0;
+    protected beta = 0;
 
     // Solver shared
-    protected readonly m_impulse = new Vec2();
+    protected readonly impulse = new Vec2();
 
-    protected m_maxForce = 0;
+    protected maxForce = 0;
 
-    protected m_gamma = 0;
+    protected gamma = 0;
 
     // Solver temp
-    protected m_indexB = 0;
+    protected indexB = 0;
 
-    protected readonly m_rB = new Vec2();
+    protected readonly rB = new Vec2();
 
-    protected readonly m_localCenterB = new Vec2();
+    protected readonly localCenterB = new Vec2();
 
-    protected m_invMassB = 0;
+    protected invMassB = 0;
 
-    protected m_invIB = 0;
+    protected invIB = 0;
 
-    protected readonly m_mass = new Mat22();
+    protected readonly mass = new Mat22();
 
-    protected readonly m_C = new Vec2();
+    protected readonly C = new Vec2();
 
     /** @internal protected */
     public constructor(def: IMouseJointDef) {
         super(def);
 
-        this.m_targetA.copy(def.target ?? Vec2.ZERO);
-        Transform.transposeMultiplyVec2(this.m_bodyB.getTransform(), this.m_targetA, this.m_localAnchorB);
-        this.m_maxForce = def.maxForce ?? 0;
-        this.m_stiffness = def.stiffness ?? 0;
-        this.m_damping = def.damping ?? 0;
+        this.targetA.copy(def.target ?? Vec2.ZERO);
+        Transform.transposeMultiplyVec2(this.bodyB.getTransform(), this.targetA, this.localAnchorB);
+        this.maxForce = def.maxForce ?? 0;
+        this.stiffness = def.stiffness ?? 0;
+        this.damping = def.damping ?? 0;
 
-        this.m_beta = 0;
-        this.m_gamma = 0;
+        this.beta = 0;
+        this.gamma = 0;
     }
 
     public setTarget(target: XY): void {
-        if (!Vec2.equals(target, this.m_targetA)) {
-            this.m_bodyB.setAwake(true);
-            this.m_targetA.copy(target);
+        if (!Vec2.equals(target, this.targetA)) {
+            this.bodyB.setAwake(true);
+            this.targetA.copy(target);
         }
     }
 
     public getTarget() {
-        return this.m_targetA;
+        return this.targetA;
     }
 
     public setMaxForce(force: number): void {
-        this.m_maxForce = force;
+        this.maxForce = force;
     }
 
     public getMaxForce() {
-        return this.m_maxForce;
+        return this.maxForce;
     }
 
     public setStiffness(stiffness: number): void {
-        this.m_stiffness = stiffness;
+        this.stiffness = stiffness;
     }
 
     public getStiffness() {
-        return this.m_stiffness;
+        return this.stiffness;
     }
 
     public setDamping(damping: number) {
-        this.m_damping = damping;
+        this.damping = damping;
     }
 
     public getDamping() {
-        return this.m_damping;
+        return this.damping;
     }
 
     /** @internal protected */
     public initVelocityConstraints(data: SolverData): void {
-        this.m_indexB = this.m_bodyB.m_islandIndex;
-        this.m_localCenterB.copy(this.m_bodyB.m_sweep.localCenter);
-        this.m_invMassB = this.m_bodyB.m_invMass;
-        this.m_invIB = this.m_bodyB.m_invI;
+        this.indexB = this.bodyB.islandIndex;
+        this.localCenterB.copy(this.bodyB.sweep.localCenter);
+        this.invMassB = this.bodyB.invMass;
+        this.invIB = this.bodyB.invI;
 
-        const cB = data.positions[this.m_indexB].c;
-        const aB = data.positions[this.m_indexB].a;
-        const vB = data.velocities[this.m_indexB].v;
-        let wB = data.velocities[this.m_indexB].w;
+        const cB = data.positions[this.indexB].c;
+        const aB = data.positions[this.indexB].a;
+        const vB = data.velocities[this.indexB].v;
+        let wB = data.velocities[this.indexB].w;
 
         const { qB, lalcB } = temp;
 
         qB.set(aB);
 
-        const d = this.m_damping;
-        const k = this.m_stiffness;
+        const d = this.damping;
+        const k = this.stiffness;
 
         // magic formulas
         // gamma has units of inverse mass.
         // beta has units of inverse time.
         const h = data.step.dt;
-        this.m_gamma = h * (d + h * k);
-        if (this.m_gamma !== 0) {
-            this.m_gamma = 1 / this.m_gamma;
+        this.gamma = h * (d + h * k);
+        if (this.gamma !== 0) {
+            this.gamma = 1 / this.gamma;
         }
-        this.m_beta = h * k * this.m_gamma;
+        this.beta = h * k * this.gamma;
 
         // Compute the effective mass matrix.
-        Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
+        Rot.multiplyVec2(qB, Vec2.subtract(this.localAnchorB, this.localCenterB, lalcB), this.rB);
 
         // K    = [(1/m1 + 1/m2) * eye(2) - skew(r1) * invI1 * skew(r1) - skew(r2) * invI2 * skew(r2)]
         //      = [1/m1+1/m2     0    ] + invI1 * [r1.y*r1.y -r1.x*r1.y] + invI2 * [r1.y*r1.y -r1.x*r1.y]
         //        [    0     1/m1+1/m2]           [-r1.x*r1.y r1.x*r1.x]           [-r1.x*r1.y r1.x*r1.x]
-        const K = this.m_mass;
-        K.ex.x = this.m_invMassB + this.m_invIB * this.m_rB.y * this.m_rB.y + this.m_gamma;
-        K.ex.y = -this.m_invIB * this.m_rB.x * this.m_rB.y;
+        const K = this.mass;
+        K.ex.x = this.invMassB + this.invIB * this.rB.y * this.rB.y + this.gamma;
+        K.ex.y = -this.invIB * this.rB.x * this.rB.y;
         K.ey.x = K.ex.y;
-        K.ey.y = this.m_invMassB + this.m_invIB * this.m_rB.x * this.m_rB.x + this.m_gamma;
+        K.ey.y = this.invMassB + this.invIB * this.rB.x * this.rB.x + this.gamma;
 
         K.inverse();
 
-        Vec2.add(cB, this.m_rB, this.m_C).subtract(this.m_targetA);
-        this.m_C.scale(this.m_beta);
+        Vec2.add(cB, this.rB, this.C).subtract(this.targetA);
+        this.C.scale(this.beta);
 
         // Cheat with some damping
         wB *= 0.98;
 
         if (data.step.warmStarting) {
-            this.m_impulse.scale(data.step.dtRatio);
-            vB.addScaled(this.m_invMassB, this.m_impulse);
-            wB += this.m_invIB * Vec2.cross(this.m_rB, this.m_impulse);
+            this.impulse.scale(data.step.dtRatio);
+            vB.addScaled(this.invMassB, this.impulse);
+            wB += this.invIB * Vec2.cross(this.rB, this.impulse);
         } else {
-            this.m_impulse.setZero();
+            this.impulse.setZero();
         }
-        data.velocities[this.m_indexB].w = wB;
+        data.velocities[this.indexB].w = wB;
     }
 
     /** @internal protected */
     public solveVelocityConstraints(data: SolverData): void {
-        const vB = data.velocities[this.m_indexB].v;
-        let wB = data.velocities[this.m_indexB].w;
+        const vB = data.velocities[this.indexB].v;
+        let wB = data.velocities[this.indexB].w;
 
         // Cdot = v + cross(w, r)
         const { Cdot, impulse, oldImpulse } = temp;
-        Vec2.addCrossScalarVec2(vB, wB, this.m_rB, Cdot);
+        Vec2.addCrossScalarVec2(vB, wB, this.rB, Cdot);
         Mat22.multiplyVec2(
-            this.m_mass,
-            Vec2.add(Cdot, this.m_C, impulse).addScaled(this.m_gamma, this.m_impulse).negate(),
+            this.mass,
+            Vec2.add(Cdot, this.C, impulse).addScaled(this.gamma, this.impulse).negate(),
             impulse,
         );
 
-        oldImpulse.copy(this.m_impulse);
-        this.m_impulse.add(impulse);
-        const maxImpulse = data.step.dt * this.m_maxForce;
-        if (this.m_impulse.lengthSquared() > maxImpulse * maxImpulse) {
-            this.m_impulse.scale(maxImpulse / this.m_impulse.length());
+        oldImpulse.copy(this.impulse);
+        this.impulse.add(impulse);
+        const maxImpulse = data.step.dt * this.maxForce;
+        if (this.impulse.lengthSquared() > maxImpulse * maxImpulse) {
+            this.impulse.scale(maxImpulse / this.impulse.length());
         }
-        Vec2.subtract(this.m_impulse, oldImpulse, impulse);
+        Vec2.subtract(this.impulse, oldImpulse, impulse);
 
-        vB.addScaled(this.m_invMassB, impulse);
-        wB += this.m_invIB * Vec2.cross(this.m_rB, impulse);
+        vB.addScaled(this.invMassB, impulse);
+        wB += this.invIB * Vec2.cross(this.rB, impulse);
 
-        data.velocities[this.m_indexB].w = wB;
+        data.velocities[this.indexB].w = wB;
     }
 
     /** @internal protected */
@@ -259,17 +259,17 @@ export class MouseJoint extends Joint {
     }
 
     public getAnchorA<T extends XY>(out: T): T {
-        out.x = this.m_targetA.x;
-        out.y = this.m_targetA.y;
+        out.x = this.targetA.x;
+        out.y = this.targetA.y;
         return out;
     }
 
     public getAnchorB<T extends XY>(out: T): T {
-        return this.m_bodyB.getWorldPoint(this.m_localAnchorB, out);
+        return this.bodyB.getWorldPoint(this.localAnchorB, out);
     }
 
     public getReactionForce<T extends XY>(inv_dt: number, out: T): T {
-        return Vec2.scale(inv_dt, this.m_impulse, out);
+        return Vec2.scale(inv_dt, this.impulse, out);
     }
 
     public getReactionTorque(_inv_dt: number): number {
@@ -277,7 +277,7 @@ export class MouseJoint extends Joint {
     }
 
     public shiftOrigin(newOrigin: XY) {
-        this.m_targetA.subtract(newOrigin);
+        this.targetA.subtract(newOrigin);
     }
 
     public draw(draw: Draw): void {

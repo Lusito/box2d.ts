@@ -45,25 +45,25 @@ const bendingModels = ["Spring", "PBD Ang", "XPBD Ang", "PBD Dist", "PBD Height"
 const stretchingModels = ["PBD", "XPBD"];
 
 class RopeTest extends Test {
-    public readonly m_rope1: Rope;
+    public readonly rope1: Rope;
 
-    public readonly m_rope2: Rope;
+    public readonly rope2: Rope;
 
-    public readonly m_tuning1 = new RopeTuning();
+    public readonly tuning1 = new RopeTuning();
 
-    public readonly m_tuning2 = new RopeTuning();
+    public readonly tuning2 = new RopeTuning();
 
-    public m_iterations: [number, number] = [8, 8];
+    public iterations: [number, number] = [8, 8];
 
-    public readonly m_position1 = new Vec2();
+    public readonly position1 = new Vec2();
 
-    public readonly m_position2 = new Vec2();
+    public readonly position2 = new Vec2();
 
-    public m_speed = 10;
+    public speed = 10;
 
-    public m_moveLeft = false;
+    public moveLeft = false;
 
-    public m_moveRight = false;
+    public moveRight = false;
 
     public constructor() {
         super();
@@ -79,55 +79,55 @@ class RopeTest extends Test {
         masses[0] = 0;
         masses[1] = 0;
 
-        this.m_tuning1.bendHertz = 30;
-        this.m_tuning1.bendDamping = 4;
-        this.m_tuning1.bendStiffness = 1;
-        this.m_tuning1.bendingModel = BendingModel.PbdTriangle;
-        this.m_tuning1.isometric = true;
+        this.tuning1.bendHertz = 30;
+        this.tuning1.bendDamping = 4;
+        this.tuning1.bendStiffness = 1;
+        this.tuning1.bendingModel = BendingModel.PbdTriangle;
+        this.tuning1.isometric = true;
 
-        this.m_tuning1.stretchHertz = 30;
-        this.m_tuning1.stretchDamping = 4;
-        this.m_tuning1.stretchStiffness = 1;
-        this.m_tuning1.stretchingModel = StretchingModel.Pbd;
+        this.tuning1.stretchHertz = 30;
+        this.tuning1.stretchDamping = 4;
+        this.tuning1.stretchStiffness = 1;
+        this.tuning1.stretchingModel = StretchingModel.Pbd;
 
-        this.m_tuning2.bendHertz = 30;
-        this.m_tuning2.bendDamping = 0.7;
-        this.m_tuning2.bendStiffness = 1;
-        this.m_tuning2.bendingModel = BendingModel.PbdHeight;
-        this.m_tuning2.isometric = true;
+        this.tuning2.bendHertz = 30;
+        this.tuning2.bendDamping = 0.7;
+        this.tuning2.bendStiffness = 1;
+        this.tuning2.bendingModel = BendingModel.PbdHeight;
+        this.tuning2.isometric = true;
 
-        this.m_tuning2.stretchHertz = 30;
-        this.m_tuning2.stretchDamping = 1;
-        this.m_tuning2.stretchStiffness = 1;
-        this.m_tuning2.stretchingModel = StretchingModel.Pbd;
+        this.tuning2.stretchHertz = 30;
+        this.tuning2.stretchDamping = 1;
+        this.tuning2.stretchStiffness = 1;
+        this.tuning2.stretchingModel = StretchingModel.Pbd;
 
-        this.m_position1.set(-5, 15);
-        this.m_position2.set(5, 15);
+        this.position1.set(-5, 15);
+        this.position2.set(5, 15);
 
         const def: RopeDef = {
-            position: this.m_position1,
+            position: this.position1,
             vertices,
             masses,
             gravity: {
                 x: 0,
                 y: -10,
             },
-            tuning: this.m_tuning1,
+            tuning: this.tuning1,
         };
 
-        this.m_rope1 = new Rope(def);
+        this.rope1 = new Rope(def);
 
-        def.position = this.m_position2;
-        def.tuning = this.m_tuning2;
-        this.m_rope2 = new Rope(def);
+        def.position = this.position2;
+        def.tuning = this.tuning2;
+        this.rope2 = new Rope(def);
     }
 
     public setupControls() {
-        this.addTestControlGroup("Rope 1", this.ropeControls(0, this.m_tuning1));
-        this.addTestControlGroup("Rope 2", this.ropeControls(1, this.m_tuning2));
+        this.addTestControlGroup("Rope 1", this.ropeControls(0, this.tuning1));
+        this.addTestControlGroup("Rope 2", this.ropeControls(1, this.tuning2));
         this.addTestControlGroup("Speed", [
-            sliderDef("", 10, 100, 1, this.m_speed, (value: number) => {
-                this.m_speed = value;
+            sliderDef("", 10, 100, 1, this.speed, (value: number) => {
+                this.speed = value;
             }),
         ]);
     }
@@ -167,8 +167,8 @@ class RopeTest extends Test {
             sliderDef("Stiffness#s", 0, 1, 0.1, tuning.stretchStiffness, (value: number) => {
                 tuning.stretchStiffness = value;
             }),
-            sliderDef("Iterations", 0, 100, 1, this.m_iterations[i], (value: number) => {
-                this.m_iterations[i] = value;
+            sliderDef("Iterations", 0, 100, 1, this.iterations[i], (value: number) => {
+                this.iterations[i] = value;
             }),
         ];
     }
@@ -186,41 +186,41 @@ class RopeTest extends Test {
 
     public getHotkeys(): HotKey[] {
         return [
-            hotKeyState("a", "Move Left", this, "m_moveLeft"),
-            hotKeyState("d", "Move Right", this, "m_moveRight"),
+            hotKeyState("a", "Move Left", this, "moveLeft"),
+            hotKeyState("d", "Move Right", this, "moveRight"),
             hotKeyPress("s", "Reset Ropes", () => {
-                this.m_position1.set(-5, 15);
-                this.m_position2.set(5, 15);
-                this.m_rope1.reset(this.m_position1);
-                this.m_rope2.reset(this.m_position2);
+                this.position1.set(-5, 15);
+                this.position2.set(5, 15);
+                this.rope1.reset(this.position1);
+                this.rope2.reset(this.position2);
             }),
         ];
     }
 
     public step(settings: Settings, timeStep: number): void {
-        let dt = settings.m_hertz > 0 ? 1 / settings.m_hertz : 0;
+        let dt = settings.hertz > 0 ? 1 / settings.hertz : 0;
 
-        if (settings.m_pause === true && settings.m_singleStep === false) {
+        if (settings.pause === true && settings.singleStep === false) {
             dt = 0;
         }
 
         let moveX = 0;
-        if (this.m_moveLeft) moveX -= 1;
-        if (this.m_moveRight) moveX += 1;
+        if (this.moveLeft) moveX -= 1;
+        if (this.moveRight) moveX += 1;
         if (moveX) {
-            this.m_position1.x += moveX * this.m_speed * dt;
-            this.m_position2.x += moveX * this.m_speed * dt;
+            this.position1.x += moveX * this.speed * dt;
+            this.position2.x += moveX * this.speed * dt;
         }
 
-        this.m_rope1.setTuning(this.m_tuning1);
-        this.m_rope2.setTuning(this.m_tuning2);
-        this.m_rope1.step(dt, this.m_iterations[0], this.m_position1);
-        this.m_rope2.step(dt, this.m_iterations[1], this.m_position2);
+        this.rope1.setTuning(this.tuning1);
+        this.rope2.setTuning(this.tuning2);
+        this.rope1.step(dt, this.iterations[0], this.position1);
+        this.rope2.step(dt, this.iterations[1], this.position2);
 
         super.step(settings, timeStep);
 
-        this.m_rope1.draw(g_debugDraw);
-        this.m_rope2.draw(g_debugDraw);
+        this.rope1.draw(g_debugDraw);
+        this.rope2.draw(g_debugDraw);
     }
 }
 

@@ -6,21 +6,21 @@ import { Settings } from "../../settings";
 import { AbstractParticleTest } from "./abstract_particle_test";
 
 class EyeCandyTest extends AbstractParticleTest {
-    public m_mover: Body;
+    public mover: Body;
 
-    public m_joint: RevoluteJoint;
+    public joint: RevoluteJoint;
 
     public constructor() {
         super();
 
-        this.m_particleSystem.setDamping(0.2);
-        this.m_particleSystem.setRadius(0.3 * 2);
-        this.m_particleSystem.setGravityScale(0.4);
-        this.m_particleSystem.setDensity(1.2);
+        this.particleSystem.setDamping(0.2);
+        this.particleSystem.setRadius(0.3 * 2);
+        this.particleSystem.setGravityScale(0.4);
+        this.particleSystem.setDensity(1.2);
 
-        const ground = this.m_world.createBody();
+        const ground = this.world.createBody();
 
-        const body = this.m_world.createBody({
+        const body = this.world.createBody({
             type: BodyType.Static, // BodyType.Dynamic
             allowSleep: false,
         });
@@ -35,22 +35,22 @@ class EyeCandyTest extends AbstractParticleTest {
         shape.setAsBox(0.5, 20, new Vec2(0, -10), Math.PI / 2);
         body.createFixture({ shape, density: 5 });
 
-        this.m_mover = this.m_world.createBody({
+        this.mover = this.world.createBody({
             type: BodyType.Dynamic,
         });
         shape.setAsBox(1, 5, new Vec2(0, 2), 0);
-        this.m_mover.createFixture({ shape, density: 5 });
+        this.mover.createFixture({ shape, density: 5 });
 
         const jd = new RevoluteJointDef();
         jd.bodyA = ground;
-        jd.bodyB = this.m_mover;
+        jd.bodyB = this.mover;
         jd.localAnchorA.set(0, 0);
         jd.localAnchorB.set(0, 5);
         jd.referenceAngle = 0;
         jd.motorSpeed = 0;
         jd.maxMotorTorque = 1e7;
         jd.enableMotor = true;
-        this.m_joint = this.m_world.createJoint(jd);
+        this.joint = this.world.createJoint(jd);
 
         const pd = new ParticleGroupDef();
         pd.flags = ParticleFlag.Water;
@@ -59,12 +59,12 @@ class EyeCandyTest extends AbstractParticleTest {
         shape2.setAsBox(9, 9, new Vec2(), 0);
 
         pd.shape = shape2;
-        this.m_particleSystem.createParticleGroup(pd);
+        this.particleSystem.createParticleGroup(pd);
     }
 
     public step(settings: Settings, timeStep: number) {
         const time = new Date().getTime();
-        this.m_joint.setMotorSpeed(0.7 * Math.cos(time / 1000));
+        this.joint.setMotorSpeed(0.7 * Math.cos(time / 1000));
 
         super.step(settings, timeStep);
     }

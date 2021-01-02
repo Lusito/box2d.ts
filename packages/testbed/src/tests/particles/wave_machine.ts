@@ -25,19 +25,19 @@ import { AbstractParticleTestWithControls } from "./abstract_particle_test";
 import { baseParticleTypes } from "../../utils/particles/particle_parameter";
 
 class WaveMachineTest extends AbstractParticleTestWithControls {
-    public m_joint: RevoluteJoint;
+    public joint: RevoluteJoint;
 
-    public m_time = 0;
+    public time = 0;
 
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter);
 
         particleParameter.setValues(baseParticleTypes, "water");
 
-        const ground = this.m_world.createBody();
+        const ground = this.world.createBody();
 
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 allowSleep: false,
                 position: { x: 0, y: 1 },
@@ -62,12 +62,12 @@ class WaveMachineTest extends AbstractParticleTestWithControls {
             jd.motorSpeed = 0.05 * Math.PI;
             jd.maxMotorTorque = 1e7;
             jd.enableMotor = true;
-            this.m_joint = this.m_world.createJoint(jd);
+            this.joint = this.world.createJoint(jd);
         }
 
-        this.m_particleSystem.setRadius(0.025 * 2); // HACK: increase particle radius
+        this.particleSystem.setRadius(0.025 * 2); // HACK: increase particle radius
         const particleType = particleParameter.getValue();
-        this.m_particleSystem.setDamping(0.2);
+        this.particleSystem.setDamping(0.2);
 
         {
             const pd = new ParticleGroupDef();
@@ -77,21 +77,21 @@ class WaveMachineTest extends AbstractParticleTestWithControls {
             shape.setAsBox(0.9, 0.9, new Vec2(0, 1), 0);
 
             pd.shape = shape;
-            const group = this.m_particleSystem.createParticleGroup(pd);
+            const group = this.particleSystem.createParticleGroup(pd);
             if (pd.flags & ParticleFlag.ColorMixing) {
                 this.colorParticleGroup(group, 0);
             }
         }
 
-        this.m_time = 0;
+        this.time = 0;
     }
 
     public step(settings: Settings, timeStep: number) {
         super.step(settings, timeStep);
-        if (settings.m_hertz > 0) {
-            this.m_time += 1 / settings.m_hertz;
+        if (settings.hertz > 0) {
+            this.time += 1 / settings.hertz;
         }
-        this.m_joint.setMotorSpeed(0.05 * Math.cos(this.m_time) * Math.PI);
+        this.joint.setMotorSpeed(0.05 * Math.cos(this.time) * Math.PI);
     }
 
     public getDefaultViewZoom() {

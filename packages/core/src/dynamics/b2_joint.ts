@@ -173,67 +173,67 @@ export function angularStiffness(
  * various fashions. Some joints also feature limits and motors.
  */
 export abstract class Joint {
-    protected readonly m_type: JointType = JointType.Unknown;
+    protected readonly type: JointType = JointType.Unknown;
 
     /** @internal protected */
-    public m_prev: Joint | null = null;
+    public prev: Joint | null = null;
 
     /** @internal protected */
-    public m_next: Joint | null = null;
+    public next: Joint | null = null;
 
     /** @internal protected */
-    public readonly m_edgeA: JointEdge;
+    public readonly edgeA: JointEdge;
 
     /** @internal protected */
-    public readonly m_edgeB: JointEdge;
+    public readonly edgeB: JointEdge;
 
     /** @internal protected */
-    public m_bodyA: Body;
+    public bodyA: Body;
 
     /** @internal protected */
-    public m_bodyB: Body;
+    public bodyB: Body;
 
     /** @internal protected */
-    public m_islandFlag = false;
+    public islandFlag = false;
 
     /** @internal protected */
-    public m_collideConnected = false;
+    public collideConnected = false;
 
-    protected m_userData: any = null;
+    protected userData: any = null;
 
     protected constructor(def: IJointDef) {
         // DEBUG: assert(def.bodyA !== def.bodyB);
 
-        this.m_type = def.type;
-        this.m_edgeA = new JointEdge(this, def.bodyB);
-        this.m_edgeB = new JointEdge(this, def.bodyA);
-        this.m_bodyA = def.bodyA;
-        this.m_bodyB = def.bodyB;
+        this.type = def.type;
+        this.edgeA = new JointEdge(this, def.bodyB);
+        this.edgeB = new JointEdge(this, def.bodyA);
+        this.bodyA = def.bodyA;
+        this.bodyB = def.bodyB;
 
-        this.m_collideConnected = def.collideConnected ?? false;
+        this.collideConnected = def.collideConnected ?? false;
 
-        this.m_userData = def.userData;
+        this.userData = def.userData;
     }
 
     /**
      * Get the type of the concrete joint.
      */
     public getType(): JointType {
-        return this.m_type;
+        return this.type;
     }
 
     /**
      * Get the first body attached to this joint.
      */
     public getBodyA(): Body {
-        return this.m_bodyA;
+        return this.bodyA;
     }
 
     /**
      * Get the second body attached to this joint.
      */
     public getBodyB(): Body {
-        return this.m_bodyB;
+        return this.bodyB;
     }
 
     /**
@@ -260,28 +260,28 @@ export abstract class Joint {
      * Get the next joint the world joint list.
      */
     public getNext(): Joint | null {
-        return this.m_next;
+        return this.next;
     }
 
     /**
      * Get the user data pointer.
      */
     public getUserData(): any {
-        return this.m_userData;
+        return this.userData;
     }
 
     /**
      * Set the user data pointer.
      */
     public setUserData(data: any): void {
-        this.m_userData = data;
+        this.userData = data;
     }
 
     /**
      * Short-cut function to determine if either body is inactive.
      */
     public isEnabled(): boolean {
-        return this.m_bodyA.isEnabled() && this.m_bodyB.isEnabled();
+        return this.bodyA.isEnabled() && this.bodyB.isEnabled();
     }
 
     /**
@@ -290,7 +290,7 @@ export abstract class Joint {
      * the flag is only checked when fixture AABBs begin to overlap.
      */
     public getCollideConnected(): boolean {
-        return this.m_collideConnected;
+        return this.collideConnected;
     }
 
     /**
@@ -312,8 +312,8 @@ export abstract class Joint {
     public abstract solvePositionConstraints(data: SolverData): boolean;
 
     public draw(draw: Draw): void {
-        const x1 = this.m_bodyA.getTransform().p;
-        const x2 = this.m_bodyB.getTransform().p;
+        const x1 = this.bodyA.getTransform().p;
+        const x2 = this.bodyB.getTransform().p;
         const p1 = this.getAnchorA(temp.pA);
         const p2 = this.getAnchorB(temp.pB);
         draw.drawSegment(x1, p1, debugColors.joint6);

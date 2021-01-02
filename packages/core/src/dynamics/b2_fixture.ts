@@ -116,7 +116,7 @@ export class FixtureProxy {
     public constructor(fixture: Fixture, broadPhase: BroadPhase<FixtureProxy>, xf: Transform, childIndex: number) {
         this.fixture = fixture;
         this.childIndex = childIndex;
-        fixture.m_shape.computeAABB(this.aabb, xf, childIndex);
+        fixture.shape.computeAABB(this.aabb, xf, childIndex);
         this.treeNode = broadPhase.createProxy(this.aabb, this);
     }
 }
@@ -135,55 +135,50 @@ const Synchronize_s_displacement = new Vec2();
  */
 export class Fixture {
     /** @internal protected */
-    public m_density = 0;
+    public density = 0;
 
     /** @internal protected */
-    public m_next: Fixture | null = null;
+    public next: Fixture | null = null;
 
     /** @internal protected */
-    public readonly m_body: Body;
+    public readonly body: Body;
 
     /** @internal protected */
-    public readonly m_shape: Shape;
+    public readonly shape: Shape;
 
     /** @internal protected */
-    public m_friction = 0;
+    public friction = 0;
 
     /** @internal protected */
-    public m_restitution = 0;
+    public restitution = 0;
 
     /** @internal protected */
-    public m_restitutionThreshold = 0;
+    public restitutionThreshold = 0;
 
     /** @internal protected */
-    public readonly m_proxies: FixtureProxy[] = [];
+    public readonly proxies: FixtureProxy[] = [];
 
-    /** @internal protected */
-    public get m_proxyCount(): number {
-        return this.m_proxies.length;
-    }
-
-    protected readonly m_filter: Filter;
+    protected readonly filter: Filter;
 
     /** @internal protected */
     public m_isSensor = false;
 
-    protected m_userData: any = null;
+    protected userData: any = null;
 
     /** @internal protected */
     public constructor(body: Body, def: FixtureDef) {
-        this.m_body = body;
-        this.m_shape = def.shape.clone();
-        this.m_userData = def.userData;
-        this.m_friction = def.friction ?? 0.2;
-        this.m_restitution = def.restitution ?? 0;
-        this.m_restitutionThreshold = def.restitutionThreshold ?? LENGTH_UNITS_PER_METER;
-        this.m_filter = {
+        this.body = body;
+        this.shape = def.shape.clone();
+        this.userData = def.userData;
+        this.friction = def.friction ?? 0.2;
+        this.restitution = def.restitution ?? 0;
+        this.restitutionThreshold = def.restitutionThreshold ?? LENGTH_UNITS_PER_METER;
+        this.filter = {
             ...DefaultFilter,
             ...def.filter,
         };
         this.m_isSensor = def.isSensor ?? false;
-        this.m_density = def.density ?? 0;
+        this.density = def.density ?? 0;
     }
 
     /**
@@ -192,7 +187,7 @@ export class Fixture {
      * @returns The shape type.
      */
     public getType(): ShapeType {
-        return this.m_shape.getType();
+        return this.shape.getType();
     }
 
     /**
@@ -201,7 +196,7 @@ export class Fixture {
      * Manipulating the shape may lead to non-physical behavior.
      */
     public getShape(): Shape {
-        return this.m_shape;
+        return this.shape;
     }
 
     /**
@@ -209,7 +204,7 @@ export class Fixture {
      */
     public setSensor(sensor: boolean): void {
         if (sensor !== this.m_isSensor) {
-            this.m_body.setAwake(true);
+            this.body.setAwake(true);
             this.m_isSensor = sensor;
         }
     }
@@ -229,9 +224,9 @@ export class Fixture {
      * This automatically calls Refilter.
      */
     public setFilterData(filter: Readonly<Partial<Filter>>): void {
-        this.m_filter.categoryBits = filter.categoryBits ?? DefaultFilter.categoryBits;
-        this.m_filter.groupIndex = filter.groupIndex ?? DefaultFilter.groupIndex;
-        this.m_filter.maskBits = filter.maskBits ?? DefaultFilter.maskBits;
+        this.filter.categoryBits = filter.categoryBits ?? DefaultFilter.categoryBits;
+        this.filter.groupIndex = filter.groupIndex ?? DefaultFilter.groupIndex;
+        this.filter.maskBits = filter.maskBits ?? DefaultFilter.maskBits;
 
         this.refilter();
     }
@@ -240,7 +235,7 @@ export class Fixture {
      * Get the contact filtering data.
      */
     public getFilterData(): Readonly<Filter> {
-        return this.m_filter;
+        return this.filter;
     }
 
     /**
@@ -248,7 +243,7 @@ export class Fixture {
      */
     public refilter(): void {
         // Flag associated contacts for filtering.
-        let edge = this.m_body.getContactList();
+        let edge = this.body.getContactList();
 
         while (edge) {
             const { contact } = edge;
@@ -261,11 +256,11 @@ export class Fixture {
             edge = edge.next;
         }
 
-        const world = this.m_body.getWorld();
+        const world = this.body.getWorld();
 
         // Touch each proxy so that new pairs may be created
-        const broadPhase = world.m_contactManager.m_broadPhase;
-        for (const proxy of this.m_proxies) {
+        const { broadPhase } = world.contactManager;
+        for (const proxy of this.proxies) {
             broadPhase.touchProxy(proxy.treeNode);
         }
     }
@@ -276,7 +271,7 @@ export class Fixture {
      * @returns The parent body.
      */
     public getBody(): Body {
-        return this.m_body;
+        return this.body;
     }
 
     /**
@@ -285,7 +280,7 @@ export class Fixture {
      * @returns The next shape.
      */
     public getNext(): Fixture | null {
-        return this.m_next;
+        return this.next;
     }
 
     /**
@@ -293,14 +288,14 @@ export class Fixture {
      * store your application specific data.
      */
     public getUserData(): any {
-        return this.m_userData;
+        return this.userData;
     }
 
     /**
      * Set the user data. Use this to store your application specific data.
      */
     public setUserData(data: any): void {
-        this.m_userData = data;
+        this.userData = data;
     }
 
     /**
@@ -309,7 +304,7 @@ export class Fixture {
      * @param p A point in world coordinates.
      */
     public testPoint(p: XY): boolean {
-        return this.m_shape.testPoint(this.m_body.getTransform(), p);
+        return this.shape.testPoint(this.body.getTransform(), p);
     }
 
     /**
@@ -319,7 +314,7 @@ export class Fixture {
      * @param input The ray-cast input parameters.
      */
     public rayCast(output: RayCastOutput, input: RayCastInput, childIndex: number): boolean {
-        return this.m_shape.rayCast(output, input, this.m_body.getTransform(), childIndex);
+        return this.shape.rayCast(output, input, this.body.getTransform(), childIndex);
     }
 
     /**
@@ -328,7 +323,7 @@ export class Fixture {
      * may be expensive.
      */
     public getMassData(massData = new MassData()): MassData {
-        this.m_shape.computeMass(massData, this.m_density);
+        this.shape.computeMass(massData, this.density);
 
         return massData;
     }
@@ -339,21 +334,21 @@ export class Fixture {
      */
     public setDensity(density: number): void {
         // DEBUG: assert(Number.isFinite(density) && density >= 0);
-        this.m_density = density;
+        this.density = density;
     }
 
     /**
      * Get the density of this fixture.
      */
     public getDensity(): number {
-        return this.m_density;
+        return this.density;
     }
 
     /**
      * Get the coefficient of friction.
      */
     public getFriction(): number {
-        return this.m_friction;
+        return this.friction;
     }
 
     /**
@@ -361,14 +356,14 @@ export class Fixture {
      * existing contacts.
      */
     public setFriction(friction: number): void {
-        this.m_friction = friction;
+        this.friction = friction;
     }
 
     /**
      * Get the coefficient of restitution.
      */
     public getRestitution(): number {
-        return this.m_restitution;
+        return this.restitution;
     }
 
     /**
@@ -376,11 +371,11 @@ export class Fixture {
      * existing contacts.
      */
     public setRestitution(restitution: number): void {
-        this.m_restitution = restitution;
+        this.restitution = restitution;
     }
 
     public setRestitutionThreshold(threshold: number): void {
-        this.m_restitutionThreshold = threshold;
+        this.restitutionThreshold = threshold;
     }
 
     /**
@@ -389,8 +384,8 @@ export class Fixture {
      * the body transform.
      */
     public getAABB(childIndex: number): Readonly<AABB> {
-        // DEBUG: assert(0 <= childIndex && childIndex < this.m_proxyCount);
-        return this.m_proxies[childIndex].aabb;
+        // DEBUG: assert(0 <= childIndex && childIndex < this.proxyCount);
+        return this.proxies[childIndex].aabb;
     }
 
     /**
@@ -399,33 +394,33 @@ export class Fixture {
      * @internal protected
      */
     public createProxies(broadPhase: BroadPhase<FixtureProxy>, xf: Transform): void {
-        assert(this.m_proxies.length === 0);
+        assert(this.proxies.length === 0);
         // Create proxies in the broad-phase.
-        this.m_proxies.length = this.m_shape.getChildCount();
-        for (let i = 0; i < this.m_proxies.length; ++i) {
-            this.m_proxies[i] = new FixtureProxy(this, broadPhase, xf, i);
+        this.proxies.length = this.shape.getChildCount();
+        for (let i = 0; i < this.proxies.length; ++i) {
+            this.proxies[i] = new FixtureProxy(this, broadPhase, xf, i);
         }
     }
 
     /** @internal protected */
     public destroyProxies(broadPhase: BroadPhase<FixtureProxy>): void {
         // Destroy proxies in the broad-phase.
-        for (const proxy of this.m_proxies) {
+        for (const proxy of this.proxies) {
             broadPhase.destroyProxy(proxy.treeNode);
         }
-        this.m_proxies.length = 0;
+        this.proxies.length = 0;
     }
 
     /** @internal protected */
     public synchronize(broadPhase: BroadPhase<FixtureProxy>, transform1: Transform, transform2: Transform) {
         const { c1, c2 } = temp;
         const displacement = Synchronize_s_displacement;
-        for (const proxy of this.m_proxies) {
+        for (const proxy of this.proxies) {
             // Compute an AABB that covers the swept shape (may miss some rotation effect).
             const aabb1 = Synchronize_s_aabb1;
             const aabb2 = Synchronize_s_aabb2;
-            this.m_shape.computeAABB(aabb1, transform1, proxy.childIndex);
-            this.m_shape.computeAABB(aabb2, transform2, proxy.childIndex);
+            this.shape.computeAABB(aabb1, transform1, proxy.childIndex);
+            this.shape.computeAABB(aabb2, transform2, proxy.childIndex);
 
             proxy.aabb.combine2(aabb1, aabb2);
 

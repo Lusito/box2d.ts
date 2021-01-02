@@ -52,7 +52,7 @@ export class TensorDampingController extends Controller {
         if (timestep > this.maxTimestep && this.maxTimestep > 0) {
             timestep = this.maxTimestep;
         }
-        for (let i = this.m_bodyList; i; i = i.nextBody) {
+        for (let i = this.bodyList; i; i = i.nextBody) {
             const { body } = i;
             if (!body.isAwake()) {
                 continue;

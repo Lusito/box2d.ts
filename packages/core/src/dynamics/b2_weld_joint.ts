@@ -96,82 +96,82 @@ export class WeldJointDef extends JointDef implements IWeldJointDef {
  * distort somewhat because the island constraint solver is approximate.
  */
 export class WeldJoint extends Joint {
-    protected m_stiffness = 0;
+    protected stiffness = 0;
 
-    protected m_damping = 0;
+    protected damping = 0;
 
-    protected m_bias = 0;
+    protected bias = 0;
 
     // Solver shared
-    protected readonly m_localAnchorA = new Vec2();
+    protected readonly localAnchorA = new Vec2();
 
-    protected readonly m_localAnchorB = new Vec2();
+    protected readonly localAnchorB = new Vec2();
 
-    protected m_referenceAngle = 0;
+    protected referenceAngle = 0;
 
-    protected m_gamma = 0;
+    protected gamma = 0;
 
-    protected readonly m_impulse = new Vec3();
+    protected readonly impulse = new Vec3();
 
     // Solver temp
-    protected m_indexA = 0;
+    protected indexA = 0;
 
-    protected m_indexB = 0;
+    protected indexB = 0;
 
-    protected readonly m_rA = new Vec2();
+    protected readonly rA = new Vec2();
 
-    protected readonly m_rB = new Vec2();
+    protected readonly rB = new Vec2();
 
-    protected readonly m_localCenterA = new Vec2();
+    protected readonly localCenterA = new Vec2();
 
-    protected readonly m_localCenterB = new Vec2();
+    protected readonly localCenterB = new Vec2();
 
-    protected m_invMassA = 0;
+    protected invMassA = 0;
 
-    protected m_invMassB = 0;
+    protected invMassB = 0;
 
-    protected m_invIA = 0;
+    protected invIA = 0;
 
-    protected m_invIB = 0;
+    protected invIB = 0;
 
-    protected readonly m_mass = new Mat33();
+    protected readonly mass = new Mat33();
 
     /** @internal protected */
     public constructor(def: IWeldJointDef) {
         super(def);
 
-        this.m_localAnchorA.copy(def.localAnchorA ?? Vec2.ZERO);
-        this.m_localAnchorB.copy(def.localAnchorB ?? Vec2.ZERO);
-        this.m_referenceAngle = def.referenceAngle ?? 0;
-        this.m_stiffness = def.stiffness ?? 0;
-        this.m_damping = def.damping ?? 0;
+        this.localAnchorA.copy(def.localAnchorA ?? Vec2.ZERO);
+        this.localAnchorB.copy(def.localAnchorB ?? Vec2.ZERO);
+        this.referenceAngle = def.referenceAngle ?? 0;
+        this.stiffness = def.stiffness ?? 0;
+        this.damping = def.damping ?? 0;
     }
 
     /** @internal protected */
     public initVelocityConstraints(data: SolverData): void {
-        this.m_indexA = this.m_bodyA.m_islandIndex;
-        this.m_indexB = this.m_bodyB.m_islandIndex;
-        this.m_localCenterA.copy(this.m_bodyA.m_sweep.localCenter);
-        this.m_localCenterB.copy(this.m_bodyB.m_sweep.localCenter);
-        this.m_invMassA = this.m_bodyA.m_invMass;
-        this.m_invMassB = this.m_bodyB.m_invMass;
-        this.m_invIA = this.m_bodyA.m_invI;
-        this.m_invIB = this.m_bodyB.m_invI;
+        this.indexA = this.bodyA.islandIndex;
+        this.indexB = this.bodyB.islandIndex;
+        this.localCenterA.copy(this.bodyA.sweep.localCenter);
+        this.localCenterB.copy(this.bodyB.sweep.localCenter);
+        this.invMassA = this.bodyA.invMass;
+        this.invMassB = this.bodyB.invMass;
+        this.invIA = this.bodyA.invI;
+        this.invIB = this.bodyB.invI;
 
-        const aA = data.positions[this.m_indexA].a;
-        const vA = data.velocities[this.m_indexA].v;
-        let wA = data.velocities[this.m_indexA].w;
+        const aA = data.positions[this.indexA].a;
+        const vA = data.velocities[this.indexA].v;
+        let wA = data.velocities[this.indexA].w;
 
-        const aB = data.positions[this.m_indexB].a;
-        const vB = data.velocities[this.m_indexB].v;
-        let wB = data.velocities[this.m_indexB].w;
+        const aB = data.positions[this.indexB].a;
+        const vB = data.velocities[this.indexB].v;
+        let wB = data.velocities[this.indexB].w;
 
         const { qA, qB, lalcA, lalcB, K } = temp;
         qA.set(aA);
         qB.set(aB);
 
-        Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), this.m_rA);
-        Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
+        Rot.multiplyVec2(qA, Vec2.subtract(this.localAnchorA, this.localCenterA, lalcA), this.rA);
+        Rot.multiplyVec2(qB, Vec2.subtract(this.localAnchorB, this.localCenterB, lalcB), this.rB);
 
         // J = [-I -r1_skew I r2_skew]
         //     [ 0       -1 0       1]
@@ -182,154 +182,154 @@ export class WeldJoint extends Joint {
         //     [  -r1y*iA*r1x-r2y*iB*r2x, mA+r1x^2*iA+mB+r2x^2*iB,           r1x*iA+r2x*iB]
         //     [          -r1y*iA-r2y*iB,           r1x*iA+r2x*iB,                   iA+iB]
 
-        const mA = this.m_invMassA;
-        const mB = this.m_invMassB;
-        const iA = this.m_invIA;
-        const iB = this.m_invIB;
+        const mA = this.invMassA;
+        const mB = this.invMassB;
+        const iA = this.invIA;
+        const iB = this.invIB;
 
-        K.ex.x = mA + mB + this.m_rA.y * this.m_rA.y * iA + this.m_rB.y * this.m_rB.y * iB;
-        K.ey.x = -this.m_rA.y * this.m_rA.x * iA - this.m_rB.y * this.m_rB.x * iB;
-        K.ez.x = -this.m_rA.y * iA - this.m_rB.y * iB;
+        K.ex.x = mA + mB + this.rA.y * this.rA.y * iA + this.rB.y * this.rB.y * iB;
+        K.ey.x = -this.rA.y * this.rA.x * iA - this.rB.y * this.rB.x * iB;
+        K.ez.x = -this.rA.y * iA - this.rB.y * iB;
         K.ex.y = K.ey.x;
-        K.ey.y = mA + mB + this.m_rA.x * this.m_rA.x * iA + this.m_rB.x * this.m_rB.x * iB;
-        K.ez.y = this.m_rA.x * iA + this.m_rB.x * iB;
+        K.ey.y = mA + mB + this.rA.x * this.rA.x * iA + this.rB.x * this.rB.x * iB;
+        K.ez.y = this.rA.x * iA + this.rB.x * iB;
         K.ex.z = K.ez.x;
         K.ey.z = K.ez.y;
         K.ez.z = iA + iB;
 
-        if (this.m_stiffness > 0) {
-            K.getInverse22(this.m_mass);
+        if (this.stiffness > 0) {
+            K.getInverse22(this.mass);
 
             let invM = iA + iB;
 
-            const C = aB - aA - this.m_referenceAngle;
+            const C = aB - aA - this.referenceAngle;
 
             // Damping coefficient
-            const d = this.m_damping;
+            const d = this.damping;
 
             // Spring stiffness
-            const k = this.m_stiffness;
+            const k = this.stiffness;
 
             // magic formulas
             const h = data.step.dt;
-            this.m_gamma = h * (d + h * k);
-            this.m_gamma = this.m_gamma !== 0 ? 1 / this.m_gamma : 0;
-            this.m_bias = C * h * k * this.m_gamma;
+            this.gamma = h * (d + h * k);
+            this.gamma = this.gamma !== 0 ? 1 / this.gamma : 0;
+            this.bias = C * h * k * this.gamma;
 
-            invM += this.m_gamma;
-            this.m_mass.ez.z = invM !== 0 ? 1 / invM : 0;
+            invM += this.gamma;
+            this.mass.ez.z = invM !== 0 ? 1 / invM : 0;
         } else if (K.ez.z === 0) {
-            K.getInverse22(this.m_mass);
-            this.m_gamma = 0;
-            this.m_bias = 0;
+            K.getInverse22(this.mass);
+            this.gamma = 0;
+            this.bias = 0;
         } else {
-            K.getSymInverse33(this.m_mass);
-            this.m_gamma = 0;
-            this.m_bias = 0;
+            K.getSymInverse33(this.mass);
+            this.gamma = 0;
+            this.bias = 0;
         }
 
         if (data.step.warmStarting) {
             // Scale impulses to support a variable time step.
-            this.m_impulse.scale(data.step.dtRatio);
+            this.impulse.scale(data.step.dtRatio);
 
             const { P } = temp;
-            P.copy(this.m_impulse);
+            P.copy(this.impulse);
 
             vA.subtractScaled(mA, P);
-            wA -= iA * (Vec2.cross(this.m_rA, P) + this.m_impulse.z);
+            wA -= iA * (Vec2.cross(this.rA, P) + this.impulse.z);
 
             vB.addScaled(mB, P);
-            wB += iB * (Vec2.cross(this.m_rB, P) + this.m_impulse.z);
+            wB += iB * (Vec2.cross(this.rB, P) + this.impulse.z);
         } else {
-            this.m_impulse.setZero();
+            this.impulse.setZero();
         }
 
-        data.velocities[this.m_indexA].w = wA;
-        data.velocities[this.m_indexB].w = wB;
+        data.velocities[this.indexA].w = wA;
+        data.velocities[this.indexB].w = wB;
     }
 
     /** @internal protected */
     public solveVelocityConstraints(data: SolverData): void {
-        const vA = data.velocities[this.m_indexA].v;
-        let wA = data.velocities[this.m_indexA].w;
-        const vB = data.velocities[this.m_indexB].v;
-        let wB = data.velocities[this.m_indexB].w;
+        const vA = data.velocities[this.indexA].v;
+        let wA = data.velocities[this.indexA].w;
+        const vB = data.velocities[this.indexB].v;
+        let wB = data.velocities[this.indexB].w;
 
-        const mA = this.m_invMassA;
-        const mB = this.m_invMassB;
-        const iA = this.m_invIA;
-        const iB = this.m_invIB;
+        const mA = this.invMassA;
+        const mB = this.invMassB;
+        const iA = this.invIA;
+        const iB = this.invIB;
 
-        if (this.m_stiffness > 0) {
+        if (this.stiffness > 0) {
             const Cdot2 = wB - wA;
 
-            const impulse2 = -this.m_mass.ez.z * (Cdot2 + this.m_bias + this.m_gamma * this.m_impulse.z);
-            this.m_impulse.z += impulse2;
+            const impulse2 = -this.mass.ez.z * (Cdot2 + this.bias + this.gamma * this.impulse.z);
+            this.impulse.z += impulse2;
 
             wA -= iA * impulse2;
             wB += iB * impulse2;
 
             const { Cdot1, impulse1 } = temp;
             Vec2.subtract(
-                Vec2.addCrossScalarVec2(vB, wB, this.m_rB, Vec2.s_t0),
-                Vec2.addCrossScalarVec2(vA, wA, this.m_rA, Vec2.s_t1),
+                Vec2.addCrossScalarVec2(vB, wB, this.rB, Vec2.s_t0),
+                Vec2.addCrossScalarVec2(vA, wA, this.rA, Vec2.s_t1),
                 Cdot1,
             );
 
-            Mat33.multiplyVec2(this.m_mass, Cdot1, impulse1).negate();
-            this.m_impulse.x += impulse1.x;
-            this.m_impulse.y += impulse1.y;
+            Mat33.multiplyVec2(this.mass, Cdot1, impulse1).negate();
+            this.impulse.x += impulse1.x;
+            this.impulse.y += impulse1.y;
 
             const P = impulse1;
 
             vA.subtractScaled(mA, P);
-            wA -= iA * Vec2.cross(this.m_rA, P);
+            wA -= iA * Vec2.cross(this.rA, P);
 
             vB.addScaled(mB, P);
-            wB += iB * Vec2.cross(this.m_rB, P);
+            wB += iB * Vec2.cross(this.rB, P);
         } else {
             const { Cdot1, impulse, P } = temp;
             Vec2.subtract(
-                Vec2.addCrossScalarVec2(vB, wB, this.m_rB, Vec2.s_t0),
-                Vec2.addCrossScalarVec2(vA, wA, this.m_rA, Vec2.s_t1),
+                Vec2.addCrossScalarVec2(vB, wB, this.rB, Vec2.s_t0),
+                Vec2.addCrossScalarVec2(vA, wA, this.rA, Vec2.s_t1),
                 Cdot1,
             );
             Cdot1.z = wB - wA;
 
-            Mat33.multiplyVec3(this.m_mass, Cdot1, impulse).negate();
-            this.m_impulse.add(impulse);
+            Mat33.multiplyVec3(this.mass, Cdot1, impulse).negate();
+            this.impulse.add(impulse);
 
             P.set(impulse.x, impulse.y);
 
             vA.subtractScaled(mA, P);
-            wA -= iA * (Vec2.cross(this.m_rA, P) + impulse.z);
+            wA -= iA * (Vec2.cross(this.rA, P) + impulse.z);
 
             vB.addScaled(mB, P);
-            wB += iB * (Vec2.cross(this.m_rB, P) + impulse.z);
+            wB += iB * (Vec2.cross(this.rB, P) + impulse.z);
         }
 
-        data.velocities[this.m_indexA].w = wA;
-        data.velocities[this.m_indexB].w = wB;
+        data.velocities[this.indexA].w = wA;
+        data.velocities[this.indexB].w = wB;
     }
 
     /** @internal protected */
     public solvePositionConstraints(data: SolverData): boolean {
-        const cA = data.positions[this.m_indexA].c;
-        let aA = data.positions[this.m_indexA].a;
-        const cB = data.positions[this.m_indexB].c;
-        let aB = data.positions[this.m_indexB].a;
+        const cA = data.positions[this.indexA].c;
+        let aA = data.positions[this.indexA].a;
+        const cB = data.positions[this.indexB].c;
+        let aB = data.positions[this.indexB].a;
 
         const { qA, qB, lalcA, lalcB, K, C1, P, rA, rB } = temp;
         qA.set(aA);
         qB.set(aB);
 
-        const mA = this.m_invMassA;
-        const mB = this.m_invMassB;
-        const iA = this.m_invIA;
-        const iB = this.m_invIB;
+        const mA = this.invMassA;
+        const mB = this.invMassB;
+        const iA = this.invIA;
+        const iB = this.invIB;
 
-        Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), rA);
-        Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), rB);
+        Rot.multiplyVec2(qA, Vec2.subtract(this.localAnchorA, this.localCenterA, lalcA), rA);
+        Rot.multiplyVec2(qB, Vec2.subtract(this.localAnchorB, this.localCenterB, lalcB), rB);
 
         let positionError: number;
         let angularError: number;
@@ -344,7 +344,7 @@ export class WeldJoint extends Joint {
         K.ey.z = K.ez.y;
         K.ez.z = iA + iB;
 
-        if (this.m_stiffness > 0) {
+        if (this.stiffness > 0) {
             Vec2.add(cB, rB, C1).subtract(cA).subtract(rA);
             positionError = C1.length();
             angularError = 0;
@@ -359,7 +359,7 @@ export class WeldJoint extends Joint {
         } else {
             Vec2.add(cB, rB, C1).subtract(cA).subtract(rA);
             Vec2.subtract(Vec2.add(cB, rB, Vec2.s_t0), Vec2.add(cA, rA, Vec2.s_t1), C1);
-            const C2 = aB - aA - this.m_referenceAngle;
+            const C2 = aB - aA - this.referenceAngle;
 
             positionError = C1.length();
             angularError = Math.abs(C2);
@@ -383,55 +383,55 @@ export class WeldJoint extends Joint {
             aB += iB * (Vec2.cross(rB, P) + impulse.z);
         }
 
-        data.positions[this.m_indexA].a = aA;
-        data.positions[this.m_indexB].a = aB;
+        data.positions[this.indexA].a = aA;
+        data.positions[this.indexB].a = aB;
 
         return positionError <= LINEAR_SLOP && angularError <= ANGULAR_SLOP;
     }
 
     public getAnchorA<T extends XY>(out: T): T {
-        return this.m_bodyA.getWorldPoint(this.m_localAnchorA, out);
+        return this.bodyA.getWorldPoint(this.localAnchorA, out);
     }
 
     public getAnchorB<T extends XY>(out: T): T {
-        return this.m_bodyB.getWorldPoint(this.m_localAnchorB, out);
+        return this.bodyB.getWorldPoint(this.localAnchorB, out);
     }
 
     public getReactionForce<T extends XY>(inv_dt: number, out: T): T {
-        out.x = inv_dt * this.m_impulse.x;
-        out.y = inv_dt * this.m_impulse.y;
+        out.x = inv_dt * this.impulse.x;
+        out.y = inv_dt * this.impulse.y;
         return out;
     }
 
     public getReactionTorque(inv_dt: number): number {
-        return inv_dt * this.m_impulse.z;
+        return inv_dt * this.impulse.z;
     }
 
     public getLocalAnchorA(): Readonly<Vec2> {
-        return this.m_localAnchorA;
+        return this.localAnchorA;
     }
 
     public getLocalAnchorB(): Readonly<Vec2> {
-        return this.m_localAnchorB;
+        return this.localAnchorB;
     }
 
     public getReferenceAngle(): number {
-        return this.m_referenceAngle;
+        return this.referenceAngle;
     }
 
     public setStiffness(stiffness: number): void {
-        this.m_stiffness = stiffness;
+        this.stiffness = stiffness;
     }
 
     public getStiffness(): number {
-        return this.m_stiffness;
+        return this.stiffness;
     }
 
     public setDamping(damping: number) {
-        this.m_damping = damping;
+        this.damping = damping;
     }
 
     public getDamping() {
-        return this.m_damping;
+        return this.damping;
     }
 }

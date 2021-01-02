@@ -30,17 +30,17 @@ import { ContactFilter, ContactListener } from "./b2_world_callbacks";
 
 /** Delegate of World. */
 export class ContactManager {
-    public readonly m_broadPhase = new BroadPhase<FixtureProxy>();
+    public readonly broadPhase = new BroadPhase<FixtureProxy>();
 
-    public m_contactList: Contact | null = null;
+    public contactList: Contact | null = null;
 
-    public m_contactCount = 0;
+    public contactCount = 0;
 
-    public m_contactFilter = ContactFilter.defaultFilter;
+    public contactFilter = ContactFilter.defaultFilter;
 
-    public m_contactListener = ContactListener.defaultListener;
+    public contactListener = ContactListener.defaultListener;
 
-    public readonly m_contactFactory = new ContactFactory();
+    public readonly contactFactory = new ContactFactory();
 
     /** Broad-phase callback. */
     public addPair = (proxyA: FixtureProxy, proxyB: FixtureProxy): void => {
@@ -92,12 +92,12 @@ export class ContactManager {
         }
 
         // Check user filtering.
-        if (this.m_contactFilter && !this.m_contactFilter.shouldCollide(fixtureA, fixtureB)) {
+        if (this.contactFilter && !this.contactFilter.shouldCollide(fixtureA, fixtureB)) {
             return;
         }
 
         // Call the factory.
-        const c: Contact | null = this.m_contactFactory.create(fixtureA, indexA, fixtureB, indexB);
+        const c: Contact | null = this.contactFactory.create(fixtureA, indexA, fixtureB, indexB);
         if (c === null) {
             return;
         }
@@ -107,44 +107,44 @@ export class ContactManager {
         fixtureB = c.getFixtureB();
         indexA = c.getChildIndexA();
         indexB = c.getChildIndexB();
-        bodyA = fixtureA.m_body;
-        bodyB = fixtureB.m_body;
+        bodyA = fixtureA.body;
+        bodyB = fixtureB.body;
 
         // Insert into the world.
-        c.m_prev = null;
-        c.m_next = this.m_contactList;
-        if (this.m_contactList !== null) {
-            this.m_contactList.m_prev = c;
+        c.prev = null;
+        c.next = this.contactList;
+        if (this.contactList !== null) {
+            this.contactList.prev = c;
         }
-        this.m_contactList = c;
+        this.contactList = c;
 
         // Connect to island graph.
 
         // Connect to body A
-        c.m_nodeA.other = bodyB;
+        c.nodeA.other = bodyB;
 
-        c.m_nodeA.prev = null;
-        c.m_nodeA.next = bodyA.m_contactList;
-        if (bodyA.m_contactList !== null) {
-            bodyA.m_contactList.prev = c.m_nodeA;
+        c.nodeA.prev = null;
+        c.nodeA.next = bodyA.contactList;
+        if (bodyA.contactList !== null) {
+            bodyA.contactList.prev = c.nodeA;
         }
-        bodyA.m_contactList = c.m_nodeA;
+        bodyA.contactList = c.nodeA;
 
         // Connect to body B
-        c.m_nodeB.other = bodyA;
+        c.nodeB.other = bodyA;
 
-        c.m_nodeB.prev = null;
-        c.m_nodeB.next = bodyB.m_contactList;
-        if (bodyB.m_contactList !== null) {
-            bodyB.m_contactList.prev = c.m_nodeB;
+        c.nodeB.prev = null;
+        c.nodeB.next = bodyB.contactList;
+        if (bodyB.contactList !== null) {
+            bodyB.contactList.prev = c.nodeB;
         }
-        bodyB.m_contactList = c.m_nodeB;
+        bodyB.contactList = c.nodeB;
 
-        ++this.m_contactCount;
+        ++this.contactCount;
     };
 
     public findNewContacts(): void {
-        this.m_broadPhase.updatePairs(this.addPair);
+        this.broadPhase.updatePairs(this.addPair);
     }
 
     public destroy(c: Contact): void {
@@ -153,58 +153,58 @@ export class ContactManager {
         const bodyA = fixtureA.getBody();
         const bodyB = fixtureB.getBody();
 
-        if (this.m_contactListener && c.isTouching()) {
-            this.m_contactListener.endContact(c);
+        if (this.contactListener && c.isTouching()) {
+            this.contactListener.endContact(c);
         }
 
         // Remove from the world.
-        if (c.m_prev) {
-            c.m_prev.m_next = c.m_next;
+        if (c.prev) {
+            c.prev.next = c.next;
         }
 
-        if (c.m_next) {
-            c.m_next.m_prev = c.m_prev;
+        if (c.next) {
+            c.next.prev = c.prev;
         }
 
-        if (c === this.m_contactList) {
-            this.m_contactList = c.m_next;
+        if (c === this.contactList) {
+            this.contactList = c.next;
         }
 
         // Remove from body 1
-        if (c.m_nodeA.prev) {
-            c.m_nodeA.prev.next = c.m_nodeA.next;
+        if (c.nodeA.prev) {
+            c.nodeA.prev.next = c.nodeA.next;
         }
 
-        if (c.m_nodeA.next) {
-            c.m_nodeA.next.prev = c.m_nodeA.prev;
+        if (c.nodeA.next) {
+            c.nodeA.next.prev = c.nodeA.prev;
         }
 
-        if (c.m_nodeA === bodyA.m_contactList) {
-            bodyA.m_contactList = c.m_nodeA.next;
+        if (c.nodeA === bodyA.contactList) {
+            bodyA.contactList = c.nodeA.next;
         }
 
         // Remove from body 2
-        if (c.m_nodeB.prev) {
-            c.m_nodeB.prev.next = c.m_nodeB.next;
+        if (c.nodeB.prev) {
+            c.nodeB.prev.next = c.nodeB.next;
         }
 
-        if (c.m_nodeB.next) {
-            c.m_nodeB.next.prev = c.m_nodeB.prev;
+        if (c.nodeB.next) {
+            c.nodeB.next.prev = c.nodeB.prev;
         }
 
-        if (c.m_nodeB === bodyB.m_contactList) {
-            bodyB.m_contactList = c.m_nodeB.next;
+        if (c.nodeB === bodyB.contactList) {
+            bodyB.contactList = c.nodeB.next;
         }
 
         // moved this from ContactFactory:Destroy
-        if (c.m_manifold.pointCount > 0 && !fixtureA.isSensor() && !fixtureB.isSensor()) {
+        if (c.manifold.pointCount > 0 && !fixtureA.isSensor() && !fixtureB.isSensor()) {
             fixtureA.getBody().setAwake(true);
             fixtureB.getBody().setAwake(true);
         }
 
         // Call the factory.
-        this.m_contactFactory.destroy(c);
-        --this.m_contactCount;
+        this.contactFactory.destroy(c);
+        --this.contactCount;
     }
 
     /**
@@ -214,7 +214,7 @@ export class ContactManager {
      */
     public collide(): void {
         // Update awake contacts.
-        let c: Contact | null = this.m_contactList;
+        let c: Contact | null = this.contactList;
         while (c) {
             const fixtureA = c.getFixtureA();
             const fixtureB = c.getFixtureB();
@@ -224,47 +224,47 @@ export class ContactManager {
             const bodyB = fixtureB.getBody();
 
             // Is this contact flagged for filtering?
-            if (c.m_filterFlag) {
+            if (c.filterFlag) {
                 if (
                     // Should these bodies collide?
                     !bodyB.shouldCollide(bodyA) ||
                     // Check user filtering.
-                    (this.m_contactFilter && !this.m_contactFilter.shouldCollide(fixtureA, fixtureB))
+                    (this.contactFilter && !this.contactFilter.shouldCollide(fixtureA, fixtureB))
                 ) {
                     const cNuke = c;
-                    c = cNuke.m_next;
+                    c = cNuke.next;
                     this.destroy(cNuke);
                     continue;
                 }
 
                 // Clear the filtering flag.
-                c.m_filterFlag = false;
+                c.filterFlag = false;
             }
 
-            const activeA = bodyA.isAwake() && bodyA.m_type !== BodyType.Static;
-            const activeB = bodyB.isAwake() && bodyB.m_type !== BodyType.Static;
+            const activeA = bodyA.isAwake() && bodyA.type !== BodyType.Static;
+            const activeB = bodyB.isAwake() && bodyB.type !== BodyType.Static;
 
             // At least one body must be awake and it must be dynamic or kinematic.
             if (!activeA && !activeB) {
-                c = c.m_next;
+                c = c.next;
                 continue;
             }
 
-            const treeNodeA = fixtureA.m_proxies[indexA].treeNode;
-            const treeNodeB = fixtureB.m_proxies[indexB].treeNode;
+            const treeNodeA = fixtureA.proxies[indexA].treeNode;
+            const treeNodeB = fixtureB.proxies[indexB].treeNode;
             const overlap = treeNodeA.aabb.testOverlap(treeNodeB.aabb);
 
             // Here we destroy contacts that cease to overlap in the broad-phase.
             if (!overlap) {
                 const cNuke = c;
-                c = cNuke.m_next;
+                c = cNuke.next;
                 this.destroy(cNuke);
                 continue;
             }
 
             // The contact persists.
-            c.update(this.m_contactListener);
-            c = c.m_next;
+            c.update(this.contactListener);
+            c = c.next;
         }
     }
 }

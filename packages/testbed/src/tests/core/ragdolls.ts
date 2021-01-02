@@ -36,7 +36,7 @@ class RagdollsTest extends Test {
         super();
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new ChainShape();
             shape.createLoop([new Vec2(-30, 0), new Vec2(-30, 40), new Vec2(30, 40), new Vec2(30, 0)]);
@@ -66,7 +66,7 @@ class RagdollsTest extends Test {
                 restitution: 0.3,
             };
             position.set(startX, startY);
-            const head = this.m_world.createBody(bd);
+            const head = this.world.createBody(bd);
             head.createFixture(fd);
             // if (i === 0)
             // {
@@ -84,17 +84,17 @@ class RagdollsTest extends Test {
             fd.friction = 0.4;
             fd.restitution = 0.1;
             position.set(startX, startY - 2.8);
-            const torso1 = this.m_world.createBody(bd);
+            const torso1 = this.world.createBody(bd);
             torso1.createFixture(fd);
             // Torso2
             shape.setAsBox(1.5, 1);
             position.set(startX, startY - 4.3);
-            const torso2 = this.m_world.createBody(bd);
+            const torso2 = this.world.createBody(bd);
             torso2.createFixture(fd);
             // Torso3
             shape.setAsBox(1.5, 1);
             position.set(startX, startY - 5.8);
-            const torso3 = this.m_world.createBody(bd);
+            const torso3 = this.world.createBody(bd);
             torso3.createFixture(fd);
 
             // UpperArm
@@ -104,12 +104,12 @@ class RagdollsTest extends Test {
             // L
             shape.setAsBox(1.8, 0.65);
             position.set(startX - 3, startY - 2);
-            const upperArmL = this.m_world.createBody(bd);
+            const upperArmL = this.world.createBody(bd);
             upperArmL.createFixture(fd);
             // R
             shape.setAsBox(1.8, 0.65);
             position.set(startX + 3, startY - 2);
-            const upperArmR = this.m_world.createBody(bd);
+            const upperArmR = this.world.createBody(bd);
             upperArmR.createFixture(fd);
 
             // LowerArm
@@ -119,12 +119,12 @@ class RagdollsTest extends Test {
             // L
             shape.setAsBox(1.7, 0.6);
             position.set(startX - 5.7, startY - 2);
-            const lowerArmL = this.m_world.createBody(bd);
+            const lowerArmL = this.world.createBody(bd);
             lowerArmL.createFixture(fd);
             // R
             shape.setAsBox(1.7, 0.6);
             position.set(startX + 5.7, startY - 2);
-            const lowerArmR = this.m_world.createBody(bd);
+            const lowerArmR = this.world.createBody(bd);
             lowerArmR.createFixture(fd);
 
             // UpperLeg
@@ -134,12 +134,12 @@ class RagdollsTest extends Test {
             // L
             shape.setAsBox(0.75, 2.2);
             position.set(startX - 0.8, startY - 8.5);
-            const upperLegL = this.m_world.createBody(bd);
+            const upperLegL = this.world.createBody(bd);
             upperLegL.createFixture(fd);
             // R
             shape.setAsBox(0.75, 2.2);
             position.set(startX + 0.8, startY - 8.5);
-            const upperLegR = this.m_world.createBody(bd);
+            const upperLegR = this.world.createBody(bd);
             upperLegR.createFixture(fd);
 
             // LowerLeg
@@ -149,12 +149,12 @@ class RagdollsTest extends Test {
             // L
             shape.setAsBox(0.6, 2);
             position.set(startX - 0.8, startY - 12);
-            const lowerLegL = this.m_world.createBody(bd);
+            const lowerLegL = this.world.createBody(bd);
             lowerLegL.createFixture(fd);
             // R
             shape.setAsBox(0.6, 2);
             position.set(startX + 0.8, startY - 12);
-            const lowerLegR = this.m_world.createBody(bd);
+            const lowerLegR = this.world.createBody(bd);
             lowerLegR.createFixture(fd);
 
             // JOINTS
@@ -164,64 +164,64 @@ class RagdollsTest extends Test {
             jd.lowerAngle = degToRad(-40);
             jd.upperAngle = degToRad(40);
             jd.initialize(torso1, head, new Vec2(startX, startY - 1.5));
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
 
             // Upper arm to shoulders
             // L
             jd.lowerAngle = degToRad(-85);
             jd.upperAngle = degToRad(130);
             jd.initialize(torso1, upperArmL, new Vec2(startX - 1.8, startY - 2));
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
             // R
             jd.lowerAngle = degToRad(-130);
             jd.upperAngle = degToRad(85);
             jd.initialize(torso1, upperArmR, new Vec2(startX + 1.8, startY - 2));
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
 
             // Lower arm to upper arm
             // L
             jd.lowerAngle = degToRad(-130);
             jd.upperAngle = degToRad(10);
             jd.initialize(upperArmL, lowerArmL, new Vec2(startX - 4.5, startY - 2));
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
             // R
             jd.lowerAngle = degToRad(-10);
             jd.upperAngle = degToRad(130);
             jd.initialize(upperArmR, lowerArmR, new Vec2(startX + 4.5, startY - 2));
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
 
             // Shoulders/stomach
             jd.lowerAngle = degToRad(-15);
             jd.upperAngle = degToRad(15);
             jd.initialize(torso1, torso2, new Vec2(startX, startY - 3.5));
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
             // Stomach/hips
             jd.initialize(torso2, torso3, new Vec2(startX, startY - 5));
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
 
             // Torso to upper leg
             // L
             jd.lowerAngle = degToRad(-25);
             jd.upperAngle = degToRad(45);
             jd.initialize(torso3, upperLegL, new Vec2(startX - 0.8, startY - 7.2));
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
             // R
             jd.lowerAngle = degToRad(-45);
             jd.upperAngle = degToRad(25);
             jd.initialize(torso3, upperLegR, new Vec2(startX + 0.8, startY - 7.2));
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
 
             // Upper leg to lower leg
             // L
             jd.lowerAngle = degToRad(-25);
             jd.upperAngle = degToRad(115);
             jd.initialize(upperLegL, lowerLegL, new Vec2(startX - 0.8, startY - 10.5));
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
             // R
             jd.lowerAngle = degToRad(-115);
             jd.upperAngle = degToRad(25);
             jd.initialize(upperLegR, lowerLegR, new Vec2(startX + 0.8, startY - 10.5));
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
         }
 
         // these are static bodies so set the type accordingly
@@ -238,19 +238,19 @@ class RagdollsTest extends Test {
         for (let j = 1; j <= 10; ++j) {
             shape.setAsBox(1 * j, 1);
             position.set(1 * j - 30, 21 - 2 * j);
-            this.m_world.createBody(bd).createFixture(fd);
+            this.world.createBody(bd).createFixture(fd);
         }
 
         // Add stairs on the right
         for (let k = 1; k <= 10; ++k) {
             shape.setAsBox(1 * k, 1);
             position.set(30 - 1 * k, 21 - 2 * k);
-            this.m_world.createBody(bd).createFixture(fd);
+            this.world.createBody(bd).createFixture(fd);
         }
 
         shape.setAsBox(3, 4);
         position.set(0, 4);
-        this.m_world.createBody(bd).createFixture(fd);
+        this.world.createBody(bd).createFixture(fd);
     }
 
     public getDefaultViewZoom() {

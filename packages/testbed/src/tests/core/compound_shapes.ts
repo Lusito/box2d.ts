@@ -22,19 +22,19 @@ import { registerTest, Test } from "../../test";
 import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 
 class CompoundShapesTest extends Test {
-    public m_table1: Body;
+    public table1: Body;
 
-    public m_table2: Body;
+    public table2: Body;
 
-    public m_ship1: Body;
+    public ship1: Body;
 
-    public m_ship2: Body;
+    public ship2: Body;
 
     public constructor() {
         super();
 
         {
-            const body = this.m_world.createBody();
+            const body = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(50, 0), new Vec2(-50, 0));
@@ -44,7 +44,7 @@ class CompoundShapesTest extends Test {
 
         // Table 1
         {
-            this.m_table1 = this.m_world.createBody({
+            this.table1 = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: new Vec2(-15, 1),
             });
@@ -58,14 +58,14 @@ class CompoundShapesTest extends Test {
             const rightLeg = new PolygonShape();
             rightLeg.setAsBox(0.5, 1.5, new Vec2(2.5, 1.5), 0);
 
-            this.m_table1.createFixture({ shape: top, density: 2 });
-            this.m_table1.createFixture({ shape: leftLeg, density: 2 });
-            this.m_table1.createFixture({ shape: rightLeg, density: 2 });
+            this.table1.createFixture({ shape: top, density: 2 });
+            this.table1.createFixture({ shape: leftLeg, density: 2 });
+            this.table1.createFixture({ shape: rightLeg, density: 2 });
         }
 
         // Table 2
         {
-            this.m_table2 = this.m_world.createBody({
+            this.table2 = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: new Vec2(-5, 1),
             });
@@ -79,14 +79,14 @@ class CompoundShapesTest extends Test {
             const rightLeg = new PolygonShape();
             rightLeg.setAsBox(0.5, 2, new Vec2(2.5, 2), 0);
 
-            this.m_table2.createFixture({ shape: top, density: 2 });
-            this.m_table2.createFixture({ shape: leftLeg, density: 2 });
-            this.m_table2.createFixture({ shape: rightLeg, density: 2 });
+            this.table2.createFixture({ shape: top, density: 2 });
+            this.table2.createFixture({ shape: leftLeg, density: 2 });
+            this.table2.createFixture({ shape: rightLeg, density: 2 });
         }
 
         // Spaceship 1
         {
-            this.m_ship1 = this.m_world.createBody({
+            this.ship1 = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: new Vec2(5, 1),
             });
@@ -105,13 +105,13 @@ class CompoundShapesTest extends Test {
             vertices[2] = new Vec2(0, 4);
             right.set(vertices, 3);
 
-            this.m_ship1.createFixture({ shape: left, density: 2 });
-            this.m_ship1.createFixture({ shape: right, density: 2 });
+            this.ship1.createFixture({ shape: left, density: 2 });
+            this.ship1.createFixture({ shape: right, density: 2 });
         }
 
         // Spaceship 2
         {
-            this.m_ship2 = this.m_world.createBody({
+            this.ship2 = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: new Vec2(15, 1),
             });
@@ -130,18 +130,18 @@ class CompoundShapesTest extends Test {
             vertices[2] = new Vec2(0, 4);
             right.set(vertices, 3);
 
-            this.m_ship2.createFixture({ shape: left, density: 2 });
-            this.m_ship2.createFixture({ shape: right, density: 2 });
+            this.ship2.createFixture({ shape: left, density: 2 });
+            this.ship2.createFixture({ shape: right, density: 2 });
         }
     }
 
     private spawn() {
         // Table 1 obstruction
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
-                position: this.m_table1.getPosition(),
-                angle: this.m_table1.getAngle(),
+                position: this.table1.getPosition(),
+                angle: this.table1.getAngle(),
             });
 
             const box = new PolygonShape();
@@ -152,10 +152,10 @@ class CompoundShapesTest extends Test {
 
         // Table 2 obstruction
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
-                position: this.m_table2.getPosition(),
-                angle: this.m_table2.getAngle(),
+                position: this.table2.getPosition(),
+                angle: this.table2.getAngle(),
             });
 
             const box = new PolygonShape();
@@ -166,30 +166,30 @@ class CompoundShapesTest extends Test {
 
         // Ship 1 obstruction
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
-                position: this.m_ship1.getPosition(),
-                angle: this.m_ship1.getAngle(),
+                position: this.ship1.getPosition(),
+                angle: this.ship1.getAngle(),
                 gravityScale: 0,
             });
 
             const circle = new CircleShape(0.5);
-            circle.m_p.set(0, 2);
+            circle.p.set(0, 2);
 
             body.createFixture({ shape: circle, density: 2 });
         }
 
         // Ship 2 obstruction
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
-                position: this.m_ship2.getPosition(),
-                angle: this.m_ship2.getAngle(),
+                position: this.ship2.getPosition(),
+                angle: this.ship2.getAngle(),
                 gravityScale: 0,
             });
 
             const circle = new CircleShape(0.5);
-            circle.m_p.set(0, 2);
+            circle.p.set(0, 2);
 
             body.createFixture({ shape: circle, density: 2 });
         }

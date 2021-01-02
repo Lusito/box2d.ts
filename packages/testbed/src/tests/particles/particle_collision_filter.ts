@@ -26,18 +26,18 @@ import { AbstractParticleTest } from "./abstract_particle_test";
 
 // Optionally disables particle / fixture and particle / particle contacts.
 class ParticleContactDisabler extends ContactFilter {
-    public m_enableFixtureParticleCollisions = true;
+    public enableFixtureParticleCollisions = true;
 
-    public m_enableParticleParticleCollisions = true;
+    public enableParticleParticleCollisions = true;
 
     // Blindly enable / disable collisions between fixtures and particles.
     public shouldCollideFixtureParticle(): boolean {
-        return this.m_enableFixtureParticleCollisions;
+        return this.enableFixtureParticleCollisions;
     }
 
     // Blindly enable / disable collisions between particles.
     public shouldCollideParticleParticle(): boolean {
-        return this.m_enableParticleParticleCollisions;
+        return this.enableParticleParticleCollisions;
     }
 }
 
@@ -47,11 +47,11 @@ class ParticleCollisionFilterTest extends AbstractParticleTest {
 
         // must also set ParticleContactFilter and
         // FixtureContactFilter flags for particle group
-        this.m_world.setContactFilter(this.m_contactDisabler);
+        this.world.setContactFilter(this.contactDisabler);
 
         // Create the container.
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
             const shape = new ChainShape();
             const vertices = [
                 new Vec2(
@@ -80,7 +80,7 @@ class ParticleCollisionFilterTest extends AbstractParticleTest {
         }
 
         // create the particles
-        this.m_particleSystem.setRadius(0.5);
+        this.particleSystem.setRadius(0.5);
         {
             // PolygonShape shape;
             const shape = new PolygonShape();
@@ -102,22 +102,22 @@ class ParticleCollisionFilterTest extends AbstractParticleTest {
             // 		| ParticleContactFilter
             // 		| FixtureContactFilter;
             pd.flags = ParticleFlag.Powder | ParticleFlag.ParticleContactFilter | ParticleFlag.FixtureContactFilter;
-            // m_particleGroup =
-            // 	m_particleSystem.createParticleGroup(pd);
-            this.m_particleGroup = this.m_particleSystem.createParticleGroup(pd);
+            // particleGroup =
+            // 	particleSystem.createParticleGroup(pd);
+            this.particleGroup = this.particleSystem.createParticleGroup(pd);
 
             // Vec2* velocities =
-            // 	m_particleSystem.getVelocityBuffer() +
-            // 	m_particleGroup.getBufferIndex();
-            const velocities = this.m_particleSystem.getVelocityBuffer();
-            const index = this.m_particleGroup.getBufferIndex();
-            // for (int i = 0; i < m_particleGroup.getParticleCount(); ++i) {
+            // 	particleSystem.getVelocityBuffer() +
+            // 	particleGroup.getBufferIndex();
+            const velocities = this.particleSystem.getVelocityBuffer();
+            const index = this.particleGroup.getBufferIndex();
+            // for (int i = 0; i < particleGroup.getParticleCount(); ++i) {
             // 	Vec2& v = *(velocities + i);
             // 	v.set(randomFloat(-1, 1), randomFloat(-1, 1));
             // 	v.normalize();
             // 	v *= kSpeedup;
             // }
-            for (let i = 0; i < this.m_particleGroup.getParticleCount(); ++i) {
+            for (let i = 0; i < this.particleGroup.getParticleCount(); ++i) {
                 const v = velocities[index + i];
                 v.set(randomFloat(-1, 1), randomFloat(-1, 1));
                 v.normalize();
@@ -129,18 +129,18 @@ class ParticleCollisionFilterTest extends AbstractParticleTest {
     public step(settings: Settings, timeStep: number): void {
         super.step(settings, timeStep);
 
-        // const int32 index = m_particleGroup.getBufferIndex();
-        const index = this.m_particleGroup.getBufferIndex();
+        // const int32 index = particleGroup.getBufferIndex();
+        const index = this.particleGroup.getBufferIndex();
         // Vec2* const velocities =
-        // 	m_particleSystem.getVelocityBuffer() + index;
-        const velocities = this.m_particleSystem.getVelocityBuffer();
-        // for (int32 i = 0; i < m_particleGroup.getParticleCount(); i++) {
+        // 	particleSystem.getVelocityBuffer() + index;
+        const velocities = this.particleSystem.getVelocityBuffer();
+        // for (int32 i = 0; i < particleGroup.getParticleCount(); i++) {
         // 	// Add energy to particles based upon the temperature.
         // 	Vec2& v = velocities[i];
         // 	v.normalize();
         // 	v *= kSpeedup;
         // }
-        for (let i = 0; i < this.m_particleGroup.getParticleCount(); ++i) {
+        for (let i = 0; i < this.particleGroup.getParticleCount(); ++i) {
             const v = velocities[index + i];
             v.normalize();
             v.scale(ParticleCollisionFilterTest.kSpeedup);
@@ -162,18 +162,16 @@ class ParticleCollisionFilterTest extends AbstractParticleTest {
     }
 
     public toggleFixtureCollisions(): void {
-        this.m_contactDisabler.m_enableFixtureParticleCollisions = !this.m_contactDisabler
-            .m_enableFixtureParticleCollisions;
+        this.contactDisabler.enableFixtureParticleCollisions = !this.contactDisabler.enableFixtureParticleCollisions;
     }
 
     public toggleParticleCollisions(): void {
-        this.m_contactDisabler.m_enableParticleParticleCollisions = !this.m_contactDisabler
-            .m_enableParticleParticleCollisions;
+        this.contactDisabler.enableParticleParticleCollisions = !this.contactDisabler.enableParticleParticleCollisions;
     }
 
-    public m_contactDisabler = new ParticleContactDisabler();
+    public contactDisabler = new ParticleContactDisabler();
 
-    public m_particleGroup: ParticleGroup;
+    public particleGroup: ParticleGroup;
 
     public static readonly kBoxSize = 10;
 

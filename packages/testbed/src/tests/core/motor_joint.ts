@@ -29,11 +29,11 @@ import { HotKey, hotKeyPress } from "../../utils/hotkeys";
  * the body can be blocked by collision with other bodies.
  */
 class MotorJointTest extends Test {
-    public m_joint: MotorJoint;
+    public joint: MotorJoint;
 
-    public m_time = 0;
+    public time = 0;
 
-    public m_go = false;
+    public go = false;
 
     public constructor() {
         super();
@@ -41,7 +41,7 @@ class MotorJointTest extends Test {
         let ground = null;
 
         {
-            ground = this.m_world.createBody();
+            ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
@@ -51,7 +51,7 @@ class MotorJointTest extends Test {
 
         // Define motorized body
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 0, y: 8 },
             });
@@ -69,34 +69,34 @@ class MotorJointTest extends Test {
             mjd.initialize(ground, body);
             mjd.maxForce = 1000;
             mjd.maxTorque = 1000;
-            this.m_joint = this.m_world.createJoint(mjd);
+            this.joint = this.world.createJoint(mjd);
         }
 
-        this.m_go = false;
-        this.m_time = 0;
+        this.go = false;
+        this.time = 0;
     }
 
     public getHotkeys(): HotKey[] {
         return [
             hotKeyPress("s", "Start/Stop", () => {
-                this.m_go = !this.m_go;
+                this.go = !this.go;
             }),
         ];
     }
 
     public step(settings: Settings, timeStep: number): void {
-        if (this.m_go && settings.m_hertz > 0) {
-            this.m_time += 1 / settings.m_hertz;
+        if (this.go && settings.hertz > 0) {
+            this.time += 1 / settings.hertz;
         }
 
         const linearOffset = new Vec2();
-        linearOffset.x = 6 * Math.sin(2 * this.m_time);
-        linearOffset.y = 8 + 4 * Math.sin(1 * this.m_time);
+        linearOffset.x = 6 * Math.sin(2 * this.time);
+        linearOffset.y = 8 + 4 * Math.sin(1 * this.time);
 
-        const angularOffset = 4 * this.m_time;
+        const angularOffset = 4 * this.time;
 
-        this.m_joint.setLinearOffset(linearOffset);
-        this.m_joint.setAngularOffset(angularOffset);
+        this.joint.setLinearOffset(linearOffset);
+        this.joint.setAngularOffset(angularOffset);
 
         g_debugDraw.drawPoint(linearOffset, 4, new Color(0.9, 0.9, 0.9));
 

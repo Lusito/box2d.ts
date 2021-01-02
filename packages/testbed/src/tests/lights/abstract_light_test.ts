@@ -50,7 +50,7 @@ export abstract class AbstractLightTest extends Test {
 
         const viewport = this.getViewportSize();
         this.rayHandler = new RayHandlerImpl(
-            this.m_world,
+            this.world,
             gl,
             g_camera.getWidth() / 4,
             g_camera.getHeight() / 4,

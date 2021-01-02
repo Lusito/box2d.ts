@@ -38,11 +38,11 @@ import { Color, Draw } from "../common/b2_draw";
  * @warning the chain will not collide properly if there are self-intersections.
  */
 export class ChainShape extends Shape {
-    public m_vertices: Vec2[] = [];
+    public vertices: Vec2[] = [];
 
-    public readonly m_prevVertex = new Vec2();
+    public readonly prevVertex = new Vec2();
 
-    public readonly m_nextVertex = new Vec2();
+    public readonly nextVertex = new Vec2();
 
     public constructor() {
         super(ShapeType.Chain, POLYGON_RADIUS);
@@ -66,15 +66,15 @@ export class ChainShape extends Shape {
         // DEBUG:   assert(Vec2.DistanceSquared(v1, v2) > LINEAR_SLOP * LINEAR_SLOP);
         // DEBUG: }
 
-        this.m_vertices.length = count + 1;
+        this.vertices.length = count + 1;
         for (let i = 0; i < count; ++i) {
             const { x, y } = vertices[i];
-            this.m_vertices[i] = new Vec2(x, y);
+            this.vertices[i] = new Vec2(x, y);
         }
 
-        this.m_vertices[count] = this.m_vertices[0].clone();
-        this.m_prevVertex.copy(this.m_vertices[this.m_vertices.length - 2]);
-        this.m_nextVertex.copy(this.m_vertices[1]);
+        this.vertices[count] = this.vertices[0].clone();
+        this.prevVertex.copy(this.vertices[this.vertices.length - 2]);
+        this.nextVertex.copy(this.vertices[1]);
         return this;
     }
 
@@ -93,14 +93,14 @@ export class ChainShape extends Shape {
         // DEBUG:   assert(Vec2.DistanceSquared(vertices[i-1], vertices[i]) > LINEAR_SLOP * LINEAR_SLOP);
         // DEBUG: }
 
-        this.m_vertices.length = count;
+        this.vertices.length = count;
         for (let i = 0; i < count; ++i) {
             const { x, y } = vertices[i];
-            this.m_vertices[i] = new Vec2(x, y);
+            this.vertices[i] = new Vec2(x, y);
         }
 
-        this.m_prevVertex.copy(prevVertex);
-        this.m_nextVertex.copy(nextVertex);
+        this.prevVertex.copy(prevVertex);
+        this.nextVertex.copy(nextVertex);
 
         return this;
     }
@@ -117,7 +117,7 @@ export class ChainShape extends Shape {
 
         // DEBUG: assert(other instanceof ChainShape);
 
-        return this.createChain(other.m_vertices, other.m_vertices.length, other.m_prevVertex, other.m_nextVertex);
+        return this.createChain(other.vertices, other.vertices.length, other.prevVertex, other.nextVertex);
     }
 
     /**
@@ -125,30 +125,30 @@ export class ChainShape extends Shape {
      */
     public getChildCount(): number {
         // edge count = vertex count - 1
-        return this.m_vertices.length - 1;
+        return this.vertices.length - 1;
     }
 
     /**
      * Get a child edge.
      */
     public getChildEdge(edge: EdgeShape, index: number): void {
-        // DEBUG: assert(0 <= index && index < this.m_vertices.length - 1);
-        edge.m_radius = this.m_radius;
+        // DEBUG: assert(0 <= index && index < this.vertices.length - 1);
+        edge.radius = this.radius;
 
-        edge.m_vertex1.copy(this.m_vertices[index]);
-        edge.m_vertex2.copy(this.m_vertices[index + 1]);
-        edge.m_oneSided = true;
+        edge.vertex1.copy(this.vertices[index]);
+        edge.vertex2.copy(this.vertices[index + 1]);
+        edge.oneSided = true;
 
         if (index > 0) {
-            edge.m_vertex0.copy(this.m_vertices[index - 1]);
+            edge.vertex0.copy(this.vertices[index - 1]);
         } else {
-            edge.m_vertex0.copy(this.m_prevVertex);
+            edge.vertex0.copy(this.prevVertex);
         }
 
-        if (index < this.m_vertices.length - 2) {
-            edge.m_vertex3.copy(this.m_vertices[index + 2]);
+        if (index < this.vertices.length - 2) {
+            edge.vertex3.copy(this.vertices[index + 2]);
         } else {
-            edge.m_vertex3.copy(this.m_nextVertex);
+            edge.vertex3.copy(this.nextVertex);
         }
     }
 
@@ -167,18 +167,18 @@ export class ChainShape extends Shape {
      * Implement Shape.
      */
     public rayCast(output: RayCastOutput, input: RayCastInput, xf: Transform, childIndex: number): boolean {
-        // DEBUG: assert(childIndex < this.m_vertices.length);
+        // DEBUG: assert(childIndex < this.vertices.length);
 
         const edgeShape = ChainShape.RayCast_s_edgeShape;
 
         const i1 = childIndex;
         let i2 = childIndex + 1;
-        if (i2 === this.m_vertices.length) {
+        if (i2 === this.vertices.length) {
             i2 = 0;
         }
 
-        edgeShape.m_vertex1.copy(this.m_vertices[i1]);
-        edgeShape.m_vertex2.copy(this.m_vertices[i2]);
+        edgeShape.vertex1.copy(this.vertices[i1]);
+        edgeShape.vertex2.copy(this.vertices[i2]);
 
         return edgeShape.rayCast(output, input, xf, 0);
     }
@@ -195,24 +195,24 @@ export class ChainShape extends Shape {
      * @see Shape::ComputeAABB
      */
     public computeAABB(aabb: AABB, xf: Transform, childIndex: number): void {
-        // DEBUG: assert(childIndex < this.m_vertices.length);
+        // DEBUG: assert(childIndex < this.vertices.length);
 
         const i1 = childIndex;
         let i2 = childIndex + 1;
-        if (i2 === this.m_vertices.length) {
+        if (i2 === this.vertices.length) {
             i2 = 0;
         }
 
-        const v1 = Transform.multiplyVec2(xf, this.m_vertices[i1], ChainShape.ComputeAABB_s_v1);
-        const v2 = Transform.multiplyVec2(xf, this.m_vertices[i2], ChainShape.ComputeAABB_s_v2);
+        const v1 = Transform.multiplyVec2(xf, this.vertices[i1], ChainShape.ComputeAABB_s_v1);
+        const v2 = Transform.multiplyVec2(xf, this.vertices[i2], ChainShape.ComputeAABB_s_v2);
 
         const lower = Vec2.min(v1, v2, ChainShape.ComputeAABB_s_lower);
         const upper = Vec2.max(v1, v2, ChainShape.ComputeAABB_s_upper);
 
-        aabb.lowerBound.x = lower.x - this.m_radius;
-        aabb.lowerBound.y = lower.y - this.m_radius;
-        aabb.upperBound.x = upper.x + this.m_radius;
-        aabb.upperBound.y = upper.y + this.m_radius;
+        aabb.lowerBound.x = lower.x - this.radius;
+        aabb.lowerBound.y = lower.y - this.radius;
+        aabb.upperBound.x = upper.x + this.radius;
+        aabb.upperBound.y = upper.y + this.radius;
     }
 
     /**
@@ -227,21 +227,21 @@ export class ChainShape extends Shape {
     }
 
     public setupDistanceProxy(proxy: DistanceProxy, index: number): void {
-        // DEBUG: assert(0 <= index && index < this.m_vertices.length);
+        // DEBUG: assert(0 <= index && index < this.vertices.length);
 
-        proxy.m_vertices = proxy.m_buffer;
-        proxy.m_vertices[0].copy(this.m_vertices[index]);
-        if (index + 1 < this.m_vertices.length) {
-            proxy.m_vertices[1].copy(this.m_vertices[index + 1]);
+        proxy.vertices = proxy.buffer;
+        proxy.vertices[0].copy(this.vertices[index]);
+        if (index + 1 < this.vertices.length) {
+            proxy.vertices[1].copy(this.vertices[index + 1]);
         } else {
-            proxy.m_vertices[1].copy(this.m_vertices[0]);
+            proxy.vertices[1].copy(this.vertices[0]);
         }
-        proxy.m_count = 2;
-        proxy.m_radius = this.m_radius;
+        proxy.count = 2;
+        proxy.radius = this.radius;
     }
 
     public draw(draw: Draw, color: Color): void {
-        const vertices = this.m_vertices;
+        const { vertices } = this;
         let v1 = vertices[0];
         for (let i = 1; i < vertices.length; ++i) {
             const v2 = vertices[i];

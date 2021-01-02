@@ -103,114 +103,114 @@ export class ParticleGroupDef implements IParticleGroupDef {
 }
 
 export class ParticleGroup {
-    public readonly m_system: ParticleSystem;
+    public readonly system: ParticleSystem;
 
-    public m_firstIndex = 0;
+    public firstIndex = 0;
 
-    public m_lastIndex = 0;
+    public lastIndex = 0;
 
-    public m_groupFlags: ParticleGroupFlag = 0;
+    public groupFlags: ParticleGroupFlag = 0;
 
-    public m_strength = 1;
+    public strength = 1;
 
-    public m_prev: ParticleGroup | null = null;
+    public prev: ParticleGroup | null = null;
 
-    public m_next: ParticleGroup | null = null;
+    public next: ParticleGroup | null = null;
 
-    public m_timestamp = -1;
+    public timestamp = -1;
 
-    public m_mass = 0;
+    public mass = 0;
 
-    public m_inertia = 0;
+    public inertia = 0;
 
-    public readonly m_center = new Vec2();
+    public readonly center = new Vec2();
 
-    public readonly m_linearVelocity = new Vec2();
+    public readonly linearVelocity = new Vec2();
 
-    public m_angularVelocity = 0;
+    public angularVelocity = 0;
 
-    public readonly m_transform = new Transform();
+    public readonly transform = new Transform();
 
-    public m_userData: any = null;
+    public userData: any = null;
 
     public constructor(system: ParticleSystem) {
-        this.m_system = system;
+        this.system = system;
     }
 
     public getNext(): ParticleGroup | null {
-        return this.m_next;
+        return this.next;
     }
 
     public getParticleSystem(): ParticleSystem {
-        return this.m_system;
+        return this.system;
     }
 
     public getParticleCount(): number {
-        return this.m_lastIndex - this.m_firstIndex;
+        return this.lastIndex - this.firstIndex;
     }
 
     public getBufferIndex(): number {
-        return this.m_firstIndex;
+        return this.firstIndex;
     }
 
     public containsParticle(index: number): boolean {
-        return this.m_firstIndex <= index && index < this.m_lastIndex;
+        return this.firstIndex <= index && index < this.lastIndex;
     }
 
     public getAllParticleFlags(): ParticleFlag {
-        assert(this.m_system.m_flagsBuffer.data !== null);
+        assert(this.system.flagsBuffer.data !== null);
         let flags = 0;
-        for (let i = this.m_firstIndex; i < this.m_lastIndex; i++) {
-            flags |= this.m_system.m_flagsBuffer.data[i];
+        for (let i = this.firstIndex; i < this.lastIndex; i++) {
+            flags |= this.system.flagsBuffer.data[i];
         }
         return flags;
     }
 
     public getGroupFlags(): ParticleGroupFlag {
-        return this.m_groupFlags;
+        return this.groupFlags;
     }
 
     public setGroupFlags(flags: number): void {
         // DEBUG: assert((flags & ParticleGroupFlag.InternalMask) === 0);
-        flags |= this.m_groupFlags & ParticleGroupFlag.InternalMask;
-        this.m_system.setGroupFlags(this, flags);
+        flags |= this.groupFlags & ParticleGroupFlag.InternalMask;
+        this.system.setGroupFlags(this, flags);
     }
 
     public getMass(): number {
         this.updateStatistics();
-        return this.m_mass;
+        return this.mass;
     }
 
     public getInertia(): number {
         this.updateStatistics();
-        return this.m_inertia;
+        return this.inertia;
     }
 
     public getCenter(): Readonly<Vec2> {
         this.updateStatistics();
-        return this.m_center;
+        return this.center;
     }
 
     public getLinearVelocity(): Readonly<Vec2> {
         this.updateStatistics();
-        return this.m_linearVelocity;
+        return this.linearVelocity;
     }
 
     public getAngularVelocity(): number {
         this.updateStatistics();
-        return this.m_angularVelocity;
+        return this.angularVelocity;
     }
 
     public getTransform(): Readonly<Transform> {
-        return this.m_transform;
+        return this.transform;
     }
 
     public getPosition(): Readonly<Vec2> {
-        return this.m_transform.p;
+        return this.transform.p;
     }
 
     public getAngle(): number {
-        return this.m_transform.q.getAngle();
+        return this.transform.q.getAngle();
     }
 
     public getLinearVelocityFromWorldPoint<T extends XY>(worldPoint: XY, out: T): T {
@@ -218,9 +218,9 @@ export class ParticleGroup {
         this.updateStatistics();
 
         return Vec2.addCrossScalarVec2(
-            this.m_linearVelocity,
-            this.m_angularVelocity,
-            Vec2.subtract(worldPoint, this.m_center, s_t0),
+            this.linearVelocity,
+            this.angularVelocity,
+            Vec2.subtract(worldPoint, this.center, s_t0),
             out,
         );
     }
@@ -228,60 +228,60 @@ export class ParticleGroup {
     public static readonly GetLinearVelocityFromWorldPoint_s_t0 = new Vec2();
 
     public getUserData(): void {
-        return this.m_userData;
+        return this.userData;
     }
 
     public setUserData(data: any): void {
-        this.m_userData = data;
+        this.userData = data;
     }
 
     public applyForce(force: XY): void {
-        this.m_system.applyForce(this.m_firstIndex, this.m_lastIndex, force);
+        this.system.applyForce(this.firstIndex, this.lastIndex, force);
     }
 
     public applyLinearImpulse(impulse: XY): void {
-        this.m_system.applyLinearImpulse(this.m_firstIndex, this.m_lastIndex, impulse);
+        this.system.applyLinearImpulse(this.firstIndex, this.lastIndex, impulse);
     }
 
     public destroyParticles(callDestructionListener: boolean): void {
-        assert(!this.m_system.m_world.isLocked());
+        assert(!this.system.world.isLocked());
 
-        for (let i = this.m_firstIndex; i < this.m_lastIndex; i++) {
-            this.m_system.destroyParticle(i, callDestructionListener);
+        for (let i = this.firstIndex; i < this.lastIndex; i++) {
+            this.system.destroyParticle(i, callDestructionListener);
         }
     }
 
     public updateStatistics(): void {
-        assert(this.m_system.m_positionBuffer.data !== null);
-        assert(this.m_system.m_velocityBuffer.data !== null);
+        assert(this.system.positionBuffer.data !== null);
+        assert(this.system.velocityBuffer.data !== null);
         const p = new Vec2();
         const v = new Vec2();
-        if (this.m_timestamp !== this.m_system.m_timestamp) {
-            const m = this.m_system.getParticleMass();
-            this.m_mass = m * (this.m_lastIndex - this.m_firstIndex);
-            this.m_center.setZero();
-            this.m_linearVelocity.setZero();
-            for (let i = this.m_firstIndex; i < this.m_lastIndex; i++) {
-                this.m_center.addScaled(m, this.m_system.m_positionBuffer.data[i]);
-                this.m_linearVelocity.addScaled(m, this.m_system.m_velocityBuffer.data[i]);
+        if (this.timestamp !== this.system.timestamp) {
+            const m = this.system.getParticleMass();
+            this.mass = m * (this.lastIndex - this.firstIndex);
+            this.center.setZero();
+            this.linearVelocity.setZero();
+            for (let i = this.firstIndex; i < this.lastIndex; i++) {
+                this.center.addScaled(m, this.system.positionBuffer.data[i]);
+                this.linearVelocity.addScaled(m, this.system.velocityBuffer.data[i]);
             }
-            if (this.m_mass > 0) {
-                const inv_mass = 1 / this.m_mass;
-                this.m_center.scale(inv_mass);
-                this.m_linearVelocity.scale(inv_mass);
+            if (this.mass > 0) {
+                const inv_mass = 1 / this.mass;
+                this.center.scale(inv_mass);
+                this.linearVelocity.scale(inv_mass);
             }
-            this.m_inertia = 0;
-            this.m_angularVelocity = 0;
-            for (let i = this.m_firstIndex; i < this.m_lastIndex; i++) {
-                Vec2.subtract(this.m_system.m_positionBuffer.data[i], this.m_center, p);
-                Vec2.subtract(this.m_system.m_velocityBuffer.data[i], this.m_linearVelocity, v);
-                this.m_inertia += m * Vec2.dot(p, p);
-                this.m_angularVelocity += m * Vec2.cross(p, v);
+            this.inertia = 0;
+            this.angularVelocity = 0;
+            for (let i = this.firstIndex; i < this.lastIndex; i++) {
+                Vec2.subtract(this.system.positionBuffer.data[i], this.center, p);
+                Vec2.subtract(this.system.velocityBuffer.data[i], this.linearVelocity, v);
+                this.inertia += m * Vec2.dot(p, p);
+                this.angularVelocity += m * Vec2.cross(p, v);
             }
-            if (this.m_inertia > 0) {
-                this.m_angularVelocity *= 1 / this.m_inertia;
+            if (this.inertia > 0) {
+                this.angularVelocity *= 1 / this.inertia;
             }
-            this.m_timestamp = this.m_system.m_timestamp;
+            this.timestamp = this.system.timestamp;
         }
     }
 }

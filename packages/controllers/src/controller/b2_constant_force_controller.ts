@@ -30,7 +30,7 @@ export class ConstantForceController extends Controller {
     public readonly F = new Vec2();
 
     public step(_step: TimeStep) {
-        for (let i = this.m_bodyList; i; i = i.nextBody) {
+        for (let i = this.bodyList; i; i = i.nextBody) {
             const { body } = i;
             if (!body.isAwake()) {
                 continue;

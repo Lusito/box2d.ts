@@ -33,15 +33,15 @@ import { MassData, Shape, ShapeType } from "./b2_shape";
  */
 export class CircleShape extends Shape {
     /** Position */
-    public readonly m_p = new Vec2();
+    public readonly p = new Vec2();
 
     public constructor(radius = 0) {
         super(ShapeType.Circle, radius);
     }
 
-    public set(position: XY, radius = this.m_radius) {
-        this.m_p.copy(position);
-        this.m_radius = radius;
+    public set(position: XY, radius = this.radius) {
+        this.p.copy(position);
+        this.radius = radius;
         return this;
     }
 
@@ -57,7 +57,7 @@ export class CircleShape extends Shape {
 
         // DEBUG: assert(other instanceof CircleShape);
 
-        this.m_p.copy(other.m_p);
+        this.p.copy(other.p);
         return this;
     }
 
@@ -76,9 +76,9 @@ export class CircleShape extends Shape {
      * Implement Shape.
      */
     public testPoint(transform: Transform, p: XY): boolean {
-        const center = Transform.multiplyVec2(transform, this.m_p, CircleShape.TestPoint_s_center);
+        const center = Transform.multiplyVec2(transform, this.p, CircleShape.TestPoint_s_center);
         const d = Vec2.subtract(p, center, CircleShape.TestPoint_s_d);
-        return Vec2.dot(d, d) <= this.m_radius ** 2;
+        return Vec2.dot(d, d) <= this.radius ** 2;
     }
 
     private static RayCast_s_position = new Vec2();
@@ -97,9 +97,9 @@ export class CircleShape extends Shape {
      * norm(x) = radius
      */
     public rayCast(output: RayCastOutput, input: RayCastInput, transform: Transform, _childIndex: number): boolean {
-        const position = Transform.multiplyVec2(transform, this.m_p, CircleShape.RayCast_s_position);
+        const position = Transform.multiplyVec2(transform, this.p, CircleShape.RayCast_s_position);
         const s = Vec2.subtract(input.p1, position, CircleShape.RayCast_s_s);
-        const b = Vec2.dot(s, s) - this.m_radius ** 2;
+        const b = Vec2.dot(s, s) - this.radius ** 2;
 
         // Solve quadratic equation.
         const r = Vec2.subtract(input.p2, input.p1, CircleShape.RayCast_s_r);
@@ -132,33 +132,33 @@ export class CircleShape extends Shape {
      * @see Shape::ComputeAABB
      */
     public computeAABB(aabb: AABB, transform: Transform, _childIndex: number): void {
-        const p = Transform.multiplyVec2(transform, this.m_p, CircleShape.ComputeAABB_s_p);
-        aabb.lowerBound.set(p.x - this.m_radius, p.y - this.m_radius);
-        aabb.upperBound.set(p.x + this.m_radius, p.y + this.m_radius);
+        const p = Transform.multiplyVec2(transform, this.p, CircleShape.ComputeAABB_s_p);
+        aabb.lowerBound.set(p.x - this.radius, p.y - this.radius);
+        aabb.upperBound.set(p.x + this.radius, p.y + this.radius);
     }
 
     /**
      * @see Shape::ComputeMass
      */
     public computeMass(massData: MassData, density: number): void {
-        const radius_sq = this.m_radius ** 2;
+        const radius_sq = this.radius ** 2;
         massData.mass = density * Math.PI * radius_sq;
-        massData.center.copy(this.m_p);
+        massData.center.copy(this.p);
 
         // inertia about the local origin
-        massData.I = massData.mass * (0.5 * radius_sq + Vec2.dot(this.m_p, this.m_p));
+        massData.I = massData.mass * (0.5 * radius_sq + Vec2.dot(this.p, this.p));
     }
 
     public setupDistanceProxy(proxy: DistanceProxy, _index: number): void {
-        proxy.m_vertices = proxy.m_buffer;
-        proxy.m_vertices[0].copy(this.m_p);
-        proxy.m_count = 1;
-        proxy.m_radius = this.m_radius;
+        proxy.vertices = proxy.buffer;
+        proxy.vertices[0].copy(this.p);
+        proxy.count = 1;
+        proxy.radius = this.radius;
     }
 
     public draw(draw: Draw, color: Color): void {
-        const center = this.m_p;
-        const radius = this.m_radius;
+        const center = this.p;
+        const { radius } = this;
         const axis = Vec2.UNITX;
         draw.drawSolidCircle(center, radius, axis, color);
     }

@@ -48,16 +48,16 @@ import { checkboxDef } from "../../ui/controls/Checkbox";
  * so that the payload does not collide with the chain.
  */
 class WreckingBallTest extends Test {
-    public m_distanceJointDef = new DistanceJointDef();
+    public distanceJointDef = new DistanceJointDef();
 
-    public m_distanceJoint: Joint | null;
+    public distanceJoint: Joint | null;
 
-    public m_stabilize = false;
+    public stabilize = false;
 
     public constructor() {
         super();
 
-        const ground = this.m_world.createBody();
+        const ground = this.world.createBody();
         {
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
@@ -83,7 +83,7 @@ class WreckingBallTest extends Test {
 
             const N = 10;
             const y = 15;
-            this.m_distanceJointDef.localAnchorA.set(0, y);
+            this.distanceJointDef.localAnchorA.set(0, y);
 
             let prevBody = ground;
             for (let i = 0; i < N; ++i) {
@@ -97,7 +97,7 @@ class WreckingBallTest extends Test {
                     bd.angularDamping = 0.4;
                 }
 
-                const body = this.m_world.createBody(bd);
+                const body = this.world.createBody(bd);
 
                 if (i === N - 1) {
                     const circleShape = new CircleShape(1.5);
@@ -114,33 +114,33 @@ class WreckingBallTest extends Test {
 
                 const anchor = new Vec2(i, y);
                 jd.initialize(prevBody, body, anchor);
-                this.m_world.createJoint(jd);
+                this.world.createJoint(jd);
 
                 prevBody = body;
             }
 
-            this.m_distanceJointDef.localAnchorB.setZero();
+            this.distanceJointDef.localAnchorB.setZero();
 
             const extraLength = 0.01;
-            this.m_distanceJointDef.minLength = 0;
-            this.m_distanceJointDef.maxLength = N - 1 + extraLength;
-            this.m_distanceJointDef.bodyB = prevBody;
+            this.distanceJointDef.minLength = 0;
+            this.distanceJointDef.maxLength = N - 1 + extraLength;
+            this.distanceJointDef.bodyB = prevBody;
         }
 
-        this.m_distanceJointDef.bodyA = ground;
-        this.m_distanceJoint = this.m_world.createJoint(this.m_distanceJointDef);
-        this.m_stabilize = true;
+        this.distanceJointDef.bodyA = ground;
+        this.distanceJoint = this.world.createJoint(this.distanceJointDef);
+        this.stabilize = true;
     }
 
     public setupControls() {
         this.addTestControlGroup("Wrecking Ball", [
-            checkboxDef("Stabilize", this.m_stabilize, (value: boolean) => {
-                this.m_stabilize = value;
-                if (value && this.m_distanceJoint === null)
-                    this.m_distanceJoint = this.m_world.createJoint(this.m_distanceJointDef);
-                else if (!value && this.m_distanceJoint !== null) {
-                    this.m_world.destroyJoint(this.m_distanceJoint);
-                    this.m_distanceJoint = null;
+            checkboxDef("Stabilize", this.stabilize, (value: boolean) => {
+                this.stabilize = value;
+                if (value && this.distanceJoint === null)
+                    this.distanceJoint = this.world.createJoint(this.distanceJointDef);
+                else if (!value && this.distanceJoint !== null) {
+                    this.world.destroyJoint(this.distanceJoint);
+                    this.distanceJoint = null;
                 }
             }),
         ]);
@@ -149,7 +149,7 @@ class WreckingBallTest extends Test {
     public step(settings: Settings, timeStep: number): void {
         super.step(settings, timeStep);
 
-        this.addDebug("Distance Joint", this.m_distanceJoint ? "ON" : "OFF");
+        this.addDebug("Distance Joint", this.distanceJoint ? "ON" : "OFF");
     }
 }
 

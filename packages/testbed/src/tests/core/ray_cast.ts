@@ -33,26 +33,26 @@ type RayCastMode = "Any" | "Closest" | "Multiple";
 class RayCastTest extends Test {
     private static e_maxBodies = 256;
 
-    private m_bodyIndex = 0;
+    private bodyIndex = 0;
 
-    private m_bodies: Array<Body | null> = [];
+    private bodies: Array<Body | null> = [];
 
-    private m_polygons: PolygonShape[] = makeArray(4, PolygonShape);
+    private polygons: PolygonShape[] = makeArray(4, PolygonShape);
 
-    private m_circle = new CircleShape();
+    private circle = new CircleShape();
 
-    private m_edge = new EdgeShape();
+    private edge = new EdgeShape();
 
-    private m_degrees = 0;
+    private degrees = 0;
 
-    private m_mode: RayCastMode = "Closest";
+    private mode: RayCastMode = "Closest";
 
     public constructor() {
         super();
 
         // Ground body
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
@@ -64,7 +64,7 @@ class RayCastTest extends Test {
             vertices[0].set(-0.5, 0);
             vertices[1].set(0.5, 0);
             vertices[2].set(0, 1.5);
-            this.m_polygons[0].set(vertices, 3);
+            this.polygons[0].set(vertices, 3);
         }
 
         {
@@ -72,7 +72,7 @@ class RayCastTest extends Test {
             vertices[0].set(-0.1, 0);
             vertices[1].set(0.1, 0);
             vertices[2].set(0, 1.5);
-            this.m_polygons[1].set(vertices, 3);
+            this.polygons[1].set(vertices, 3);
         }
 
         {
@@ -90,38 +90,38 @@ class RayCastTest extends Test {
             vertices[6].set(-0.5 * w, b);
             vertices[7].set(-0.5 * s, 0);
 
-            this.m_polygons[2].set(vertices, 8);
+            this.polygons[2].set(vertices, 8);
         }
 
-        this.m_polygons[3].setAsBox(0.5, 0.5);
-        this.m_circle.m_radius = 0.5;
-        this.m_edge.setTwoSided(new Vec2(-1, 0), new Vec2(1, 0));
+        this.polygons[3].setAsBox(0.5, 0.5);
+        this.circle.radius = 0.5;
+        this.edge.setTwoSided(new Vec2(-1, 0), new Vec2(1, 0));
 
-        this.m_bodyIndex = 0;
+        this.bodyIndex = 0;
         for (let i = 0; i < RayCastTest.e_maxBodies; ++i) {
-            this.m_bodies[i] = null;
+            this.bodies[i] = null;
         }
     }
 
     public setupControls() {
         this.addTestControlGroup("Ray-cast", [
-            radioDef("Mode", ["Any", "Closest", "Multiple"], this.m_mode, (value: string) => {
-                this.m_mode = value as RayCastMode;
+            radioDef("Mode", ["Any", "Closest", "Multiple"], this.mode, (value: string) => {
+                this.mode = value as RayCastMode;
             }),
-            sliderDef("Angle", 0, 360, 1, this.m_degrees, (value: number) => {
-                this.m_degrees = value;
+            sliderDef("Angle", 0, 360, 1, this.degrees, (value: number) => {
+                this.degrees = value;
             }),
         ]);
     }
 
     public createBody(index: number): void {
-        const old_body = this.m_bodies[this.m_bodyIndex];
+        const old_body = this.bodies[this.bodyIndex];
         if (old_body !== null) {
-            this.m_world.destroyBody(old_body);
-            this.m_bodies[this.m_bodyIndex] = null;
+            this.world.destroyBody(old_body);
+            this.bodies[this.bodyIndex] = null;
         }
 
-        const new_body = (this.m_bodies[this.m_bodyIndex] = this.m_world.createBody({
+        const new_body = (this.bodies[this.bodyIndex] = this.world.createBody({
             position: { x: randomFloat(-10, 10), y: randomFloat(0, 20) },
             angle: randomFloat(-Math.PI, Math.PI),
             angularDamping: index === 4 ? 0.02 : 0,
@@ -129,33 +129,33 @@ class RayCastTest extends Test {
 
         if (index < 4) {
             new_body.createFixture({
-                shape: this.m_polygons[index],
+                shape: this.polygons[index],
                 friction: 0.3,
                 userData: { index },
             });
         } else if (index < 5) {
             new_body.createFixture({
-                shape: this.m_circle,
+                shape: this.circle,
                 friction: 0.3,
                 userData: { index },
             });
         } else {
             new_body.createFixture({
-                shape: this.m_edge,
+                shape: this.edge,
                 friction: 0.3,
                 userData: { index },
             });
         }
 
-        this.m_bodyIndex = (this.m_bodyIndex + 1) % RayCastTest.e_maxBodies;
+        this.bodyIndex = (this.bodyIndex + 1) % RayCastTest.e_maxBodies;
     }
 
     public destroyBody(): void {
         for (let i = 0; i < RayCastTest.e_maxBodies; ++i) {
-            const body = this.m_bodies[i];
+            const body = this.bodies[i];
             if (body !== null) {
-                this.m_world.destroyBody(body);
-                this.m_bodies[i] = null;
+                this.world.destroyBody(body);
+                this.bodies[i] = null;
                 return;
             }
         }
@@ -176,14 +176,14 @@ class RayCastTest extends Test {
     public step(settings: Settings, timeStep: number): void {
         super.step(settings, timeStep);
 
-        const angle = degToRad(this.m_degrees);
+        const angle = degToRad(this.degrees);
         const L = 11;
         const point1 = new Vec2(0, 10);
         const d = new Vec2(L * Math.cos(angle), L * Math.sin(angle));
         const point2 = Vec2.add(point1, d, new Vec2());
 
         this.addText("Shape 1 is intentionally ignored by the ray");
-        switch (this.m_mode) {
+        switch (this.mode) {
             case "Closest":
                 this.addDebug("Ray-Cast Mode", "Find closest fixture along the ray");
                 this.rayCastClosest(point1, point2);
@@ -233,7 +233,7 @@ class RayCastTest extends Test {
         Vec2 vs[4];
         for (int32 i = 0; i < 4; ++i)
         {
-          vs[i] = Mul(xf, shape.m_vertices[i]);
+          vs[i] = Mul(xf, shape.vertices[i]);
         }
 
         g_debugDraw.drawPolygon(vs, 4, color);
@@ -248,7 +248,7 @@ class RayCastTest extends Test {
         let hit = false;
         const resultPoint = new Vec2();
         const resultNormal = new Vec2();
-        this.m_world.rayCast(point1, point2, (fixture, point, normal, fraction) => {
+        this.world.rayCast(point1, point2, (fixture, point, normal, fraction) => {
             const userData = fixture.getUserData();
             if (userData?.index === 0) {
                 // By returning -1, we instruct the calling code to ignore this fixture
@@ -282,7 +282,7 @@ class RayCastTest extends Test {
         let hit = false;
         const resultPoint = new Vec2();
         const resultNormal = new Vec2();
-        this.m_world.rayCast(point1, point2, (fixture, point, normal, _fraction) => {
+        this.world.rayCast(point1, point2, (fixture, point, normal, _fraction) => {
             const userData = fixture.getUserData();
             if (userData?.index === 0) {
                 // By returning -1, we instruct the calling code to ignore this fixture
@@ -318,7 +318,7 @@ class RayCastTest extends Test {
         const resultNormals = makeArray(e_maxCount, Vec2);
 
         let count = 0;
-        this.m_world.rayCast(point1, point2, (fixture, point, normal) => {
+        this.world.rayCast(point1, point2, (fixture, point, normal) => {
             const userData = fixture.getUserData();
             if (userData?.index === 0) {
                 // By returning -1, we instruct the calling code to ignore this fixture
@@ -326,7 +326,7 @@ class RayCastTest extends Test {
                 return -1;
             }
 
-            // DEBUG: assert(this.m_count < RayCastMultipleCallback.e_maxCount);
+            // DEBUG: assert(this.count < RayCastMultipleCallback.e_maxCount);
             resultPoints[count].copy(point);
             resultNormals[count].copy(normal);
             ++count;

@@ -55,17 +55,17 @@ export enum ShapeType {
  * is created. Shapes may encapsulate a one or more child shapes.
  */
 export abstract class Shape {
-    public readonly m_type: ShapeType;
+    public readonly type: ShapeType;
 
     /**
      * Radius of a shape. For polygonal shapes this must be POLYGON_RADIUS. There is no support for
      * making rounded polygons.
      */
-    public m_radius = 0;
+    public radius = 0;
 
     public constructor(type: ShapeType, radius: number) {
-        this.m_type = type;
-        this.m_radius = radius;
+        this.type = type;
+        this.radius = radius;
     }
 
     /**
@@ -74,8 +74,8 @@ export abstract class Shape {
     public abstract clone(): Shape;
 
     public copy(other: Shape): Shape {
-        // DEBUG: assert(this.m_type === other.m_type);
-        this.m_radius = other.m_radius;
+        // DEBUG: assert(this.type === other.type);
+        this.radius = other.radius;
         return this;
     }
 
@@ -85,7 +85,7 @@ export abstract class Shape {
      * @returns The shape type.
      */
     public getType(): ShapeType {
-        return this.m_type;
+        return this.type;
     }
 
     /**

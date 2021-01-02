@@ -27,7 +27,7 @@ class MobileBalancedTest extends Test {
         super();
 
         // Create ground body.
-        const ground = this.m_world.createBody({
+        const ground = this.world.createBody({
             position: { x: 0, y: 20 },
         });
 
@@ -41,7 +41,7 @@ class MobileBalancedTest extends Test {
         jointDef.bodyB = root;
         jointDef.localAnchorA.setZero();
         jointDef.localAnchorB.copy(h);
-        this.m_world.createJoint(jointDef);
+        this.world.createJoint(jointDef);
     }
 
     public getDefaultViewZoom() {
@@ -62,7 +62,7 @@ class MobileBalancedTest extends Test {
         //  Vec2 p = parent->GetPosition() + localAnchor - h;
         const p = parent.getPosition().clone().add(localAnchor).subtract(h);
 
-        const body = this.m_world.createBody({
+        const body = this.world.createBody({
             type: BodyType.Dynamic,
             position: p,
         });
@@ -89,11 +89,11 @@ class MobileBalancedTest extends Test {
 
         jointDef.localAnchorA.copy(a1);
         jointDef.bodyB = body1;
-        this.m_world.createJoint(jointDef);
+        this.world.createJoint(jointDef);
 
         jointDef.localAnchorA.copy(a2);
         jointDef.bodyB = body2;
-        this.m_world.createJoint(jointDef);
+        this.world.createJoint(jointDef);
 
         return body;
     }

@@ -20,8 +20,8 @@ import { ControllerEdge } from "../controller/b2_controller";
 
 declare module "@box2d/core" {
     export interface Body {
-        m_controllerList: ControllerEdge | null;
+        controllerList: ControllerEdge | null;
 
-        m_controllerCount: number;
+        controllerCount: number;
     }
 }

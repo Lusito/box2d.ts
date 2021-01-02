@@ -51,20 +51,20 @@ const temp = {
 class PolygonShapesTest extends Test {
     public static readonly e_maxBodies = 256;
 
-    public m_bodyIndex = 0;
+    public bodyIndex = 0;
 
-    public m_bodies: Array<Body | null> = Array.from({ length: PolygonShapesTest.e_maxBodies }, () => null);
+    public bodies: Array<Body | null> = Array.from({ length: PolygonShapesTest.e_maxBodies }, () => null);
 
-    public m_polygons = Array.from({ length: 4 }, () => new PolygonShape());
+    public polygons = Array.from({ length: 4 }, () => new PolygonShape());
 
-    public m_circle = new CircleShape();
+    public circle = new CircleShape();
 
     public constructor() {
         super();
 
         // Ground body
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
@@ -76,7 +76,7 @@ class PolygonShapesTest extends Test {
             vertices[0] = new Vec2(-0.5, 0);
             vertices[1] = new Vec2(0.5, 0);
             vertices[2] = new Vec2(0, 1.5);
-            this.m_polygons[0].set(vertices, 3);
+            this.polygons[0].set(vertices, 3);
         }
 
         {
@@ -84,7 +84,7 @@ class PolygonShapesTest extends Test {
             vertices[0] = new Vec2(-0.1, 0);
             vertices[1] = new Vec2(0.1, 0);
             vertices[2] = new Vec2(0, 1.5);
-            this.m_polygons[1].set(vertices, 3);
+            this.polygons[1].set(vertices, 3);
         }
 
         {
@@ -102,25 +102,25 @@ class PolygonShapesTest extends Test {
             vertices[6] = new Vec2(-0.5 * w, b);
             vertices[7] = new Vec2(-0.5 * s, 0);
 
-            this.m_polygons[2].set(vertices, 8);
+            this.polygons[2].set(vertices, 8);
         }
 
-        this.m_polygons[3].setAsBox(0.5, 0.5);
-        this.m_circle.m_radius = 0.5;
+        this.polygons[3].setAsBox(0.5, 0.5);
+        this.circle.radius = 0.5;
 
         for (let i = 0; i < PolygonShapesTest.e_maxBodies; ++i) {
-            this.m_bodies[i] = null;
+            this.bodies[i] = null;
         }
     }
 
     public createBody(index: number) {
-        let body = this.m_bodies[this.m_bodyIndex];
+        let body = this.bodies[this.bodyIndex];
         if (body) {
-            this.m_world.destroyBody(body);
-            this.m_bodies[this.m_bodyIndex] = null;
+            this.world.destroyBody(body);
+            this.bodies[this.bodyIndex] = null;
         }
 
-        body = this.m_bodies[this.m_bodyIndex] = this.m_world.createBody({
+        body = this.bodies[this.bodyIndex] = this.world.createBody({
             type: BodyType.Dynamic,
             position: { x: randomFloat(-2, 2), y: 10 },
             angle: randomFloat(-Math.PI, Math.PI),
@@ -129,27 +129,27 @@ class PolygonShapesTest extends Test {
 
         if (index < 4) {
             body.createFixture({
-                shape: this.m_polygons[index],
+                shape: this.polygons[index],
                 density: 1,
                 friction: 0.3,
             });
         } else {
             body.createFixture({
-                shape: this.m_circle,
+                shape: this.circle,
                 density: 1,
                 friction: 0.3,
             });
         }
 
-        this.m_bodyIndex = (this.m_bodyIndex + 1) % PolygonShapesTest.e_maxBodies;
+        this.bodyIndex = (this.bodyIndex + 1) % PolygonShapesTest.e_maxBodies;
     }
 
     public destroyBody() {
         for (let i = 0; i < PolygonShapesTest.e_maxBodies; ++i) {
-            const body = this.m_bodies[i];
+            const body = this.bodies[i];
             if (body) {
-                this.m_world.destroyBody(body);
-                this.m_bodies[i] = null;
+                this.world.destroyBody(body);
+                this.bodies[i] = null;
                 return;
             }
         }
@@ -164,7 +164,7 @@ class PolygonShapesTest extends Test {
             hotKeyPress("5", "Create Circle", () => this.createBody(4)),
             hotKeyPress("a", "Toggle Enabled of Even Bodies", () => {
                 for (let i = 0; i < PolygonShapesTest.e_maxBodies; i += 2) {
-                    const body = this.m_bodies[i];
+                    const body = this.bodies[i];
                     if (body) {
                         body.setEnabled(!body.isEnabled());
                     }
@@ -179,8 +179,8 @@ class PolygonShapesTest extends Test {
 
         let count = 0;
         const { circle, transform } = temp.Step;
-        circle.m_radius = 2;
-        circle.m_p.set(0, 1.1);
+        circle.radius = 2;
+        circle.p.set(0, 1.1);
         transform.setIdentity();
 
         const aabb = new AABB();
@@ -192,7 +192,7 @@ class PolygonShapesTest extends Test {
          * Up to 4 overlapped fixtures will be highlighted with a yellow
          * border.
          */
-        this.m_world.queryAABB(aabb, (fixture) => {
+        this.world.queryAABB(aabb, (fixture) => {
             if (count === queryCallbackMaxCount) return false;
 
             const body = fixture.getBody();
@@ -211,7 +211,7 @@ class PolygonShapesTest extends Test {
         });
 
         const color = new Color(0.4, 0.7, 0.8);
-        g_debugDraw.drawCircle(circle.m_p, circle.m_radius, color);
+        g_debugDraw.drawCircle(circle.p, circle.radius, color);
     }
 }
 

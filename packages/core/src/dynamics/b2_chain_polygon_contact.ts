@@ -34,7 +34,7 @@ export class ChainAndPolygonContact extends Contact<ChainShape, PolygonShape> {
 
     public evaluate(manifold: Manifold, xfA: Transform, xfB: Transform): void {
         const edge = ChainAndPolygonContact.Evaluate_s_edge;
-        this.getShapeA().getChildEdge(edge, this.m_indexA);
+        this.getShapeA().getChildEdge(edge, this.indexA);
         collideEdgeAndPolygon(manifold, edge, xfA, this.getShapeB(), xfB);
     }
 }

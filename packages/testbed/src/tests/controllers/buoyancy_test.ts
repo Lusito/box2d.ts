@@ -22,17 +22,17 @@ import { BuoyancyController } from "@box2d/controllers";
 import { registerTest, Test } from "../../test";
 
 class BuoyancyTest extends Test {
-    public m_bodies: Body[];
+    public bodies: Body[];
 
-    public m_controller: BuoyancyController;
+    public controller: BuoyancyController;
 
     public constructor() {
         super();
 
-        this.m_bodies = [];
+        this.bodies = [];
 
         const bc = new BuoyancyController();
-        this.m_controller = bc;
+        this.controller = bc;
 
         bc.normal.set(0, 1);
         bc.offset = 20;
@@ -40,7 +40,7 @@ class BuoyancyTest extends Test {
         bc.linearDrag = 5;
         bc.angularDrag = 2;
 
-        const ground = this.m_world.createBody();
+        const ground = this.world.createBody();
 
         {
             const shape = new EdgeShape();
@@ -54,7 +54,7 @@ class BuoyancyTest extends Test {
 
         // Spawn in a bunch of crap
         for (let i = 0; i < 5; i++) {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 // isBullet: true,
                 position: {
@@ -74,11 +74,11 @@ class BuoyancyTest extends Test {
                 shape: polygon,
             });
 
-            this.m_bodies.push(body);
+            this.bodies.push(body);
         }
 
         for (let i = 0; i < 5; i++) {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 // isBullet: true,
                 position: {
@@ -96,11 +96,11 @@ class BuoyancyTest extends Test {
                 shape: new CircleShape(Math.random() * 0.5 + 1),
             });
 
-            this.m_bodies.push(body);
+            this.bodies.push(body);
         }
 
         for (let i = 0; i < 15; i++) {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 // isBullet: true,
                 position: {
@@ -142,12 +142,12 @@ class BuoyancyTest extends Test {
                 shape: polygon,
             });
 
-            this.m_bodies.push(body);
+            this.bodies.push(body);
         }
 
         // Add some exciting bath toys
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 0, y: 40 },
                 angle: 0,
@@ -160,11 +160,11 @@ class BuoyancyTest extends Test {
                 shape: polygon,
             });
 
-            this.m_bodies.push(body);
+            this.bodies.push(body);
         }
 
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: {
                     x: 0,
@@ -177,13 +177,13 @@ class BuoyancyTest extends Test {
                 density: 2,
                 shape: circle,
             };
-            circle.m_p.set(3, 0);
+            circle.p.set(3, 0);
             body.createFixture(fd);
-            circle.m_p.set(-3, 0);
+            circle.p.set(-3, 0);
             body.createFixture(fd);
-            circle.m_p.set(0, 3);
+            circle.p.set(0, 3);
             body.createFixture(fd);
-            circle.m_p.set(0, -3);
+            circle.p.set(0, -3);
             body.createFixture(fd);
 
             fd.density = 2;
@@ -194,23 +194,23 @@ class BuoyancyTest extends Test {
             polygon.setAsBox(0.2, 3);
             body.createFixture(fd);
 
-            this.m_bodies.push(body);
+            this.bodies.push(body);
         }
 
         // if (DEBUG) {
-        //   for (let body_i = 0; i < this.m_bodies.length; ++i)
-        //     this.m_controller.addBody(this.m_bodies[body_i]);
-        //   for (let body_i = 0; i < this.m_bodies.length; ++i)
-        //     this.m_controller.removeBody(this.m_bodies[body_i]);
+        //   for (let body_i = 0; i < this.bodies.length; ++i)
+        //     this.controller.addBody(this.bodies[body_i]);
+        //   for (let body_i = 0; i < this.bodies.length; ++i)
+        //     this.controller.removeBody(this.bodies[body_i]);
         // }
-        for (const body of this.m_bodies) {
-            this.m_controller.addBody(body);
+        for (const body of this.bodies) {
+            this.controller.addBody(body);
         }
         // if (DEBUG) {
-        //   this.m_world.addController(this.m_controller);
-        //   this.m_world.removeController(this.m_controller);
+        //   this.world.addController(this.controller);
+        //   this.world.removeController(this.controller);
         // }
-        this.m_world.addController(this.m_controller);
+        this.world.addController(this.controller);
     }
 
     public getCenter(): XY {

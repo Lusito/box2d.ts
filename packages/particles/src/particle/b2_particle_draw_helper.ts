@@ -31,7 +31,7 @@ function drawParticleSystem(draw: Draw, system: ParticleSystem): void {
     if (particleCount) {
         const radius = system.getRadius();
         const positionBuffer = system.getPositionBuffer();
-        if (system.m_colorBuffer.data) {
+        if (system.colorBuffer.data) {
             const colorBuffer = system.getColorBuffer();
             draw.drawParticles(positionBuffer, radius, colorBuffer, particleCount);
         } else {
@@ -41,7 +41,7 @@ function drawParticleSystem(draw: Draw, system: ParticleSystem): void {
 }
 
 export function drawParticleSystems(draw: Draw, world: World) {
-    for (let p = world.getParticleSystemList(); p; p = p.m_next) {
+    for (let p = world.getParticleSystemList(); p; p = p.next) {
         drawParticleSystem(draw, p);
     }
 }

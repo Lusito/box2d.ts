@@ -26,11 +26,11 @@ import { hotKeyPress, HotKey } from "../../utils/hotkeys";
 class ConvexHullTest extends Test {
     public static readonly e_count = 10;
 
-    public m_test_points: Vec2[] = [];
+    public test_points: Vec2[] = [];
 
-    public m_count = 0;
+    public count = 0;
 
-    public m_auto = false;
+    public auto = false;
 
     public constructor() {
         super();
@@ -51,16 +51,16 @@ class ConvexHullTest extends Test {
             // This will stress the convex hull algorithm.
             x = clamp(x, -8, 8);
             y = clamp(y, -8, 8);
-            this.m_test_points[i] = new Vec2(x, y);
+            this.test_points[i] = new Vec2(x, y);
         }
 
-        this.m_count = ConvexHullTest.e_count;
+        this.count = ConvexHullTest.e_count;
     }
 
     public getHotkeys(): HotKey[] {
         return [
             hotKeyPress("a", "Toggle Autogeneration", () => {
-                this.m_auto = !this.m_auto;
+                this.auto = !this.auto;
             }),
             hotKeyPress("g", "Generate a new random convex hull", () => this.generate()),
         ];
@@ -70,18 +70,18 @@ class ConvexHullTest extends Test {
         super.step(settings, timeStep);
 
         const shape = new PolygonShape();
-        shape.set(this.m_test_points, this.m_count);
+        shape.set(this.test_points, this.count);
 
-        g_debugDraw.drawPolygon(shape.m_vertices, shape.m_count, new Color(0.9, 0.9, 0.9));
+        g_debugDraw.drawPolygon(shape.vertices, shape.count, new Color(0.9, 0.9, 0.9));
 
-        for (let i = 0; i < this.m_count; ++i) {
-            g_debugDraw.drawPoint(this.m_test_points[i], 3, new Color(0.3, 0.9, 0.3));
-            g_debugDraw.drawStringWorld(this.m_test_points[i].x + 0.05, this.m_test_points[i].y + 0.05, `${i}`);
+        for (let i = 0; i < this.count; ++i) {
+            g_debugDraw.drawPoint(this.test_points[i], 3, new Color(0.3, 0.9, 0.3));
+            g_debugDraw.drawStringWorld(this.test_points[i].x + 0.05, this.test_points[i].y + 0.05, `${i}`);
         }
 
         shape.validate();
 
-        if (this.m_auto) {
+        if (this.auto) {
             this.generate();
         }
     }

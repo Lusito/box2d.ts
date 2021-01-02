@@ -27,7 +27,7 @@ class DamBreakTest extends AbstractParticleTestWithControls {
         super(particleParameter);
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new ChainShape();
             const vertices = [new Vec2(-2, 0), new Vec2(2, 0), new Vec2(2, 4), new Vec2(-2, 4)];
@@ -35,8 +35,8 @@ class DamBreakTest extends AbstractParticleTestWithControls {
             ground.createFixture({ shape });
         }
 
-        this.m_particleSystem.setRadius(0.025 * 2); // HACK: increase particle radius
-        this.m_particleSystem.setDamping(0.2);
+        this.particleSystem.setRadius(0.025 * 2); // HACK: increase particle radius
+        this.particleSystem.setDamping(0.2);
 
         {
             const shape = new PolygonShape();
@@ -44,7 +44,7 @@ class DamBreakTest extends AbstractParticleTestWithControls {
             const pd = new ParticleGroupDef();
             pd.flags = particleParameter.getValue();
             pd.shape = shape;
-            const group = this.m_particleSystem.createParticleGroup(pd);
+            const group = this.particleSystem.createParticleGroup(pd);
             if (pd.flags & ParticleFlag.ColorMixing) {
                 this.colorParticleGroup(group, 0);
             }

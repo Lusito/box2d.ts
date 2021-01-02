@@ -214,7 +214,7 @@ export abstract class PositionalLight extends Light {
 
     protected updateMesh() {
         for (let i = 0; i < this.rayNum; i++) {
-            this.m_index = i;
+            this.index = i;
             this.f[i] = 1;
             this.tmpEnd.x = this.endX[i] + this.start.x;
             this.mx[i] = this.tmpEnd.x;

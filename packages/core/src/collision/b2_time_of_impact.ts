@@ -93,19 +93,19 @@ enum SeparationFunctionType {
 }
 
 class SeparationFunction {
-    public m_proxyA!: DistanceProxy;
+    public proxyA!: DistanceProxy;
 
-    public m_proxyB!: DistanceProxy;
+    public proxyB!: DistanceProxy;
 
-    public readonly m_sweepA = new Sweep();
+    public readonly sweepA = new Sweep();
 
-    public readonly m_sweepB = new Sweep();
+    public readonly sweepB = new Sweep();
 
-    public m_type = SeparationFunctionType.Points;
+    public type = SeparationFunctionType.Points;
 
-    public readonly m_localPoint = new Vec2();
+    public readonly localPoint = new Vec2();
 
-    public readonly m_axis = new Vec2();
+    public readonly axis = new Vec2();
 
     public initialize(
         cache: SimplexCache,
@@ -115,107 +115,103 @@ class SeparationFunction {
         sweepB: Sweep,
         t1: number,
     ): number {
-        this.m_proxyA = proxyA;
-        this.m_proxyB = proxyB;
+        this.proxyA = proxyA;
+        this.proxyB = proxyB;
         const { count } = cache;
         // DEBUG: assert(0 < count && count < 3);
 
-        this.m_sweepA.copy(sweepA);
-        this.m_sweepB.copy(sweepB);
+        this.sweepA.copy(sweepA);
+        this.sweepB.copy(sweepB);
 
-        const xfA = this.m_sweepA.getTransform(TimeOfImpact_s_xfA, t1);
-        const xfB = this.m_sweepB.getTransform(TimeOfImpact_s_xfB, t1);
+        const xfA = this.sweepA.getTransform(TimeOfImpact_s_xfA, t1);
+        const xfB = this.sweepB.getTransform(TimeOfImpact_s_xfB, t1);
 
         if (count === 1) {
-            this.m_type = SeparationFunctionType.Points;
-            const localPointA = this.m_proxyA.getVertex(cache.indexA[0]);
-            const localPointB = this.m_proxyB.getVertex(cache.indexB[0]);
+            this.type = SeparationFunctionType.Points;
+            const localPointA = this.proxyA.getVertex(cache.indexA[0]);
+            const localPointB = this.proxyB.getVertex(cache.indexB[0]);
             const pointA = Transform.multiplyVec2(xfA, localPointA, TimeOfImpact_s_pointA);
             const pointB = Transform.multiplyVec2(xfB, localPointB, TimeOfImpact_s_pointB);
-            Vec2.subtract(pointB, pointA, this.m_axis);
-            const s = this.m_axis.normalize();
+            Vec2.subtract(pointB, pointA, this.axis);
+            const s = this.axis.normalize();
             return s;
         }
         if (cache.indexA[0] === cache.indexA[1]) {
             // Two points on B and one on A.
-            this.m_type = SeparationFunctionType.FaceB;
-            const localPointB1 = this.m_proxyB.getVertex(cache.indexB[0]);
-            const localPointB2 = this.m_proxyB.getVertex(cache.indexB[1]);
+            this.type = SeparationFunctionType.FaceB;
+            const localPointB1 = this.proxyB.getVertex(cache.indexB[0]);
+            const localPointB2 = this.proxyB.getVertex(cache.indexB[1]);
 
-            Vec2.crossVec2One(Vec2.subtract(localPointB2, localPointB1, Vec2.s_t0), this.m_axis).normalize();
-            const normal = Rot.multiplyVec2(xfB.q, this.m_axis, TimeOfImpact_s_normal);
+            Vec2.crossVec2One(Vec2.subtract(localPointB2, localPointB1, Vec2.s_t0), this.axis).normalize();
+            const normal = Rot.multiplyVec2(xfB.q, this.axis, TimeOfImpact_s_normal);
 
-            Vec2.mid(localPointB1, localPointB2, this.m_localPoint);
-            const pointB = Transform.multiplyVec2(xfB, this.m_localPoint, TimeOfImpact_s_pointB);
+            Vec2.mid(localPointB1, localPointB2, this.localPoint);
+            const pointB = Transform.multiplyVec2(xfB, this.localPoint, TimeOfImpact_s_pointB);
 
-            const localPointA = this.m_proxyA.getVertex(cache.indexA[0]);
+            const localPointA = this.proxyA.getVertex(cache.indexA[0]);
             const pointA = Transform.multiplyVec2(xfA, localPointA, TimeOfImpact_s_pointA);
 
             let s = Vec2.dot(Vec2.subtract(pointA, pointB, Vec2.s_t0), normal);
             if (s < 0) {
-                this.m_axis.negate();
+                this.axis.negate();
                 s = -s;
             }
             return s;
         }
         // Two points on A and one or two points on B.
-        this.m_type = SeparationFunctionType.FaceA;
-        const localPointA1 = this.m_proxyA.getVertex(cache.indexA[0]);
-        const localPointA2 = this.m_proxyA.getVertex(cache.indexA[1]);
+        this.type = SeparationFunctionType.FaceA;
+        const localPointA1 = this.proxyA.getVertex(cache.indexA[0]);
+        const localPointA2 = this.proxyA.getVertex(cache.indexA[1]);
 
-        Vec2.crossVec2One(Vec2.subtract(localPointA2, localPointA1, Vec2.s_t0), this.m_axis).normalize();
-        const normal = Rot.multiplyVec2(xfA.q, this.m_axis, TimeOfImpact_s_normal);
+        Vec2.crossVec2One(Vec2.subtract(localPointA2, localPointA1, Vec2.s_t0), this.axis).normalize();
+        const normal = Rot.multiplyVec2(xfA.q, this.axis, TimeOfImpact_s_normal);
 
-        Vec2.mid(localPointA1, localPointA2, this.m_localPoint);
-        const pointA = Transform.multiplyVec2(xfA, this.m_localPoint, TimeOfImpact_s_pointA);
+        Vec2.mid(localPointA1, localPointA2, this.localPoint);
+        const pointA = Transform.multiplyVec2(xfA, this.localPoint, TimeOfImpact_s_pointA);
 
-        const localPointB = this.m_proxyB.getVertex(cache.indexB[0]);
+        const localPointB = this.proxyB.getVertex(cache.indexB[0]);
         const pointB = Transform.multiplyVec2(xfB, localPointB, TimeOfImpact_s_pointB);
 
         let s = Vec2.dot(Vec2.subtract(pointB, pointA, Vec2.s_t0), normal);
         if (s < 0) {
-            this.m_axis.negate();
+            this.axis.negate();
             s = -s;
         }
         return s;
     }
 
     public findMinSeparation(indexA: [number], indexB: [number], t: number): number {
-        const xfA = this.m_sweepA.getTransform(TimeOfImpact_s_xfA, t);
-        const xfB = this.m_sweepB.getTransform(TimeOfImpact_s_xfB, t);
+        const xfA = this.sweepA.getTransform(TimeOfImpact_s_xfA, t);
+        const xfB = this.sweepB.getTransform(TimeOfImpact_s_xfB, t);
 
-        switch (this.m_type) {
+        switch (this.type) {
             case SeparationFunctionType.Points: {
-                const axisA = Rot.transposeMultiplyVec2(xfA.q, this.m_axis, TimeOfImpact_s_axisA);
-                const axisB = Rot.transposeMultiplyVec2(
-                    xfB.q,
-                    Vec2.negate(this.m_axis, Vec2.s_t0),
-                    TimeOfImpact_s_axisB,
-                );
+                const axisA = Rot.transposeMultiplyVec2(xfA.q, this.axis, TimeOfImpact_s_axisA);
+                const axisB = Rot.transposeMultiplyVec2(xfB.q, Vec2.negate(this.axis, Vec2.s_t0), TimeOfImpact_s_axisB);
 
-                indexA[0] = this.m_proxyA.getSupport(axisA);
-                indexB[0] = this.m_proxyB.getSupport(axisB);
+                indexA[0] = this.proxyA.getSupport(axisA);
+                indexB[0] = this.proxyB.getSupport(axisB);
 
-                const localPointA = this.m_proxyA.getVertex(indexA[0]);
-                const localPointB = this.m_proxyB.getVertex(indexB[0]);
+                const localPointA = this.proxyA.getVertex(indexA[0]);
+                const localPointB = this.proxyB.getVertex(indexB[0]);
 
                 const pointA = Transform.multiplyVec2(xfA, localPointA, TimeOfImpact_s_pointA);
                 const pointB = Transform.multiplyVec2(xfB, localPointB, TimeOfImpact_s_pointB);
 
-                const separation = Vec2.dot(Vec2.subtract(pointB, pointA, Vec2.s_t0), this.m_axis);
+                const separation = Vec2.dot(Vec2.subtract(pointB, pointA, Vec2.s_t0), this.axis);
                 return separation;
             }
 
             case SeparationFunctionType.FaceA: {
-                const normal = Rot.multiplyVec2(xfA.q, this.m_axis, TimeOfImpact_s_normal);
-                const pointA = Transform.multiplyVec2(xfA, this.m_localPoint, TimeOfImpact_s_pointA);
+                const normal = Rot.multiplyVec2(xfA.q, this.axis, TimeOfImpact_s_normal);
+                const pointA = Transform.multiplyVec2(xfA, this.localPoint, TimeOfImpact_s_pointA);
 
                 const axisB = Rot.transposeMultiplyVec2(xfB.q, Vec2.negate(normal, Vec2.s_t0), TimeOfImpact_s_axisB);
 
                 indexA[0] = -1;
-                indexB[0] = this.m_proxyB.getSupport(axisB);
+                indexB[0] = this.proxyB.getSupport(axisB);
 
-                const localPointB = this.m_proxyB.getVertex(indexB[0]);
+                const localPointB = this.proxyB.getVertex(indexB[0]);
                 const pointB = Transform.multiplyVec2(xfB, localPointB, TimeOfImpact_s_pointB);
 
                 const separation = Vec2.dot(Vec2.subtract(pointB, pointA, Vec2.s_t0), normal);
@@ -223,15 +219,15 @@ class SeparationFunction {
             }
 
             case SeparationFunctionType.FaceB: {
-                const normal = Rot.multiplyVec2(xfB.q, this.m_axis, TimeOfImpact_s_normal);
-                const pointB = Transform.multiplyVec2(xfB, this.m_localPoint, TimeOfImpact_s_pointB);
+                const normal = Rot.multiplyVec2(xfB.q, this.axis, TimeOfImpact_s_normal);
+                const pointB = Transform.multiplyVec2(xfB, this.localPoint, TimeOfImpact_s_pointB);
 
                 const axisA = Rot.transposeMultiplyVec2(xfA.q, Vec2.negate(normal, Vec2.s_t0), TimeOfImpact_s_axisA);
 
                 indexB[0] = -1;
-                indexA[0] = this.m_proxyA.getSupport(axisA);
+                indexA[0] = this.proxyA.getSupport(axisA);
 
-                const localPointA = this.m_proxyA.getVertex(indexA[0]);
+                const localPointA = this.proxyA.getVertex(indexA[0]);
                 const pointA = Transform.multiplyVec2(xfA, localPointA, TimeOfImpact_s_pointA);
 
                 const separation = Vec2.dot(Vec2.subtract(pointA, pointB, Vec2.s_t0), normal);
@@ -247,26 +243,26 @@ class SeparationFunction {
     }
 
     public evaluate(indexA: number, indexB: number, t: number): number {
-        const xfA = this.m_sweepA.getTransform(TimeOfImpact_s_xfA, t);
-        const xfB = this.m_sweepB.getTransform(TimeOfImpact_s_xfB, t);
+        const xfA = this.sweepA.getTransform(TimeOfImpact_s_xfA, t);
+        const xfB = this.sweepB.getTransform(TimeOfImpact_s_xfB, t);
 
-        switch (this.m_type) {
+        switch (this.type) {
             case SeparationFunctionType.Points: {
-                const localPointA = this.m_proxyA.getVertex(indexA);
-                const localPointB = this.m_proxyB.getVertex(indexB);
+                const localPointA = this.proxyA.getVertex(indexA);
+                const localPointB = this.proxyB.getVertex(indexB);
 
                 const pointA = Transform.multiplyVec2(xfA, localPointA, TimeOfImpact_s_pointA);
                 const pointB = Transform.multiplyVec2(xfB, localPointB, TimeOfImpact_s_pointB);
-                const separation = Vec2.dot(Vec2.subtract(pointB, pointA, Vec2.s_t0), this.m_axis);
+                const separation = Vec2.dot(Vec2.subtract(pointB, pointA, Vec2.s_t0), this.axis);
 
                 return separation;
             }
 
             case SeparationFunctionType.FaceA: {
-                const normal = Rot.multiplyVec2(xfA.q, this.m_axis, TimeOfImpact_s_normal);
-                const pointA = Transform.multiplyVec2(xfA, this.m_localPoint, TimeOfImpact_s_pointA);
+                const normal = Rot.multiplyVec2(xfA.q, this.axis, TimeOfImpact_s_normal);
+                const pointA = Transform.multiplyVec2(xfA, this.localPoint, TimeOfImpact_s_pointA);
 
-                const localPointB = this.m_proxyB.getVertex(indexB);
+                const localPointB = this.proxyB.getVertex(indexB);
                 const pointB = Transform.multiplyVec2(xfB, localPointB, TimeOfImpact_s_pointB);
 
                 const separation = Vec2.dot(Vec2.subtract(pointB, pointA, Vec2.s_t0), normal);
@@ -274,10 +270,10 @@ class SeparationFunction {
             }
 
             case SeparationFunctionType.FaceB: {
-                const normal = Rot.multiplyVec2(xfB.q, this.m_axis, TimeOfImpact_s_normal);
-                const pointB = Transform.multiplyVec2(xfB, this.m_localPoint, TimeOfImpact_s_pointB);
+                const normal = Rot.multiplyVec2(xfB.q, this.axis, TimeOfImpact_s_normal);
+                const pointB = Transform.multiplyVec2(xfB, this.localPoint, TimeOfImpact_s_pointB);
 
-                const localPointA = this.m_proxyA.getVertex(indexA);
+                const localPointA = this.proxyA.getVertex(indexA);
                 const pointA = Transform.multiplyVec2(xfA, localPointA, TimeOfImpact_s_pointA);
 
                 const separation = Vec2.dot(Vec2.subtract(pointA, pointB, Vec2.s_t0), normal);
@@ -309,7 +305,7 @@ export function timeOfImpact(output: TOIOutput, input: TOIInput): void {
     output.t = input.tMax;
 
     const { proxyA, proxyB, tMax } = input;
-    const maxVertices = Math.max(MAX_POLYGON_VERTICES, proxyA.m_count, proxyB.m_count);
+    const maxVertices = Math.max(MAX_POLYGON_VERTICES, proxyA.count, proxyB.count);
 
     const sweepA = TimeOfImpact_s_sweepA.copy(input.sweepA);
     const sweepB = TimeOfImpact_s_sweepB.copy(input.sweepB);
@@ -319,7 +315,7 @@ export function timeOfImpact(output: TOIOutput, input: TOIInput): void {
     sweepA.normalize();
     sweepB.normalize();
 
-    const totalRadius = proxyA.m_radius + proxyB.m_radius;
+    const totalRadius = proxyA.radius + proxyB.radius;
     const target = Math.max(LINEAR_SLOP, totalRadius - 3 * LINEAR_SLOP);
     const tolerance = 0.25 * LINEAR_SLOP;
     // DEBUG: assert(target > tolerance);

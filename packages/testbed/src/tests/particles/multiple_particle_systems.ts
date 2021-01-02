@@ -25,9 +25,9 @@ import { RadialEmitter } from "../../utils/particles/particle_emitter";
 import { AbstractParticleTest } from "./abstract_particle_test";
 
 class MultipleParticleSystemsTest extends AbstractParticleTest {
-    public m_particleSystem2: ParticleSystem;
+    public particleSystem2: ParticleSystem;
 
-    public m_emitters: RadialEmitter[];
+    public emitters: RadialEmitter[];
 
     /** Maximum number of particles per system. */
     public static readonly k_maxParticleCount = 500;
@@ -66,23 +66,23 @@ class MultipleParticleSystemsTest extends AbstractParticleTest {
     public constructor() {
         super();
 
-        this.m_emitters = [new RadialEmitter(), new RadialEmitter()];
+        this.emitters = [new RadialEmitter(), new RadialEmitter()];
 
         // Configure the default particle system's parameters.
-        this.m_particleSystem.setRadius(0.05);
-        this.m_particleSystem.setMaxParticleCount(MultipleParticleSystemsTest.k_maxParticleCount);
-        this.m_particleSystem.setDestructionByAge(true);
+        this.particleSystem.setRadius(0.05);
+        this.particleSystem.setMaxParticleCount(MultipleParticleSystemsTest.k_maxParticleCount);
+        this.particleSystem.setDestructionByAge(true);
 
         // Create a secondary particle system.
         const particleSystemDef = new ParticleSystemDef();
-        particleSystemDef.radius = this.m_particleSystem.getRadius();
+        particleSystemDef.radius = this.particleSystem.getRadius();
         particleSystemDef.destroyByAge = true;
-        this.m_particleSystem2 = this.m_world.createParticleSystem(particleSystemDef);
-        this.m_particleSystem2.setMaxParticleCount(MultipleParticleSystemsTest.k_maxParticleCount);
+        this.particleSystem2 = this.world.createParticleSystem(particleSystemDef);
+        this.particleSystem2.setMaxParticleCount(MultipleParticleSystemsTest.k_maxParticleCount);
 
         // Create the ground.
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
             const shape = new PolygonShape();
             shape.setAsBox(5, 0.1);
             ground.createFixture({ shape });
@@ -90,7 +90,7 @@ class MultipleParticleSystemsTest extends AbstractParticleTest {
 
         // Create a dynamic body to push around.
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
             });
             const shape = new PolygonShape();
@@ -110,9 +110,9 @@ class MultipleParticleSystemsTest extends AbstractParticleTest {
         }
 
         // Initialize the emitters.
-        for (let i = 0; i < this.m_emitters.length; ++i) {
+        for (let i = 0; i < this.emitters.length; ++i) {
             const mirrorAlongY = i & 1 ? -1 : 1;
-            const emitter = this.m_emitters[i];
+            const emitter = this.emitters[i];
             emitter.setPosition(
                 new Vec2(
                     MultipleParticleSystemsTest.k_emitterPosition.x * mirrorAlongY,
@@ -132,21 +132,21 @@ class MultipleParticleSystemsTest extends AbstractParticleTest {
                     ? MultipleParticleSystemsTest.k_rightEmitterColor
                     : MultipleParticleSystemsTest.k_leftEmitterColor,
             );
-            emitter.setParticleSystem(i & 1 ? this.m_particleSystem2 : this.m_particleSystem);
+            emitter.setParticleSystem(i & 1 ? this.particleSystem2 : this.particleSystem);
         }
     }
 
     public step(settings: Settings, timeStep: number) {
-        let dt = settings.m_hertz > 0 ? 1 / settings.m_hertz : 0;
-        if (settings.m_pause && !settings.m_singleStep) {
+        let dt = settings.hertz > 0 ? 1 / settings.hertz : 0;
+        if (settings.pause && !settings.singleStep) {
             dt = 0;
         }
 
-        this.m_particleSystem2.setStrictContactCheck(AbstractParticleTest.m_strictContacts);
+        this.particleSystem2.setStrictContactCheck(AbstractParticleTest.strictContacts);
 
         super.step(settings, timeStep);
 
-        for (const emitter of this.m_emitters) {
+        for (const emitter of this.emitters) {
             emitter.step(dt);
         }
     }

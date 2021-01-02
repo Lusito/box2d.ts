@@ -36,19 +36,19 @@ export const particleColors = [
 ];
 
 export class AbstractParticleTest extends Test {
-    public m_particleSystem: ParticleSystem;
+    public particleSystem: ParticleSystem;
 
-    protected static m_strictContacts = false;
+    protected static strictContacts = false;
 
     public constructor(gravity: XY = { x: 0, y: -10 }) {
         super(gravity);
 
         const particleSystemDef = new ParticleSystemDef();
 
-        this.m_particleSystem = this.m_world.createParticleSystem(particleSystemDef);
+        this.particleSystem = this.world.createParticleSystem(particleSystemDef);
 
-        this.m_particleSystem.setGravityScale(0.4);
-        this.m_particleSystem.setDensity(1.2);
+        this.particleSystem.setGravityScale(0.4);
+        this.particleSystem.setDensity(1.2);
     }
 
     public setupControls() {
@@ -56,36 +56,36 @@ export class AbstractParticleTest extends Test {
     }
 
     protected createStrictContactsCheckbox() {
-        return checkboxDef("Strict Particle/Body Contacts", AbstractParticleTest.m_strictContacts, (value) => {
-            AbstractParticleTest.m_strictContacts = value;
+        return checkboxDef("Strict Particle/Body Contacts", AbstractParticleTest.strictContacts, (value) => {
+            AbstractParticleTest.strictContacts = value;
         });
     }
 
     public step(settings: Settings, timeStep: number) {
         super.step(settings, timeStep);
 
-        this.m_particleSystem.setStrictContactCheck(AbstractParticleTest.m_strictContacts);
+        this.particleSystem.setStrictContactCheck(AbstractParticleTest.strictContacts);
 
-        if (settings.m_drawStats) {
-            this.addStatistic("Particles", this.m_particleSystem.getParticleCount());
-            this.addStatistic("Groups", this.m_particleSystem.getParticleGroupCount());
-            this.addStatistic("Pairs", this.m_particleSystem.getPairCount());
-            this.addStatistic("Triads", this.m_particleSystem.getTriadCount());
+        if (settings.drawStats) {
+            this.addStatistic("Particles", this.particleSystem.getParticleCount());
+            this.addStatistic("Groups", this.particleSystem.getParticleGroupCount());
+            this.addStatistic("Pairs", this.particleSystem.getPairCount());
+            this.addStatistic("Triads", this.particleSystem.getTriadCount());
         }
 
-        if (this.m_mouseTracing && !this.m_mouseJoint) {
+        if (this.mouseTracing && !this.mouseJoint) {
             const shape = new CircleShape();
-            shape.m_p.copy(this.m_mouseTracerPosition);
-            shape.m_radius = this.getParticleSelectionRadius();
+            shape.p.copy(this.mouseTracerPosition);
+            shape.radius = this.getParticleSelectionRadius();
             const aabb = new AABB();
             const xf = new Transform();
             xf.setIdentity();
             shape.computeAABB(aabb, xf, 0);
-            this.m_particleSystem.queryAABB(aabb, (index) => {
-                const p = this.m_particleSystem.getPositionBuffer()[index];
+            this.particleSystem.queryAABB(aabb, (index) => {
+                const p = this.particleSystem.getPositionBuffer()[index];
                 if (shape.testPoint(Transform.IDENTITY, p)) {
-                    const v = this.m_particleSystem.getVelocityBuffer()[index];
-                    v.copy(this.m_mouseTracerVelocity);
+                    const v = this.particleSystem.getVelocityBuffer()[index];
+                    v.copy(this.mouseTracerVelocity);
                 }
                 return true;
             });
@@ -104,7 +104,7 @@ export class AbstractParticleTest extends Test {
      */
     public colorParticleGroup(group: ParticleGroup, particlesPerColor: number) {
         // DEBUG: assert(group !== null);
-        const colorBuffer = this.m_particleSystem.getColorBuffer();
+        const colorBuffer = this.particleSystem.getColorBuffer();
         const particleCount = group.getParticleCount();
         const groupStart = group.getBufferIndex();
         const groupEnd = particleCount + groupStart;

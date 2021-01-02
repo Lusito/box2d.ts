@@ -25,7 +25,7 @@ class FrictionTest extends Test {
         super();
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
@@ -36,7 +36,7 @@ class FrictionTest extends Test {
             const shape = new PolygonShape();
             shape.setAsBox(13, 0.25);
 
-            const ground = this.m_world.createBody({
+            const ground = this.world.createBody({
                 position: { x: -4, y: 22 },
                 angle: -0.25,
             });
@@ -47,7 +47,7 @@ class FrictionTest extends Test {
             const shape = new PolygonShape();
             shape.setAsBox(0.25, 1);
 
-            const ground = this.m_world.createBody({
+            const ground = this.world.createBody({
                 position: { x: 10.5, y: 19 },
             });
             ground.createFixture({ shape });
@@ -56,7 +56,7 @@ class FrictionTest extends Test {
         {
             const shape = new PolygonShape();
             shape.setAsBox(13, 0.25);
-            const ground = this.m_world.createBody({
+            const ground = this.world.createBody({
                 position: { x: 4, y: 14 },
                 angle: 0.25,
             });
@@ -67,7 +67,7 @@ class FrictionTest extends Test {
             const shape = new PolygonShape();
             shape.setAsBox(0.25, 1);
 
-            const ground = this.m_world.createBody({
+            const ground = this.world.createBody({
                 position: { x: -10.5, y: 11 },
             });
             ground.createFixture({ shape });
@@ -76,7 +76,7 @@ class FrictionTest extends Test {
         {
             const shape = new PolygonShape();
             shape.setAsBox(13, 0.25);
-            const ground = this.m_world.createBody({
+            const ground = this.world.createBody({
                 position: { x: -4, y: 6 },
                 angle: -0.25,
             });
@@ -95,7 +95,7 @@ class FrictionTest extends Test {
             const friction = [0.75, 0.5, 0.35, 0.1, 0];
 
             for (let i = 0; i < 5; ++i) {
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: -15 + 4 * i, y: 28 },
                 });

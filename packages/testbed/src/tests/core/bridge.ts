@@ -23,7 +23,7 @@ import { registerTest, Test } from "../../test";
 class BridgeTest extends Test {
     public static readonly e_count = 30;
 
-    public m_middle!: Body;
+    public middle!: Body;
 
     public constructor() {
         super();
@@ -31,7 +31,7 @@ class BridgeTest extends Test {
         let ground = null;
 
         {
-            ground = this.m_world.createBody();
+            ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
@@ -52,7 +52,7 @@ class BridgeTest extends Test {
 
             let prevBody = ground;
             for (let i = 0; i < BridgeTest.e_count; ++i) {
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: -14.5 + 1 * i, y: 5 },
                 });
@@ -60,17 +60,17 @@ class BridgeTest extends Test {
 
                 const anchor = new Vec2(-15 + 1 * i, 5);
                 jd.initialize(prevBody, body, anchor);
-                this.m_world.createJoint(jd);
+                this.world.createJoint(jd);
 
                 if (i === BridgeTest.e_count >> 1) {
-                    this.m_middle = body;
+                    this.middle = body;
                 }
                 prevBody = body;
             }
 
             const anchor = new Vec2(-15 + 1 * BridgeTest.e_count, 5);
             jd.initialize(prevBody, ground, anchor);
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
         }
 
         for (let i = 0; i < 2; ++i) {
@@ -82,7 +82,7 @@ class BridgeTest extends Test {
             const shape = new PolygonShape();
             shape.set(vertices);
 
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -8 + 8 * i, y: 12 },
             });
@@ -94,9 +94,9 @@ class BridgeTest extends Test {
 
         for (let i = 0; i < 3; ++i) {
             const shape = new CircleShape();
-            shape.m_radius = 0.5;
+            shape.radius = 0.5;
 
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -6 + 6 * i, y: 10 },
             });

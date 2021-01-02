@@ -59,63 +59,63 @@ export class AreaJointDef extends JointDef implements IAreaJointDef {
 }
 
 export class AreaJoint extends Joint {
-    public m_bodies: Body[];
+    public bodies: Body[];
 
-    public m_stiffness = 0;
+    public stiffness = 0;
 
-    public m_damping = 0;
+    public damping = 0;
 
     // Solver shared
-    public m_impulse = 0;
+    public impulse = 0;
 
     // Solver temp
-    public readonly m_targetLengths: number[];
+    public readonly targetLengths: number[];
 
-    public m_targetArea = 0;
+    public targetArea = 0;
 
-    public readonly m_normals: Vec2[];
+    public readonly normals: Vec2[];
 
-    public readonly m_joints: DistanceJoint[] = [];
+    public readonly joints: DistanceJoint[] = [];
 
-    public readonly m_deltas: Vec2[];
+    public readonly deltas: Vec2[];
 
-    public readonly m_delta = new Vec2();
+    public readonly delta = new Vec2();
 
     public constructor(def: IAreaJointDef) {
         super(def);
 
         // DEBUG: assert(def.bodies.length >= 3, "You cannot create an area joint with less than three bodies.");
 
-        this.m_bodies = def.bodies;
-        this.m_stiffness = def.stiffness ?? 0;
-        this.m_damping = def.damping ?? 0;
+        this.bodies = def.bodies;
+        this.stiffness = def.stiffness ?? 0;
+        this.damping = def.damping ?? 0;
 
-        this.m_targetLengths = makeNumberArray(def.bodies.length);
-        this.m_normals = makeArray(def.bodies.length, Vec2);
-        this.m_deltas = makeArray(def.bodies.length, Vec2);
+        this.targetLengths = makeNumberArray(def.bodies.length);
+        this.normals = makeArray(def.bodies.length, Vec2);
+        this.deltas = makeArray(def.bodies.length, Vec2);
 
         const djd = new DistanceJointDef();
-        djd.stiffness = this.m_stiffness;
-        djd.damping = this.m_damping;
+        djd.stiffness = this.stiffness;
+        djd.damping = this.damping;
 
-        this.m_targetArea = 0;
+        this.targetArea = 0;
 
-        for (let i = 0; i < this.m_bodies.length; ++i) {
-            const body = this.m_bodies[i];
-            const next = this.m_bodies[(i + 1) % this.m_bodies.length];
+        for (let i = 0; i < this.bodies.length; ++i) {
+            const body = this.bodies[i];
+            const next = this.bodies[(i + 1) % this.bodies.length];
 
             const body_c = body.getWorldCenter();
             const next_c = next.getWorldCenter();
 
-            this.m_targetLengths[i] = Vec2.distance(body_c, next_c);
+            this.targetLengths[i] = Vec2.distance(body_c, next_c);
 
-            this.m_targetArea += Vec2.cross(body_c, next_c);
+            this.targetArea += Vec2.cross(body_c, next_c);
 
             djd.initialize(body, next, body_c, next_c);
-            this.m_joints[i] = body.getWorld().createJoint(djd);
+            this.joints[i] = body.getWorld().createJoint(djd);
         }
 
-        this.m_targetArea *= 0.5;
+        this.targetArea *= 0.5;
     }
 
     public getAnchorA<T extends XY>(out: T): T {
@@ -135,53 +135,53 @@ export class AreaJoint extends Joint {
     }
 
     public setStiffness(stiffness: number): void {
-        this.m_stiffness = stiffness;
+        this.stiffness = stiffness;
 
-        for (const joint of this.m_joints) {
+        for (const joint of this.joints) {
             joint.setStiffness(stiffness);
         }
     }
 
     public getStiffness() {
-        return this.m_stiffness;
+        return this.stiffness;
     }
 
     public setDamping(damping: number): void {
-        this.m_damping = damping;
+        this.damping = damping;
 
-        for (const joint of this.m_joints) {
+        for (const joint of this.joints) {
             joint.setDamping(damping);
         }
     }
 
     public getDamping() {
-        return this.m_damping;
+        return this.damping;
     }
 
     public initVelocityConstraints(data: SolverData): void {
-        for (let i = 0; i < this.m_bodies.length; ++i) {
-            const prev = this.m_bodies[(i + this.m_bodies.length - 1) % this.m_bodies.length];
-            const next = this.m_bodies[(i + 1) % this.m_bodies.length];
-            const prev_c = data.positions[prev.m_islandIndex].c;
-            const next_c = data.positions[next.m_islandIndex].c;
-            const delta = this.m_deltas[i];
+        for (let i = 0; i < this.bodies.length; ++i) {
+            const prev = this.bodies[(i + this.bodies.length - 1) % this.bodies.length];
+            const next = this.bodies[(i + 1) % this.bodies.length];
+            const prev_c = data.positions[prev.islandIndex].c;
+            const next_c = data.positions[next.islandIndex].c;
+            const delta = this.deltas[i];
 
             Vec2.subtract(next_c, prev_c, delta);
         }
 
         if (data.step.warmStarting) {
-            this.m_impulse *= data.step.dtRatio;
+            this.impulse *= data.step.dtRatio;
 
-            for (let i = 0; i < this.m_bodies.length; ++i) {
-                const body = this.m_bodies[i];
-                const body_v = data.velocities[body.m_islandIndex].v;
-                const delta = this.m_deltas[i];
+            for (let i = 0; i < this.bodies.length; ++i) {
+                const body = this.bodies[i];
+                const body_v = data.velocities[body.islandIndex].v;
+                const delta = this.deltas[i];
 
-                body_v.x += body.m_invMass * delta.y * 0.5 * this.m_impulse;
-                body_v.y += body.m_invMass * -delta.x * 0.5 * this.m_impulse;
+                body_v.x += body.invMass * delta.y * 0.5 * this.impulse;
+                body_v.y += body.invMass * -delta.x * 0.5 * this.impulse;
             }
         } else {
-            this.m_impulse = 0;
+            this.impulse = 0;
         }
     }
 
@@ -189,10 +189,10 @@ export class AreaJoint extends Joint {
         let dotMassSum = 0;
         let crossMassSum = 0;
 
-        for (let i = 0; i < this.m_bodies.length; ++i) {
-            const body = this.m_bodies[i];
-            const body_v = data.velocities[body.m_islandIndex].v;
-            const delta = this.m_deltas[i];
+        for (let i = 0; i < this.bodies.length; ++i) {
+            const body = this.bodies[i];
+            const body_v = data.velocities[body.islandIndex].v;
+            const delta = this.deltas[i];
 
             dotMassSum += delta.lengthSquared() / body.getMass();
             crossMassSum += Vec2.cross(body_v, delta);
@@ -201,15 +201,15 @@ export class AreaJoint extends Joint {
         const lambda = (-2 * crossMassSum) / dotMassSum;
         // lambda = clamp(lambda, -MAX_LINEAR_CORRECTION, MAX_LINEAR_CORRECTION);
 
-        this.m_impulse += lambda;
+        this.impulse += lambda;
 
-        for (let i = 0; i < this.m_bodies.length; ++i) {
-            const body = this.m_bodies[i];
-            const body_v = data.velocities[body.m_islandIndex].v;
-            const delta = this.m_deltas[i];
+        for (let i = 0; i < this.bodies.length; ++i) {
+            const body = this.bodies[i];
+            const body_v = data.velocities[body.islandIndex].v;
+            const delta = this.deltas[i];
 
-            body_v.x += body.m_invMass * delta.y * 0.5 * lambda;
-            body_v.y += body.m_invMass * -delta.x * 0.5 * lambda;
+            body_v.x += body.invMass * delta.y * 0.5 * lambda;
+            body_v.y += body.invMass * -delta.x * 0.5 * lambda;
         }
     }
 
@@ -217,21 +217,21 @@ export class AreaJoint extends Joint {
         let perimeter = 0;
         let area = 0;
 
-        for (let i = 0; i < this.m_bodies.length; ++i) {
-            const body = this.m_bodies[i];
-            const next = this.m_bodies[(i + 1) % this.m_bodies.length];
-            const body_c = data.positions[body.m_islandIndex].c;
-            const next_c = data.positions[next.m_islandIndex].c;
+        for (let i = 0; i < this.bodies.length; ++i) {
+            const body = this.bodies[i];
+            const next = this.bodies[(i + 1) % this.bodies.length];
+            const body_c = data.positions[body.islandIndex].c;
+            const next_c = data.positions[next.islandIndex].c;
 
-            const delta = Vec2.subtract(next_c, body_c, this.m_delta);
+            const delta = Vec2.subtract(next_c, body_c, this.delta);
 
             let dist = delta.length();
             if (dist < EPSILON) {
                 dist = 1;
             }
 
-            this.m_normals[i].x = delta.y / dist;
-            this.m_normals[i].y = -delta.x / dist;
+            this.normals[i].x = delta.y / dist;
+            this.normals[i].y = -delta.x / dist;
 
             perimeter += dist;
 
@@ -240,16 +240,16 @@ export class AreaJoint extends Joint {
 
         area *= 0.5;
 
-        const deltaArea = this.m_targetArea - area;
+        const deltaArea = this.targetArea - area;
         const toExtrude = (0.5 * deltaArea) / perimeter;
         let done = true;
 
-        for (let i = 0; i < this.m_bodies.length; ++i) {
-            const body = this.m_bodies[i];
-            const body_c = data.positions[body.m_islandIndex].c;
-            const next_i = (i + 1) % this.m_bodies.length;
+        for (let i = 0; i < this.bodies.length; ++i) {
+            const body = this.bodies[i];
+            const body_c = data.positions[body.islandIndex].c;
+            const next_i = (i + 1) % this.bodies.length;
 
-            const delta = Vec2.add(this.m_normals[i], this.m_normals[next_i], this.m_delta);
+            const delta = Vec2.add(this.normals[i], this.normals[next_i], this.delta);
             delta.scale(toExtrude);
 
             const norm_sq = delta.lengthSquared();

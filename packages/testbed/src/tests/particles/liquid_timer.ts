@@ -36,7 +36,7 @@ class LiquidTimerTest extends AbstractParticleTestWithControls {
         particleParameter.setValues(particleTypes, "tensile + viscous");
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new ChainShape();
             const vertices = [new Vec2(-2, 0), new Vec2(2, 0), new Vec2(2, 4), new Vec2(-2, 4)];
@@ -44,84 +44,84 @@ class LiquidTimerTest extends AbstractParticleTestWithControls {
             ground.createFixture({ shape });
         }
 
-        this.m_particleSystem.setRadius(0.025);
+        this.particleSystem.setRadius(0.025);
         {
             const shape = new PolygonShape();
             shape.setAsBox(2, 0.4, new Vec2(0, 3.6), 0);
             const pd = new ParticleGroupDef();
             pd.flags = particleParameter.getValue();
             pd.shape = shape;
-            const group = this.m_particleSystem.createParticleGroup(pd);
+            const group = this.particleSystem.createParticleGroup(pd);
             if (pd.flags & ParticleFlag.ColorMixing) {
                 this.colorParticleGroup(group, 0);
             }
         }
 
         {
-            const body = this.m_world.createBody();
+            const body = this.world.createBody();
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-2, 3.2), new Vec2(-1.2, 3.2));
             body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.createBody();
+            const body = this.world.createBody();
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-1.1, 3.2), new Vec2(2, 3.2));
             body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.createBody();
+            const body = this.world.createBody();
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-1.2, 3.2), new Vec2(-1.2, 2.8));
             body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.createBody();
+            const body = this.world.createBody();
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-1.1, 3.2), new Vec2(-1.1, 2.8));
             body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.createBody();
+            const body = this.world.createBody();
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-1.6, 2.4), new Vec2(0.8, 2));
             body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.createBody();
+            const body = this.world.createBody();
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(1.6, 1.6), new Vec2(-0.8, 1.2));
             body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.createBody();
+            const body = this.world.createBody();
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-1.2, 0.8), new Vec2(-1.2, 0));
             body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.createBody();
+            const body = this.world.createBody();
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-0.4, 0.8), new Vec2(-0.4, 0));
             body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.createBody();
+            const body = this.world.createBody();
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(0.4, 0.8), new Vec2(0.4, 0));
             body.createFixture({ shape, density: 0.1 });
         }
 
         {
-            const body = this.m_world.createBody();
+            const body = this.world.createBody();
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(1.2, 0.8), new Vec2(1.2, 0));
             body.createFixture({ shape, density: 0.1 });

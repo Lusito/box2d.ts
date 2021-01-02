@@ -31,37 +31,37 @@ export class EmittedParticleCallback {
  */
 export class RadialEmitter {
     /** Pointer to global world */
-    public m_particleSystem: ParticleSystem | null = null;
+    public particleSystem: ParticleSystem | null = null;
 
     /** Called for each created particle. */
-    public m_callback: EmittedParticleCallback | null = null;
+    public callback: EmittedParticleCallback | null = null;
 
     /** Center of particle emitter */
-    public m_origin = new Vec2();
+    public origin = new Vec2();
 
     /** Launch direction. */
-    public m_startingVelocity = new Vec2();
+    public startingVelocity = new Vec2();
 
     /** Speed particles are emitted */
-    public m_speed = 0;
+    public speed = 0;
 
     /** Half width / height of particle emitter */
-    public m_halfSize = new Vec2();
+    public halfSize = new Vec2();
 
     /** Particles per second */
-    public m_emitRate = 1;
+    public emitRate = 1;
 
     /** Initial color of particle emitted. */
-    public m_color = new Color();
+    public color = new Color();
 
     /** Number particles to emit on the next frame */
-    public m_emitRemainder = 0;
+    public emitRemainder = 0;
 
     /** Flags for created particles, see ParticleFlag. */
-    public m_flags: ParticleFlag = ParticleFlag.Water;
+    public flags: ParticleFlag = ParticleFlag.Water;
 
     /** Group to put newly created particles in. */
-    public m_group: ParticleGroup | null = null;
+    public group: ParticleGroup | null = null;
 
     public destroy(): void {
         this.setGroup(null);
@@ -71,42 +71,42 @@ export class RadialEmitter {
      * Set the center of the emitter.
      */
     public setPosition(origin: Vec2): void {
-        this.m_origin.copy(origin);
+        this.origin.copy(origin);
     }
 
     /**
      * Get the center of the emitter.
      */
     public getPosition(out: Vec2): Vec2 {
-        return out.copy(this.m_origin);
+        return out.copy(this.origin);
     }
 
     /**
      * Set the size of the circle which emits particles.
      */
     public setSize(size: Vec2): void {
-        Vec2.scale(0.5, size, this.m_halfSize);
+        Vec2.scale(0.5, size, this.halfSize);
     }
 
     /**
      * Get the size of the circle which emits particles.
      */
     public getSize(out: Vec2): Vec2 {
-        return Vec2.scale(2, this.m_halfSize, out);
+        return Vec2.scale(2, this.halfSize, out);
     }
 
     /**
      * Set the starting velocity of emitted particles.
      */
     public setVelocity(velocity: Vec2): void {
-        this.m_startingVelocity.copy(velocity);
+        this.startingVelocity.copy(velocity);
     }
 
     /**
      * Get the starting velocity.
      */
     public getVelocity(out: Vec2): Vec2 {
-        return out.copy(this.m_startingVelocity);
+        return out.copy(this.startingVelocity);
     }
 
     /**
@@ -114,7 +114,7 @@ export class RadialEmitter {
      * center of the emitter.
      */
     public setSpeed(speed: number): void {
-        this.m_speed = speed;
+        this.speed = speed;
     }
 
     /**
@@ -122,63 +122,63 @@ export class RadialEmitter {
      * center of the emitter.
      */
     public getSpeed(): number {
-        return this.m_speed;
+        return this.speed;
     }
 
     /**
      * Set the flags for created particles.
      */
     public setParticleFlags(flags: ParticleFlag): void {
-        this.m_flags = flags;
+        this.flags = flags;
     }
 
     /**
      * Get the flags for created particles.
      */
     public getParticleFlags(): ParticleFlag {
-        return this.m_flags;
+        return this.flags;
     }
 
     /**
      * Set the color of particles.
      */
     public setColor(color: Color): void {
-        this.m_color.copy(color);
+        this.color.copy(color);
     }
 
     /**
      * Get the color of particles emitter.
      */
     public getColor(out: Color): Color {
-        return out.copy(this.m_color);
+        return out.copy(this.color);
     }
 
     /**
      * Set the emit rate in particles per second.
      */
     public setEmitRate(emitRate: number): void {
-        this.m_emitRate = emitRate;
+        this.emitRate = emitRate;
     }
 
     /**
      * Get the current emit rate.
      */
     public getEmitRate(): number {
-        return this.m_emitRate;
+        return this.emitRate;
     }
 
     /**
      * Set the particle system this emitter is adding particles to.
      */
     public setParticleSystem(particleSystem: ParticleSystem): void {
-        this.m_particleSystem = particleSystem;
+        this.particleSystem = particleSystem;
     }
 
     /**
      * Get the particle system this emitter is adding particle to.
      */
     public getParticleSystem(): ParticleSystem | null {
-        return this.m_particleSystem;
+        return this.particleSystem;
     }
 
     /**
@@ -186,7 +186,7 @@ export class RadialEmitter {
      * particle.
      */
     public setCallback(callback: EmittedParticleCallback): void {
-        this.m_callback = callback;
+        this.callback = callback;
     }
 
     /**
@@ -194,7 +194,7 @@ export class RadialEmitter {
      * particle.
      */
     public getCallback(): EmittedParticleCallback | null {
-        return this.m_callback;
+        return this.callback;
     }
 
     /**
@@ -205,12 +205,12 @@ export class RadialEmitter {
      * cleaned up.
      */
     public setGroup(group: ParticleGroup | null): void {
-        if (this.m_group) {
-            this.m_group.setGroupFlags(this.m_group.getGroupFlags() & ~ParticleGroupFlag.CanBeEmpty);
+        if (this.group) {
+            this.group.setGroupFlags(this.group.getGroupFlags() & ~ParticleGroupFlag.CanBeEmpty);
         }
-        this.m_group = group;
-        if (this.m_group) {
-            this.m_group.setGroupFlags(this.m_group.getGroupFlags() | ParticleGroupFlag.CanBeEmpty);
+        this.group = group;
+        if (this.group) {
+            this.group.setGroupFlags(this.group.getGroupFlags() | ParticleGroupFlag.CanBeEmpty);
         }
     }
 
@@ -218,7 +218,7 @@ export class RadialEmitter {
      * Get the group particles should be created within.
      */
     public getGroup(): ParticleGroup | null {
-        return this.m_group;
+        return this.group;
     }
 
     /**
@@ -233,20 +233,20 @@ export class RadialEmitter {
         particleIndices?: number[],
         particleIndicesCount = particleIndices ? particleIndices.length : 0,
     ): number {
-        assert(this.m_particleSystem !== null);
+        assert(this.particleSystem !== null);
         let numberOfParticlesCreated = 0;
         // How many (fractional) particles should we have emitted this frame?
-        this.m_emitRemainder += this.m_emitRate * dt;
+        this.emitRemainder += this.emitRate * dt;
 
         const pd = new ParticleDef();
-        pd.color.copy(this.m_color);
-        pd.flags = this.m_flags;
-        pd.group = this.m_group;
+        pd.color.copy(this.color);
+        pd.flags = this.flags;
+        pd.group = this.group;
 
         // Keep emitting particles on this frame until we only have a
         // fractional particle left.
-        while (this.m_emitRemainder > 1) {
-            this.m_emitRemainder -= 1;
+        while (this.emitRemainder > 1) {
+            this.emitRemainder -= 1;
 
             // Randomly pick a position within the emitter's radius.
             const angle = Math.random() * 2 * Math.PI;
@@ -256,18 +256,18 @@ export class RadialEmitter {
 
             // Initial position.
             pd.position.set(
-                this.m_origin.x + positionOnUnitCircle.x * distance * this.m_halfSize.x,
-                this.m_origin.y + positionOnUnitCircle.y * distance * this.m_halfSize.y,
+                this.origin.x + positionOnUnitCircle.x * distance * this.halfSize.x,
+                this.origin.y + positionOnUnitCircle.y * distance * this.halfSize.y,
             );
             // Send it flying
-            pd.velocity.copy(this.m_startingVelocity);
-            if (this.m_speed !== 0) {
-                pd.velocity.addScaled(this.m_speed, positionOnUnitCircle);
+            pd.velocity.copy(this.startingVelocity);
+            if (this.speed !== 0) {
+                pd.velocity.addScaled(this.speed, positionOnUnitCircle);
             }
 
-            const particleIndex = this.m_particleSystem.createParticle(pd);
-            if (this.m_callback) {
-                this.m_callback.particleCreated(this.m_particleSystem, particleIndex);
+            const particleIndex = this.particleSystem.createParticle(pd);
+            if (this.callback) {
+                this.callback.particleCreated(this.particleSystem, particleIndex);
             }
             if (particleIndices && numberOfParticlesCreated < particleIndicesCount) {
                 particleIndices[numberOfParticlesCreated] = particleIndex;

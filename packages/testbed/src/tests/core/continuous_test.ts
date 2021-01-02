@@ -22,15 +22,15 @@ import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
 
 class ContinuousTest extends Test {
-    public m_body: Body;
+    public body: Body;
 
-    public m_angularVelocity = 0;
+    public angularVelocity = 0;
 
     public constructor() {
         super();
 
         {
-            const body = this.m_world.createBody();
+            const body = this.world.createBody();
 
             const edge = new EdgeShape();
 
@@ -46,30 +46,30 @@ class ContinuousTest extends Test {
             const shape = new PolygonShape();
             shape.setAsBox(2, 0.1);
 
-            this.m_body = this.m_world.createBody({
+            this.body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 0, y: 20 },
                 // angle: 0.1,
             });
-            this.m_body.createFixture({ shape, density: 1 });
+            this.body.createFixture({ shape, density: 1 });
 
-            this.m_angularVelocity = randomFloat(-50, 50);
-            // this.m_angularVelocity = 46.661274;
-            this.m_body.setLinearVelocity(new Vec2(0, -100));
-            this.m_body.setAngularVelocity(this.m_angularVelocity);
+            this.angularVelocity = randomFloat(-50, 50);
+            // this.angularVelocity = 46.661274;
+            this.body.setLinearVelocity(new Vec2(0, -100));
+            this.body.setAngularVelocity(this.angularVelocity);
         }
         /*
     else
     {
-      const body = this.m_world.createBody({
+      const body = this.world.createBody({
         type: BodyType.Dynamic,
         position: { y: 0, y:2}
       });
       const shape = new CircleShape();
-      shape.m_p.setZero();
-      shape.m_radius = 0.5;
+      shape.p.setZero();
+      shape.radius = 0.5;
       body.createFixture({ shape, density: 1 });
-      body = this.m_world.createBody({
+      body = this.world.createBody({
         type: BodyType.Dynamic,
         bullet: true,
         position: { y: 0, y:10}
@@ -87,10 +87,10 @@ class ContinuousTest extends Test {
         Gjk.reset();
         Toi.reset();
 
-        this.m_body.setTransformVec(new Vec2(0, 20), 0);
-        this.m_angularVelocity = randomFloat(-50, 50);
-        this.m_body.setLinearVelocity(new Vec2(0, -100));
-        this.m_body.setAngularVelocity(this.m_angularVelocity);
+        this.body.setTransformVec(new Vec2(0, 20), 0);
+        this.angularVelocity = randomFloat(-50, 50);
+        this.body.setLinearVelocity(new Vec2(0, -100));
+        this.body.setAngularVelocity(this.angularVelocity);
     }
 
     public step(settings: Settings, timeStep: number): void {
@@ -117,7 +117,7 @@ class ContinuousTest extends Test {
             Toi.calls > 0 && `[${((1000 * Toi.time) / Toi.calls).toFixed(1)}] (${(1000 * Toi.maxTime).toFixed(1)})`,
         );
 
-        if (this.m_stepCount % 60 === 0) {
+        if (this.stepCount % 60 === 0) {
             this.launch();
         }
     }

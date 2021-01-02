@@ -30,9 +30,9 @@ import { baseParticleTypes } from "../../utils/particles/particle_parameter";
  */
 
 class PointyTest extends AbstractParticleTestWithControls {
-    public m_killfieldShape = new PolygonShape();
+    public killfieldShape = new PolygonShape();
 
-    public m_killfieldTransform = new Transform();
+    public killfieldTransform = new Transform();
 
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter);
@@ -40,7 +40,7 @@ class PointyTest extends AbstractParticleTestWithControls {
         particleParameter.setValues(baseParticleTypes, "water");
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             // Construct a triangle out of many polygons to ensure there's no
             // issue with particles falling directly on an ambiguous corner
@@ -54,20 +54,20 @@ class PointyTest extends AbstractParticleTestWithControls {
             }
         }
 
-        this.m_particleSystem.setRadius(0.25 * 2); // HACK: increase particle radius
+        this.particleSystem.setRadius(0.25 * 2); // HACK: increase particle radius
         const particleType = particleParameter.getValue();
         if (particleType === ParticleFlag.Water) {
-            this.m_particleSystem.setDamping(0.2);
+            this.particleSystem.setDamping(0.2);
         }
 
         // Create killfield shape and transform
-        this.m_killfieldShape = new PolygonShape();
-        this.m_killfieldShape.setAsBox(50, 1);
+        this.killfieldShape = new PolygonShape();
+        this.killfieldShape.setAsBox(50, 1);
 
         // Put this at the bottom of the world
-        this.m_killfieldTransform = new Transform();
+        this.killfieldTransform = new Transform();
         const loc = new Vec2(-25, 1);
-        this.m_killfieldTransform.setPositionAngle(loc, 0);
+        this.killfieldTransform.setPositionAngle(loc, 0);
     }
 
     public step(settings: Settings, timeStep: number) {
@@ -81,15 +81,15 @@ class PointyTest extends AbstractParticleTestWithControls {
         pd.flags = flags;
 
         if (flags & (ParticleFlag.Spring | ParticleFlag.Elastic)) {
-            const count = this.m_particleSystem.getParticleCount();
+            const count = this.particleSystem.getParticleCount();
             pd.velocity.set(count & 1 ? -1 : 1, -5);
             pd.flags |= ParticleFlag.Reactive;
         }
 
-        this.m_particleSystem.createParticle(pd);
+        this.particleSystem.createParticle(pd);
 
         // kill every particle near the bottom of the screen
-        this.m_particleSystem.destroyParticlesInShape(this.m_killfieldShape, this.m_killfieldTransform);
+        this.particleSystem.destroyParticlesInShape(this.killfieldShape, this.killfieldTransform);
     }
 
     public getCenter(): XY {

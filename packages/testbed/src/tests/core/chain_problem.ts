@@ -39,9 +39,9 @@ class ChainProblemTest extends Test {
         super();
 
         const g = new Vec2(0, -10);
-        this.m_world.setGravity(g);
+        this.world.setGravity(g);
         const bodies: Body[] = [];
-        bodies[0] = this.m_world.createBody({
+        bodies[0] = this.world.createBody({
             type: BodyType.Static,
         });
 
@@ -57,7 +57,7 @@ class ChainProblemTest extends Test {
             shape.setTwoSided(v2, v3);
             bodies[0].createFixture({ shape });
         }
-        bodies[1] = this.m_world.createBody({
+        bodies[1] = this.world.createBody({
             type: BodyType.Dynamic,
             // position: new Vec2(6.033980250358582e-01f, 3.028350114822388e+00f);
             position: new Vec2(1, 3),

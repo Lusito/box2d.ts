@@ -34,7 +34,7 @@ export class ChainAndCircleContact extends Contact<ChainShape, CircleShape> {
 
     public evaluate(manifold: Manifold, xfA: Transform, xfB: Transform): void {
         const edge = ChainAndCircleContact.Evaluate_s_edge;
-        this.getShapeA().getChildEdge(edge, this.m_indexA);
+        this.getShapeA().getChildEdge(edge, this.indexA);
         collideEdgeAndCircle(manifold, edge, xfA, this.getShapeB(), xfB);
     }
 }

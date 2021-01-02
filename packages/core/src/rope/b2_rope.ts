@@ -160,94 +160,94 @@ class RopeBend {
 }
 
 export class Rope {
-    private readonly m_position = new Vec2();
+    private readonly position = new Vec2();
 
-    private m_count = 0;
+    private count = 0;
 
-    private m_stretchCount = 0;
+    private stretchCount = 0;
 
-    private m_bendCount = 0;
+    private bendCount = 0;
 
-    private readonly m_stretchConstraints: RopeStretch[];
+    private readonly stretchConstraints: RopeStretch[];
 
-    private readonly m_bendConstraints: RopeBend[];
+    private readonly bendConstraints: RopeBend[];
 
-    private readonly m_bindPositions: Vec2[];
+    private readonly bindPositions: Vec2[];
 
-    private readonly m_ps: Vec2[];
+    private readonly ps: Vec2[];
 
-    private readonly m_p0s: Vec2[];
+    private readonly p0s: Vec2[];
 
-    private readonly m_vs: Vec2[];
+    private readonly vs: Vec2[];
 
-    private readonly m_invMasses: number[];
+    private readonly invMasses: number[];
 
-    private readonly m_gravity = new Vec2();
+    private readonly gravity = new Vec2();
 
-    private readonly m_tuning = new RopeTuning();
+    private readonly tuning = new RopeTuning();
 
     public constructor(def: RopeDef) {
         assert(def.vertices.length >= 3);
-        this.m_position.copy(def.position);
-        this.m_count = def.vertices.length;
-        this.m_bindPositions = makeArray(this.m_count, Vec2);
-        this.m_ps = makeArray(this.m_count, Vec2);
-        this.m_p0s = makeArray(this.m_count, Vec2);
-        this.m_vs = makeArray(this.m_count, Vec2);
-        this.m_invMasses = makeNumberArray(this.m_count);
+        this.position.copy(def.position);
+        this.count = def.vertices.length;
+        this.bindPositions = makeArray(this.count, Vec2);
+        this.ps = makeArray(this.count, Vec2);
+        this.p0s = makeArray(this.count, Vec2);
+        this.vs = makeArray(this.count, Vec2);
+        this.invMasses = makeNumberArray(this.count);
 
-        for (let i = 0; i < this.m_count; ++i) {
-            this.m_bindPositions[i].copy(def.vertices[i]);
-            Vec2.add(def.vertices[i], this.m_position, this.m_ps[i]);
-            Vec2.add(def.vertices[i], this.m_position, this.m_p0s[i]);
-            this.m_vs[i].setZero();
+        for (let i = 0; i < this.count; ++i) {
+            this.bindPositions[i].copy(def.vertices[i]);
+            Vec2.add(def.vertices[i], this.position, this.ps[i]);
+            Vec2.add(def.vertices[i], this.position, this.p0s[i]);
+            this.vs[i].setZero();
 
             const m = def.masses[i];
             if (m > 0) {
-                this.m_invMasses[i] = 1 / m;
+                this.invMasses[i] = 1 / m;
             } else {
-                this.m_invMasses[i] = 0;
+                this.invMasses[i] = 0;
             }
         }
 
-        this.m_stretchCount = this.m_count - 1;
-        this.m_bendCount = this.m_count - 2;
+        this.stretchCount = this.count - 1;
+        this.bendCount = this.count - 2;
 
-        this.m_stretchConstraints = new Array<RopeStretch>(this.m_stretchCount);
-        for (let i = 0; i < this.m_stretchCount; i++) this.m_stretchConstraints[i] = new RopeStretch();
-        this.m_bendConstraints = new Array<RopeBend>(this.m_bendCount);
-        for (let i = 0; i < this.m_bendCount; i++) this.m_bendConstraints[i] = new RopeBend();
+        this.stretchConstraints = new Array<RopeStretch>(this.stretchCount);
+        for (let i = 0; i < this.stretchCount; i++) this.stretchConstraints[i] = new RopeStretch();
+        this.bendConstraints = new Array<RopeBend>(this.bendCount);
+        for (let i = 0; i < this.bendCount; i++) this.bendConstraints[i] = new RopeBend();
 
-        for (let i = 0; i < this.m_stretchCount; ++i) {
-            const c = this.m_stretchConstraints[i];
+        for (let i = 0; i < this.stretchCount; ++i) {
+            const c = this.stretchConstraints[i];
 
-            const p1 = this.m_ps[i];
-            const p2 = this.m_ps[i + 1];
+            const p1 = this.ps[i];
+            const p2 = this.ps[i + 1];
 
             c.i1 = i;
             c.i2 = i + 1;
             c.L = Vec2.distance(p1, p2);
-            c.invMass1 = this.m_invMasses[i];
-            c.invMass2 = this.m_invMasses[i + 1];
+            c.invMass1 = this.invMasses[i];
+            c.invMass2 = this.invMasses[i + 1];
             c.lambda = 0;
             c.damper = 0;
             c.spring = 0;
         }
 
         const { J1, J2, r, e1, e2, Jd1, Jd2 } = temp;
-        for (let i = 0; i < this.m_bendCount; ++i) {
-            const c = this.m_bendConstraints[i];
+        for (let i = 0; i < this.bendCount; ++i) {
+            const c = this.bendConstraints[i];
 
-            const p1 = this.m_ps[i];
-            const p2 = this.m_ps[i + 1];
-            const p3 = this.m_ps[i + 2];
+            const p1 = this.ps[i];
+            const p2 = this.ps[i + 1];
+            const p3 = this.ps[i + 2];
 
             c.i1 = i;
             c.i2 = i + 1;
             c.i3 = i + 2;
-            c.invMass1 = this.m_invMasses[i];
-            c.invMass2 = this.m_invMasses[i + 1];
-            c.invMass3 = this.m_invMasses[i + 2];
+            c.invMass1 = this.invMasses[i];
+            c.invMass2 = this.invMasses[i + 1];
+            c.invMass3 = this.invMasses[i + 2];
             c.invEffectiveMass = 0;
             c.L1 = Vec2.distance(p1, p2);
             c.L2 = Vec2.distance(p2, p3);
@@ -286,20 +286,20 @@ export class Rope {
             c.alpha2 = Vec2.dot(e1, r) / rr;
         }
 
-        this.m_gravity.copy(def.gravity);
+        this.gravity.copy(def.gravity);
 
         this.setTuning(def.tuning);
     }
 
     public setTuning(tuning: RopeTuning): void {
-        this.m_tuning.copy(tuning);
+        this.tuning.copy(tuning);
 
         // Pre-compute spring and damper values based on tuning
 
-        const bendOmega = 2 * Math.PI * this.m_tuning.bendHertz;
+        const bendOmega = 2 * Math.PI * this.tuning.bendHertz;
 
-        for (let i = 0; i < this.m_bendCount; ++i) {
-            const c = this.m_bendConstraints[i];
+        for (let i = 0; i < this.bendCount; ++i) {
+            const c = this.bendConstraints[i];
 
             const L1sqr = c.L1 * c.L1;
             const L2sqr = c.L2 * c.L2;
@@ -322,13 +322,13 @@ export class Rope {
             const mass = 1 / sum;
 
             c.spring = mass * bendOmega * bendOmega;
-            c.damper = 2 * mass * this.m_tuning.bendDamping * bendOmega;
+            c.damper = 2 * mass * this.tuning.bendDamping * bendOmega;
         }
 
-        const stretchOmega = 2 * Math.PI * this.m_tuning.stretchHertz;
+        const stretchOmega = 2 * Math.PI * this.tuning.stretchHertz;
 
-        for (let i = 0; i < this.m_stretchCount; ++i) {
-            const c = this.m_stretchConstraints[i];
+        for (let i = 0; i < this.stretchCount; ++i) {
+            const c = this.stretchConstraints[i];
 
             const sum = c.invMass1 + c.invMass2;
             if (sum === 0) {
@@ -338,7 +338,7 @@ export class Rope {
             const mass = 1 / sum;
 
             c.spring = mass * stretchOmega * stretchOmega;
-            c.damper = 2 * mass * this.m_tuning.stretchDamping * stretchOmega;
+            c.damper = 2 * mass * this.tuning.stretchDamping * stretchOmega;
         }
     }
 
@@ -348,93 +348,93 @@ export class Rope {
         }
 
         const inv_dt = 1 / dt;
-        const d = Math.exp(-dt * this.m_tuning.damping);
+        const d = Math.exp(-dt * this.tuning.damping);
 
         // Apply gravity and damping
-        for (let i = 0; i < this.m_count; ++i) {
-            if (this.m_invMasses[i] > 0) {
-                this.m_vs[i].scale(d);
-                this.m_vs[i].addScaled(dt, this.m_gravity);
+        for (let i = 0; i < this.count; ++i) {
+            if (this.invMasses[i] > 0) {
+                this.vs[i].scale(d);
+                this.vs[i].addScaled(dt, this.gravity);
             } else {
-                this.m_vs[i].x = inv_dt * (this.m_bindPositions[i].x + position.x - this.m_p0s[i].x);
-                this.m_vs[i].y = inv_dt * (this.m_bindPositions[i].y + position.y - this.m_p0s[i].y);
+                this.vs[i].x = inv_dt * (this.bindPositions[i].x + position.x - this.p0s[i].x);
+                this.vs[i].y = inv_dt * (this.bindPositions[i].y + position.y - this.p0s[i].y);
             }
         }
 
         // Apply bending spring
-        if (this.m_tuning.bendingModel === BendingModel.SpringAngle) {
+        if (this.tuning.bendingModel === BendingModel.SpringAngle) {
             this.applyBendForces(dt);
         }
 
-        for (let i = 0; i < this.m_bendCount; ++i) {
-            this.m_bendConstraints[i].lambda = 0;
+        for (let i = 0; i < this.bendCount; ++i) {
+            this.bendConstraints[i].lambda = 0;
         }
 
-        for (let i = 0; i < this.m_stretchCount; ++i) {
-            this.m_stretchConstraints[i].lambda = 0;
+        for (let i = 0; i < this.stretchCount; ++i) {
+            this.stretchConstraints[i].lambda = 0;
         }
 
         // Update position
-        for (let i = 0; i < this.m_count; ++i) {
-            this.m_ps[i].addScaled(dt, this.m_vs[i]);
+        for (let i = 0; i < this.count; ++i) {
+            this.ps[i].addScaled(dt, this.vs[i]);
         }
 
         // Solve constraints
         for (let i = 0; i < iterations; ++i) {
-            if (this.m_tuning.bendingModel === BendingModel.PbdAngle) {
+            if (this.tuning.bendingModel === BendingModel.PbdAngle) {
                 this.solveBend_PBD_Angle();
-            } else if (this.m_tuning.bendingModel === BendingModel.XpbdAngle) {
+            } else if (this.tuning.bendingModel === BendingModel.XpbdAngle) {
                 this.solveBend_XPBD_Angle(dt);
-            } else if (this.m_tuning.bendingModel === BendingModel.PbdDistance) {
+            } else if (this.tuning.bendingModel === BendingModel.PbdDistance) {
                 this.solveBend_PBD_Distance();
-            } else if (this.m_tuning.bendingModel === BendingModel.PbdHeight) {
+            } else if (this.tuning.bendingModel === BendingModel.PbdHeight) {
                 this.solveBend_PBD_Height();
-            } else if (this.m_tuning.bendingModel === BendingModel.PbdTriangle) {
+            } else if (this.tuning.bendingModel === BendingModel.PbdTriangle) {
                 this.solveBend_PBD_Triangle();
             }
 
-            if (this.m_tuning.stretchingModel === StretchingModel.Pbd) {
+            if (this.tuning.stretchingModel === StretchingModel.Pbd) {
                 this.solveStretch_PBD();
-            } else if (this.m_tuning.stretchingModel === StretchingModel.Xpbd) {
+            } else if (this.tuning.stretchingModel === StretchingModel.Xpbd) {
                 this.solveStretch_XPBD(dt);
             }
         }
 
         // Constrain velocity
-        for (let i = 0; i < this.m_count; ++i) {
-            this.m_vs[i].x = inv_dt * (this.m_ps[i].x - this.m_p0s[i].x);
-            this.m_vs[i].y = inv_dt * (this.m_ps[i].y - this.m_p0s[i].y);
-            this.m_p0s[i].copy(this.m_ps[i]);
+        for (let i = 0; i < this.count; ++i) {
+            this.vs[i].x = inv_dt * (this.ps[i].x - this.p0s[i].x);
+            this.vs[i].y = inv_dt * (this.ps[i].y - this.p0s[i].y);
+            this.p0s[i].copy(this.ps[i]);
         }
     }
 
     public reset(position: Readonly<Vec2>): void {
-        this.m_position.copy(position);
+        this.position.copy(position);
 
-        for (let i = 0; i < this.m_count; ++i) {
-            Vec2.add(this.m_bindPositions[i], this.m_position, this.m_ps[i]);
-            this.m_p0s[i].copy(this.m_ps[i]);
-            this.m_vs[i].setZero();
+        for (let i = 0; i < this.count; ++i) {
+            Vec2.add(this.bindPositions[i], this.position, this.ps[i]);
+            this.p0s[i].copy(this.ps[i]);
+            this.vs[i].setZero();
         }
 
-        for (let i = 0; i < this.m_bendCount; ++i) {
-            this.m_bendConstraints[i].lambda = 0;
+        for (let i = 0; i < this.bendCount; ++i) {
+            this.bendConstraints[i].lambda = 0;
         }
 
-        for (let i = 0; i < this.m_stretchCount; ++i) {
-            this.m_stretchConstraints[i].lambda = 0;
+        for (let i = 0; i < this.stretchCount; ++i) {
+            this.stretchConstraints[i].lambda = 0;
         }
     }
 
     private solveStretch_PBD(): void {
-        const stiffness = this.m_tuning.stretchStiffness;
+        const stiffness = this.tuning.stretchStiffness;
 
         const { d } = temp;
-        for (let i = 0; i < this.m_stretchCount; ++i) {
-            const c = this.m_stretchConstraints[i];
+        for (let i = 0; i < this.stretchCount; ++i) {
+            const c = this.stretchConstraints[i];
 
-            const p1 = this.m_ps[c.i1];
-            const p2 = this.m_ps[c.i2];
+            const p1 = this.ps[c.i1];
+            const p2 = this.ps[c.i2];
 
             Vec2.subtract(p2, p1, d);
             const L = d.normalize();
@@ -456,14 +456,14 @@ export class Rope {
         // 	assert(dt > 0);
 
         const { dp1, dp2, u, J1 } = temp;
-        for (let i = 0; i < this.m_stretchCount; ++i) {
-            const c = this.m_stretchConstraints[i];
+        for (let i = 0; i < this.stretchCount; ++i) {
+            const c = this.stretchConstraints[i];
 
-            const p1 = this.m_ps[c.i1];
-            const p2 = this.m_ps[c.i2];
+            const p1 = this.ps[c.i1];
+            const p2 = this.ps[c.i2];
 
-            Vec2.subtract(p1, this.m_p0s[c.i1], dp1);
-            Vec2.subtract(p2, this.m_p0s[c.i2], dp2);
+            Vec2.subtract(p1, this.p0s[c.i1], dp1);
+            Vec2.subtract(p2, this.p0s[c.i2], dp2);
 
             Vec2.subtract(p2, p1, u);
             const L = u.normalize();
@@ -497,15 +497,15 @@ export class Rope {
     }
 
     private solveBend_PBD_Angle(): void {
-        const stiffness = this.m_tuning.bendStiffness;
+        const stiffness = this.tuning.bendStiffness;
 
         const { Jd1, Jd2, J1, J2, d1, d2 } = temp;
-        for (let i = 0; i < this.m_bendCount; ++i) {
-            const c = this.m_bendConstraints[i];
+        for (let i = 0; i < this.bendCount; ++i) {
+            const c = this.bendConstraints[i];
 
-            const p1 = this.m_ps[c.i1];
-            const p2 = this.m_ps[c.i2];
-            const p3 = this.m_ps[c.i3];
+            const p1 = this.ps[c.i1];
+            const p2 = this.ps[c.i2];
+            const p3 = this.ps[c.i3];
 
             Vec2.subtract(p2, p1, d1);
             Vec2.subtract(p3, p2, d2);
@@ -517,7 +517,7 @@ export class Rope {
             let L1sqr: number;
             let L2sqr: number;
 
-            if (this.m_tuning.isometric) {
+            if (this.tuning.isometric) {
                 L1sqr = c.L1 * c.L1;
                 L2sqr = c.L2 * c.L2;
             } else {
@@ -537,7 +537,7 @@ export class Rope {
             const J3 = Jd2;
 
             let sum: number;
-            if (this.m_tuning.fixedEffectiveMass) {
+            if (this.tuning.fixedEffectiveMass) {
                 sum = c.invEffectiveMass;
             } else {
                 sum = c.invMass1 * Vec2.dot(J1, J1) + c.invMass2 * Vec2.dot(J2, J2) + c.invMass3 * Vec2.dot(J3, J3);
@@ -559,16 +559,16 @@ export class Rope {
         // assert(dt > 0);
 
         const { dp1, dp2, dp3, d1, d2, Jd1, Jd2, J1, J2 } = temp;
-        for (let i = 0; i < this.m_bendCount; ++i) {
-            const c = this.m_bendConstraints[i];
+        for (let i = 0; i < this.bendCount; ++i) {
+            const c = this.bendConstraints[i];
 
-            const p1 = this.m_ps[c.i1];
-            const p2 = this.m_ps[c.i2];
-            const p3 = this.m_ps[c.i3];
+            const p1 = this.ps[c.i1];
+            const p2 = this.ps[c.i2];
+            const p3 = this.ps[c.i3];
 
-            Vec2.subtract(p1, this.m_p0s[c.i1], dp1);
-            Vec2.subtract(p2, this.m_p0s[c.i2], dp2);
-            Vec2.subtract(p3, this.m_p0s[c.i3], dp3);
+            Vec2.subtract(p1, this.p0s[c.i1], dp1);
+            Vec2.subtract(p2, this.p0s[c.i2], dp2);
+            Vec2.subtract(p3, this.p0s[c.i3], dp3);
 
             Vec2.subtract(p2, p1, d1);
             Vec2.subtract(p3, p2, d2);
@@ -576,7 +576,7 @@ export class Rope {
             let L1sqr: number;
             let L2sqr: number;
 
-            if (this.m_tuning.isometric) {
+            if (this.tuning.isometric) {
                 L1sqr = c.L1 * c.L1;
                 L2sqr = c.L2 * c.L2;
             } else {
@@ -601,7 +601,7 @@ export class Rope {
             const J3 = Jd2;
 
             let sum: number;
-            if (this.m_tuning.fixedEffectiveMass) {
+            if (this.tuning.fixedEffectiveMass) {
                 sum = c.invEffectiveMass;
             } else {
                 sum = c.invMass1 * Vec2.dot(J1, J1) + c.invMass2 * Vec2.dot(J2, J2) + c.invMass3 * Vec2.dot(J3, J3);
@@ -633,17 +633,17 @@ export class Rope {
     }
 
     private solveBend_PBD_Distance(): void {
-        const stiffness = this.m_tuning.bendStiffness;
+        const stiffness = this.tuning.bendStiffness;
 
         const { d } = temp;
-        for (let i = 0; i < this.m_bendCount; ++i) {
-            const c = this.m_bendConstraints[i];
+        for (let i = 0; i < this.bendCount; ++i) {
+            const c = this.bendConstraints[i];
 
             const { i1 } = c;
             const i2 = c.i3;
 
-            const p1 = this.m_ps[i1];
-            const p2 = this.m_ps[i2];
+            const p1 = this.ps[i1];
+            const p2 = this.ps[i2];
 
             Vec2.subtract(p2, p1, d);
             const L = d.normalize();
@@ -662,15 +662,15 @@ export class Rope {
     }
 
     private solveBend_PBD_Height(): void {
-        const stiffness = this.m_tuning.bendStiffness;
+        const stiffness = this.tuning.bendStiffness;
 
         const { dHat, J1, J2, J3, d } = temp;
-        for (let i = 0; i < this.m_bendCount; ++i) {
-            const c = this.m_bendConstraints[i];
+        for (let i = 0; i < this.bendCount; ++i) {
+            const c = this.bendConstraints[i];
 
-            const p1 = this.m_ps[c.i1];
-            const p2 = this.m_ps[c.i2];
-            const p3 = this.m_ps[c.i3];
+            const p1 = this.ps[c.i1];
+            const p2 = this.ps[c.i2];
+            const p3 = this.ps[c.i3];
 
             // Barycentric coordinates are held constant
             d.x = c.alpha1 * p1.x + c.alpha2 * p3.x - p2.x;
@@ -704,15 +704,15 @@ export class Rope {
     }
 
     private solveBend_PBD_Triangle(): void {
-        const stiffness = this.m_tuning.bendStiffness;
+        const stiffness = this.tuning.bendStiffness;
 
         const { d } = temp;
-        for (let i = 0; i < this.m_bendCount; ++i) {
-            const c = this.m_bendConstraints[i];
+        for (let i = 0; i < this.bendCount; ++i) {
+            const c = this.bendConstraints[i];
 
-            const b0 = this.m_ps[c.i1];
-            const v = this.m_ps[c.i2];
-            const b1 = this.m_ps[c.i3];
+            const b0 = this.ps[c.i1];
+            const v = this.ps[c.i2];
+            const b1 = this.ps[c.i3];
 
             const wb0 = c.invMass1;
             const wv = c.invMass2;
@@ -732,19 +732,19 @@ export class Rope {
 
     private applyBendForces(dt: number): void {
         // omega = 2 * pi * hz
-        const omega = 2 * Math.PI * this.m_tuning.bendHertz;
+        const omega = 2 * Math.PI * this.tuning.bendHertz;
 
         const { d1, d2, Jd1, Jd2, J1, J2 } = temp;
-        for (let i = 0; i < this.m_bendCount; ++i) {
-            const c = this.m_bendConstraints[i];
+        for (let i = 0; i < this.bendCount; ++i) {
+            const c = this.bendConstraints[i];
 
-            const p1 = this.m_ps[c.i1];
-            const p2 = this.m_ps[c.i2];
-            const p3 = this.m_ps[c.i3];
+            const p1 = this.ps[c.i1];
+            const p2 = this.ps[c.i2];
+            const p3 = this.ps[c.i3];
 
-            const v1 = this.m_vs[c.i1];
-            const v2 = this.m_vs[c.i2];
-            const v3 = this.m_vs[c.i3];
+            const v1 = this.vs[c.i1];
+            const v2 = this.vs[c.i2];
+            const v3 = this.vs[c.i3];
 
             Vec2.subtract(p2, p1, d1);
             Vec2.subtract(p3, p2, d2);
@@ -752,7 +752,7 @@ export class Rope {
             let L1sqr: number;
             let L2sqr: number;
 
-            if (this.m_tuning.isometric) {
+            if (this.tuning.isometric) {
                 L1sqr = c.L1 * c.L1;
                 L2sqr = c.L2 * c.L2;
             } else {
@@ -777,7 +777,7 @@ export class Rope {
             const J3 = Jd2;
 
             let sum: number;
-            if (this.m_tuning.fixedEffectiveMass) {
+            if (this.tuning.fixedEffectiveMass) {
                 sum = c.invEffectiveMass;
             } else {
                 sum = c.invMass1 * Vec2.dot(J1, J1) + c.invMass2 * Vec2.dot(J2, J2) + c.invMass3 * Vec2.dot(J3, J3);
@@ -790,29 +790,29 @@ export class Rope {
             const mass = 1 / sum;
 
             const spring = mass * omega * omega;
-            const damper = 2 * mass * this.m_tuning.bendDamping * omega;
+            const damper = 2 * mass * this.tuning.bendDamping * omega;
 
             const C = angle;
             const Cdot = Vec2.dot(J1, v1) + Vec2.dot(J2, v2) + Vec2.dot(J3, v3);
 
             const impulse = -dt * (spring * C + damper * Cdot);
 
-            this.m_vs[c.i1].addScaled(c.invMass1 * impulse, J1);
-            this.m_vs[c.i2].addScaled(c.invMass2 * impulse, J2);
-            this.m_vs[c.i3].addScaled(c.invMass3 * impulse, J3);
+            this.vs[c.i1].addScaled(c.invMass1 * impulse, J1);
+            this.vs[c.i2].addScaled(c.invMass2 * impulse, J2);
+            this.vs[c.i3].addScaled(c.invMass3 * impulse, J3);
         }
     }
 
     public draw(draw: Draw): void {
-        for (let i = 0; i < this.m_count - 1; ++i) {
-            draw.drawSegment(this.m_ps[i], this.m_ps[i + 1], debugColors.rope);
+        for (let i = 0; i < this.count - 1; ++i) {
+            draw.drawSegment(this.ps[i], this.ps[i + 1], debugColors.rope);
 
-            const pc: Readonly<Color> = this.m_invMasses[i] > 0 ? debugColors.ropePointD : debugColors.ropePointG;
-            draw.drawPoint(this.m_ps[i], 5, pc);
+            const pc: Readonly<Color> = this.invMasses[i] > 0 ? debugColors.ropePointD : debugColors.ropePointG;
+            draw.drawPoint(this.ps[i], 5, pc);
         }
 
         const pc: Readonly<Color> =
-            this.m_invMasses[this.m_count - 1] > 0 ? debugColors.ropePointD : debugColors.ropePointG;
-        draw.drawPoint(this.m_ps[this.m_count - 1], 5, pc);
+            this.invMasses[this.count - 1] > 0 ? debugColors.ropePointD : debugColors.ropePointG;
+        draw.drawPoint(this.ps[this.count - 1], 5, pc);
     }
 }

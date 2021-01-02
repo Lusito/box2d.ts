@@ -25,13 +25,13 @@
  * not work on every platform.
  */
 export class Timer {
-    private m_start = performance.now();
+    private start = performance.now();
 
     /**
      * Reset the timer.
      */
     public reset(): Timer {
-        this.m_start = performance.now();
+        this.start = performance.now();
         return this;
     }
 
@@ -39,6 +39,6 @@ export class Timer {
      * Get the time since construction or the last reset.
      */
     public getMilliseconds(): number {
-        return performance.now() - this.m_start;
+        return performance.now() - this.start;
     }
 }

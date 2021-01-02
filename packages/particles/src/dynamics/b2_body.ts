@@ -20,13 +20,13 @@ import { augment, Body, Transform } from "@box2d/core";
 
 declare module "@box2d/core" {
     interface Body {
-        readonly m_xf0: Transform;
+        readonly xf0: Transform;
     }
 }
 
 augment(Body.prototype, {
     setTransformXY(this: Body, original, x, y, angle): void {
         original(x, y, angle);
-        this.m_xf0.copy(this.getTransform());
+        this.xf0.copy(this.getTransform());
     },
 });

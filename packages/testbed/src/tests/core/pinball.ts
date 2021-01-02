@@ -39,11 +39,11 @@ import { hotKey, HotKey } from "../../utils/hotkeys";
  */
 
 class PinballTest extends Test {
-    public m_leftJoint: RevoluteJoint;
+    public leftJoint: RevoluteJoint;
 
-    public m_rightJoint: RevoluteJoint;
+    public rightJoint: RevoluteJoint;
 
-    public m_ball: Body;
+    public ball: Body;
 
     public constructor() {
         super();
@@ -52,7 +52,7 @@ class PinballTest extends Test {
 
         let ground = null;
         {
-            ground = this.m_world.createBody();
+            ground = this.world.createBody();
 
             const vs = makeArray(5, Vec2);
             vs[0].set(-8, 6);
@@ -74,12 +74,12 @@ class PinballTest extends Test {
             const p1 = new Vec2(-2, 0);
             const p2 = new Vec2(2, 0);
 
-            const leftFlipper = this.m_world.createBody({
+            const leftFlipper = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: p1,
             });
 
-            const rightFlipper = this.m_world.createBody({
+            const rightFlipper = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: p2,
             });
@@ -106,32 +106,32 @@ class PinballTest extends Test {
             jd.bodyB = leftFlipper;
             jd.lowerAngle = (-30 * Math.PI) / 180;
             jd.upperAngle = (5 * Math.PI) / 180;
-            this.m_leftJoint = this.m_world.createJoint(jd);
+            this.leftJoint = this.world.createJoint(jd);
 
             jd.motorSpeed = 10;
             jd.localAnchorA.copy(p2);
             jd.bodyB = rightFlipper;
             jd.lowerAngle = (-5 * Math.PI) / 180;
             jd.upperAngle = (30 * Math.PI) / 180;
-            this.m_rightJoint = this.m_world.createJoint(jd);
+            this.rightJoint = this.world.createJoint(jd);
         }
 
         // Circle character
         {
-            this.m_ball = this.m_world.createBody({
+            this.ball = this.world.createBody({
                 position: { x: 1, y: 15 },
                 type: BodyType.Dynamic,
                 bullet: true,
             });
 
             const shape = new CircleShape();
-            shape.m_radius = 0.2;
+            shape.radius = 0.2;
 
             const fd: FixtureDef = {
                 shape,
                 density: 1,
             };
-            this.m_ball.createFixture(fd);
+            this.ball.createFixture(fd);
         }
     }
 
@@ -150,11 +150,11 @@ class PinballTest extends Test {
         return [
             hotKey("a", "Hold Flipper", (down) => {
                 if (down) {
-                    this.m_leftJoint.setMotorSpeed(20);
-                    this.m_rightJoint.setMotorSpeed(-20);
+                    this.leftJoint.setMotorSpeed(20);
+                    this.rightJoint.setMotorSpeed(-20);
                 } else {
-                    this.m_leftJoint.setMotorSpeed(-10);
-                    this.m_rightJoint.setMotorSpeed(10);
+                    this.leftJoint.setMotorSpeed(-10);
+                    this.rightJoint.setMotorSpeed(10);
                 }
             }),
         ];

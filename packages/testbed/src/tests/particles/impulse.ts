@@ -32,14 +32,14 @@ class ImpulseTest extends AbstractParticleTestWithControls {
 
     public static readonly kBoxTop = 4;
 
-    public m_useLinearImpulse = false;
+    public useLinearImpulse = false;
 
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter);
 
         // Create the containing box.
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const box = [
                 new Vec2(ImpulseTest.kBoxLeft, ImpulseTest.kBoxBottom),
@@ -52,8 +52,8 @@ class ImpulseTest extends AbstractParticleTestWithControls {
             ground.createFixture({ shape });
         }
 
-        this.m_particleSystem.setRadius(0.025 * 2); // HACK: increase particle radius
-        this.m_particleSystem.setDamping(0.2);
+        this.particleSystem.setRadius(0.025 * 2); // HACK: increase particle radius
+        this.particleSystem.setDamping(0.2);
 
         // Create the particles.
         {
@@ -62,7 +62,7 @@ class ImpulseTest extends AbstractParticleTestWithControls {
             const pd = new ParticleGroupDef();
             pd.flags = particleParameter.getValue();
             pd.shape = shape;
-            const group = this.m_particleSystem.createParticleGroup(pd);
+            const group = this.particleSystem.createParticleGroup(pd);
             if (pd.flags & ParticleFlag.ColorMixing) {
                 this.colorParticleGroup(group, 0);
             }
@@ -92,22 +92,22 @@ class ImpulseTest extends AbstractParticleTestWithControls {
     public getHotkeys(): HotKey[] {
         return [
             hotKeyPress("l", "Use Linear ImpulseTest", () => {
-                this.m_useLinearImpulse = true;
+                this.useLinearImpulse = true;
             }),
             hotKeyPress("f", "Use Force", () => {
-                this.m_useLinearImpulse = false;
+                this.useLinearImpulse = false;
             }),
         ];
     }
 
     public applyImpulseOrForce(direction: Vec2) {
-        const particleSystem = this.m_world.getParticleSystemList();
+        const particleSystem = this.world.getParticleSystemList();
         assert(particleSystem !== null);
         const particleGroup = particleSystem.getParticleGroupList();
         assert(particleGroup !== null);
         const numParticles = particleGroup.getParticleCount();
 
-        if (this.m_useLinearImpulse) {
+        if (this.useLinearImpulse) {
             const kImpulseMagnitude = 0.005;
             const impulse = Vec2.scale(kImpulseMagnitude * numParticles, direction, new Vec2());
             particleGroup.applyLinearImpulse(impulse);

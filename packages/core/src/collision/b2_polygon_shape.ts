@@ -119,13 +119,13 @@ function computeCentroid(vs: Vec2[], count: number, out: Vec2): Vec2 {
  * In most cases you should not need many vertices for a convex polygon.
  */
 export class PolygonShape extends Shape {
-    public readonly m_centroid = new Vec2();
+    public readonly centroid = new Vec2();
 
-    public m_vertices: Vec2[] = [];
+    public vertices: Vec2[] = [];
 
-    public m_normals: Vec2[] = [];
+    public normals: Vec2[] = [];
 
-    public m_count = 0;
+    public count = 0;
 
     public constructor() {
         super(ShapeType.Polygon, POLYGON_RADIUS);
@@ -143,13 +143,13 @@ export class PolygonShape extends Shape {
 
         // DEBUG: assert(other instanceof PolygonShape);
 
-        this.m_centroid.copy(other.m_centroid);
-        this.m_count = other.m_count;
-        this.m_vertices = makeArray(this.m_count, Vec2);
-        this.m_normals = makeArray(this.m_count, Vec2);
-        for (let i = 0; i < this.m_count; ++i) {
-            this.m_vertices[i].copy(other.m_vertices[i]);
-            this.m_normals[i].copy(other.m_normals[i]);
+        this.centroid.copy(other.centroid);
+        this.count = other.count;
+        this.vertices = makeArray(this.count, Vec2);
+        this.normals = makeArray(this.count, Vec2);
+        for (let i = 0; i < this.count; ++i) {
+            this.vertices[i].copy(other.vertices[i]);
+            this.normals[i].copy(other.normals[i]);
         }
         return this;
     }
@@ -246,26 +246,26 @@ export class PolygonShape extends Shape {
 
         assert(m >= 3, "Polygon is degenerate");
 
-        this.m_count = m;
-        this.m_vertices = makeArray(this.m_count, Vec2);
-        this.m_normals = makeArray(this.m_count, Vec2);
+        this.count = m;
+        this.vertices = makeArray(this.count, Vec2);
+        this.normals = makeArray(this.count, Vec2);
 
         // Copy vertices.
         for (let i = 0; i < m; ++i) {
-            this.m_vertices[i].copy(ps[hull[i]]);
+            this.vertices[i].copy(ps[hull[i]]);
         }
 
         // Compute normals. Ensure the edges have non-zero length.
         for (let i = 0; i < m; ++i) {
             const i1 = i;
             const i2 = i + 1 < m ? i + 1 : 0;
-            const edge = Vec2.subtract(this.m_vertices[i2], this.m_vertices[i1], Vec2.s_t0);
+            const edge = Vec2.subtract(this.vertices[i2], this.vertices[i1], Vec2.s_t0);
             // DEBUG: assert(edge.LengthSquared() > EPSILON_SQUARED);
-            Vec2.crossVec2One(edge, this.m_normals[i]).normalize();
+            Vec2.crossVec2One(edge, this.normals[i]).normalize();
         }
 
         // Compute the polygon centroid.
-        computeCentroid(this.m_vertices, m, this.m_centroid);
+        computeCentroid(this.vertices, m, this.centroid);
 
         return this;
     }
@@ -279,32 +279,32 @@ export class PolygonShape extends Shape {
      * @param angle The rotation of the box in local coordinates.
      */
     public setAsBox(hx: number, hy: number, center?: XY, angle = 0): PolygonShape {
-        this.m_count = 4;
-        this.m_vertices = makeArray(this.m_count, Vec2);
-        this.m_normals = makeArray(this.m_count, Vec2);
-        this.m_vertices[0].set(-hx, -hy);
-        this.m_vertices[1].set(hx, -hy);
-        this.m_vertices[2].set(hx, hy);
-        this.m_vertices[3].set(-hx, hy);
-        this.m_normals[0].set(0, -1);
-        this.m_normals[1].set(1, 0);
-        this.m_normals[2].set(0, 1);
-        this.m_normals[3].set(-1, 0);
+        this.count = 4;
+        this.vertices = makeArray(this.count, Vec2);
+        this.normals = makeArray(this.count, Vec2);
+        this.vertices[0].set(-hx, -hy);
+        this.vertices[1].set(hx, -hy);
+        this.vertices[2].set(hx, hy);
+        this.vertices[3].set(-hx, hy);
+        this.normals[0].set(0, -1);
+        this.normals[1].set(1, 0);
+        this.normals[2].set(0, 1);
+        this.normals[3].set(-1, 0);
 
         if (center) {
-            this.m_centroid.copy(center);
+            this.centroid.copy(center);
 
             const { xf } = temp.SetAsBox;
             xf.setPosition(center);
             xf.setRotationAngle(angle);
 
             // Transform vertices and normals.
-            for (let i = 0; i < this.m_count; ++i) {
-                Transform.multiplyVec2(xf, this.m_vertices[i], this.m_vertices[i]);
-                Rot.multiplyVec2(xf.q, this.m_normals[i], this.m_normals[i]);
+            for (let i = 0; i < this.count; ++i) {
+                Transform.multiplyVec2(xf, this.vertices[i], this.vertices[i]);
+                Rot.multiplyVec2(xf.q, this.normals[i], this.normals[i]);
             }
         } else {
-            this.m_centroid.setZero();
+            this.centroid.setZero();
         }
 
         return this;
@@ -316,8 +316,8 @@ export class PolygonShape extends Shape {
     public testPoint(xf: Transform, p: XY): boolean {
         const pLocal = Transform.transposeMultiplyVec2(xf, p, temp.TestPoint.pLocal);
 
-        for (let i = 0; i < this.m_count; ++i) {
-            const dot = Vec2.dot(this.m_normals[i], Vec2.subtract(pLocal, this.m_vertices[i], Vec2.s_t0));
+        for (let i = 0; i < this.count; ++i) {
+            const dot = Vec2.dot(this.normals[i], Vec2.subtract(pLocal, this.vertices[i], Vec2.s_t0));
             if (dot > 0) {
                 return false;
             }
@@ -343,12 +343,12 @@ export class PolygonShape extends Shape {
 
         let index = -1;
 
-        for (let i = 0; i < this.m_count; ++i) {
+        for (let i = 0; i < this.count; ++i) {
             // p = p1 + a * d
             // dot(normal, p - v) = 0
             // dot(normal, p1 - v) + a * dot(normal, d) = 0
-            const numerator = Vec2.dot(this.m_normals[i], Vec2.subtract(this.m_vertices[i], p1, Vec2.s_t0));
-            const denominator = Vec2.dot(this.m_normals[i], d);
+            const numerator = Vec2.dot(this.normals[i], Vec2.subtract(this.vertices[i], p1, Vec2.s_t0));
+            const denominator = Vec2.dot(this.normals[i], d);
 
             if (denominator === 0) {
                 if (numerator < 0) {
@@ -382,7 +382,7 @@ export class PolygonShape extends Shape {
 
         if (index >= 0) {
             output.fraction = lower;
-            Rot.multiplyVec2(xf.q, this.m_normals[index], output.normal);
+            Rot.multiplyVec2(xf.q, this.normals[index], output.normal);
             return true;
         }
 
@@ -393,16 +393,16 @@ export class PolygonShape extends Shape {
      * @see Shape::ComputeAABB
      */
     public computeAABB(aabb: AABB, xf: Transform, _childIndex: number): void {
-        const lower = Transform.multiplyVec2(xf, this.m_vertices[0], aabb.lowerBound);
+        const lower = Transform.multiplyVec2(xf, this.vertices[0], aabb.lowerBound);
         const upper = aabb.upperBound.copy(lower);
 
-        for (let i = 1; i < this.m_count; ++i) {
-            const v = Transform.multiplyVec2(xf, this.m_vertices[i], temp.ComputeAABB.v);
+        for (let i = 1; i < this.count; ++i) {
+            const v = Transform.multiplyVec2(xf, this.vertices[i], temp.ComputeAABB.v);
             Vec2.min(lower, v, lower);
             Vec2.max(upper, v, upper);
         }
 
-        const r = this.m_radius;
+        const r = this.radius;
         lower.subtractXY(r, r);
         upper.addXY(r, r);
     }
@@ -435,7 +435,7 @@ export class PolygonShape extends Shape {
         //
         // The rest of the derivation is handled by computer algebra.
 
-        // DEBUG: assert(this.m_count >= 3);
+        // DEBUG: assert(this.count >= 3);
 
         const center = temp.ComputeMass.center.setZero();
         let area = 0;
@@ -443,14 +443,14 @@ export class PolygonShape extends Shape {
 
         // Get a reference point for forming triangles.
         // Use the first vertex to reduce round-off errors.
-        const s = temp.ComputeMass.s.copy(this.m_vertices[0]);
+        const s = temp.ComputeMass.s.copy(this.vertices[0]);
 
         const k_inv3 = 1 / 3;
 
-        for (let i = 0; i < this.m_count; ++i) {
+        for (let i = 0; i < this.count; ++i) {
             // Triangle vertices.
-            const e1 = Vec2.subtract(this.m_vertices[i], s, temp.ComputeMass.e1);
-            const e2 = Vec2.subtract(this.m_vertices[i + 1 < this.m_count ? i + 1 : 0], s, temp.ComputeMass.e2);
+            const e1 = Vec2.subtract(this.vertices[i], s, temp.ComputeMass.e1);
+            const e2 = Vec2.subtract(this.vertices[i + 1 < this.count ? i + 1 : 0], s, temp.ComputeMass.e2);
 
             const D = Vec2.cross(e1, e2);
 
@@ -488,18 +488,18 @@ export class PolygonShape extends Shape {
 
     public validate(): boolean {
         const { e, v } = temp.Validate;
-        for (let i = 0; i < this.m_count; ++i) {
+        for (let i = 0; i < this.count; ++i) {
             const i1 = i;
-            const i2 = i < this.m_count - 1 ? i1 + 1 : 0;
-            const p = this.m_vertices[i1];
-            Vec2.subtract(this.m_vertices[i2], p, e);
+            const i2 = i < this.count - 1 ? i1 + 1 : 0;
+            const p = this.vertices[i1];
+            Vec2.subtract(this.vertices[i2], p, e);
 
-            for (let j = 0; j < this.m_count; ++j) {
+            for (let j = 0; j < this.count; ++j) {
                 if (j === i1 || j === i2) {
                     continue;
                 }
 
-                Vec2.subtract(this.m_vertices[j], p, v);
+                Vec2.subtract(this.vertices[j], p, v);
                 const c = Vec2.cross(e, v);
                 if (c < 0) {
                     return false;
@@ -511,14 +511,14 @@ export class PolygonShape extends Shape {
     }
 
     public setupDistanceProxy(proxy: DistanceProxy, _index: number): void {
-        proxy.m_vertices = this.m_vertices;
-        proxy.m_count = this.m_count;
-        proxy.m_radius = this.m_radius;
+        proxy.vertices = this.vertices;
+        proxy.count = this.count;
+        proxy.radius = this.radius;
     }
 
     public draw(draw: Draw, color: Color): void {
-        const vertexCount = this.m_count;
-        const vertices = this.m_vertices;
+        const vertexCount = this.count;
+        const { vertices } = this;
         draw.drawSolidPolygon(vertices, vertexCount, color);
     }
 }

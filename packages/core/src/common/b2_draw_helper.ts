@@ -35,7 +35,7 @@ const temp = {
 };
 
 export function getShapeColor(b: Body) {
-    if (b.getType() === BodyType.Dynamic && b.m_mass === 0) {
+    if (b.getType() === BodyType.Dynamic && b.mass === 0) {
         return debugColors.badBody;
     }
     if (!b.isEnabled()) {
@@ -54,12 +54,12 @@ export function getShapeColor(b: Body) {
 }
 
 export function drawShapes(draw: Draw, world: World) {
-    for (let b = world.getBodyList(); b; b = b.m_next) {
-        const xf = b.m_xf;
+    for (let b = world.getBodyList(); b; b = b.next) {
+        const { xf } = b;
 
         draw.pushTransform(xf);
 
-        for (let f: Fixture | null = b.getFixtureList(); f; f = f.m_next) {
+        for (let f: Fixture | null = b.getFixtureList(); f; f = f.next) {
             f.getShape().draw(draw, getShapeColor(b));
         }
 
@@ -68,13 +68,13 @@ export function drawShapes(draw: Draw, world: World) {
 }
 
 export function drawJoints(draw: Draw, world: World) {
-    for (let j = world.getJointList(); j; j = j.m_next) {
+    for (let j = world.getJointList(); j; j = j.next) {
         j.draw(draw);
     }
 }
 
 export function drawPairs(draw: Draw, world: World) {
-    for (let contact = world.getContactList(); contact; contact = contact.m_next) {
+    for (let contact = world.getContactList(); contact; contact = contact.next) {
         const fixtureA = contact.getFixtureA();
         const fixtureB = contact.getFixtureB();
         const indexA = contact.getChildIndexA();
@@ -88,15 +88,13 @@ export function drawPairs(draw: Draw, world: World) {
 
 export function drawAABBs(draw: Draw, world: World) {
     const { vs } = temp;
-    for (let b = world.getBodyList(); b; b = b.m_next) {
+    for (let b = world.getBodyList(); b; b = b.next) {
         if (!b.isEnabled()) {
             continue;
         }
 
-        for (let f: Fixture | null = b.getFixtureList(); f; f = f.m_next) {
-            for (let i = 0; i < f.m_proxyCount; ++i) {
-                const proxy = f.m_proxies[i];
-
+        for (let f: Fixture | null = b.getFixtureList(); f; f = f.next) {
+            for (const proxy of f.proxies) {
                 const { aabb } = proxy.treeNode;
                 vs[0].set(aabb.lowerBound.x, aabb.lowerBound.y);
                 vs[1].set(aabb.upperBound.x, aabb.lowerBound.y);
@@ -111,8 +109,8 @@ export function drawAABBs(draw: Draw, world: World) {
 
 export function drawCenterOfMasses(draw: Draw, world: World) {
     const { xf } = temp;
-    for (let b = world.getBodyList(); b; b = b.m_next) {
-        xf.q.copy(b.m_xf.q);
+    for (let b = world.getBodyList(); b; b = b.next) {
+        xf.q.copy(b.xf.q);
         xf.p.copy(b.getWorldCenter());
         draw.drawTransform(xf);
     }

@@ -29,7 +29,7 @@ class ChainTest extends Test {
         let ground = null;
 
         {
-            ground = this.m_world.createBody();
+            ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
@@ -52,7 +52,7 @@ class ChainTest extends Test {
             const y = 25;
             let prevBody = ground;
             for (let i = 0; i < 30; ++i) {
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: 0.5 + i, y },
                 });
@@ -70,7 +70,7 @@ class ChainTest extends Test {
 
                 const anchor = new Vec2(i, y);
                 jd.initialize(prevBody, body, anchor);
-                this.m_world.createJoint(jd);
+                this.world.createJoint(jd);
 
                 prevBody = body;
             }

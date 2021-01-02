@@ -37,15 +37,15 @@ import { AbstractParticleTest } from "./abstract_particle_test";
  */
 
 class MaxwellTest extends AbstractParticleTest {
-    public m_density = MaxwellTest.k_densityDefault;
+    public density = MaxwellTest.k_densityDefault;
 
-    public m_position = MaxwellTest.k_containerHalfHeight;
+    public position = MaxwellTest.k_containerHalfHeight;
 
-    public m_temperature = MaxwellTest.k_temperatureDefault;
+    public temperature = MaxwellTest.k_temperatureDefault;
 
-    public m_barrierBody: Body | null = null;
+    public barrierBody: Body | null = null;
 
-    public m_particleGroup: ParticleGroup | null = null;
+    public particleGroup: ParticleGroup | null = null;
 
     public static readonly k_containerWidth = 2;
 
@@ -80,7 +80,7 @@ class MaxwellTest extends AbstractParticleTest {
 
         // Create the container.
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
             const shape = new ChainShape();
             const vertices = [
                 new Vec2(-MaxwellTest.k_containerHalfWidth, 0),
@@ -106,9 +106,9 @@ class MaxwellTest extends AbstractParticleTest {
      * Disable the barrier.
      */
     public disableBarrier() {
-        if (this.m_barrierBody) {
-            this.m_world.destroyBody(this.m_barrierBody);
-            this.m_barrierBody = null;
+        if (this.barrierBody) {
+            this.world.destroyBody(this.barrierBody);
+            this.barrierBody = null;
         }
     }
 
@@ -116,16 +116,16 @@ class MaxwellTest extends AbstractParticleTest {
      * Enable the barrier.
      */
     public enableBarrier() {
-        if (!this.m_barrierBody) {
-            this.m_barrierBody = this.m_world.createBody();
+        if (!this.barrierBody) {
+            this.barrierBody = this.world.createBody();
             const barrierShape = new PolygonShape();
             barrierShape.setAsBox(
                 MaxwellTest.k_containerHalfWidth,
                 MaxwellTest.k_barrierHeight,
-                new Vec2(0, this.m_position),
+                new Vec2(0, this.position),
                 0,
             );
-            this.m_barrierBody.createFixture({
+            this.barrierBody.createFixture({
                 shape: barrierShape,
                 density: 0,
                 restitution: 1,
@@ -137,7 +137,7 @@ class MaxwellTest extends AbstractParticleTest {
      * Enable / disable the barrier.
      */
     public toggleBarrier() {
-        if (this.m_barrierBody) {
+        if (this.barrierBody) {
             this.disableBarrier();
         } else {
             this.enableBarrier();
@@ -148,32 +148,32 @@ class MaxwellTest extends AbstractParticleTest {
      * Destroy and recreate all particles.
      */
     public resetParticles() {
-        if (this.m_particleGroup !== null) {
-            this.m_particleGroup.destroyParticles(false);
-            this.m_particleGroup = null;
+        if (this.particleGroup !== null) {
+            this.particleGroup.destroyParticles(false);
+            this.particleGroup = null;
         }
 
-        this.m_particleSystem.setRadius(MaxwellTest.k_containerHalfWidth / 20);
+        this.particleSystem.setRadius(MaxwellTest.k_containerHalfWidth / 20);
         {
             const shape = new PolygonShape();
             shape.setAsBox(
-                this.m_density * MaxwellTest.k_containerHalfWidth,
-                this.m_density * MaxwellTest.k_containerHalfHeight,
+                this.density * MaxwellTest.k_containerHalfWidth,
+                this.density * MaxwellTest.k_containerHalfHeight,
                 new Vec2(0, MaxwellTest.k_containerHalfHeight),
                 0,
             );
             const pd = new ParticleGroupDef();
             pd.flags = ParticleFlag.Powder;
             pd.shape = shape;
-            this.m_particleGroup = this.m_particleSystem.createParticleGroup(pd);
-            const velocities = this.m_particleSystem.getVelocityBuffer();
-            const index = this.m_particleGroup.getBufferIndex();
+            this.particleGroup = this.particleSystem.createParticleGroup(pd);
+            const velocities = this.particleSystem.getVelocityBuffer();
+            const index = this.particleGroup.getBufferIndex();
 
-            for (let i = 0; i < this.m_particleGroup.getParticleCount(); ++i) {
+            for (let i = 0; i < this.particleGroup.getParticleCount(); ++i) {
                 const v = velocities[index + i];
                 v.set(randomFloat(-1, 1) + 1, randomFloat(-1, 1) + 1);
                 v.normalize();
-                v.scale(this.m_temperature);
+                v.scale(this.temperature);
             }
         }
     }
@@ -182,29 +182,29 @@ class MaxwellTest extends AbstractParticleTest {
         return [
             hotKeyPress("a", "Toggle Barrier", () => this.toggleBarrier()),
             hotKeyPress("m", "Increase the Particle Density", () => {
-                this.m_density = Math.min(this.m_density * MaxwellTest.k_densityStep, MaxwellTest.k_densityMax);
+                this.density = Math.min(this.density * MaxwellTest.k_densityStep, MaxwellTest.k_densityMax);
                 this.reset();
             }),
             hotKeyPress("n", "Reduce the Particle Density", () => {
-                this.m_density = Math.max(this.m_density / MaxwellTest.k_densityStep, MaxwellTest.k_densityMin);
+                this.density = Math.max(this.density / MaxwellTest.k_densityStep, MaxwellTest.k_densityMin);
                 this.reset();
             }),
             hotKeyPress("w", "Move the location of the divider up", () =>
-                this.moveDivider(this.m_position + MaxwellTest.k_barrierMovementIncrement),
+                this.moveDivider(this.position + MaxwellTest.k_barrierMovementIncrement),
             ),
             hotKeyPress("s", "Move the location of the divider down", () =>
-                this.moveDivider(this.m_position - MaxwellTest.k_barrierMovementIncrement),
+                this.moveDivider(this.position - MaxwellTest.k_barrierMovementIncrement),
             ),
             hotKeyPress("h", "Reduce the temperature (velocity of particles)", () => {
-                this.m_temperature = Math.max(
-                    this.m_temperature - MaxwellTest.k_temperatureStep,
+                this.temperature = Math.max(
+                    this.temperature - MaxwellTest.k_temperatureStep,
                     MaxwellTest.k_temperatureMin,
                 );
                 this.reset();
             }),
             hotKeyPress("j", "Increase the temperature (velocity of particles)", () => {
-                this.m_temperature = Math.min(
-                    this.m_temperature + MaxwellTest.k_temperatureStep,
+                this.temperature = Math.min(
+                    this.temperature + MaxwellTest.k_temperatureStep,
                     MaxwellTest.k_temperatureMax,
                 );
                 this.reset();
@@ -250,21 +250,21 @@ class MaxwellTest extends AbstractParticleTest {
         let top = 0;
         let bottom = 0;
 
-        if (this.m_particleGroup) {
-            const index = this.m_particleGroup.getBufferIndex();
-            const velocities = this.m_particleSystem.getVelocityBuffer();
-            const positions = this.m_particleSystem.getPositionBuffer();
+        if (this.particleGroup) {
+            const index = this.particleGroup.getBufferIndex();
+            const velocities = this.particleSystem.getVelocityBuffer();
+            const positions = this.particleSystem.getPositionBuffer();
 
-            for (let i = 0; i < this.m_particleGroup.getParticleCount(); i++) {
+            for (let i = 0; i < this.particleGroup.getParticleCount(); i++) {
                 // Add energy to particles based upon the temperature.
                 const v = velocities[index + i];
                 v.normalize();
-                v.scale(this.m_temperature);
+                v.scale(this.temperature);
 
                 // Keep track of the number of particles above / below the
                 // divider / barrier position.
                 const p = positions[index + i];
-                if (p.y > this.m_position) {
+                if (p.y > this.position) {
                     top++;
                 } else {
                     bottom++;
@@ -274,8 +274,8 @@ class MaxwellTest extends AbstractParticleTest {
 
         // Calculate a score based upon the difference in pressure between the
         // upper and lower divisions of the container.
-        const topPressure = top / (MaxwellTest.k_containerHeight - this.m_position);
-        const botPressure = bottom / this.m_position;
+        const topPressure = top / (MaxwellTest.k_containerHeight - this.position);
+        const botPressure = bottom / this.position;
         this.addDebug("Score", topPressure > 0 ? botPressure / topPressure - 1 : 0);
     }
 
@@ -292,7 +292,7 @@ class MaxwellTest extends AbstractParticleTest {
      * Move the divider / barrier.
      */
     public moveDivider(newPosition: number) {
-        this.m_position = clamp(
+        this.position = clamp(
             newPosition,
             MaxwellTest.k_barrierMovementIncrement,
             MaxwellTest.k_containerHeight - MaxwellTest.k_barrierMovementIncrement,

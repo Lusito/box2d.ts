@@ -42,7 +42,7 @@ class CantileverTest extends Test {
         let ground = null;
 
         {
-            ground = this.m_world.createBody();
+            ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
@@ -62,7 +62,7 @@ class CantileverTest extends Test {
 
             let prevBody = ground;
             for (let i = 0; i < CantileverTest.e_count; ++i) {
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: -14.5 + 1 * i, y: 5 },
                 });
@@ -70,7 +70,7 @@ class CantileverTest extends Test {
 
                 const anchor = new Vec2(-15 + 1 * i, 5);
                 jd.initialize(prevBody, body, anchor);
-                this.m_world.createJoint(jd);
+                this.world.createJoint(jd);
 
                 prevBody = body;
             }
@@ -91,7 +91,7 @@ class CantileverTest extends Test {
 
             let prevBody = ground;
             for (let i = 0; i < 3; ++i) {
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: -14 + 2 * i, y: 15 },
                 });
@@ -100,7 +100,7 @@ class CantileverTest extends Test {
                 const anchor = new Vec2(-15 + 2 * i, 15);
                 jd.initialize(prevBody, body, anchor);
                 angularStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-                this.m_world.createJoint(jd);
+                this.world.createJoint(jd);
 
                 prevBody = body;
             }
@@ -119,7 +119,7 @@ class CantileverTest extends Test {
 
             let prevBody = ground;
             for (let i = 0; i < CantileverTest.e_count; ++i) {
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: -4.5 + 1 * i, y: 5 },
                 });
@@ -128,7 +128,7 @@ class CantileverTest extends Test {
                 if (i > 0) {
                     const anchor = new Vec2(-5 + 1 * i, 5);
                     jd.initialize(prevBody, body, anchor);
-                    this.m_world.createJoint(jd);
+                    this.world.createJoint(jd);
                 }
 
                 prevBody = body;
@@ -150,7 +150,7 @@ class CantileverTest extends Test {
 
             let prevBody = ground;
             for (let i = 0; i < CantileverTest.e_count; ++i) {
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: 5.5 + 1 * i, y: 10 },
                 });
@@ -160,7 +160,7 @@ class CantileverTest extends Test {
                     const anchor = new Vec2(5 + 1 * i, 10);
                     jd.initialize(prevBody, body, anchor);
                     angularStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-                    this.m_world.createJoint(jd);
+                    this.world.createJoint(jd);
                 }
 
                 prevBody = body;
@@ -176,7 +176,7 @@ class CantileverTest extends Test {
             const shape = new PolygonShape();
             shape.set(vertices);
 
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -8 + 8 * i, y: 12 },
             });
@@ -188,9 +188,9 @@ class CantileverTest extends Test {
 
         for (let i = 0; i < 2; ++i) {
             const shape = new CircleShape();
-            shape.m_radius = 0.5;
+            shape.radius = 0.5;
 
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -6 + 6 * i, y: 10 },
             });

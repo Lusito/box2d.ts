@@ -23,13 +23,13 @@ import { registerTest, Test } from "../../test";
 class CircleStackTest extends Test {
     public static readonly e_count = 10;
 
-    public m_bodies: Body[] = [];
+    public bodies: Body[] = [];
 
     public constructor() {
         super();
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
@@ -38,17 +38,17 @@ class CircleStackTest extends Test {
 
         {
             const shape = new CircleShape();
-            shape.m_radius = 1;
+            shape.radius = 1;
 
             for (let i = 0; i < CircleStackTest.e_count; ++i) {
-                this.m_bodies[i] = this.m_world.createBody({
+                this.bodies[i] = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: 0, y: 4 + 3 * i },
                 });
 
-                this.m_bodies[i].createFixture({ shape, density: 1 });
+                this.bodies[i].createFixture({ shape, density: 1 });
 
-                this.m_bodies[i].setLinearVelocity(new Vec2(0, -50));
+                this.bodies[i].setLinearVelocity(new Vec2(0, -50));
             }
         }
     }

@@ -89,7 +89,7 @@ export class DirectionalLight extends Light {
         for (let i = 0; i < this.rayNum; i++) {
             const steppedX = i * portionX + x;
             const steppedY = i * portionY + y;
-            this.m_index = i;
+            this.index = i;
             this.start[i].x = steppedX - xAxelOffSet;
             this.start[i].y = steppedY - yAxelOffSet;
 

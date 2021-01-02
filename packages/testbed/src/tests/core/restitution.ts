@@ -28,7 +28,7 @@ class RestitutionTest extends Test {
 
         const restitutionThreshold = 10;
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
@@ -37,7 +37,7 @@ class RestitutionTest extends Test {
 
         {
             const shape = new CircleShape();
-            shape.m_radius = 1;
+            shape.radius = 1;
 
             const fd: FixtureDef = {
                 shape,
@@ -48,7 +48,7 @@ class RestitutionTest extends Test {
             const restitution = [0, 0.1, 0.3, 0.5, 0.75, 0.9, 1];
 
             for (let i = 0; i < 7; ++i) {
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: -10 + 3 * i, y: 20 },
                 });

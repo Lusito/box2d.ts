@@ -23,7 +23,7 @@ import { ParticleSystem, ParticleSystemDef } from "../particle/b2_particle_syste
 
 declare module "@box2d/core" {
     interface World {
-        m_particleSystemList: ParticleSystem | null;
+        particleSystemList: ParticleSystem | null;
 
         createParticleSystem(def: ParticleSystemDef): ParticleSystem;
         destroyParticleSystem(p: ParticleSystem): void;
@@ -35,14 +35,14 @@ declare module "@box2d/core" {
 augment(World, {
     create(original, gravity) {
         const world = original(gravity);
-        world.m_particleSystemList = null;
+        world.particleSystemList = null;
         return world;
     },
 });
 
 function getSmallestRadius(world: World): number {
     let smallestRadius = MAX_FLOAT;
-    for (let system = world.getParticleSystemList(); system !== null; system = system.m_next) {
+    for (let system = world.getParticleSystemList(); system !== null; system = system.next) {
         smallestRadius = Math.min(smallestRadius, system.getRadius());
     }
     return smallestRadius;
@@ -54,12 +54,12 @@ Object.assign(World.prototype, {
         const p = new ParticleSystem(def, this);
 
         // Add to world doubly linked list.
-        p.m_prev = null;
-        p.m_next = this.m_particleSystemList;
-        if (this.m_particleSystemList) {
-            this.m_particleSystemList.m_prev = p;
+        p.prev = null;
+        p.next = this.particleSystemList;
+        if (this.particleSystemList) {
+            this.particleSystemList.prev = p;
         }
-        this.m_particleSystemList = p;
+        this.particleSystemList = p;
 
         return p;
     },
@@ -67,23 +67,23 @@ Object.assign(World.prototype, {
         assert(!this.isLocked());
 
         // Remove world particleSystem list.
-        if (p.m_prev) {
-            p.m_prev.m_next = p.m_next;
+        if (p.prev) {
+            p.prev.next = p.next;
         }
 
-        if (p.m_next) {
-            p.m_next.m_prev = p.m_prev;
+        if (p.next) {
+            p.next.prev = p.prev;
         }
 
-        if (p === this.m_particleSystemList) {
-            this.m_particleSystemList = p.m_next;
+        if (p === this.particleSystemList) {
+            this.particleSystemList = p.next;
         }
     },
     getParticleSystemList(this: World): ParticleSystem | null {
-        return this.m_particleSystemList;
+        return this.particleSystemList;
     },
     calculateReasonableParticleIterations(this: World, timeStep: number): number {
-        if (this.m_particleSystemList === null) {
+        if (this.particleSystemList === null) {
             return 1;
         }
 
@@ -95,19 +95,19 @@ Object.assign(World.prototype, {
 augment(World.prototype, {
     createBody(this: World, original, def = {}) {
         const body = original(def);
-        (body as Writeable<Body>).m_xf0 = new Transform();
+        (body as Writeable<Body>).xf0 = new Transform();
         return body;
     },
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     solve(this: World, original: (step: TimeStep) => void, step: TimeStep) {
-        for (let p = this.m_particleSystemList; p; p = p.m_next) {
+        for (let p = this.particleSystemList; p; p = p.next) {
             p.solve(step); // Particle Simulation
         }
         // update previous transforms
         for (let b = this.getBodyList(); b; b = b.getNext()) {
-            b.m_xf0.copy(b.getTransform());
+            b.xf0.copy(b.getTransform());
         }
 
         original(step);

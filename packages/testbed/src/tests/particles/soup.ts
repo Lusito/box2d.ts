@@ -29,82 +29,82 @@ export const particleTypes = {
 };
 
 export class SoupTest extends AbstractParticleTestWithControls {
-    public m_ground: Body;
+    public ground: Body;
 
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter);
 
         particleParameter.setValues(particleTypes, "water");
 
-        this.m_ground = this.m_world.createBody();
+        this.ground = this.world.createBody();
 
         {
             const shape = new PolygonShape();
             const vertices = [new Vec2(-4, -1), new Vec2(4, -1), new Vec2(4, 0), new Vec2(-4, 0)];
             shape.set(vertices, 4);
-            this.m_ground.createFixture({ shape });
+            this.ground.createFixture({ shape });
         }
 
         {
             const shape = new PolygonShape();
             const vertices = [new Vec2(-4, -0.1), new Vec2(-2, -0.1), new Vec2(-2, 2), new Vec2(-4, 3)];
             shape.set(vertices, 4);
-            this.m_ground.createFixture({ shape });
+            this.ground.createFixture({ shape });
         }
 
         {
             const shape = new PolygonShape();
             const vertices = [new Vec2(2, -0.1), new Vec2(4, -0.1), new Vec2(4, 3), new Vec2(2, 2)];
             shape.set(vertices, 4);
-            this.m_ground.createFixture({ shape });
+            this.ground.createFixture({ shape });
         }
 
-        this.m_particleSystem.setRadius(0.035 * 2); // HACK: increase particle radius
+        this.particleSystem.setRadius(0.035 * 2); // HACK: increase particle radius
         {
             const shape = new PolygonShape();
             shape.setAsBox(2, 1, new Vec2(0, 1), 0);
             const pd = new ParticleGroupDef();
             pd.shape = shape;
             pd.flags = particleParameter.getValue();
-            const group = this.m_particleSystem.createParticleGroup(pd);
+            const group = this.particleSystem.createParticleGroup(pd);
             if (pd.flags & ParticleFlag.ColorMixing) {
                 this.colorParticleGroup(group, 0);
             }
         }
 
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
             });
             const shape = new CircleShape();
-            shape.m_p.set(0, 0.5);
-            shape.m_radius = 0.1;
+            shape.p.set(0, 0.5);
+            shape.radius = 0.1;
             body.createFixture({ shape, density: 0.1 });
-            this.m_particleSystem.destroyParticlesInShape(shape, body.getTransform());
+            this.particleSystem.destroyParticlesInShape(shape, body.getTransform());
         }
 
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
             });
             const shape = new PolygonShape();
             shape.setAsBox(0.1, 0.1, new Vec2(-1, 0.5), 0);
             body.createFixture({ shape, density: 0.1 });
-            this.m_particleSystem.destroyParticlesInShape(shape, body.getTransform());
+            this.particleSystem.destroyParticlesInShape(shape, body.getTransform());
         }
 
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
             });
             const shape = new PolygonShape();
             shape.setAsBox(0.1, 0.1, new Vec2(1, 0.5), 0.5);
             body.createFixture({ shape, density: 0.1 });
-            this.m_particleSystem.destroyParticlesInShape(shape, body.getTransform());
+            this.particleSystem.destroyParticlesInShape(shape, body.getTransform());
         }
 
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
             });
             const shape = new EdgeShape();
@@ -112,14 +112,14 @@ export class SoupTest extends AbstractParticleTestWithControls {
             body.createFixture({ shape, density: 1 });
             const massData = new MassData();
             massData.mass = 0.1;
-            massData.center.x = 0.5 * shape.m_vertex1.x + shape.m_vertex2.x;
-            massData.center.y = 0.5 * shape.m_vertex1.y + shape.m_vertex2.y;
+            massData.center.x = 0.5 * shape.vertex1.x + shape.vertex2.x;
+            massData.center.y = 0.5 * shape.vertex1.y + shape.vertex2.y;
             massData.I = 0;
             body.setMassData(massData);
         }
 
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
             });
             const shape = new EdgeShape();
@@ -127,14 +127,14 @@ export class SoupTest extends AbstractParticleTestWithControls {
             body.createFixture({ shape, density: 1 });
             const massData = new MassData();
             massData.mass = 0.1;
-            massData.center.x = 0.5 * shape.m_vertex1.x + shape.m_vertex2.x;
-            massData.center.y = 0.5 * shape.m_vertex1.y + shape.m_vertex2.y;
+            massData.center.x = 0.5 * shape.vertex1.x + shape.vertex2.x;
+            massData.center.y = 0.5 * shape.vertex1.y + shape.vertex2.y;
             massData.I = 0;
             body.setMassData(massData);
         }
 
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
             });
             const shape = new EdgeShape();
@@ -142,8 +142,8 @@ export class SoupTest extends AbstractParticleTestWithControls {
             body.createFixture({ shape, density: 1 });
             const massData = new MassData();
             massData.mass = 0.1;
-            massData.center.x = 0.5 * shape.m_vertex1.x + shape.m_vertex2.x;
-            massData.center.y = 0.5 * shape.m_vertex1.y + shape.m_vertex2.y;
+            massData.center.x = 0.5 * shape.vertex1.x + shape.vertex2.x;
+            massData.center.y = 0.5 * shape.vertex1.y + shape.vertex2.y;
             massData.I = 0;
             body.setMassData(massData);
         }

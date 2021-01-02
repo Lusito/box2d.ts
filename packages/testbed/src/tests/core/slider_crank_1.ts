@@ -25,7 +25,7 @@ class SliderCrank1Test extends Test {
     public constructor() {
         super();
 
-        const ground = this.m_world.createBody({
+        const ground = this.world.createBody({
             position: {
                 x: 0,
                 y: 17,
@@ -40,7 +40,7 @@ class SliderCrank1Test extends Test {
                 const shape = new PolygonShape();
                 shape.setAsBox(4, 1);
 
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: {
                         x: -8,
@@ -51,7 +51,7 @@ class SliderCrank1Test extends Test {
 
                 const rjd = new RevoluteJointDef();
                 rjd.initialize(prevBody, body, new Vec2(-12, 20));
-                this.m_world.createJoint(rjd);
+                this.world.createJoint(rjd);
 
                 prevBody = body;
             }
@@ -61,7 +61,7 @@ class SliderCrank1Test extends Test {
                 const shape = new PolygonShape();
                 shape.setAsBox(8, 1);
 
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: {
                         x: 4,
@@ -72,7 +72,7 @@ class SliderCrank1Test extends Test {
 
                 const rjd = new RevoluteJointDef();
                 rjd.initialize(prevBody, body, new Vec2(-4, 20));
-                this.m_world.createJoint(rjd);
+                this.world.createJoint(rjd);
 
                 prevBody = body;
             }
@@ -82,7 +82,7 @@ class SliderCrank1Test extends Test {
                 const shape = new PolygonShape();
                 shape.setAsBox(3, 3);
 
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     fixedRotation: true,
                     position: {
@@ -94,11 +94,11 @@ class SliderCrank1Test extends Test {
 
                 const rjd = new RevoluteJointDef();
                 rjd.initialize(prevBody, body, new Vec2(12, 20));
-                this.m_world.createJoint(rjd);
+                this.world.createJoint(rjd);
 
                 const pjd = new PrismaticJointDef();
                 pjd.initialize(ground, body, new Vec2(12, 17), new Vec2(1, 0));
-                this.m_world.createJoint(pjd);
+                this.world.createJoint(pjd);
             }
         }
     }

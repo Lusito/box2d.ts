@@ -37,22 +37,22 @@ export function collideCircles(
 ): void {
     manifold.pointCount = 0;
 
-    const pA = Transform.multiplyVec2(xfA, circleA.m_p, CollideCircles_s_pA);
-    const pB = Transform.multiplyVec2(xfB, circleB.m_p, CollideCircles_s_pB);
+    const pA = Transform.multiplyVec2(xfA, circleA.p, CollideCircles_s_pA);
+    const pB = Transform.multiplyVec2(xfB, circleB.p, CollideCircles_s_pB);
 
     const distSqr = Vec2.distanceSquared(pA, pB);
-    const radius = circleA.m_radius + circleB.m_radius;
+    const radius = circleA.radius + circleB.radius;
     if (distSqr > radius * radius) {
         return;
     }
 
     manifold.type = ManifoldType.Circles;
-    manifold.localPoint.copy(circleA.m_p);
+    manifold.localPoint.copy(circleA.p);
     manifold.localNormal.setZero();
     manifold.pointCount = 1;
 
-    manifold.points[0].localPoint.copy(circleB.m_p);
-    manifold.points[0].id.key = 0;
+    manifold.points[0].localPoint.copy(circleB.p);
+    manifold.points[0].id.cf.reset();
 }
 
 const CollidePolygonAndCircle_s_c = new Vec2();
@@ -68,16 +68,15 @@ export function collidePolygonAndCircle(
     manifold.pointCount = 0;
 
     // Compute circle position in the frame of the polygon.
-    const c = Transform.multiplyVec2(xfB, circleB.m_p, CollidePolygonAndCircle_s_c);
+    const c = Transform.multiplyVec2(xfB, circleB.p, CollidePolygonAndCircle_s_c);
     const cLocal = Transform.transposeMultiplyVec2(xfA, c, CollidePolygonAndCircle_s_cLocal);
 
     // Find the min separating edge.
     let normalIndex = 0;
     let separation = -MAX_FLOAT;
-    const radius = polygonA.m_radius + circleB.m_radius;
-    const vertexCount = polygonA.m_count;
-    const vertices = polygonA.m_vertices;
-    const normals = polygonA.m_normals;
+    const radius = polygonA.radius + circleB.radius;
+    const vertexCount = polygonA.count;
+    const { vertices, normals } = polygonA;
 
     for (let i = 0; i < vertexCount; ++i) {
         const s = Vec2.dot(normals[i], Vec2.subtract(cLocal, vertices[i], Vec2.s_t0));
@@ -105,8 +104,8 @@ export function collidePolygonAndCircle(
         manifold.type = ManifoldType.FaceA;
         manifold.localNormal.copy(normals[normalIndex]);
         Vec2.mid(v1, v2, manifold.localPoint);
-        manifold.points[0].localPoint.copy(circleB.m_p);
-        manifold.points[0].id.key = 0;
+        manifold.points[0].localPoint.copy(circleB.p);
+        manifold.points[0].id.cf.reset();
         return;
     }
 
@@ -122,8 +121,8 @@ export function collidePolygonAndCircle(
         manifold.type = ManifoldType.FaceA;
         Vec2.subtract(cLocal, v1, manifold.localNormal).normalize();
         manifold.localPoint.copy(v1);
-        manifold.points[0].localPoint.copy(circleB.m_p);
-        manifold.points[0].id.key = 0;
+        manifold.points[0].localPoint.copy(circleB.p);
+        manifold.points[0].id.cf.reset();
     } else if (u2 <= 0) {
         if (Vec2.distanceSquared(cLocal, v2) > radius * radius) {
             return;
@@ -133,8 +132,8 @@ export function collidePolygonAndCircle(
         manifold.type = ManifoldType.FaceA;
         Vec2.subtract(cLocal, v2, manifold.localNormal).normalize();
         manifold.localPoint.copy(v2);
-        manifold.points[0].localPoint.copy(circleB.m_p);
-        manifold.points[0].id.key = 0;
+        manifold.points[0].localPoint.copy(circleB.p);
+        manifold.points[0].id.cf.reset();
     } else {
         const faceCenter = Vec2.mid(v1, v2, CollidePolygonAndCircle_s_faceCenter);
         const separation2 = Vec2.dot(Vec2.subtract(cLocal, faceCenter, Vec2.s_t1), normals[vertIndex1]);
@@ -146,7 +145,7 @@ export function collidePolygonAndCircle(
         manifold.type = ManifoldType.FaceA;
         manifold.localNormal.copy(normals[vertIndex1]);
         manifold.localPoint.copy(faceCenter);
-        manifold.points[0].localPoint.copy(circleB.m_p);
-        manifold.points[0].id.key = 0;
+        manifold.points[0].localPoint.copy(circleB.p);
+        manifold.points[0].id.cf.reset();
     }
 }

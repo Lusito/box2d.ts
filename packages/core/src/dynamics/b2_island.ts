@@ -161,25 +161,25 @@ However, we can compute sin+cos of the same angle fast.
 
 /** @internal */
 export class Island {
-    public m_listener: ContactListener;
+    public listener: ContactListener;
 
-    public readonly m_bodies: Body[];
+    public readonly bodies: Body[];
 
-    public readonly m_contacts: Contact[];
+    public readonly contacts: Contact[];
 
-    public readonly m_joints: Joint[];
+    public readonly joints: Joint[];
 
-    public readonly m_positions: Position[];
+    public readonly positions: Position[];
 
-    public readonly m_velocities: Velocity[];
+    public readonly velocities: Velocity[];
 
-    public m_bodyCount = 0;
+    public bodyCount = 0;
 
-    public m_jointCount = 0;
+    public jointCount = 0;
 
-    public m_contactCount = 0;
+    public contactCount = 0;
 
-    public m_bodyCapacity: number;
+    public bodyCapacity: number;
 
     public constructor(
         bodyCapacity: number,
@@ -187,47 +187,47 @@ export class Island {
         jointCapacity: number,
         listener: ContactListener,
     ) {
-        this.m_bodyCapacity = bodyCapacity;
+        this.bodyCapacity = bodyCapacity;
 
-        this.m_listener = listener;
+        this.listener = listener;
 
-        this.m_bodies = new Array(bodyCapacity);
-        this.m_contacts = new Array(contactCapacity);
-        this.m_joints = new Array(jointCapacity);
+        this.bodies = new Array(bodyCapacity);
+        this.contacts = new Array(contactCapacity);
+        this.joints = new Array(jointCapacity);
 
-        this.m_velocities = makeArray(bodyCapacity, Velocity);
-        this.m_positions = makeArray(bodyCapacity, Position);
+        this.velocities = makeArray(bodyCapacity, Velocity);
+        this.positions = makeArray(bodyCapacity, Position);
 
         this.resize(bodyCapacity);
     }
 
     public resize(bodyCapacity: number) {
-        while (this.m_bodyCapacity < bodyCapacity) {
-            this.m_velocities[this.m_bodyCapacity] = new Velocity();
-            this.m_positions[this.m_bodyCapacity] = new Position();
-            this.m_bodyCapacity++;
+        while (this.bodyCapacity < bodyCapacity) {
+            this.velocities[this.bodyCapacity] = new Velocity();
+            this.positions[this.bodyCapacity] = new Position();
+            this.bodyCapacity++;
         }
     }
 
     public clear(): void {
-        this.m_bodyCount = 0;
-        this.m_contactCount = 0;
-        this.m_jointCount = 0;
+        this.bodyCount = 0;
+        this.contactCount = 0;
+        this.jointCount = 0;
     }
 
     public addBody(body: Body): void {
-        // DEBUG: assert(this.m_bodyCount < this.m_bodyCapacity);
-        body.m_islandIndex = this.m_bodyCount;
-        this.m_bodies[this.m_bodyCount] = body;
-        ++this.m_bodyCount;
+        // DEBUG: assert(this.bodyCount < this.bodyCapacity);
+        body.islandIndex = this.bodyCount;
+        this.bodies[this.bodyCount] = body;
+        ++this.bodyCount;
     }
 
     public addContact(contact: Contact): void {
-        this.m_contacts[this.m_contactCount++] = contact;
+        this.contacts[this.contactCount++] = contact;
     }
 
     public addJoint(joint: Joint): void {
-        this.m_joints[this.m_jointCount++] = joint;
+        this.joints[this.jointCount++] = joint;
     }
 
     private static s_timer = new Timer();
@@ -246,23 +246,23 @@ export class Island {
         const h = step.dt;
 
         // Integrate velocities and apply damping. Initialize the body state.
-        for (let i = 0; i < this.m_bodyCount; ++i) {
-            const b = this.m_bodies[i];
+        for (let i = 0; i < this.bodyCount; ++i) {
+            const b = this.bodies[i];
 
-            this.m_positions[i].c.copy(b.m_sweep.c);
-            const { a } = b.m_sweep;
-            const v = this.m_velocities[i].v.copy(b.m_linearVelocity);
-            let w = b.m_angularVelocity;
+            this.positions[i].c.copy(b.sweep.c);
+            const { a } = b.sweep;
+            const v = this.velocities[i].v.copy(b.linearVelocity);
+            let w = b.angularVelocity;
 
             // Store positions for continuous collision.
-            b.m_sweep.c0.copy(b.m_sweep.c);
-            b.m_sweep.a0 = b.m_sweep.a;
+            b.sweep.c0.copy(b.sweep.c);
+            b.sweep.a0 = b.sweep.a;
 
-            if (b.m_type === BodyType.Dynamic) {
+            if (b.type === BodyType.Dynamic) {
                 // Integrate velocities.
-                v.x += h * b.m_invMass * (b.m_gravityScale * b.m_mass * gravity.x + b.m_force.x);
-                v.y += h * b.m_invMass * (b.m_gravityScale * b.m_mass * gravity.y + b.m_force.y);
-                w += h * b.m_invI * b.m_torque;
+                v.x += h * b.invMass * (b.gravityScale * b.mass * gravity.x + b.force.x);
+                v.y += h * b.invMass * (b.gravityScale * b.mass * gravity.y + b.force.y);
+                w += h * b.invI * b.torque;
 
                 // Apply damping.
                 // ODE: dv/dt + c * v = 0
@@ -271,12 +271,12 @@ export class Island {
                 // v2 = exp(-c * dt) * v1
                 // Pade approximation:
                 // v2 = v1 * 1 / (1 + c * dt)
-                v.scale(1 / (1 + h * b.m_linearDamping));
-                w *= 1 / (1 + h * b.m_angularDamping);
+                v.scale(1 / (1 + h * b.linearDamping));
+                w *= 1 / (1 + h * b.angularDamping);
             }
 
-            this.m_positions[i].a = a;
-            this.m_velocities[i].w = w;
+            this.positions[i].a = a;
+            this.velocities[i].w = w;
         }
 
         timer.reset();
@@ -284,16 +284,16 @@ export class Island {
         // Solver data
         const solverData = Island.s_solverData;
         solverData.step.copy(step);
-        solverData.positions = this.m_positions;
-        solverData.velocities = this.m_velocities;
+        solverData.positions = this.positions;
+        solverData.velocities = this.velocities;
 
         // Initialize velocity constraints.
         const contactSolverDef = Island.s_contactSolverDef;
         contactSolverDef.step.copy(step);
-        contactSolverDef.contacts = this.m_contacts;
-        contactSolverDef.count = this.m_contactCount;
-        contactSolverDef.positions = this.m_positions;
-        contactSolverDef.velocities = this.m_velocities;
+        contactSolverDef.contacts = this.contacts;
+        contactSolverDef.count = this.contactCount;
+        contactSolverDef.positions = this.positions;
+        contactSolverDef.velocities = this.velocities;
 
         const contactSolver = Island.s_contactSolver.initialize(contactSolverDef);
         contactSolver.initializeVelocityConstraints();
@@ -302,8 +302,8 @@ export class Island {
             contactSolver.warmStart();
         }
 
-        for (let i = 0; i < this.m_jointCount; ++i) {
-            this.m_joints[i].initVelocityConstraints(solverData);
+        for (let i = 0; i < this.jointCount; ++i) {
+            this.joints[i].initVelocityConstraints(solverData);
         }
 
         profile.solveInit = timer.getMilliseconds();
@@ -311,8 +311,8 @@ export class Island {
         // Solve velocity constraints.
         timer.reset();
         for (let i = 0; i < step.config.velocityIterations; ++i) {
-            for (let j = 0; j < this.m_jointCount; ++j) {
-                this.m_joints[j].solveVelocityConstraints(solverData);
+            for (let j = 0; j < this.jointCount; ++j) {
+                this.joints[j].solveVelocityConstraints(solverData);
             }
 
             contactSolver.solveVelocityConstraints();
@@ -323,11 +323,11 @@ export class Island {
         profile.solveVelocity = timer.getMilliseconds();
 
         // Integrate positions.
-        for (let i = 0; i < this.m_bodyCount; ++i) {
-            const { c } = this.m_positions[i];
-            let { a } = this.m_positions[i];
-            const { v } = this.m_velocities[i];
-            let { w } = this.m_velocities[i];
+        for (let i = 0; i < this.bodyCount; ++i) {
+            const { c } = this.positions[i];
+            let { a } = this.positions[i];
+            const { v } = this.velocities[i];
+            let { w } = this.velocities[i];
 
             // Check for large velocities
             const translation = Vec2.scale(h, v, Island.s_translation);
@@ -346,8 +346,8 @@ export class Island {
             c.addScaled(h, v);
             a += h * w;
 
-            this.m_positions[i].a = a;
-            this.m_velocities[i].w = w;
+            this.positions[i].a = a;
+            this.velocities[i].w = w;
         }
 
         // Solve position constraints
@@ -357,8 +357,8 @@ export class Island {
             const contactsOkay = contactSolver.solvePositionConstraints();
 
             let jointsOkay = true;
-            for (let j = 0; j < this.m_jointCount; ++j) {
-                const jointOkay = this.m_joints[j].solvePositionConstraints(solverData);
+            for (let j = 0; j < this.jointCount; ++j) {
+                const jointOkay = this.joints[j].solvePositionConstraints(solverData);
                 jointsOkay = jointsOkay && jointOkay;
             }
 
@@ -370,18 +370,18 @@ export class Island {
         }
 
         // Copy state buffers back to the bodies
-        for (let i = 0; i < this.m_bodyCount; ++i) {
-            const body = this.m_bodies[i];
-            body.m_sweep.c.copy(this.m_positions[i].c);
-            body.m_sweep.a = this.m_positions[i].a;
-            body.m_linearVelocity.copy(this.m_velocities[i].v);
-            body.m_angularVelocity = this.m_velocities[i].w;
+        for (let i = 0; i < this.bodyCount; ++i) {
+            const body = this.bodies[i];
+            body.sweep.c.copy(this.positions[i].c);
+            body.sweep.a = this.positions[i].a;
+            body.linearVelocity.copy(this.velocities[i].v);
+            body.angularVelocity = this.velocities[i].w;
             body.synchronizeTransform();
         }
 
         profile.solvePosition = timer.getMilliseconds();
 
-        this.report(contactSolver.m_velocityConstraints);
+        this.report(contactSolver.velocityConstraints);
 
         if (allowSleep) {
             let minSleepTime = MAX_FLOAT;
@@ -389,28 +389,28 @@ export class Island {
             const linTolSqr = LINEAR_SLEEP_TOLERANCE * LINEAR_SLEEP_TOLERANCE;
             const angTolSqr = ANGULAR_SLEEP_TOLERANCE * ANGULAR_SLEEP_TOLERANCE;
 
-            for (let i = 0; i < this.m_bodyCount; ++i) {
-                const b = this.m_bodies[i];
+            for (let i = 0; i < this.bodyCount; ++i) {
+                const b = this.bodies[i];
                 if (b.getType() === BodyType.Static) {
                     continue;
                 }
 
                 if (
-                    !b.m_autoSleepFlag ||
-                    b.m_angularVelocity * b.m_angularVelocity > angTolSqr ||
-                    Vec2.dot(b.m_linearVelocity, b.m_linearVelocity) > linTolSqr
+                    !b.autoSleepFlag ||
+                    b.angularVelocity * b.angularVelocity > angTolSqr ||
+                    Vec2.dot(b.linearVelocity, b.linearVelocity) > linTolSqr
                 ) {
-                    b.m_sleepTime = 0;
+                    b.sleepTime = 0;
                     minSleepTime = 0;
                 } else {
-                    b.m_sleepTime += h;
-                    minSleepTime = Math.min(minSleepTime, b.m_sleepTime);
+                    b.sleepTime += h;
+                    minSleepTime = Math.min(minSleepTime, b.sleepTime);
                 }
             }
 
             if (minSleepTime >= TIME_TO_SLEEP && positionSolved) {
-                for (let i = 0; i < this.m_bodyCount; ++i) {
-                    const b = this.m_bodies[i];
+                for (let i = 0; i < this.bodyCount; ++i) {
+                    const b = this.bodies[i];
                     b.setAwake(false);
                 }
             }
@@ -418,24 +418,24 @@ export class Island {
     }
 
     public solveTOI(subStep: TimeStep, toiIndexA: number, toiIndexB: number): void {
-        // DEBUG: assert(toiIndexA < this.m_bodyCount);
-        // DEBUG: assert(toiIndexB < this.m_bodyCount);
+        // DEBUG: assert(toiIndexA < this.bodyCount);
+        // DEBUG: assert(toiIndexB < this.bodyCount);
 
         // Initialize the body state.
-        for (let i = 0; i < this.m_bodyCount; ++i) {
-            const b = this.m_bodies[i];
-            this.m_positions[i].c.copy(b.m_sweep.c);
-            this.m_positions[i].a = b.m_sweep.a;
-            this.m_velocities[i].v.copy(b.m_linearVelocity);
-            this.m_velocities[i].w = b.m_angularVelocity;
+        for (let i = 0; i < this.bodyCount; ++i) {
+            const b = this.bodies[i];
+            this.positions[i].c.copy(b.sweep.c);
+            this.positions[i].a = b.sweep.a;
+            this.velocities[i].v.copy(b.linearVelocity);
+            this.velocities[i].w = b.angularVelocity;
         }
 
         const contactSolverDef = Island.s_contactSolverDef;
-        contactSolverDef.contacts = this.m_contacts;
-        contactSolverDef.count = this.m_contactCount;
+        contactSolverDef.contacts = this.contacts;
+        contactSolverDef.count = this.contactCount;
         contactSolverDef.step.copy(subStep);
-        contactSolverDef.positions = this.m_positions;
-        contactSolverDef.velocities = this.m_velocities;
+        contactSolverDef.positions = this.positions;
+        contactSolverDef.velocities = this.velocities;
         const contactSolver = Island.s_contactSolver.initialize(contactSolverDef);
 
         // Solve position constraints.
@@ -447,10 +447,10 @@ export class Island {
         }
 
         // Leap of faith to new safe state.
-        this.m_bodies[toiIndexA].m_sweep.c0.copy(this.m_positions[toiIndexA].c);
-        this.m_bodies[toiIndexA].m_sweep.a0 = this.m_positions[toiIndexA].a;
-        this.m_bodies[toiIndexB].m_sweep.c0.copy(this.m_positions[toiIndexB].c);
-        this.m_bodies[toiIndexB].m_sweep.a0 = this.m_positions[toiIndexB].a;
+        this.bodies[toiIndexA].sweep.c0.copy(this.positions[toiIndexA].c);
+        this.bodies[toiIndexA].sweep.a0 = this.positions[toiIndexA].a;
+        this.bodies[toiIndexB].sweep.c0.copy(this.positions[toiIndexB].c);
+        this.bodies[toiIndexB].sweep.a0 = this.positions[toiIndexB].a;
 
         // No warm starting is needed for TOI events because warm
         // starting impulses were applied in the discrete solver.
@@ -467,11 +467,11 @@ export class Island {
         const h = subStep.dt;
 
         // Integrate positions
-        for (let i = 0; i < this.m_bodyCount; ++i) {
-            const { c } = this.m_positions[i];
-            let { a } = this.m_positions[i];
-            const { v } = this.m_velocities[i];
-            let { w } = this.m_velocities[i];
+        for (let i = 0; i < this.bodyCount; ++i) {
+            const { c } = this.positions[i];
+            let { a } = this.positions[i];
+            const { v } = this.velocities[i];
+            let { w } = this.velocities[i];
 
             // Check for large velocities
             const translation = Vec2.scale(h, v, Island.s_translation);
@@ -490,26 +490,26 @@ export class Island {
             c.addScaled(h, v);
             a += h * w;
 
-            this.m_positions[i].a = a;
-            this.m_velocities[i].w = w;
+            this.positions[i].a = a;
+            this.velocities[i].w = w;
 
             // Sync bodies
-            const body = this.m_bodies[i];
-            body.m_sweep.c.copy(c);
-            body.m_sweep.a = a;
-            body.m_linearVelocity.copy(v);
-            body.m_angularVelocity = w;
+            const body = this.bodies[i];
+            body.sweep.c.copy(c);
+            body.sweep.a = a;
+            body.linearVelocity.copy(v);
+            body.angularVelocity = w;
             body.synchronizeTransform();
         }
 
-        this.report(contactSolver.m_velocityConstraints);
+        this.report(contactSolver.velocityConstraints);
     }
 
     private static s_impulse = new ContactImpulse();
 
     public report(constraints: ContactVelocityConstraint[]): void {
-        for (let i = 0; i < this.m_contactCount; ++i) {
-            const c = this.m_contacts[i];
+        for (let i = 0; i < this.contactCount; ++i) {
+            const c = this.contacts[i];
             const vc = constraints[i];
 
             const impulse = Island.s_impulse;
@@ -519,7 +519,7 @@ export class Island {
                 impulse.tangentImpulses[j] = vc.points[j].tangentImpulse;
             }
 
-            this.m_listener.postSolve(c, impulse);
+            this.listener.postSolve(c, impulse);
         }
     }
 }

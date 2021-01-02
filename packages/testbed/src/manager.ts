@@ -22,21 +22,21 @@ function hotKeyToText(hotKey: HotKey) {
 }
 
 export class TestManager {
-    public m_fpsCalculator = new FpsCalculator(200, 200, 16);
+    public fpsCalculator = new FpsCalculator(200, 200, 16);
 
-    public readonly m_settings = new Settings();
+    public readonly settings = new Settings();
 
-    public m_test: Test | null = null;
+    public test: Test | null = null;
 
-    public m_lMouseDown = false;
+    public lMouseDown = false;
 
-    public m_rMouseDown = false;
+    public rMouseDown = false;
 
-    public m_max_demo_time = 1000 * 10;
+    public max_demo_time = 1000 * 10;
 
-    public m_ctx: CanvasRenderingContext2D | null = null;
+    public ctx: CanvasRenderingContext2D | null = null;
 
-    private m_mouse = new Vec2();
+    private mouse = new Vec2();
 
     private readonly ownHotKeys: HotKey[];
 
@@ -58,11 +58,11 @@ export class TestManager {
 
     public readonly onPauseChanged = new Signal<(paused: boolean) => void>();
 
-    private m_hoveringCanvas = false;
+    private hoveringCanvas = false;
 
     private shouldRestart = false;
 
-    private m_keyMap: { [s: string]: boolean } = {};
+    private keyMap: { [s: string]: boolean } = {};
 
     private gl: WebGLRenderingContext | null = null;
 
@@ -91,7 +91,7 @@ export class TestManager {
             hotKeyPress("-", "Zoom Out", () => this.zoomCamera(0.9)),
             hotKeyPress("r", "Reload Test", () => this.loadTest()),
             hotKeyPress("o", "Single Step", () => this.singleStep()),
-            hotKeyPress("p", "Pause/Continue", () => this.setPause(!this.m_settings.m_pause)),
+            hotKeyPress("p", "Pause/Continue", () => this.setPause(!this.settings.pause)),
             hotKeyPress("PageUp", "Previous Test", () => this.decrementTest()),
             hotKeyPress("PageDown", "Next Test", () => this.incrementTest()),
         ];
@@ -115,10 +115,10 @@ export class TestManager {
         debugCanvas.addEventListener("mousemove", (e) => this.handleMouseMove(e));
         debugCanvas.addEventListener("wheel", (e) => this.handleMouseWheel(e));
         debugCanvas.addEventListener("mouseenter", () => {
-            this.m_hoveringCanvas = true;
+            this.hoveringCanvas = true;
         });
         debugCanvas.addEventListener("mouseleave", () => {
-            this.m_hoveringCanvas = false;
+            this.hoveringCanvas = false;
         });
 
         const onResize = () => {
@@ -127,7 +127,7 @@ export class TestManager {
                 debugCanvas.width = glCanvas.width = clientWidth;
                 debugCanvas.height = glCanvas.height = clientHeight;
                 g_camera.resize(clientWidth, clientHeight);
-                this.m_test?.resize(clientWidth, clientHeight);
+                this.test?.resize(clientWidth, clientHeight);
                 this.gl && resizeGlCanvas(glCanvas, this.gl, clientWidth, wrapper.clientHeight);
             }
         };
@@ -135,7 +135,7 @@ export class TestManager {
         window.addEventListener("orientationchange", onResize);
         onResize();
 
-        g_debugDraw.m_ctx = this.m_ctx = debugCanvas.getContext("2d");
+        g_debugDraw.ctx = this.ctx = debugCanvas.getContext("2d");
 
         // disable context menu to use right-click
         window.addEventListener(
@@ -170,8 +170,8 @@ export class TestManager {
     }
 
     public homeCamera(): void {
-        const zoom = this.m_test ? this.m_test.getDefaultViewZoom() : 25;
-        const center = this.m_test ? this.m_test.getCenter() : Vec2.ZERO;
+        const zoom = this.test ? this.test.getDefaultViewZoom() : 25;
+        const center = this.test ? this.test.getCenter() : Vec2.ZERO;
         g_camera.setPositionAndZoom(center.x, center.y, zoom);
     }
 
@@ -183,11 +183,11 @@ export class TestManager {
         const element = new Vec2(e.offsetX, e.offsetY);
         const world = g_camera.unproject(element, new Vec2());
 
-        this.m_mouse.copy(element);
+        this.mouse.copy(element);
 
-        this.m_test?.mouseMove(world, this.m_lMouseDown);
+        this.test?.mouseMove(world, this.lMouseDown);
 
-        if (this.m_rMouseDown) {
+        if (this.rMouseDown) {
             const { x, y } = g_camera.getCenter();
             const f = 1 / g_camera.getZoom();
             g_camera.setPosition(x - e.movementX * f, y + e.movementY * f);
@@ -200,15 +200,15 @@ export class TestManager {
 
         switch (e.button) {
             case 0: // left mouse button
-                this.m_lMouseDown = true;
+                this.lMouseDown = true;
                 if (e.shiftKey) {
-                    this.m_test?.shiftMouseDown(world);
+                    this.test?.shiftMouseDown(world);
                 } else {
-                    this.m_test?.mouseDown(world);
+                    this.test?.mouseDown(world);
                 }
                 break;
             case 2: // right mouse button
-                this.m_rMouseDown = true;
+                this.rMouseDown = true;
                 break;
         }
     }
@@ -219,17 +219,17 @@ export class TestManager {
 
         switch (e.button) {
             case 0: // left mouse button
-                this.m_lMouseDown = false;
-                this.m_test?.mouseUp(world);
+                this.lMouseDown = false;
+                this.test?.mouseUp(world);
                 break;
             case 2: // right mouse button
-                this.m_rMouseDown = false;
+                this.rMouseDown = false;
                 break;
         }
     }
 
     public handleMouseWheel(e: WheelEvent): void {
-        if (this.m_hoveringCanvas) {
+        if (this.hoveringCanvas) {
             if (e.deltaY < 0) {
                 this.zoomCamera(1.1);
             } else if (e.deltaY > 0) {
@@ -240,16 +240,16 @@ export class TestManager {
     }
 
     private handleKey(e: KeyboardEvent, down: boolean): void {
-        if (this.m_hoveringCanvas || !down) {
+        if (this.hoveringCanvas || !down) {
             const { key } = e;
             const hotKey = this.allHotKeys.find((hk) => hk.key === key);
             if (hotKey) {
-                const wasDown = !!this.m_keyMap[key];
+                const wasDown = !!this.keyMap[key];
                 if (wasDown !== down) {
                     if (!hotKey.step) hotKey.callback(down);
-                    this.m_keyMap[key] = down;
+                    this.keyMap[key] = down;
                 }
-                if (this.m_hoveringCanvas) e.preventDefault();
+                if (this.hoveringCanvas) e.preventDefault();
             }
         }
     }
@@ -274,23 +274,23 @@ export class TestManager {
 
     public loadTest(restartTest = false): void {
         const TestClass = this.testConstructor;
-        if (!TestClass || !this.m_ctx || !this.gl || !this.defaultShader || !this.textures) return;
+        if (!TestClass || !this.ctx || !this.gl || !this.defaultShader || !this.textures) return;
 
         if (!restartTest) {
             this.particleParameter.reset();
         }
 
-        this.m_test?.destroy();
+        this.test?.destroy();
 
-        this.m_test = new TestClass({
+        this.test = new TestClass({
             gl: this.gl,
             shader: this.defaultShader,
             textures: this.textures,
             particleParameter: this.particleParameter,
         });
-        this.m_test.setupControls();
-        this.testBaseHotKeys = this.m_test.getBaseHotkeys();
-        this.testHotKeys = this.m_test.getHotkeys();
+        this.test.setupControls();
+        this.testBaseHotKeys = this.test.getBaseHotkeys();
+        this.testHotKeys = this.test.getHotkeys();
         this.allHotKeys = [...this.ownHotKeys, ...this.testBaseHotKeys, ...this.testHotKeys];
         this.stepHotKeys = this.allHotKeys.filter((hk) => hk.step);
         for (const hk of this.allHotKeys) {
@@ -304,20 +304,20 @@ export class TestManager {
         }
 
         // Slice to force an update (and thus a reset) of the UI
-        this.setTestControlGroups(this.m_test.m_testControlGroups.slice());
+        this.setTestControlGroups(this.test.testControlGroups.slice());
     }
 
     public setPause(pause: boolean): void {
-        this.m_settings.m_pause = pause;
+        this.settings.pause = pause;
         this.onPauseChanged.emit(pause);
     }
 
     public singleStep(): void {
-        if (!this.m_settings.m_pause) {
-            this.m_settings.m_pause = true;
+        if (!this.settings.pause) {
+            this.settings.pause = true;
             this.onPauseChanged.emit(true);
         }
-        this.m_settings.m_singleStep = true;
+        this.settings.singleStep = true;
     }
 
     public scheduleRestart() {
@@ -325,8 +325,8 @@ export class TestManager {
     }
 
     public simulationLoop(): void {
-        if (this.m_fpsCalculator.addFrame() <= 0 || !this.gl || !this.defaultShader || !this.m_ctx) return;
-        const ctx = this.m_ctx;
+        if (this.fpsCalculator.addFrame() <= 0 || !this.gl || !this.defaultShader || !this.ctx) return;
+        const { ctx } = this;
 
         clearGlCanvas(this.gl, 0, 0, 0, 0);
         this.gl.enable(this.gl.BLEND);
@@ -348,16 +348,16 @@ export class TestManager {
         const center = g_camera.getCenter();
         ctx.translate(-center.x, -center.y);
 
-        this.m_test?.runStep(this.m_settings);
-        if (this.m_hoveringCanvas) {
+        this.test?.runStep(this.settings);
+        if (this.hoveringCanvas) {
             for (const hk of this.stepHotKeys) {
-                if (this.m_keyMap[hk.key]) hk.callback(true);
+                if (this.keyMap[hk.key]) hk.callback(true);
             }
         }
 
         ctx.restore();
 
-        if (this.m_settings.m_drawFpsMeter) this.drawFpsMeter(ctx);
+        if (this.settings.drawFpsMeter) this.drawFpsMeter(ctx);
 
         this.updateText();
 
@@ -373,7 +373,7 @@ export class TestManager {
         ctx.scale(1, -1);
         ctx.fillStyle = DebugDraw.makeStyleString(Color.GREEN);
         let x = 5;
-        for (const frameTime of this.m_fpsCalculator.getFrames()) {
+        for (const frameTime of this.fpsCalculator.getFrames()) {
             ctx.fillRect(x, 5, 1, frameTime);
             x++;
         }
@@ -382,7 +382,7 @@ export class TestManager {
 
     private updateText() {
         const leftTable: TextTable = [];
-        const fps = this.m_fpsCalculator.getFps();
+        const fps = this.fpsCalculator.getFps();
         const rightTable: TextTable = [
             ["Performance:", "!"],
             ["Avg. FPS", fps.avgFps.toFixed(1)],
@@ -390,15 +390,14 @@ export class TestManager {
             ["Min. Time in ms", fps.minTime.toFixed(1)],
             ["", ""],
         ];
-        if (this.m_test) {
-            if (this.m_test.m_textLines.length) {
-                leftTable.push(
-                    ["Description:", "!"],
-                    ...this.m_test.m_textLines.map((t) => [t, "-"] as [string, string]),
-                    ["", ""],
-                );
+        if (this.test) {
+            if (this.test.textLines.length) {
+                leftTable.push(["Description:", "!"], ...this.test.textLines.map((t) => [t, "-"] as [string, string]), [
+                    "",
+                    "",
+                ]);
             }
-            if (this.m_settings.m_drawInputHelp) {
+            if (this.settings.drawInputHelp) {
                 leftTable.push(
                     ["Mouse:", "!"],
                     ["Right Drag", "Move Camera"],
@@ -412,11 +411,11 @@ export class TestManager {
                     ["", ""],
                 );
             }
-            if (this.m_test.m_debugLines.length) {
-                rightTable.push(["Debug Info:", "!"], ...this.m_test.m_debugLines, ["", ""]);
+            if (this.test.debugLines.length) {
+                rightTable.push(["Debug Info:", "!"], ...this.test.debugLines, ["", ""]);
             }
-            if (this.m_test.m_statisticLines.length) {
-                rightTable.push(["Statistics:", "!"], ...this.m_test.m_statisticLines, ["", ""]);
+            if (this.test.statisticLines.length) {
+                rightTable.push(["Statistics:", "!"], ...this.test.statisticLines, ["", ""]);
             }
         }
         this.setLeftTable(leftTable);

@@ -28,7 +28,7 @@ class MotorJoint2Test extends Test {
 
         let ground: Body;
         {
-            ground = this.m_world.createBody();
+            ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
@@ -39,13 +39,13 @@ class MotorJoint2Test extends Test {
         // Body * body1 = NULL;
         let body1: Body;
         {
-            body1 = this.m_world.createBody({
+            body1 = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 0, y: 4 },
             });
 
             const shape = new CircleShape();
-            shape.m_radius = 1;
+            shape.radius = 1;
 
             body1.createFixture({
                 shape,
@@ -57,13 +57,13 @@ class MotorJoint2Test extends Test {
         // Body * body2 = NULL;
         let body2: Body;
         {
-            body2 = this.m_world.createBody({
+            body2 = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 4, y: 8 },
             });
 
             const shape = new CircleShape();
-            shape.m_radius = 1;
+            shape.radius = 1;
 
             body2.createFixture({
                 shape,
@@ -77,12 +77,12 @@ class MotorJoint2Test extends Test {
             mjd.initialize(body1, body2);
             mjd.maxForce = 1000;
             mjd.maxTorque = 1000;
-            this.m_joint = this.m_world.createJoint(mjd) as MotorJoint;
+            this.joint = this.world.createJoint(mjd) as MotorJoint;
         }
     }
 
-    // MotorJoint* m_joint;
-    public m_joint: MotorJoint;
+    // MotorJoint* joint;
+    public joint: MotorJoint;
 }
 
 registerTest("Bugs", "Motor Joint (Bug #487)", MotorJoint2Test);

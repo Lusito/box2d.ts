@@ -103,8 +103,8 @@ class TestDestructionListener extends DestructionListener {
     }
 
     public sayGoodbyeJoint(joint: Joint): void {
-        if (this.test.m_mouseJoint === joint) {
-            this.test.m_mouseJoint = null;
+        if (this.test.mouseJoint === joint) {
+            this.test.mouseJoint = null;
         } else {
             this.test.jointDestroyed(joint);
         }
@@ -141,62 +141,62 @@ const formatValueAveMax = (step: number, ave: number, max: number) =>
 export class Test extends ContactListener {
     public static readonly k_maxContactPoints = 2048;
 
-    public m_world: World;
+    public world: World;
 
-    public m_bomb: Body | null = null;
+    public bomb: Body | null = null;
 
-    public readonly m_textLines: string[] = [];
+    public readonly textLines: string[] = [];
 
-    public readonly m_debugLines: Array<[string, string]> = [];
+    public readonly debugLines: Array<[string, string]> = [];
 
-    public readonly m_statisticLines: Array<[string, string]> = [];
+    public readonly statisticLines: Array<[string, string]> = [];
 
-    public m_mouseJoint: MouseJoint | null = null;
+    public mouseJoint: MouseJoint | null = null;
 
-    public readonly m_points = Array.from({ length: Test.k_maxContactPoints }, () => new ContactPoint());
+    public readonly points = Array.from({ length: Test.k_maxContactPoints }, () => new ContactPoint());
 
-    public m_pointCount = 0;
+    public pointCount = 0;
 
-    public m_destructionListener: DestructionListener;
+    public destructionListener: DestructionListener;
 
-    public readonly m_bombSpawnPoint = new Vec2();
+    public readonly bombSpawnPoint = new Vec2();
 
-    public m_bombSpawning = false;
+    public bombSpawning = false;
 
-    public readonly m_mouseWorld = new Vec2();
+    public readonly mouseWorld = new Vec2();
 
-    public m_mouseTracing = false;
+    public mouseTracing = false;
 
-    public readonly m_mouseTracerPosition = new Vec2();
+    public readonly mouseTracerPosition = new Vec2();
 
-    public readonly m_mouseTracerVelocity = new Vec2();
+    public readonly mouseTracerVelocity = new Vec2();
 
-    public m_stepCount = 0;
+    public stepCount = 0;
 
-    public readonly m_maxProfile = new Profile();
+    public readonly maxProfile = new Profile();
 
-    public readonly m_totalProfile = new Profile();
+    public readonly totalProfile = new Profile();
 
-    public m_groundBody: Body;
+    public groundBody: Body;
 
-    public m_testControlGroups: TestControlGroup[] = [];
+    public testControlGroups: TestControlGroup[] = [];
 
     public constructor(gravity: XY = { x: 0, y: -10 }) {
         super();
 
-        this.m_world = World.create(gravity);
+        this.world = World.create(gravity);
 
-        this.m_destructionListener = new TestDestructionListener(this);
-        this.m_world.setDestructionListener(this.m_destructionListener);
-        this.m_world.setContactListener(this);
+        this.destructionListener = new TestDestructionListener(this);
+        this.world.setDestructionListener(this.destructionListener);
+        this.world.setContactListener(this);
 
-        this.m_groundBody = this.m_world.createBody();
+        this.groundBody = this.world.createBody();
     }
 
     public setupControls() {}
 
     protected addTestControlGroup(legend: string, controls: TestControl[]) {
-        this.m_testControlGroups.push({
+        this.testControlGroups.push({
             legend,
             controls,
         });
@@ -249,8 +249,8 @@ export class Test extends ContactListener {
         const worldManifold = Test.PreSolve_s_worldManifold;
         contact.getWorldManifold(worldManifold);
 
-        for (let i = 0; i < manifold.pointCount && this.m_pointCount < Test.k_maxContactPoints; ++i) {
-            const cp = this.m_points[this.m_pointCount];
+        for (let i = 0; i < manifold.pointCount && this.pointCount < Test.k_maxContactPoints; ++i) {
+            const cp = this.points[this.pointCount];
             cp.fixtureA = fixtureA;
             cp.fixtureB = fixtureB;
             cp.position.copy(worldManifold.points[i]);
@@ -259,28 +259,28 @@ export class Test extends ContactListener {
             cp.normalImpulse = manifold.points[i].normalImpulse;
             cp.tangentImpulse = manifold.points[i].tangentImpulse;
             cp.separation = worldManifold.separations[i];
-            ++this.m_pointCount;
+            ++this.pointCount;
         }
     }
 
     public postSolve(_contact: Contact, _impulse: ContactImpulse): void {}
 
     public mouseDown(p: Vec2): void {
-        this.m_mouseWorld.copy(p);
+        this.mouseWorld.copy(p);
 
-        this.m_mouseTracing = true;
-        this.m_mouseTracerPosition.copy(p);
-        this.m_mouseTracerVelocity.setZero();
+        this.mouseTracing = true;
+        this.mouseTracerPosition.copy(p);
+        this.mouseTracerVelocity.setZero();
 
-        if (this.m_mouseJoint !== null) {
-            this.m_world.destroyJoint(this.m_mouseJoint);
-            this.m_mouseJoint = null;
+        if (this.mouseJoint !== null) {
+            this.world.destroyJoint(this.mouseJoint);
+            this.mouseJoint = null;
         }
 
         let hit_fixture: Fixture | undefined;
 
         // Query the world for overlapping shapes.
-        this.m_world.queryPointAABB(p, (fixture) => {
+        this.world.queryPointAABB(p, (fixture) => {
             const body = fixture.getBody();
             if (body.getType() === BodyType.Dynamic) {
                 const inside = fixture.testPoint(p);
@@ -298,38 +298,38 @@ export class Test extends ContactListener {
 
             const body = hit_fixture.getBody();
             const md = new MouseJointDef();
-            md.bodyA = this.m_groundBody;
+            md.bodyA = this.groundBody;
             md.bodyB = body;
             md.target.copy(p);
             md.maxForce = 1000 * body.getMass();
             linearStiffness(md, frequencyHz, dampingRatio, md.bodyA, md.bodyB);
 
-            this.m_mouseJoint = this.m_world.createJoint(md) as MouseJoint;
+            this.mouseJoint = this.world.createJoint(md) as MouseJoint;
             body.setAwake(true);
         }
     }
 
     public spawnBomb(worldPt: Vec2): void {
-        this.m_bombSpawnPoint.copy(worldPt);
-        this.m_bombSpawning = true;
+        this.bombSpawnPoint.copy(worldPt);
+        this.bombSpawning = true;
     }
 
     public completeBombSpawn(p: Vec2): void {
-        if (!this.m_bombSpawning) {
+        if (!this.bombSpawning) {
             return;
         }
 
         const multiplier = 30;
-        const vel = Vec2.subtract(this.m_bombSpawnPoint, p, new Vec2());
+        const vel = Vec2.subtract(this.bombSpawnPoint, p, new Vec2());
         vel.scale(multiplier);
-        this.launchBombAt(this.m_bombSpawnPoint, vel);
-        this.m_bombSpawning = false;
+        this.launchBombAt(this.bombSpawnPoint, vel);
+        this.bombSpawning = false;
     }
 
     public shiftMouseDown(p: Vec2): void {
-        this.m_mouseWorld.copy(p);
+        this.mouseWorld.copy(p);
 
-        if (this.m_mouseJoint !== null) {
+        if (this.mouseJoint !== null) {
             return;
         }
 
@@ -337,23 +337,23 @@ export class Test extends ContactListener {
     }
 
     public mouseUp(p: Vec2): void {
-        this.m_mouseTracing = false;
+        this.mouseTracing = false;
 
-        if (this.m_mouseJoint) {
-            this.m_world.destroyJoint(this.m_mouseJoint);
-            this.m_mouseJoint = null;
+        if (this.mouseJoint) {
+            this.world.destroyJoint(this.mouseJoint);
+            this.mouseJoint = null;
         }
 
-        if (this.m_bombSpawning) {
+        if (this.bombSpawning) {
             this.completeBombSpawn(p);
         }
     }
 
     public mouseMove(p: Vec2, leftDrag: boolean): void {
-        this.m_mouseWorld.copy(p);
+        this.mouseWorld.copy(p);
 
-        if (leftDrag && this.m_mouseJoint) {
-            this.m_mouseJoint.setTarget(p);
+        if (leftDrag && this.mouseJoint) {
+            this.mouseJoint.setTarget(p);
         }
     }
 
@@ -364,20 +364,20 @@ export class Test extends ContactListener {
     }
 
     public launchBombAt(position: Vec2, velocity: Vec2): void {
-        if (this.m_bomb) {
-            this.m_world.destroyBody(this.m_bomb);
-            this.m_bomb = null;
+        if (this.bomb) {
+            this.world.destroyBody(this.bomb);
+            this.bomb = null;
         }
 
-        this.m_bomb = this.m_world.createBody({
+        this.bomb = this.world.createBody({
             type: BodyType.Dynamic,
             position,
             bullet: true,
         });
-        this.m_bomb.setLinearVelocity(velocity);
+        this.bomb.setLinearVelocity(velocity);
 
         const circle = new CircleShape();
-        circle.m_radius = 25 / this.getDefaultViewZoom();
+        circle.radius = 25 / this.getDefaultViewZoom();
 
         // Vec2 minV = position - Vec2(0.3,0.3 );
         // Vec2 maxV = position + Vec2(0.3,0.3 );
@@ -386,7 +386,7 @@ export class Test extends ContactListener {
         // aabb.lowerBound = minV;
         // aabb.upperBound = maxV;
 
-        this.m_bomb.createFixture({
+        this.bomb.createFixture({
             shape: circle,
             density: 20,
             restitution: 0,
@@ -396,174 +396,174 @@ export class Test extends ContactListener {
     public resize(_width: number, _height: number) {}
 
     public runStep(settings: Settings) {
-        let timeStep = settings.m_hertz > 0 ? 1 / settings.m_hertz : 0;
+        let timeStep = settings.hertz > 0 ? 1 / settings.hertz : 0;
 
-        if (settings.m_pause) {
-            if (settings.m_singleStep) {
-                settings.m_singleStep = false;
+        if (settings.pause) {
+            if (settings.singleStep) {
+                settings.singleStep = false;
             } else {
                 timeStep = 0;
             }
         }
-        this.m_debugLines.length = 0;
-        this.m_statisticLines.length = 0;
-        this.m_textLines.length = 0;
-        if (settings.m_pause) this.addDebug("Paused", true);
+        this.debugLines.length = 0;
+        this.statisticLines.length = 0;
+        this.textLines.length = 0;
+        if (settings.pause) this.addDebug("Paused", true);
         this.step(settings, timeStep);
     }
 
     public addText(line: string) {
-        this.m_textLines.push(line);
+        this.textLines.push(line);
     }
 
     public addDebug(label: string, value: string | number | boolean) {
-        this.m_debugLines.push([label, `${value}`]);
+        this.debugLines.push([label, `${value}`]);
     }
 
     public addStatistic(label: string, value: string | number | boolean) {
-        this.m_statisticLines.push([label, `${value}`]);
+        this.statisticLines.push([label, `${value}`]);
     }
 
     public step(settings: Settings, timeStep: number): void {
-        this.m_world.setAllowSleeping(settings.m_enableSleep);
-        this.m_world.setWarmStarting(settings.m_enableWarmStarting);
-        this.m_world.setContinuousPhysics(settings.m_enableContinuous);
-        this.m_world.setSubStepping(settings.m_enableSubStepping);
+        this.world.setAllowSleeping(settings.enableSleep);
+        this.world.setWarmStarting(settings.enableWarmStarting);
+        this.world.setContinuousPhysics(settings.enableContinuous);
+        this.world.setSubStepping(settings.enableSubStepping);
 
-        this.m_pointCount = 0;
+        this.pointCount = 0;
 
-        this.m_world.step(timeStep, {
-            velocityIterations: settings.m_velocityIterations,
-            positionIterations: settings.m_positionIterations,
-            particleIterations: settings.m_particleIterations,
+        this.world.step(timeStep, {
+            velocityIterations: settings.velocityIterations,
+            positionIterations: settings.positionIterations,
+            particleIterations: settings.particleIterations,
         });
 
-        if (settings.m_drawShapes) {
-            drawShapes(g_debugDraw, this.m_world);
+        if (settings.drawShapes) {
+            drawShapes(g_debugDraw, this.world);
         }
-        if (settings.m_drawParticles) {
-            drawParticleSystems(g_debugDraw, this.m_world);
+        if (settings.drawParticles) {
+            drawParticleSystems(g_debugDraw, this.world);
         }
-        if (settings.m_drawJoints) {
-            drawJoints(g_debugDraw, this.m_world);
+        if (settings.drawJoints) {
+            drawJoints(g_debugDraw, this.world);
         }
-        if (settings.m_drawAABBs) {
-            drawAABBs(g_debugDraw, this.m_world);
+        if (settings.drawAABBs) {
+            drawAABBs(g_debugDraw, this.world);
         }
-        if (settings.m_drawCOMs) {
-            drawCenterOfMasses(g_debugDraw, this.m_world);
+        if (settings.drawCOMs) {
+            drawCenterOfMasses(g_debugDraw, this.world);
         }
-        if (settings.m_drawControllers) {
-            drawControllers(g_debugDraw, this.m_world);
+        if (settings.drawControllers) {
+            drawControllers(g_debugDraw, this.world);
         }
 
         if (timeStep > 0) {
-            ++this.m_stepCount;
+            ++this.stepCount;
         }
 
-        if (settings.m_drawStats) {
-            this.addStatistic("Bodies", this.m_world.getBodyCount());
-            this.addStatistic("Contacts", this.m_world.getContactCount());
-            this.addStatistic("Joints", this.m_world.getJointCount());
-            this.addStatistic("Proxies", this.m_world.getProxyCount());
-            this.addStatistic("Height", this.m_world.getTreeHeight());
-            this.addStatistic("Balance", this.m_world.getTreeBalance());
-            this.addStatistic("Quality", this.m_world.getTreeQuality().toFixed(2));
+        if (settings.drawStats) {
+            this.addStatistic("Bodies", this.world.getBodyCount());
+            this.addStatistic("Contacts", this.world.getContactCount());
+            this.addStatistic("Joints", this.world.getJointCount());
+            this.addStatistic("Proxies", this.world.getProxyCount());
+            this.addStatistic("Height", this.world.getTreeHeight());
+            this.addStatistic("Balance", this.world.getTreeBalance());
+            this.addStatistic("Quality", this.world.getTreeQuality().toFixed(2));
         }
 
         // Track maximum profile times
         {
-            const p = this.m_world.getProfile();
-            this.m_maxProfile.step = Math.max(this.m_maxProfile.step, p.step);
-            this.m_maxProfile.collide = Math.max(this.m_maxProfile.collide, p.collide);
-            this.m_maxProfile.solve = Math.max(this.m_maxProfile.solve, p.solve);
-            this.m_maxProfile.solveInit = Math.max(this.m_maxProfile.solveInit, p.solveInit);
-            this.m_maxProfile.solveVelocity = Math.max(this.m_maxProfile.solveVelocity, p.solveVelocity);
-            this.m_maxProfile.solvePosition = Math.max(this.m_maxProfile.solvePosition, p.solvePosition);
-            this.m_maxProfile.solveTOI = Math.max(this.m_maxProfile.solveTOI, p.solveTOI);
-            this.m_maxProfile.broadphase = Math.max(this.m_maxProfile.broadphase, p.broadphase);
+            const p = this.world.getProfile();
+            this.maxProfile.step = Math.max(this.maxProfile.step, p.step);
+            this.maxProfile.collide = Math.max(this.maxProfile.collide, p.collide);
+            this.maxProfile.solve = Math.max(this.maxProfile.solve, p.solve);
+            this.maxProfile.solveInit = Math.max(this.maxProfile.solveInit, p.solveInit);
+            this.maxProfile.solveVelocity = Math.max(this.maxProfile.solveVelocity, p.solveVelocity);
+            this.maxProfile.solvePosition = Math.max(this.maxProfile.solvePosition, p.solvePosition);
+            this.maxProfile.solveTOI = Math.max(this.maxProfile.solveTOI, p.solveTOI);
+            this.maxProfile.broadphase = Math.max(this.maxProfile.broadphase, p.broadphase);
 
-            this.m_totalProfile.step += p.step;
-            this.m_totalProfile.collide += p.collide;
-            this.m_totalProfile.solve += p.solve;
-            this.m_totalProfile.solveInit += p.solveInit;
-            this.m_totalProfile.solveVelocity += p.solveVelocity;
-            this.m_totalProfile.solvePosition += p.solvePosition;
-            this.m_totalProfile.solveTOI += p.solveTOI;
-            this.m_totalProfile.broadphase += p.broadphase;
+            this.totalProfile.step += p.step;
+            this.totalProfile.collide += p.collide;
+            this.totalProfile.solve += p.solve;
+            this.totalProfile.solveInit += p.solveInit;
+            this.totalProfile.solveVelocity += p.solveVelocity;
+            this.totalProfile.solvePosition += p.solvePosition;
+            this.totalProfile.solveTOI += p.solveTOI;
+            this.totalProfile.broadphase += p.broadphase;
         }
 
-        if (settings.m_drawProfile) {
-            const p = this.m_world.getProfile();
+        if (settings.drawProfile) {
+            const p = this.world.getProfile();
 
             const aveProfile = new Profile();
-            if (this.m_stepCount > 0) {
-                const scale = 1 / this.m_stepCount;
-                aveProfile.step = scale * this.m_totalProfile.step;
-                aveProfile.collide = scale * this.m_totalProfile.collide;
-                aveProfile.solve = scale * this.m_totalProfile.solve;
-                aveProfile.solveInit = scale * this.m_totalProfile.solveInit;
-                aveProfile.solveVelocity = scale * this.m_totalProfile.solveVelocity;
-                aveProfile.solvePosition = scale * this.m_totalProfile.solvePosition;
-                aveProfile.solveTOI = scale * this.m_totalProfile.solveTOI;
-                aveProfile.broadphase = scale * this.m_totalProfile.broadphase;
+            if (this.stepCount > 0) {
+                const scale = 1 / this.stepCount;
+                aveProfile.step = scale * this.totalProfile.step;
+                aveProfile.collide = scale * this.totalProfile.collide;
+                aveProfile.solve = scale * this.totalProfile.solve;
+                aveProfile.solveInit = scale * this.totalProfile.solveInit;
+                aveProfile.solveVelocity = scale * this.totalProfile.solveVelocity;
+                aveProfile.solvePosition = scale * this.totalProfile.solvePosition;
+                aveProfile.solveTOI = scale * this.totalProfile.solveTOI;
+                aveProfile.broadphase = scale * this.totalProfile.broadphase;
             }
 
-            this.addDebug("Step [ave] (max)", formatValueAveMax(p.step, aveProfile.step, this.m_maxProfile.step));
+            this.addDebug("Step [ave] (max)", formatValueAveMax(p.step, aveProfile.step, this.maxProfile.step));
             this.addDebug(
                 "Collide [ave] (max)",
-                formatValueAveMax(p.collide, aveProfile.collide, this.m_maxProfile.collide),
+                formatValueAveMax(p.collide, aveProfile.collide, this.maxProfile.collide),
             );
-            this.addDebug("Solve [ave] (max)", formatValueAveMax(p.solve, aveProfile.solve, this.m_maxProfile.solve));
+            this.addDebug("Solve [ave] (max)", formatValueAveMax(p.solve, aveProfile.solve, this.maxProfile.solve));
             this.addDebug(
                 "Solve Init [ave] (max)",
-                formatValueAveMax(p.solveInit, aveProfile.solveInit, this.m_maxProfile.solveInit),
+                formatValueAveMax(p.solveInit, aveProfile.solveInit, this.maxProfile.solveInit),
             );
             this.addDebug(
                 "Solve Velocity [ave] (max)",
-                formatValueAveMax(p.solveVelocity, aveProfile.solveVelocity, this.m_maxProfile.solveVelocity),
+                formatValueAveMax(p.solveVelocity, aveProfile.solveVelocity, this.maxProfile.solveVelocity),
             );
             this.addDebug(
                 "Solve Position [ave] (max)",
-                formatValueAveMax(p.solvePosition, aveProfile.solvePosition, this.m_maxProfile.solvePosition),
+                formatValueAveMax(p.solvePosition, aveProfile.solvePosition, this.maxProfile.solvePosition),
             );
             this.addDebug(
                 "Solve TOI [ave] (max)",
-                formatValueAveMax(p.solveTOI, aveProfile.solveTOI, this.m_maxProfile.solveTOI),
+                formatValueAveMax(p.solveTOI, aveProfile.solveTOI, this.maxProfile.solveTOI),
             );
             this.addDebug(
                 "Broad-Phase [ave] (max)",
-                formatValueAveMax(p.broadphase, aveProfile.broadphase, this.m_maxProfile.broadphase),
+                formatValueAveMax(p.broadphase, aveProfile.broadphase, this.maxProfile.broadphase),
             );
         }
 
-        if (this.m_mouseTracing && !this.m_mouseJoint) {
+        if (this.mouseTracing && !this.mouseJoint) {
             const delay = 0.1;
             const acceleration = new Vec2();
             acceleration.x =
                 (2 / delay) *
-                ((1 / delay) * (this.m_mouseWorld.x - this.m_mouseTracerPosition.x) - this.m_mouseTracerVelocity.x);
+                ((1 / delay) * (this.mouseWorld.x - this.mouseTracerPosition.x) - this.mouseTracerVelocity.x);
             acceleration.y =
                 (2 / delay) *
-                ((1 / delay) * (this.m_mouseWorld.y - this.m_mouseTracerPosition.y) - this.m_mouseTracerVelocity.y);
-            this.m_mouseTracerVelocity.addScaled(timeStep, acceleration);
-            this.m_mouseTracerPosition.addScaled(timeStep, this.m_mouseTracerVelocity);
+                ((1 / delay) * (this.mouseWorld.y - this.mouseTracerPosition.y) - this.mouseTracerVelocity.y);
+            this.mouseTracerVelocity.addScaled(timeStep, acceleration);
+            this.mouseTracerPosition.addScaled(timeStep, this.mouseTracerVelocity);
         }
 
-        if (this.m_bombSpawning) {
+        if (this.bombSpawning) {
             const c = new Color(0, 0, 1);
-            g_debugDraw.drawPoint(this.m_bombSpawnPoint, 4, c);
+            g_debugDraw.drawPoint(this.bombSpawnPoint, 4, c);
 
             c.setRGB(0.8, 0.8, 0.8);
-            g_debugDraw.drawSegment(this.m_mouseWorld, this.m_bombSpawnPoint, c);
+            g_debugDraw.drawSegment(this.mouseWorld, this.bombSpawnPoint, c);
         }
 
-        if (settings.m_drawContactPoints) {
+        if (settings.drawContactPoints) {
             const k_impulseScale = 0.1;
             const k_axisScale = 0.3;
 
-            for (let i = 0; i < this.m_pointCount; ++i) {
-                const point = this.m_points[i];
+            for (let i = 0; i < this.pointCount; ++i) {
+                const point = this.points[i];
 
                 if (point.state === PointState.Add) {
                     // Add
@@ -573,17 +573,17 @@ export class Test extends ContactListener {
                     g_debugDraw.drawPoint(point.position, 5, new Color(0.3, 0.3, 0.95));
                 }
 
-                if (settings.m_drawContactNormals) {
+                if (settings.drawContactNormals) {
                     const p1 = point.position;
                     const p2 = Vec2.add(p1, Vec2.scale(k_axisScale, point.normal, Vec2.s_t0), new Vec2());
                     g_debugDraw.drawSegment(p1, p2, new Color(0.9, 0.9, 0.9));
-                } else if (settings.m_drawContactImpulse) {
+                } else if (settings.drawContactImpulse) {
                     const p1 = point.position;
                     const p2 = Vec2.addScaled(p1, k_impulseScale * point.normalImpulse, point.normal, new Vec2());
                     g_debugDraw.drawSegment(p1, p2, new Color(0.9, 0.9, 0.3));
                 }
 
-                if (settings.m_drawFrictionImpulse) {
+                if (settings.drawFrictionImpulse) {
                     const tangent = Vec2.crossVec2One(point.normal, new Vec2());
                     const p1 = point.position;
                     const p2 = Vec2.addScaled(p1, k_impulseScale * point.tangentImpulse, tangent, new Vec2());

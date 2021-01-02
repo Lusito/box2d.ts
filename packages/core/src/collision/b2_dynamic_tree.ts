@@ -128,15 +128,15 @@ export class TreeNode<T> {
  * Nodes are pooled
  */
 export class DynamicTree<T> {
-    private m_root: TreeNode<T> | null = null;
+    private root: TreeNode<T> | null = null;
 
-    private m_freeList: TreeNode<T> | null = null;
+    private freeList: TreeNode<T> | null = null;
 
     public query(aabb: AABB, callback: (node: TreeNode<T>) => boolean): void {
         const stack = temp.stack as Array<TreeNode<T> | null>;
         stack.length = 0;
 
-        let node: TreeNode<T> | null | undefined = this.m_root;
+        let node: TreeNode<T> | null | undefined = this.root;
         while (node) {
             if (node.aabb.testOverlap(aabb)) {
                 if (node.isLeaf()) {
@@ -157,7 +157,7 @@ export class DynamicTree<T> {
         const stack = temp.stack as Array<TreeNode<T> | null>;
         stack.length = 0;
 
-        let node: TreeNode<T> | null | undefined = this.m_root;
+        let node: TreeNode<T> | null | undefined = this.root;
         while (node) {
             if (node.aabb.testContain(point)) {
                 if (node.isLeaf()) {
@@ -198,7 +198,7 @@ export class DynamicTree<T> {
         const stack = temp.stack as Array<TreeNode<T> | null>;
         stack.length = 0;
 
-        let node: TreeNode<T> | null | undefined = this.m_root;
+        let node: TreeNode<T> | null | undefined = this.root;
         while (node) {
             if (!node.aabb.testOverlap(segmentAABB)) {
                 node = stack.pop();
@@ -244,12 +244,12 @@ export class DynamicTree<T> {
 
     private allocateNode(): TreeNode<T> {
         // Expand the node pool as needed.
-        if (this.m_freeList === null) {
+        if (this.freeList === null) {
             return new TreeNode<T>();
         }
 
-        const node = this.m_freeList;
-        this.m_freeList = node.parent;
+        const node = this.freeList;
+        this.freeList = node.parent;
         node.parent = null;
         node.child1 = null;
         node.child2 = null;
@@ -259,9 +259,9 @@ export class DynamicTree<T> {
     }
 
     private freeNode(node: TreeNode<T>): void {
-        node.parent = this.m_freeList;
+        node.parent = this.freeList;
         node.reset();
-        this.m_freeList = node;
+        this.freeList = node;
     }
 
     public createProxy(aabb: AABB, userData: T): TreeNode<T> {
@@ -342,16 +342,16 @@ export class DynamicTree<T> {
     }
 
     private insertLeaf(leaf: TreeNode<T>): void {
-        if (this.m_root === null) {
-            this.m_root = leaf;
-            this.m_root.parent = null;
+        if (this.root === null) {
+            this.root = leaf;
+            this.root.parent = null;
             return;
         }
 
         // Find the best sibling for this node
         const { combinedAABB, aabb } = temp;
         const leafAABB = leaf.aabb;
-        let sibling = this.m_root;
+        let sibling = this.root;
         while (!sibling.isLeaf()) {
             const child1 = verify(sibling.child1);
             const child2 = verify(sibling.child2);
@@ -432,7 +432,7 @@ export class DynamicTree<T> {
             newParent.child2 = leaf;
             sibling.parent = newParent;
             leaf.parent = newParent;
-            this.m_root = newParent;
+            this.root = newParent;
         }
 
         // Walk back up the tree fixing heights and AABBs
@@ -453,8 +453,8 @@ export class DynamicTree<T> {
     }
 
     private removeLeaf(leaf: TreeNode<T>): void {
-        if (leaf === this.m_root) {
-            this.m_root = null;
+        if (leaf === this.root) {
+            this.root = null;
             return;
         }
 
@@ -486,7 +486,7 @@ export class DynamicTree<T> {
                 node = node.parent;
             }
         } else {
-            this.m_root = sibling;
+            this.root = sibling;
             sibling.parent = null;
             this.freeNode(parent);
         }
@@ -525,7 +525,7 @@ export class DynamicTree<T> {
                     C.parent.child2 = C;
                 }
             } else {
-                this.m_root = C;
+                this.root = C;
             }
 
             // Rotate
@@ -571,7 +571,7 @@ export class DynamicTree<T> {
                     B.parent.child2 = B;
                 }
             } else {
-                this.m_root = B;
+                this.root = B;
             }
 
             // Rotate
@@ -602,19 +602,19 @@ export class DynamicTree<T> {
     }
 
     public getHeight(): number {
-        if (this.m_root === null) {
+        if (this.root === null) {
             return 0;
         }
 
-        return this.m_root.height;
+        return this.root.height;
     }
 
     public getAreaRatio(): number {
-        if (this.m_root === null) {
+        if (this.root === null) {
             return 0;
         }
 
-        const root = this.m_root;
+        const { root } = this;
         const rootArea = root.aabb.getPerimeter();
 
         const totalArea = root.getArea();
@@ -623,13 +623,13 @@ export class DynamicTree<T> {
     }
 
     public getMaxBalance(): number {
-        if (this.m_root === null) {
+        if (this.root === null) {
             return 0;
         }
-        return this.m_root.getMaxBalance();
+        return this.root.getMaxBalance();
     }
 
     public shiftOrigin(newOrigin: XY): void {
-        this.m_root?.shiftOrigin(newOrigin);
+        this.root?.shiftOrigin(newOrigin);
     }
 }

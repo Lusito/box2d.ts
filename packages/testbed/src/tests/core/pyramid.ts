@@ -27,7 +27,7 @@ class PyramidTest extends Test {
         super();
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
@@ -48,7 +48,7 @@ class PyramidTest extends Test {
                 y.copy(x);
 
                 for (let j = i; j < PyramidTest.e_count; ++j) {
-                    const body = this.m_world.createBody({
+                    const body = this.world.createBody({
                         type: BodyType.Dynamic,
                         position: y,
                     });

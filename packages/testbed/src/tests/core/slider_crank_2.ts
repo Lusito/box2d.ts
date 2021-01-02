@@ -33,16 +33,16 @@ import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 
 // A motor driven slider crank with joint friction.
 class SliderCrank2Test extends Test {
-    public m_joint1: RevoluteJoint;
+    public joint1: RevoluteJoint;
 
-    public m_joint2: PrismaticJoint;
+    public joint2: PrismaticJoint;
 
     public constructor() {
         super();
 
         let ground = null;
         {
-            ground = this.m_world.createBody();
+            ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
@@ -57,7 +57,7 @@ class SliderCrank2Test extends Test {
                 const shape = new PolygonShape();
                 shape.setAsBox(0.5, 2);
 
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: 0, y: 7 },
                 });
@@ -68,7 +68,7 @@ class SliderCrank2Test extends Test {
                 rjd.motorSpeed = 1 * Math.PI;
                 rjd.maxMotorTorque = 10000;
                 rjd.enableMotor = true;
-                this.m_joint1 = this.m_world.createJoint(rjd);
+                this.joint1 = this.world.createJoint(rjd);
 
                 prevBody = body;
             }
@@ -78,7 +78,7 @@ class SliderCrank2Test extends Test {
                 const shape = new PolygonShape();
                 shape.setAsBox(0.5, 4);
 
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: 0, y: 13 },
                 });
@@ -87,7 +87,7 @@ class SliderCrank2Test extends Test {
                 const rjd = new RevoluteJointDef();
                 rjd.initialize(prevBody, body, new Vec2(0, 9));
                 rjd.enableMotor = false;
-                this.m_world.createJoint(rjd);
+                this.world.createJoint(rjd);
 
                 prevBody = body;
             }
@@ -97,7 +97,7 @@ class SliderCrank2Test extends Test {
                 const shape = new PolygonShape();
                 shape.setAsBox(1.5, 1.5);
 
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     fixedRotation: true,
                     position: { x: 0, y: 17 },
@@ -106,7 +106,7 @@ class SliderCrank2Test extends Test {
 
                 const rjd = new RevoluteJointDef();
                 rjd.initialize(prevBody, body, new Vec2(0, 17));
-                this.m_world.createJoint(rjd);
+                this.world.createJoint(rjd);
 
                 const pjd = new PrismaticJointDef();
                 pjd.initialize(ground, body, new Vec2(0, 17), new Vec2(0, 1));
@@ -114,7 +114,7 @@ class SliderCrank2Test extends Test {
                 pjd.maxMotorForce = 1000;
                 pjd.enableMotor = true;
 
-                this.m_joint2 = this.m_world.createJoint(pjd);
+                this.joint2 = this.world.createJoint(pjd);
             }
 
             // Create a payload
@@ -122,7 +122,7 @@ class SliderCrank2Test extends Test {
                 const shape = new PolygonShape();
                 shape.setAsBox(1.5, 1.5);
 
-                const body = this.m_world.createBody({
+                const body = this.world.createBody({
                     type: BodyType.Dynamic,
                     position: { x: 0, y: 23 },
                 });
@@ -134,19 +134,19 @@ class SliderCrank2Test extends Test {
     public getHotkeys(): HotKey[] {
         return [
             hotKeyPress("f", "Toggle Friction", () => {
-                this.m_joint2.enableMotor(!this.m_joint2.isMotorEnabled());
-                this.m_joint2.getBodyB().setAwake(true);
+                this.joint2.enableMotor(!this.joint2.isMotorEnabled());
+                this.joint2.getBodyB().setAwake(true);
             }),
             hotKeyPress("m", "Toggle Motor", () => {
-                this.m_joint1.enableMotor(!this.m_joint1.isMotorEnabled());
-                this.m_joint1.getBodyB().setAwake(true);
+                this.joint1.enableMotor(!this.joint1.isMotorEnabled());
+                this.joint1.getBodyB().setAwake(true);
             }),
         ];
     }
 
     public step(settings: Settings, timeStep: number): void {
         super.step(settings, timeStep);
-        const torque = this.m_joint1.getMotorTorque(settings.m_hertz);
+        const torque = this.joint1.getMotorTorque(settings.hertz);
         this.addDebug("Motor Torque", torque.toFixed(0));
     }
 }

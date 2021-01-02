@@ -23,57 +23,57 @@ import { Settings } from "../../settings";
 import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 
 class ShapeEditingTest extends Test {
-    public m_body: Body;
+    public body: Body;
 
-    public m_fixture1: Fixture;
+    public fixture1: Fixture;
 
-    public m_fixture2: Fixture | null = null;
+    public fixture2: Fixture | null = null;
 
-    public m_sensor = false;
+    public sensor = false;
 
     public constructor() {
         super();
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
             ground.createFixture({ shape });
         }
 
-        this.m_body = this.m_world.createBody({
+        this.body = this.world.createBody({
             type: BodyType.Dynamic,
             position: { x: 0, y: 10 },
         });
 
         const shape = new PolygonShape();
         shape.setAsBox(4, 4, new Vec2(), 0);
-        this.m_fixture1 = this.m_body.createFixture({ shape, density: 10 });
+        this.fixture1 = this.body.createFixture({ shape, density: 10 });
     }
 
     public getHotkeys(): HotKey[] {
         return [
             hotKeyPress("c", "Create a Shape", () => {
-                if (this.m_fixture2 === null) {
+                if (this.fixture2 === null) {
                     const shape = new CircleShape();
-                    shape.m_radius = 3;
-                    shape.m_p.set(0.5, -4);
-                    this.m_fixture2 = this.m_body.createFixture({ shape, density: 10 });
-                    this.m_body.setAwake(true);
+                    shape.radius = 3;
+                    shape.p.set(0.5, -4);
+                    this.fixture2 = this.body.createFixture({ shape, density: 10 });
+                    this.body.setAwake(true);
                 }
             }),
             hotKeyPress("d", "Destroy a Shape", () => {
-                if (this.m_fixture2 !== null) {
-                    this.m_body.destroyFixture(this.m_fixture2);
-                    this.m_fixture2 = null;
-                    this.m_body.setAwake(true);
+                if (this.fixture2 !== null) {
+                    this.body.destroyFixture(this.fixture2);
+                    this.fixture2 = null;
+                    this.body.setAwake(true);
                 }
             }),
             hotKeyPress("s", "Toggle Sensor", () => {
-                if (this.m_fixture2 !== null) {
-                    this.m_sensor = !this.m_sensor;
-                    this.m_fixture2.setSensor(this.m_sensor);
+                if (this.fixture2 !== null) {
+                    this.sensor = !this.sensor;
+                    this.fixture2.setSensor(this.sensor);
                 }
             }),
         ];
@@ -81,7 +81,7 @@ class ShapeEditingTest extends Test {
 
     public step(settings: Settings, timeStep: number): void {
         super.step(settings, timeStep);
-        this.addDebug("Sensor", this.m_sensor);
+        this.addDebug("Sensor", this.sensor);
     }
 }
 

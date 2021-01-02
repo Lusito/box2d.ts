@@ -41,11 +41,11 @@ export class GravityController extends Controller {
      */
     public step(_step: TimeStep) {
         if (this.invSqr) {
-            for (let i = this.m_bodyList; i; i = i.nextBody) {
+            for (let i = this.bodyList; i; i = i.nextBody) {
                 const body1 = i.body;
                 const p1 = body1.getWorldCenter();
                 const mass1 = body1.getMass();
-                for (let j = this.m_bodyList; j && j !== i; j = j.nextBody) {
+                for (let j = this.bodyList; j && j !== i; j = j.nextBody) {
                     const body2 = j.body;
                     const p2 = body2.getWorldCenter();
                     const mass2 = body2.getMass();
@@ -65,11 +65,11 @@ export class GravityController extends Controller {
                 }
             }
         } else {
-            for (let i = this.m_bodyList; i; i = i.nextBody) {
+            for (let i = this.bodyList; i; i = i.nextBody) {
                 const body1 = i.body;
                 const p1 = body1.getWorldCenter();
                 const mass1 = body1.getMass();
-                for (let j = this.m_bodyList; j && j !== i; j = j.nextBody) {
+                for (let j = this.bodyList; j && j !== i; j = j.nextBody) {
                     const body2 = j.body;
                     const p2 = body2.getWorldCenter();
                     const mass2 = body2.getMass();

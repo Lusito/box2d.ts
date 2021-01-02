@@ -36,27 +36,27 @@ import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 // Dimensions scooped from APE (http://www.cove.org/ape/index.htm)
 
 class TheoJansenTest extends Test {
-    public m_offset = new Vec2();
+    public offset = new Vec2();
 
-    public m_chassis!: Body;
+    public chassis!: Body;
 
-    public m_wheel!: Body;
+    public wheel!: Body;
 
-    public m_motorJoint!: RevoluteJoint;
+    public motorJoint!: RevoluteJoint;
 
-    public m_motorOn = true;
+    public motorOn = true;
 
-    public m_motorSpeed = 2;
+    public motorSpeed = 2;
 
     public constructor() {
         super();
 
-        this.m_offset.set(0, 8);
+        this.offset.set(0, 8);
         const pivot = new Vec2(0, 0.8);
 
         // Ground
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-50, 0), new Vec2(50, 0));
@@ -72,9 +72,9 @@ class TheoJansenTest extends Test {
         // Balls
         for (let i = 0; i < 40; ++i) {
             const shape = new CircleShape();
-            shape.m_radius = 0.25;
+            shape.radius = 0.25;
 
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -40 + 2 * i, y: 0.5 },
             });
@@ -86,14 +86,14 @@ class TheoJansenTest extends Test {
             const shape = new PolygonShape();
             shape.setAsBox(2.5, 1);
 
-            this.m_chassis = this.m_world.createBody({
+            this.chassis = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: {
-                    x: pivot.x + this.m_offset.x,
-                    y: pivot.y + this.m_offset.y,
+                    x: pivot.x + this.offset.x,
+                    y: pivot.y + this.offset.y,
                 },
             });
-            this.m_chassis.createFixture({
+            this.chassis.createFixture({
                 density: 1,
                 shape,
                 filter: {
@@ -104,16 +104,16 @@ class TheoJansenTest extends Test {
 
         {
             const shape = new CircleShape();
-            shape.m_radius = 1.6;
+            shape.radius = 1.6;
 
-            this.m_wheel = this.m_world.createBody({
+            this.wheel = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: {
-                    x: pivot.x + this.m_offset.x,
-                    y: pivot.y + this.m_offset.y,
+                    x: pivot.x + this.offset.x,
+                    y: pivot.y + this.offset.y,
                 },
             });
-            this.m_wheel.createFixture({
+            this.wheel.createFixture({
                 density: 1,
                 shape,
                 filter: {
@@ -124,12 +124,12 @@ class TheoJansenTest extends Test {
 
         {
             const jd = new RevoluteJointDef();
-            jd.initialize(this.m_wheel, this.m_chassis, Vec2.add(pivot, this.m_offset, new Vec2()));
+            jd.initialize(this.wheel, this.chassis, Vec2.add(pivot, this.offset, new Vec2()));
             jd.collideConnected = false;
-            jd.motorSpeed = this.m_motorSpeed;
+            jd.motorSpeed = this.motorSpeed;
             jd.maxMotorTorque = 400;
-            jd.enableMotor = this.m_motorOn;
-            this.m_motorJoint = this.m_world.createJoint(jd);
+            jd.enableMotor = this.motorOn;
+            this.motorJoint = this.world.createJoint(jd);
         }
 
         const wheelAnchor = Vec2.add(pivot, new Vec2(0, -0.8), new Vec2());
@@ -137,11 +137,11 @@ class TheoJansenTest extends Test {
         this.createLeg(-1, wheelAnchor);
         this.createLeg(1, wheelAnchor);
 
-        this.m_wheel.setTransformVec(this.m_wheel.getPosition(), (120 * Math.PI) / 180);
+        this.wheel.setTransformVec(this.wheel.getPosition(), (120 * Math.PI) / 180);
         this.createLeg(-1, wheelAnchor);
         this.createLeg(1, wheelAnchor);
 
-        this.m_wheel.setTransformVec(this.m_wheel.getPosition(), (-120 * Math.PI) / 180);
+        this.wheel.setTransformVec(this.wheel.getPosition(), (-120 * Math.PI) / 180);
         this.createLeg(-1, wheelAnchor);
         this.createLeg(1, wheelAnchor);
     }
@@ -183,14 +183,14 @@ class TheoJansenTest extends Test {
             poly2.set(vertices);
         }
 
-        const body1 = this.m_world.createBody({
+        const body1 = this.world.createBody({
             type: BodyType.Dynamic,
-            position: this.m_offset,
+            position: this.offset,
             angularDamping: 10,
         });
-        const body2 = this.m_world.createBody({
+        const body2 = this.world.createBody({
             type: BodyType.Dynamic,
-            position: Vec2.add(p4, this.m_offset, new Vec2()),
+            position: Vec2.add(p4, this.offset, new Vec2()),
             angularDamping: 10,
         });
 
@@ -214,59 +214,47 @@ class TheoJansenTest extends Test {
             const dampingRatio = 0.5;
             const frequencyHz = 10;
 
-            jd.initialize(
-                body1,
-                body2,
-                Vec2.add(p2, this.m_offset, new Vec2()),
-                Vec2.add(p5, this.m_offset, new Vec2()),
-            );
+            jd.initialize(body1, body2, Vec2.add(p2, this.offset, new Vec2()), Vec2.add(p5, this.offset, new Vec2()));
             linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
+
+            jd.initialize(body1, body2, Vec2.add(p3, this.offset, new Vec2()), Vec2.add(p4, this.offset, new Vec2()));
+            linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
+            this.world.createJoint(jd);
 
             jd.initialize(
                 body1,
-                body2,
-                Vec2.add(p3, this.m_offset, new Vec2()),
-                Vec2.add(p4, this.m_offset, new Vec2()),
+                this.wheel,
+                Vec2.add(p3, this.offset, new Vec2()),
+                Vec2.add(wheelAnchor, this.offset, new Vec2()),
             );
             linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_world.createJoint(jd);
-
-            jd.initialize(
-                body1,
-                this.m_wheel,
-                Vec2.add(p3, this.m_offset, new Vec2()),
-                Vec2.add(wheelAnchor, this.m_offset, new Vec2()),
-            );
-            linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
 
             jd.initialize(
                 body2,
-                this.m_wheel,
-                Vec2.add(p6, this.m_offset, new Vec2()),
-                Vec2.add(wheelAnchor, this.m_offset, new Vec2()),
+                this.wheel,
+                Vec2.add(p6, this.offset, new Vec2()),
+                Vec2.add(wheelAnchor, this.offset, new Vec2()),
             );
             linearStiffness(jd, frequencyHz, dampingRatio, jd.bodyA, jd.bodyB);
-            this.m_world.createJoint(jd);
+            this.world.createJoint(jd);
         }
 
         {
             const jd = new RevoluteJointDef();
 
-            jd.initialize(body2, this.m_chassis, Vec2.add(p4, this.m_offset, new Vec2()));
-            this.m_world.createJoint(jd);
+            jd.initialize(body2, this.chassis, Vec2.add(p4, this.offset, new Vec2()));
+            this.world.createJoint(jd);
         }
     }
 
     public getHotkeys(): HotKey[] {
         return [
-            hotKeyPress("a", "Left", () => this.m_motorJoint.setMotorSpeed(-this.m_motorSpeed)),
-            hotKeyPress("s", "Brake", () => this.m_motorJoint.setMotorSpeed(0)),
-            hotKeyPress("d", "Right", () => this.m_motorJoint.setMotorSpeed(this.m_motorSpeed)),
-            hotKeyPress("m", "Toggle Enabled", () =>
-                this.m_motorJoint.enableMotor(!this.m_motorJoint.isMotorEnabled()),
-            ),
+            hotKeyPress("a", "Left", () => this.motorJoint.setMotorSpeed(-this.motorSpeed)),
+            hotKeyPress("s", "Brake", () => this.motorJoint.setMotorSpeed(0)),
+            hotKeyPress("d", "Right", () => this.motorJoint.setMotorSpeed(this.motorSpeed)),
+            hotKeyPress("m", "Toggle Enabled", () => this.motorJoint.enableMotor(!this.motorJoint.isMotorEnabled())),
         ];
     }
 }

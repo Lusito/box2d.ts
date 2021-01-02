@@ -27,7 +27,7 @@ class RampTest extends AbstractParticleTestWithControls {
         super(particleParameter);
 
         {
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             // Construct a ramp out of many polygons to ensure there's no
             // issue with particles moving across vertices
@@ -50,20 +50,20 @@ class RampTest extends AbstractParticleTestWithControls {
             }
         }
 
-        this.m_particleSystem.setRadius(0.25);
+        this.particleSystem.setRadius(0.25);
         const particleType = particleParameter.getValue();
         if (particleType === ParticleFlag.Water) {
-            this.m_particleSystem.setDamping(0.2);
+            this.particleSystem.setDamping(0.2);
         }
 
         {
             const shape = new CircleShape();
-            shape.m_p.set(-20, 33);
-            shape.m_radius = 3;
+            shape.p.set(-20, 33);
+            shape.radius = 3;
             const pd = new ParticleGroupDef();
             pd.flags = particleType;
             pd.shape = shape;
-            const group = this.m_particleSystem.createParticleGroup(pd);
+            const group = this.particleSystem.createParticleGroup(pd);
             if (pd.flags & ParticleFlag.ColorMixing) {
                 this.colorParticleGroup(group, 0);
             }

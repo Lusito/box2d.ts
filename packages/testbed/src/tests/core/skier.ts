@@ -10,16 +10,16 @@ import { g_camera } from "../../utils/camera";
 import { HotKey, hotKeyPress } from "../../utils/hotkeys";
 
 class SkierTest extends Test {
-    public m_platform_width: number;
+    public platform_width: number;
 
-    public m_skier: Body;
+    public skier: Body;
 
-    public m_fixed_camera: boolean;
+    public fixed_camera: boolean;
 
     public constructor() {
         super();
 
-        const ground = this.m_world.createBody();
+        const ground = this.world.createBody();
 
         const PlatformWidth = 8;
 
@@ -45,7 +45,7 @@ class SkierTest extends Test {
         const Slope2Incline = Slope1Incline - (Angle2Degrees * Math.PI) / 180;
         //
 
-        this.m_platform_width = PlatformWidth;
+        this.platform_width = PlatformWidth;
 
         // Horizontal platform
         const v1 = new Vec2(-PlatformWidth, 0);
@@ -78,9 +78,9 @@ class SkierTest extends Test {
             const SkiRestitution = 0.15;
 
             const initial_y = BodyHeight / 2 + SkiThickness;
-            const skier = this.m_world.createBody({
+            const skier = this.world.createBody({
                 type: BodyType.Dynamic,
-                position: { x: -this.m_platform_width / 2, y: initial_y },
+                position: { x: -this.platform_width / 2, y: initial_y },
             });
 
             const ski = new PolygonShape();
@@ -100,11 +100,11 @@ class SkierTest extends Test {
 
             skier.setLinearVelocity(new Vec2(0.5, 0));
 
-            this.m_skier = skier;
+            this.skier = skier;
         }
 
-        g_camera.setPositionAndZoom(this.m_platform_width / 2, 0, 0.4);
-        this.m_fixed_camera = true;
+        g_camera.setPositionAndZoom(this.platform_width / 2, 0, 0.4);
+        this.fixed_camera = true;
     }
 
     public getDefaultViewZoom() {
@@ -114,17 +114,17 @@ class SkierTest extends Test {
     public getHotkeys(): HotKey[] {
         return [
             hotKeyPress("c", "Switch Camera Fixed/Tracking", () => {
-                this.m_fixed_camera = !this.m_fixed_camera;
-                if (this.m_fixed_camera) {
-                    g_camera.setPosition(this.m_platform_width / 2, 0);
+                this.fixed_camera = !this.fixed_camera;
+                if (this.fixed_camera) {
+                    g_camera.setPosition(this.platform_width / 2, 0);
                 }
             }),
         ];
     }
 
     public step(settings: Settings, timeStep: number): void {
-        if (!this.m_fixed_camera) {
-            const pos = this.m_skier.getPosition();
+        if (!this.fixed_camera) {
+            const pos = this.skier.getPosition();
             g_camera.setPosition(pos.x, pos.y);
         }
         super.step(settings, timeStep);

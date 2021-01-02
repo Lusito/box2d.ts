@@ -384,7 +384,7 @@ export class ChainLight extends Light {
 
     protected updateMesh() {
         for (let i = 0; i < this.rayNum; i++) {
-            this.m_index = i;
+            this.index = i;
             this.f[i] = 1;
             this.tmpEnd.x = this.endX[i];
             this.mx[i] = this.tmpEnd.x;

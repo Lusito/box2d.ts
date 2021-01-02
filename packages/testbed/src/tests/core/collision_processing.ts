@@ -32,7 +32,7 @@ class CollisionProcessingTest extends Test {
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-50, 0), new Vec2(50, 0));
 
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
             ground.createFixture({ shape });
         }
 
@@ -52,7 +52,7 @@ class CollisionProcessingTest extends Test {
             density: 1,
         };
 
-        const body1 = this.m_world.createBody({
+        const body1 = this.world.createBody({
             type: BodyType.Dynamic,
             position: { x: randomFloat(xLo, xHi), y: randomFloat(yLo, yHi) },
         });
@@ -64,7 +64,7 @@ class CollisionProcessingTest extends Test {
         vertices[2].scale(2);
         polygon.set(vertices, 3);
 
-        const body2 = this.m_world.createBody({
+        const body2 = this.world.createBody({
             type: BodyType.Dynamic,
             position: { x: randomFloat(xLo, xHi), y: randomFloat(yLo, yHi) },
         });
@@ -78,7 +78,7 @@ class CollisionProcessingTest extends Test {
             density: 1,
         };
 
-        const body3 = this.m_world.createBody({
+        const body3 = this.world.createBody({
             type: BodyType.Dynamic,
             position: { x: randomFloat(xLo, xHi), y: randomFloat(yLo, yHi) },
         });
@@ -87,7 +87,7 @@ class CollisionProcessingTest extends Test {
         // Large box (recycle definitions)
         polygon.setAsBox(2, 1);
 
-        const body4 = this.m_world.createBody({
+        const body4 = this.world.createBody({
             type: BodyType.Dynamic,
             position: { x: randomFloat(xLo, xHi), y: randomFloat(yLo, yHi) },
         });
@@ -95,23 +95,23 @@ class CollisionProcessingTest extends Test {
 
         // Small circle
         const circle = new CircleShape();
-        circle.m_radius = 1;
+        circle.radius = 1;
 
         const circleShapeDef: FixtureDef = {
             shape: circle,
             density: 1,
         };
 
-        const body5 = this.m_world.createBody({
+        const body5 = this.world.createBody({
             type: BodyType.Dynamic,
             position: { x: randomFloat(xLo, xHi), y: randomFloat(yLo, yHi) },
         });
         body5.createFixture(circleShapeDef);
 
         // Large circle
-        circle.m_radius *= 2;
+        circle.radius *= 2;
 
-        const body6 = this.m_world.createBody({
+        const body6 = this.world.createBody({
             type: BodyType.Dynamic,
             position: { x: randomFloat(xLo, xHi), y: randomFloat(yLo, yHi) },
         });
@@ -130,8 +130,8 @@ class CollisionProcessingTest extends Test {
 
         // Traverse the contact results. Destroy bodies that
         // are touching heavier bodies.
-        for (let i = 0; i < this.m_pointCount; ++i) {
-            const point = this.m_points[i];
+        for (let i = 0; i < this.pointCount; ++i) {
+            const point = this.points[i];
 
             const body1 = point.fixtureA.getBody();
             const body2 = point.fixtureB.getBody();
@@ -154,8 +154,8 @@ class CollisionProcessingTest extends Test {
         // Destroy the bodies, skipping duplicates.
         for (let i = 0; i < nukeCount; i++) {
             const b = nuke[i];
-            if (nuke.indexOf(b) === i && b !== this.m_bomb) {
-                this.m_world.destroyBody(b);
+            if (nuke.indexOf(b) === i && b !== this.bomb) {
+                this.world.destroyBody(b);
             }
         }
     }

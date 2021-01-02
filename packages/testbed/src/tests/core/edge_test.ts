@@ -23,13 +23,13 @@ import { HotKey, hotKeyStep } from "../../utils/hotkeys";
 import { radioDef } from "../../ui/controls/Radio";
 
 class EdgeTest extends Test {
-    public readonly m_offset1 = new Vec2();
+    public readonly offset1 = new Vec2();
 
-    public readonly m_offset2 = new Vec2();
+    public readonly offset2 = new Vec2();
 
-    public m_body1: Body | null = null;
+    public body1: Body | null = null;
 
-    public m_body2: Body | null = null;
+    public body2: Body | null = null;
 
     public constructor() {
         super();
@@ -47,22 +47,22 @@ class EdgeTest extends Test {
             new Vec2(-10, -4),
         ];
 
-        this.m_offset1.set(0, 8);
-        this.m_offset2.set(0, 16);
+        this.offset1.set(0, 8);
+        this.offset2.set(0, 16);
 
         {
-            const v1 = vertices[0].clone().add(this.m_offset1);
-            const v2 = vertices[1].clone().add(this.m_offset1);
-            const v3 = vertices[2].clone().add(this.m_offset1);
-            const v4 = vertices[3].clone().add(this.m_offset1);
-            const v5 = vertices[4].clone().add(this.m_offset1);
-            const v6 = vertices[5].clone().add(this.m_offset1);
-            const v7 = vertices[6].clone().add(this.m_offset1);
-            const v8 = vertices[7].clone().add(this.m_offset1);
-            const v9 = vertices[8].clone().add(this.m_offset1);
-            const v10 = vertices[9].clone().add(this.m_offset1);
+            const v1 = vertices[0].clone().add(this.offset1);
+            const v2 = vertices[1].clone().add(this.offset1);
+            const v3 = vertices[2].clone().add(this.offset1);
+            const v4 = vertices[3].clone().add(this.offset1);
+            const v5 = vertices[4].clone().add(this.offset1);
+            const v6 = vertices[5].clone().add(this.offset1);
+            const v7 = vertices[6].clone().add(this.offset1);
+            const v8 = vertices[7].clone().add(this.offset1);
+            const v9 = vertices[8].clone().add(this.offset1);
+            const v10 = vertices[9].clone().add(this.offset1);
 
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
 
@@ -98,18 +98,18 @@ class EdgeTest extends Test {
         }
 
         {
-            const v1 = vertices[0].clone().add(this.m_offset2);
-            const v2 = vertices[1].clone().add(this.m_offset2);
-            const v3 = vertices[2].clone().add(this.m_offset2);
-            const v4 = vertices[3].clone().add(this.m_offset2);
-            const v5 = vertices[4].clone().add(this.m_offset2);
-            const v6 = vertices[5].clone().add(this.m_offset2);
-            const v7 = vertices[6].clone().add(this.m_offset2);
-            const v8 = vertices[7].clone().add(this.m_offset2);
-            const v9 = vertices[8].clone().add(this.m_offset2);
-            const v10 = vertices[9].clone().add(this.m_offset2);
+            const v1 = vertices[0].clone().add(this.offset2);
+            const v2 = vertices[1].clone().add(this.offset2);
+            const v3 = vertices[2].clone().add(this.offset2);
+            const v4 = vertices[3].clone().add(this.offset2);
+            const v5 = vertices[4].clone().add(this.offset2);
+            const v6 = vertices[5].clone().add(this.offset2);
+            const v7 = vertices[6].clone().add(this.offset2);
+            const v8 = vertices[7].clone().add(this.offset2);
+            const v9 = vertices[8].clone().add(this.offset2);
+            const v10 = vertices[9].clone().add(this.offset2);
 
-            const ground = this.m_world.createBody();
+            const ground = this.world.createBody();
 
             const shape = new EdgeShape();
 
@@ -144,8 +144,8 @@ class EdgeTest extends Test {
             ground.createFixture({ shape });
         }
 
-        this.m_body1 = null;
-        this.m_body2 = null;
+        this.body1 = null;
+        this.body2 = null;
         this.createBoxes();
     }
 
@@ -159,22 +159,22 @@ class EdgeTest extends Test {
     }
 
     public createBoxes(): void {
-        if (this.m_body1) {
-            this.m_world.destroyBody(this.m_body1);
-            this.m_body1 = null;
+        if (this.body1) {
+            this.world.destroyBody(this.body1);
+            this.body1 = null;
         }
 
-        if (this.m_body2) {
-            this.m_world.destroyBody(this.m_body2);
-            this.m_body2 = null;
+        if (this.body2) {
+            this.world.destroyBody(this.body2);
+            this.body2 = null;
         }
 
         {
-            this.m_body1 = this.m_world.createBody({
+            this.body1 = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: {
-                    x: 8 + this.m_offset1.x,
-                    y: 2.6 + this.m_offset1.y,
+                    x: 8 + this.offset1.x,
+                    y: 2.6 + this.offset1.y,
                 },
                 allowSleep: false,
             });
@@ -182,68 +182,68 @@ class EdgeTest extends Test {
             const shape = new PolygonShape();
             shape.setAsBox(0.5, 1);
 
-            this.m_body1.createFixture({ shape, density: 1 });
+            this.body1.createFixture({ shape, density: 1 });
         }
 
         {
-            this.m_body2 = this.m_world.createBody({
+            this.body2 = this.world.createBody({
                 type: BodyType.Dynamic,
-                position: { x: 8 + this.m_offset2.x, y: 2.6 + this.m_offset2.y },
+                position: { x: 8 + this.offset2.x, y: 2.6 + this.offset2.y },
                 allowSleep: false,
             });
 
             const shape = new PolygonShape();
             shape.setAsBox(0.5, 1);
 
-            this.m_body2.createFixture({ shape, density: 1 });
+            this.body2.createFixture({ shape, density: 1 });
         }
     }
 
     public createCircles(): void {
-        if (this.m_body1) {
-            this.m_world.destroyBody(this.m_body1);
-            this.m_body1 = null;
+        if (this.body1) {
+            this.world.destroyBody(this.body1);
+            this.body1 = null;
         }
 
-        if (this.m_body2) {
-            this.m_world.destroyBody(this.m_body2);
-            this.m_body2 = null;
+        if (this.body2) {
+            this.world.destroyBody(this.body2);
+            this.body2 = null;
         }
 
         {
-            this.m_body1 = this.m_world.createBody({
+            this.body1 = this.world.createBody({
                 type: BodyType.Dynamic,
-                position: { x: this.m_offset1.x - 0.5, y: this.m_offset1.y + 0.6 },
+                position: { x: this.offset1.x - 0.5, y: this.offset1.y + 0.6 },
                 allowSleep: false,
             });
 
             const shape = new CircleShape(0.5);
 
-            this.m_body1.createFixture({ shape, density: 1 });
+            this.body1.createFixture({ shape, density: 1 });
         }
 
         {
-            this.m_body2 = this.m_world.createBody({
+            this.body2 = this.world.createBody({
                 type: BodyType.Dynamic,
-                position: { x: this.m_offset2.x - 0.5, y: this.m_offset2.y + 0.6 },
+                position: { x: this.offset2.x - 0.5, y: this.offset2.y + 0.6 },
                 allowSleep: false,
             });
 
             const shape = new CircleShape(0.5);
 
-            this.m_body2.createFixture({ shape, density: 1 });
+            this.body2.createFixture({ shape, density: 1 });
         }
     }
 
     public getHotkeys(): HotKey[] {
         return [
             hotKeyStep("a", "Apply Force Left", () => {
-                this.m_body1?.applyForceToCenter(new Vec2(-10, 0), true);
-                this.m_body2?.applyForceToCenter(new Vec2(-10, 0), true);
+                this.body1?.applyForceToCenter(new Vec2(-10, 0), true);
+                this.body2?.applyForceToCenter(new Vec2(-10, 0), true);
             }),
             hotKeyStep("d", "Apply Force Right", () => {
-                this.m_body1?.applyForceToCenter(new Vec2(10, 0), true);
-                this.m_body2?.applyForceToCenter(new Vec2(10, 0), true);
+                this.body1?.applyForceToCenter(new Vec2(10, 0), true);
+                this.body2?.applyForceToCenter(new Vec2(10, 0), true);
             }),
         ];
     }

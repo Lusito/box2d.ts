@@ -23,16 +23,16 @@ import { Settings } from "../../settings";
 import { hotKeyPress, HotKey } from "../../utils/hotkeys";
 
 class BodyTypesTest extends Test {
-    public m_attachment: Body;
+    public attachment: Body;
 
-    public m_platform: Body;
+    public platform: Body;
 
-    public m_speed = 0;
+    public speed = 0;
 
     public constructor() {
         super();
 
-        const ground = this.m_world.createBody();
+        const ground = this.world.createBody();
         {
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-20, 0), new Vec2(20, 0));
@@ -42,7 +42,7 @@ class BodyTypesTest extends Test {
 
         // Define attachment
         {
-            this.m_attachment = this.m_world.createBody({
+            this.attachment = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: {
                     x: 0,
@@ -52,12 +52,12 @@ class BodyTypesTest extends Test {
 
             const shape = new PolygonShape();
             shape.setAsBox(0.5, 2);
-            this.m_attachment.createFixture({ shape, density: 2 });
+            this.attachment.createFixture({ shape, density: 2 });
         }
 
         // Define platform
         {
-            this.m_platform = this.m_world.createBody({
+            this.platform = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: -4, y: 5 },
             });
@@ -65,20 +65,20 @@ class BodyTypesTest extends Test {
             const shape = new PolygonShape();
             shape.setAsBox(0.5, 4, new Vec2(4, 0), 0.5 * Math.PI);
 
-            this.m_platform.createFixture({
+            this.platform.createFixture({
                 shape,
                 friction: 0.6,
                 density: 2,
             });
 
             const rjd = new RevoluteJointDef();
-            rjd.initialize(this.m_attachment, this.m_platform, new Vec2(0, 5));
+            rjd.initialize(this.attachment, this.platform, new Vec2(0, 5));
             rjd.maxMotorTorque = 50;
             rjd.enableMotor = true;
-            this.m_world.createJoint(rjd);
+            this.world.createJoint(rjd);
 
             const pjd = new PrismaticJointDef();
-            pjd.initialize(ground, this.m_platform, new Vec2(0, 5), new Vec2(1, 0));
+            pjd.initialize(ground, this.platform, new Vec2(0, 5), new Vec2(1, 0));
 
             pjd.maxMotorForce = 1000;
             pjd.enableMotor = true;
@@ -86,14 +86,14 @@ class BodyTypesTest extends Test {
             pjd.upperTranslation = 10;
             pjd.enableLimit = true;
 
-            this.m_world.createJoint(pjd);
+            this.world.createJoint(pjd);
 
-            this.m_speed = 3;
+            this.speed = 3;
         }
 
         // Create a payload
         {
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position: { x: 0, y: 8 },
             });
@@ -111,24 +111,24 @@ class BodyTypesTest extends Test {
 
     public getHotkeys(): HotKey[] {
         return [
-            hotKeyPress("d", "Set Dynamic Body", () => this.m_platform.setType(BodyType.Dynamic)),
-            hotKeyPress("s", "Set Static Body", () => this.m_platform.setType(BodyType.Static)),
+            hotKeyPress("d", "Set Dynamic Body", () => this.platform.setType(BodyType.Dynamic)),
+            hotKeyPress("s", "Set Static Body", () => this.platform.setType(BodyType.Static)),
             hotKeyPress("k", "Set Kinematic Body", () => {
-                this.m_platform.setType(BodyType.Kinematic);
-                this.m_platform.setLinearVelocity(new Vec2(-this.m_speed, 0));
-                this.m_platform.setAngularVelocity(0);
+                this.platform.setType(BodyType.Kinematic);
+                this.platform.setLinearVelocity(new Vec2(-this.speed, 0));
+                this.platform.setAngularVelocity(0);
             }),
         ];
     }
 
     public step(settings: Settings, timeStep: number): void {
         // Drive the kinematic body.
-        if (this.m_platform.getType() === BodyType.Kinematic) {
-            const { p } = this.m_platform.getTransform();
-            const v = this.m_platform.getLinearVelocity();
+        if (this.platform.getType() === BodyType.Kinematic) {
+            const { p } = this.platform.getTransform();
+            const v = this.platform.getLinearVelocity();
 
             if ((p.x < -10 && v.x < 0) || (p.x > 10 && v.x > 0)) {
-                this.m_platform.setLinearVelocity(new Vec2(-v.x, v.y));
+                this.platform.setLinearVelocity(new Vec2(-v.x, v.y));
             }
         }
 

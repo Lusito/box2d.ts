@@ -29,18 +29,18 @@ import { sliderDef } from "../../ui/controls/Slider";
 
 // Test the wheel joint with motor, spring, and limit options.
 class WheelJointTest extends Test {
-    public m_joint: WheelJoint;
+    public joint: WheelJoint;
 
-    public m_motorSpeed = 10;
+    public motorSpeed = 10;
 
-    public m_enableMotor = false;
+    public enableMotor = false;
 
-    public m_enableLimit = true;
+    public enableLimit = true;
 
     public constructor() {
         super();
 
-        const ground = this.m_world.createBody();
+        const ground = this.world.createBody();
         {
             const shape = new EdgeShape();
             shape.setTwoSided(new Vec2(-40, 0), new Vec2(40, 0));
@@ -51,7 +51,7 @@ class WheelJointTest extends Test {
             const shape = new CircleShape(2);
 
             const position = new Vec2(0, 10);
-            const body = this.m_world.createBody({
+            const body = this.world.createBody({
                 type: BodyType.Dynamic,
                 position,
                 allowSleep: false,
@@ -63,29 +63,29 @@ class WheelJointTest extends Test {
             // Horizontal
             jd.initialize(ground, body, position, new Vec2(0, 1));
 
-            jd.motorSpeed = this.m_motorSpeed;
+            jd.motorSpeed = this.motorSpeed;
             jd.maxMotorTorque = 10000;
-            jd.enableMotor = this.m_enableMotor;
+            jd.enableMotor = this.enableMotor;
             jd.lowerTranslation = -3;
             jd.upperTranslation = 3;
-            jd.enableLimit = this.m_enableLimit;
+            jd.enableLimit = this.enableLimit;
 
             const hertz = 1;
             const dampingRatio = 0.7;
             linearStiffness(jd, hertz, dampingRatio, ground, body);
 
-            this.m_joint = this.m_world.createJoint(jd);
+            this.joint = this.world.createJoint(jd);
         }
 
         this.addTestControlGroup("Joint", [
-            checkboxDef("Limit", this.m_enableLimit, (value: boolean) => {
-                this.m_enableLimit = this.m_joint.enableLimit(value);
+            checkboxDef("Limit", this.enableLimit, (value: boolean) => {
+                this.enableLimit = this.joint.enableLimit(value);
             }),
-            checkboxDef("Motor", this.m_enableMotor, (value: boolean) => {
-                this.m_enableMotor = this.m_joint.enableMotor(value);
+            checkboxDef("Motor", this.enableMotor, (value: boolean) => {
+                this.enableMotor = this.joint.enableMotor(value);
             }),
-            sliderDef("Speed", -100, 100, 1, this.m_motorSpeed, (value: number) => {
-                this.m_motorSpeed = this.m_joint.setMotorSpeed(value);
+            sliderDef("Speed", -100, 100, 1, this.motorSpeed, (value: number) => {
+                this.motorSpeed = this.joint.setMotorSpeed(value);
             }),
         ]);
     }
@@ -93,10 +93,10 @@ class WheelJointTest extends Test {
     public step(settings: Settings, timeStep: number): void {
         super.step(settings, timeStep);
 
-        const torque = this.m_joint.getMotorTorque(settings.m_hertz);
+        const torque = this.joint.getMotorTorque(settings.hertz);
         this.addDebug("Motor Torque", torque);
 
-        const F = this.m_joint.getReactionForce(settings.m_hertz, new Vec2());
+        const F = this.joint.getReactionForce(settings.hertz, new Vec2());
         this.addDebug("Reaction Force", `(${F.x.toFixed(1)}, ${F.y.toFixed(1)})`);
     }
 }

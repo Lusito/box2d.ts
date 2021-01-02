@@ -22,8 +22,8 @@ import { ControllerEdge, Controller } from "../controller/b2_controller";
 
 declare module "@box2d/core" {
     interface World {
-        m_controllerList: Controller | null;
-        m_controllerCount: number;
+        controllerList: Controller | null;
+        controllerCount: number;
         addController(controller: Controller): Controller;
         removeController(controller: Controller): Controller;
     }
@@ -32,41 +32,41 @@ declare module "@box2d/core" {
 augment(World, {
     create(original, gravity) {
         const world = original(gravity);
-        world.m_controllerList = null;
-        world.m_controllerCount = 0;
+        world.controllerList = null;
+        world.controllerCount = 0;
         return world;
     },
 });
 
 Object.assign(World.prototype, {
     addController(this: World, controller: Controller): Controller {
-        // assert(controller.m_world === null, "Controller can only be a member of one world");
-        // controller.m_world = this;
-        controller.m_next = this.m_controllerList;
-        controller.m_prev = null;
-        if (this.m_controllerList) {
-            this.m_controllerList.m_prev = controller;
+        // assert(controller.world === null, "Controller can only be a member of one world");
+        // controller.world = this;
+        controller.next = this.controllerList;
+        controller.prev = null;
+        if (this.controllerList) {
+            this.controllerList.prev = controller;
         }
-        this.m_controllerList = controller;
-        ++this.m_controllerCount;
+        this.controllerList = controller;
+        ++this.controllerCount;
         return controller;
     },
 
     removeController(this: World, controller: Controller): Controller {
-        // assert(controller.m_world === this, "Controller is not a member of this world");
-        if (controller.m_prev) {
-            controller.m_prev.m_next = controller.m_next;
+        // assert(controller.world === this, "Controller is not a member of this world");
+        if (controller.prev) {
+            controller.prev.next = controller.next;
         }
-        if (controller.m_next) {
-            controller.m_next.m_prev = controller.m_prev;
+        if (controller.next) {
+            controller.next.prev = controller.prev;
         }
-        if (this.m_controllerList === controller) {
-            this.m_controllerList = controller.m_next;
+        if (this.controllerList === controller) {
+            this.controllerList = controller.next;
         }
-        --this.m_controllerCount;
-        controller.m_prev = null;
-        controller.m_next = null;
-        // delete controller.m_world; // = null;
+        --this.controllerCount;
+        controller.prev = null;
+        controller.next = null;
+        // delete controller.world; // = null;
         return controller;
     },
 });
@@ -74,12 +74,12 @@ Object.assign(World.prototype, {
 augment(World.prototype, {
     createBody(this: World, original, def = {}) {
         const body = original(def);
-        body.m_controllerList = null;
-        body.m_controllerCount = 0;
+        body.controllerList = null;
+        body.controllerCount = 0;
         return body;
     },
     destroyBody(this: World, original, body) {
-        let coe: ControllerEdge | null = body.m_controllerList;
+        let coe: ControllerEdge | null = body.controllerList;
         while (coe) {
             const coe0 = coe;
             coe = coe.nextController;
@@ -90,7 +90,7 @@ augment(World.prototype, {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     solve(this: World, original: (step: TimeStep) => void, step: TimeStep) {
-        for (let controller = this.m_controllerList; controller; controller = controller.m_next) {
+        for (let controller = this.controllerList; controller; controller = controller.next) {
             controller.step(step);
         }
         original(step);

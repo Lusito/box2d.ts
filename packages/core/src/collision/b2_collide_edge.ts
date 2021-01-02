@@ -49,19 +49,19 @@ export function collideEdgeAndCircle(
     // Compute circle in frame of edge
     const Q = Transform.transposeMultiplyVec2(
         xfA,
-        Transform.multiplyVec2(xfB, circleB.m_p, Vec2.s_t0),
+        Transform.multiplyVec2(xfB, circleB.p, Vec2.s_t0),
         CollideEdgeAndCircle_s_Q,
     );
 
-    const A = edgeA.m_vertex1;
-    const B = edgeA.m_vertex2;
+    const A = edgeA.vertex1;
+    const B = edgeA.vertex2;
     const e = Vec2.subtract(B, A, CollideEdgeAndCircle_s_e);
 
     // Normal points to the right for a CCW winding
     const n = CollideEdgeAndCircle_s_n.set(e.y, -e.x);
     const offset = Vec2.dot(n, Vec2.subtract(Q, A, Vec2.s_t0));
 
-    const oneSided = edgeA.m_oneSided;
+    const { oneSided } = edgeA;
     if (oneSided && offset < 0) {
         return;
     }
@@ -70,7 +70,7 @@ export function collideEdgeAndCircle(
     const u = Vec2.dot(e, Vec2.subtract(B, Q, Vec2.s_t0));
     const v = Vec2.dot(e, Vec2.subtract(Q, A, Vec2.s_t0));
 
-    const radius = edgeA.m_radius + circleB.m_radius;
+    const radius = edgeA.radius + circleB.radius;
 
     const id = CollideEdgeAndCircle_s_id;
     id.cf.indexB = 0;
@@ -86,8 +86,8 @@ export function collideEdgeAndCircle(
         }
 
         // Is there an edge connected to A?
-        if (edgeA.m_oneSided) {
-            const A1 = edgeA.m_vertex0;
+        if (edgeA.oneSided) {
+            const A1 = edgeA.vertex0;
             const B1 = A;
             const e1 = Vec2.subtract(B1, A1, CollideEdgeAndCircle_s_e1);
             const u1 = Vec2.dot(e1, Vec2.subtract(B1, Q, Vec2.s_t0));
@@ -105,7 +105,7 @@ export function collideEdgeAndCircle(
         manifold.localNormal.setZero();
         manifold.localPoint.copy(P);
         manifold.points[0].id.copy(id);
-        manifold.points[0].localPoint.copy(circleB.m_p);
+        manifold.points[0].localPoint.copy(circleB.p);
         return;
     }
 
@@ -119,8 +119,8 @@ export function collideEdgeAndCircle(
         }
 
         // Is there an edge connected to B?
-        if (edgeA.m_oneSided) {
-            const B2 = edgeA.m_vertex3;
+        if (edgeA.oneSided) {
+            const B2 = edgeA.vertex3;
             const A2 = B;
             const e2 = Vec2.subtract(B2, A2, CollideEdgeAndCircle_s_e2);
             const v2 = Vec2.dot(e2, Vec2.subtract(Q, A2, Vec2.s_t0));
@@ -138,7 +138,7 @@ export function collideEdgeAndCircle(
         manifold.localNormal.setZero();
         manifold.localPoint.copy(P);
         manifold.points[0].id.copy(id);
-        manifold.points[0].localPoint.copy(circleB.m_p);
+        manifold.points[0].localPoint.copy(circleB.p);
         return;
     }
 
@@ -166,7 +166,7 @@ export function collideEdgeAndCircle(
     manifold.localNormal.copy(n);
     manifold.localPoint.copy(A);
     manifold.points[0].id.copy(id);
-    manifold.points[0].localPoint.copy(circleB.m_p);
+    manifold.points[0].localPoint.copy(circleB.p);
 }
 
 enum EPAxisType {
@@ -302,10 +302,10 @@ export function collideEdgeAndPolygon(
 
     const xf = Transform.transposeMultiply(xfA, xfB, CollideEdgeAndPolygon_s_xf);
 
-    const centroidB = Transform.multiplyVec2(xf, polygonB.m_centroid, CollideEdgeAndPolygon_s_centroidB);
+    const centroidB = Transform.multiplyVec2(xf, polygonB.centroid, CollideEdgeAndPolygon_s_centroidB);
 
-    const v1 = edgeA.m_vertex1;
-    const v2 = edgeA.m_vertex2;
+    const v1 = edgeA.vertex1;
+    const v2 = edgeA.vertex2;
 
     const edge1 = Vec2.subtract(v2, v1, CollideEdgeAndPolygon_s_edge1);
     edge1.normalize();
@@ -314,20 +314,20 @@ export function collideEdgeAndPolygon(
     const normal1 = CollideEdgeAndPolygon_s_normal1.set(edge1.y, -edge1.x);
     const offset1 = Vec2.dot(normal1, Vec2.subtract(centroidB, v1, Vec2.s_t0));
 
-    const oneSided = edgeA.m_oneSided;
+    const { oneSided } = edgeA;
     if (oneSided && offset1 < 0) {
         return;
     }
 
     // Get polygonB in frameA
     const tempPolygonB = CollideEdgeAndPolygon_s_tempPolygonB;
-    tempPolygonB.count = polygonB.m_count;
-    for (let i = 0; i < polygonB.m_count; ++i) {
-        Transform.multiplyVec2(xf, polygonB.m_vertices[i], tempPolygonB.vertices[i]);
-        Rot.multiplyVec2(xf.q, polygonB.m_normals[i], tempPolygonB.normals[i]);
+    tempPolygonB.count = polygonB.count;
+    for (let i = 0; i < polygonB.count; ++i) {
+        Transform.multiplyVec2(xf, polygonB.vertices[i], tempPolygonB.vertices[i]);
+        Rot.multiplyVec2(xf.q, polygonB.normals[i], tempPolygonB.normals[i]);
     }
 
-    const radius = polygonB.m_radius + edgeA.m_radius;
+    const radius = polygonB.radius + edgeA.radius;
 
     const edgeAxis = computeEdgeSeparation(tempPolygonB, v1, normal1);
     if (edgeAxis.separation > radius) {
@@ -355,12 +355,12 @@ export function collideEdgeAndPolygon(
         // Smooth collision
         // See https://box2d.org/posts/2020/06/ghost-collisions/
 
-        const edge0 = Vec2.subtract(v1, edgeA.m_vertex0, CollideEdgeAndPolygon_s_edge0);
+        const edge0 = Vec2.subtract(v1, edgeA.vertex0, CollideEdgeAndPolygon_s_edge0);
         edge0.normalize();
         const normal0 = CollideEdgeAndPolygon_s_normal0.set(edge0.y, -edge0.x);
         const convex1 = Vec2.cross(edge0, edge1) >= 0;
 
-        const edge2 = Vec2.subtract(edgeA.m_vertex3, v2, CollideEdgeAndPolygon_s_edge2);
+        const edge2 = Vec2.subtract(edgeA.vertex3, v2, CollideEdgeAndPolygon_s_edge2);
         edge2.normalize();
         const normal2 = CollideEdgeAndPolygon_s_normal2.set(edge2.y, -edge2.x);
         const convex2 = Vec2.cross(edge1, edge2) >= 0;
@@ -485,8 +485,8 @@ export function collideEdgeAndPolygon(
         manifold.localNormal.copy(ref.normal);
         manifold.localPoint.copy(ref.v1);
     } else {
-        manifold.localNormal.copy(polygonB.m_normals[ref.i1]);
-        manifold.localPoint.copy(polygonB.m_vertices[ref.i1]);
+        manifold.localNormal.copy(polygonB.normals[ref.i1]);
+        manifold.localPoint.copy(polygonB.vertices[ref.i1]);
     }
 
     let pointCount = 0;

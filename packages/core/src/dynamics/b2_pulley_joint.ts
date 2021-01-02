@@ -121,196 +121,196 @@ const defaultLocalAnchorB = Vec2.UNITX;
  * zero length.
  */
 export class PulleyJoint extends Joint {
-    protected readonly m_groundAnchorA = new Vec2();
+    protected readonly groundAnchorA = new Vec2();
 
-    protected readonly m_groundAnchorB = new Vec2();
+    protected readonly groundAnchorB = new Vec2();
 
-    protected m_lengthA = 0;
+    protected lengthA = 0;
 
-    protected m_lengthB = 0;
+    protected lengthB = 0;
 
     // Solver shared
-    protected readonly m_localAnchorA = new Vec2();
+    protected readonly localAnchorA = new Vec2();
 
-    protected readonly m_localAnchorB = new Vec2();
+    protected readonly localAnchorB = new Vec2();
 
-    protected m_constant = 0;
+    protected constant = 0;
 
-    protected m_ratio = 0;
+    protected ratio = 0;
 
-    protected m_impulse = 0;
+    protected impulse = 0;
 
     // Solver temp
-    protected m_indexA = 0;
+    protected indexA = 0;
 
-    protected m_indexB = 0;
+    protected indexB = 0;
 
-    protected readonly m_uA = new Vec2();
+    protected readonly uA = new Vec2();
 
-    protected readonly m_uB = new Vec2();
+    protected readonly uB = new Vec2();
 
-    protected readonly m_rA = new Vec2();
+    protected readonly rA = new Vec2();
 
-    protected readonly m_rB = new Vec2();
+    protected readonly rB = new Vec2();
 
-    protected readonly m_localCenterA = new Vec2();
+    protected readonly localCenterA = new Vec2();
 
-    protected readonly m_localCenterB = new Vec2();
+    protected readonly localCenterB = new Vec2();
 
-    protected m_invMassA = 0;
+    protected invMassA = 0;
 
-    protected m_invMassB = 0;
+    protected invMassB = 0;
 
-    protected m_invIA = 0;
+    protected invIA = 0;
 
-    protected m_invIB = 0;
+    protected invIB = 0;
 
-    protected m_mass = 0;
+    protected mass = 0;
 
     /** @internal protected */
     public constructor(def: IPulleyJointDef) {
         super(def);
 
-        this.m_groundAnchorA.copy(def.groundAnchorA ?? defaultGroundAnchorA);
-        this.m_groundAnchorB.copy(def.groundAnchorB ?? defaultGroundAnchorB);
-        this.m_localAnchorA.copy(def.localAnchorA ?? defaultLocalAnchorA);
-        this.m_localAnchorB.copy(def.localAnchorB ?? defaultLocalAnchorB);
+        this.groundAnchorA.copy(def.groundAnchorA ?? defaultGroundAnchorA);
+        this.groundAnchorB.copy(def.groundAnchorB ?? defaultGroundAnchorB);
+        this.localAnchorA.copy(def.localAnchorA ?? defaultLocalAnchorA);
+        this.localAnchorB.copy(def.localAnchorB ?? defaultLocalAnchorB);
 
-        this.m_lengthA = def.lengthA ?? 0;
-        this.m_lengthB = def.lengthB ?? 0;
+        this.lengthA = def.lengthA ?? 0;
+        this.lengthB = def.lengthB ?? 0;
 
         // DEBUG: assert((def.ratio ?? 1) !== 0);
-        this.m_ratio = def.ratio ?? 1;
+        this.ratio = def.ratio ?? 1;
 
-        this.m_constant = this.m_lengthA + this.m_ratio * this.m_lengthB;
+        this.constant = this.lengthA + this.ratio * this.lengthB;
 
-        this.m_impulse = 0;
+        this.impulse = 0;
     }
 
     /** @internal protected */
     public initVelocityConstraints(data: SolverData): void {
-        this.m_indexA = this.m_bodyA.m_islandIndex;
-        this.m_indexB = this.m_bodyB.m_islandIndex;
-        this.m_localCenterA.copy(this.m_bodyA.m_sweep.localCenter);
-        this.m_localCenterB.copy(this.m_bodyB.m_sweep.localCenter);
-        this.m_invMassA = this.m_bodyA.m_invMass;
-        this.m_invMassB = this.m_bodyB.m_invMass;
-        this.m_invIA = this.m_bodyA.m_invI;
-        this.m_invIB = this.m_bodyB.m_invI;
+        this.indexA = this.bodyA.islandIndex;
+        this.indexB = this.bodyB.islandIndex;
+        this.localCenterA.copy(this.bodyA.sweep.localCenter);
+        this.localCenterB.copy(this.bodyB.sweep.localCenter);
+        this.invMassA = this.bodyA.invMass;
+        this.invMassB = this.bodyB.invMass;
+        this.invIA = this.bodyA.invI;
+        this.invIB = this.bodyB.invI;
 
-        const cA = data.positions[this.m_indexA].c;
-        const aA = data.positions[this.m_indexA].a;
-        const vA = data.velocities[this.m_indexA].v;
-        let wA = data.velocities[this.m_indexA].w;
+        const cA = data.positions[this.indexA].c;
+        const aA = data.positions[this.indexA].a;
+        const vA = data.velocities[this.indexA].v;
+        let wA = data.velocities[this.indexA].w;
 
-        const cB = data.positions[this.m_indexB].c;
-        const aB = data.positions[this.m_indexB].a;
-        const vB = data.velocities[this.m_indexB].v;
-        let wB = data.velocities[this.m_indexB].w;
+        const cB = data.positions[this.indexB].c;
+        const aB = data.positions[this.indexB].a;
+        const vB = data.velocities[this.indexB].v;
+        let wB = data.velocities[this.indexB].w;
 
         const { qA, qB, lalcA, lalcB } = temp;
         qA.set(aA);
         qB.set(aB);
 
-        Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), this.m_rA);
-        Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
+        Rot.multiplyVec2(qA, Vec2.subtract(this.localAnchorA, this.localCenterA, lalcA), this.rA);
+        Rot.multiplyVec2(qB, Vec2.subtract(this.localAnchorB, this.localCenterB, lalcB), this.rB);
 
         // Get the pulley axes.
-        Vec2.add(cA, this.m_rA, this.m_uA).subtract(this.m_groundAnchorA);
-        Vec2.add(cB, this.m_rB, this.m_uB).subtract(this.m_groundAnchorB);
+        Vec2.add(cA, this.rA, this.uA).subtract(this.groundAnchorA);
+        Vec2.add(cB, this.rB, this.uB).subtract(this.groundAnchorB);
 
-        const lengthA = this.m_uA.length();
-        const lengthB = this.m_uB.length();
+        const lengthA = this.uA.length();
+        const lengthB = this.uB.length();
 
         if (lengthA > 10 * LINEAR_SLOP) {
-            this.m_uA.scale(1 / lengthA);
+            this.uA.scale(1 / lengthA);
         } else {
-            this.m_uA.setZero();
+            this.uA.setZero();
         }
 
         if (lengthB > 10 * LINEAR_SLOP) {
-            this.m_uB.scale(1 / lengthB);
+            this.uB.scale(1 / lengthB);
         } else {
-            this.m_uB.setZero();
+            this.uB.setZero();
         }
 
         // Compute effective mass.
-        const ruA = Vec2.cross(this.m_rA, this.m_uA);
-        const ruB = Vec2.cross(this.m_rB, this.m_uB);
+        const ruA = Vec2.cross(this.rA, this.uA);
+        const ruB = Vec2.cross(this.rB, this.uB);
 
-        const mA = this.m_invMassA + this.m_invIA * ruA * ruA;
-        const mB = this.m_invMassB + this.m_invIB * ruB * ruB;
+        const mA = this.invMassA + this.invIA * ruA * ruA;
+        const mB = this.invMassB + this.invIB * ruB * ruB;
 
-        this.m_mass = mA + this.m_ratio * this.m_ratio * mB;
+        this.mass = mA + this.ratio * this.ratio * mB;
 
-        if (this.m_mass > 0) {
-            this.m_mass = 1 / this.m_mass;
+        if (this.mass > 0) {
+            this.mass = 1 / this.mass;
         }
 
         if (data.step.warmStarting) {
             // Scale impulses to support variable time steps.
-            this.m_impulse *= data.step.dtRatio;
+            this.impulse *= data.step.dtRatio;
 
             // Warm starting.
             const { PA, PB } = temp;
-            Vec2.scale(-this.m_impulse, this.m_uA, PA);
-            Vec2.scale(-this.m_ratio * this.m_impulse, this.m_uB, PB);
+            Vec2.scale(-this.impulse, this.uA, PA);
+            Vec2.scale(-this.ratio * this.impulse, this.uB, PB);
 
-            vA.addScaled(this.m_invMassA, PA);
-            wA += this.m_invIA * Vec2.cross(this.m_rA, PA);
-            vB.addScaled(this.m_invMassB, PB);
-            wB += this.m_invIB * Vec2.cross(this.m_rB, PB);
+            vA.addScaled(this.invMassA, PA);
+            wA += this.invIA * Vec2.cross(this.rA, PA);
+            vB.addScaled(this.invMassB, PB);
+            wB += this.invIB * Vec2.cross(this.rB, PB);
         } else {
-            this.m_impulse = 0;
+            this.impulse = 0;
         }
 
-        data.velocities[this.m_indexA].w = wA;
-        data.velocities[this.m_indexB].w = wB;
+        data.velocities[this.indexA].w = wA;
+        data.velocities[this.indexB].w = wB;
     }
 
     /** @internal protected */
     public solveVelocityConstraints(data: SolverData): void {
-        const vA = data.velocities[this.m_indexA].v;
-        let wA = data.velocities[this.m_indexA].w;
-        const vB = data.velocities[this.m_indexB].v;
-        let wB = data.velocities[this.m_indexB].w;
+        const vA = data.velocities[this.indexA].v;
+        let wA = data.velocities[this.indexA].w;
+        const vB = data.velocities[this.indexB].v;
+        let wB = data.velocities[this.indexB].w;
 
         const { PA, PB, vpA, vpB } = temp;
-        Vec2.addCrossScalarVec2(vA, wA, this.m_rA, vpA);
-        Vec2.addCrossScalarVec2(vB, wB, this.m_rB, vpB);
+        Vec2.addCrossScalarVec2(vA, wA, this.rA, vpA);
+        Vec2.addCrossScalarVec2(vB, wB, this.rB, vpB);
 
-        const Cdot = -Vec2.dot(this.m_uA, vpA) - this.m_ratio * Vec2.dot(this.m_uB, vpB);
-        const impulse = -this.m_mass * Cdot;
-        this.m_impulse += impulse;
+        const Cdot = -Vec2.dot(this.uA, vpA) - this.ratio * Vec2.dot(this.uB, vpB);
+        const impulse = -this.mass * Cdot;
+        this.impulse += impulse;
 
-        Vec2.scale(-impulse, this.m_uA, PA);
-        Vec2.scale(-this.m_ratio * impulse, this.m_uB, PB);
-        vA.addScaled(this.m_invMassA, PA);
-        wA += this.m_invIA * Vec2.cross(this.m_rA, PA);
-        vB.addScaled(this.m_invMassB, PB);
-        wB += this.m_invIB * Vec2.cross(this.m_rB, PB);
+        Vec2.scale(-impulse, this.uA, PA);
+        Vec2.scale(-this.ratio * impulse, this.uB, PB);
+        vA.addScaled(this.invMassA, PA);
+        wA += this.invIA * Vec2.cross(this.rA, PA);
+        vB.addScaled(this.invMassB, PB);
+        wB += this.invIB * Vec2.cross(this.rB, PB);
 
-        data.velocities[this.m_indexA].w = wA;
-        data.velocities[this.m_indexB].w = wB;
+        data.velocities[this.indexA].w = wA;
+        data.velocities[this.indexB].w = wB;
     }
 
     /** @internal protected */
     public solvePositionConstraints(data: SolverData): boolean {
-        const cA = data.positions[this.m_indexA].c;
-        let aA = data.positions[this.m_indexA].a;
-        const cB = data.positions[this.m_indexB].c;
-        let aB = data.positions[this.m_indexB].a;
+        const cA = data.positions[this.indexA].c;
+        let aA = data.positions[this.indexA].a;
+        const cB = data.positions[this.indexB].c;
+        let aB = data.positions[this.indexB].a;
 
         const { qA, qB, lalcA, lalcB, PA, PB } = temp;
         qA.set(aA);
         qB.set(aB);
 
-        const rA = Rot.multiplyVec2(qA, Vec2.subtract(this.m_localAnchorA, this.m_localCenterA, lalcA), this.m_rA);
-        const rB = Rot.multiplyVec2(qB, Vec2.subtract(this.m_localAnchorB, this.m_localCenterB, lalcB), this.m_rB);
+        const rA = Rot.multiplyVec2(qA, Vec2.subtract(this.localAnchorA, this.localCenterA, lalcA), this.rA);
+        const rB = Rot.multiplyVec2(qB, Vec2.subtract(this.localAnchorB, this.localCenterB, lalcB), this.rB);
 
         // Get the pulley axes.
-        const uA = Vec2.add(cA, rA, this.m_uA).subtract(this.m_groundAnchorA);
-        const uB = Vec2.add(cB, rB, this.m_uB).subtract(this.m_groundAnchorB);
+        const uA = Vec2.add(cA, rA, this.uA).subtract(this.groundAnchorA);
+        const uB = Vec2.add(cB, rB, this.uB).subtract(this.groundAnchorB);
 
         const lengthA = uA.length();
         const lengthB = uB.length();
@@ -331,45 +331,45 @@ export class PulleyJoint extends Joint {
         const ruA = Vec2.cross(rA, uA);
         const ruB = Vec2.cross(rB, uB);
 
-        const mA = this.m_invMassA + this.m_invIA * ruA * ruA;
-        const mB = this.m_invMassB + this.m_invIB * ruB * ruB;
+        const mA = this.invMassA + this.invIA * ruA * ruA;
+        const mB = this.invMassB + this.invIB * ruB * ruB;
 
-        let mass = mA + this.m_ratio * this.m_ratio * mB;
+        let mass = mA + this.ratio * this.ratio * mB;
 
         if (mass > 0) {
             mass = 1 / mass;
         }
 
-        const C = this.m_constant - lengthA - this.m_ratio * lengthB;
+        const C = this.constant - lengthA - this.ratio * lengthB;
         const linearError = Math.abs(C);
 
         const impulse = -mass * C;
 
         Vec2.scale(-impulse, uA, PA);
-        Vec2.scale(-this.m_ratio * impulse, uB, PB);
+        Vec2.scale(-this.ratio * impulse, uB, PB);
 
-        cA.addScaled(this.m_invMassA, PA);
-        aA += this.m_invIA * Vec2.cross(rA, PA);
-        cB.addScaled(this.m_invMassB, PB);
-        aB += this.m_invIB * Vec2.cross(rB, PB);
+        cA.addScaled(this.invMassA, PA);
+        aA += this.invIA * Vec2.cross(rA, PA);
+        cB.addScaled(this.invMassB, PB);
+        aB += this.invIB * Vec2.cross(rB, PB);
 
-        data.positions[this.m_indexA].a = aA;
-        data.positions[this.m_indexB].a = aB;
+        data.positions[this.indexA].a = aA;
+        data.positions[this.indexB].a = aB;
 
         return linearError < LINEAR_SLOP;
     }
 
     public getAnchorA<T extends XY>(out: T): T {
-        return this.m_bodyA.getWorldPoint(this.m_localAnchorA, out);
+        return this.bodyA.getWorldPoint(this.localAnchorA, out);
     }
 
     public getAnchorB<T extends XY>(out: T): T {
-        return this.m_bodyB.getWorldPoint(this.m_localAnchorB, out);
+        return this.bodyB.getWorldPoint(this.localAnchorB, out);
     }
 
     public getReactionForce<T extends XY>(inv_dt: number, out: T): T {
-        out.x = inv_dt * this.m_impulse * this.m_uB.x;
-        out.y = inv_dt * this.m_impulse * this.m_uB.y;
+        out.x = inv_dt * this.impulse * this.uB.x;
+        out.y = inv_dt * this.impulse * this.uB.y;
         return out;
     }
 
@@ -378,40 +378,40 @@ export class PulleyJoint extends Joint {
     }
 
     public getGroundAnchorA() {
-        return this.m_groundAnchorA;
+        return this.groundAnchorA;
     }
 
     public getGroundAnchorB() {
-        return this.m_groundAnchorB;
+        return this.groundAnchorB;
     }
 
     public getLengthA() {
-        return this.m_lengthA;
+        return this.lengthA;
     }
 
     public getLengthB() {
-        return this.m_lengthB;
+        return this.lengthB;
     }
 
     public getRatio() {
-        return this.m_ratio;
+        return this.ratio;
     }
 
     public getCurrentLengthA() {
-        const p = this.m_bodyA.getWorldPoint(this.m_localAnchorA, temp.p);
-        const s = this.m_groundAnchorA;
+        const p = this.bodyA.getWorldPoint(this.localAnchorA, temp.p);
+        const s = this.groundAnchorA;
         return Vec2.distance(p, s);
     }
 
     public getCurrentLengthB() {
-        const p = this.m_bodyB.getWorldPoint(this.m_localAnchorB, temp.p);
-        const s = this.m_groundAnchorB;
+        const p = this.bodyB.getWorldPoint(this.localAnchorB, temp.p);
+        const s = this.groundAnchorB;
         return Vec2.distance(p, s);
     }
 
     public shiftOrigin(newOrigin: Vec2) {
-        this.m_groundAnchorA.subtract(newOrigin);
-        this.m_groundAnchorB.subtract(newOrigin);
+        this.groundAnchorA.subtract(newOrigin);
+        this.groundAnchorB.subtract(newOrigin);
     }
 
     public draw(draw: Draw): void {

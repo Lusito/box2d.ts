@@ -19,8 +19,8 @@ function submergedAreaForPolygon(shape: Shape, normal: Vec2, offset: number, xf:
     let outoIndex = -1;
 
     let lastSubmerged = false;
-    for (let i = 0; i < polygon.m_count; ++i) {
-        depths[i] = Vec2.dot(normalL, polygon.m_vertices[i]) - offsetL;
+    for (let i = 0; i < polygon.count; ++i) {
+        depths[i] = Vec2.dot(normalL, polygon.vertices[i]) - offsetL;
         const isSubmerged = depths[i] < -EPSILON;
         if (i > 0) {
             if (isSubmerged) {
@@ -49,40 +49,40 @@ function submergedAreaForPolygon(shape: Shape, normal: Vec2, offset: number, xf:
 
         case 1:
             if (intoIndex === -1) {
-                intoIndex = polygon.m_count - 1;
+                intoIndex = polygon.count - 1;
             } else {
-                outoIndex = polygon.m_count - 1;
+                outoIndex = polygon.count - 1;
             }
             break;
     }
-    const intoIndex2 = (intoIndex + 1) % polygon.m_count;
-    const outoIndex2 = (outoIndex + 1) % polygon.m_count;
+    const intoIndex2 = (intoIndex + 1) % polygon.count;
+    const outoIndex2 = (outoIndex + 1) % polygon.count;
     const intoLamdda = (0 - depths[intoIndex]) / (depths[intoIndex2] - depths[intoIndex]);
     const outoLamdda = (0 - depths[outoIndex]) / (depths[outoIndex2] - depths[outoIndex]);
 
     const intoVec = ComputeSubmergedArea_s_intoVec.set(
-        polygon.m_vertices[intoIndex].x * (1 - intoLamdda) + polygon.m_vertices[intoIndex2].x * intoLamdda,
-        polygon.m_vertices[intoIndex].y * (1 - intoLamdda) + polygon.m_vertices[intoIndex2].y * intoLamdda,
+        polygon.vertices[intoIndex].x * (1 - intoLamdda) + polygon.vertices[intoIndex2].x * intoLamdda,
+        polygon.vertices[intoIndex].y * (1 - intoLamdda) + polygon.vertices[intoIndex2].y * intoLamdda,
     );
     const outoVec = ComputeSubmergedArea_s_outoVec.set(
-        polygon.m_vertices[outoIndex].x * (1 - outoLamdda) + polygon.m_vertices[outoIndex2].x * outoLamdda,
-        polygon.m_vertices[outoIndex].y * (1 - outoLamdda) + polygon.m_vertices[outoIndex2].y * outoLamdda,
+        polygon.vertices[outoIndex].x * (1 - outoLamdda) + polygon.vertices[outoIndex2].x * outoLamdda,
+        polygon.vertices[outoIndex].y * (1 - outoLamdda) + polygon.vertices[outoIndex2].y * outoLamdda,
     );
 
     // Initialize accumulator
     let area = 0;
     const center = ComputeSubmergedArea_s_center.setZero();
-    let p2 = polygon.m_vertices[intoIndex2];
+    let p2 = polygon.vertices[intoIndex2];
     let p3: Vec2;
 
     // An awkward loop from intoIndex2+1 to outIndex2
     let i = intoIndex2;
     while (i !== outoIndex2) {
-        i = (i + 1) % polygon.m_count;
+        i = (i + 1) % polygon.count;
         if (i === outoIndex2) {
             p3 = outoVec;
         } else {
-            p3 = polygon.m_vertices[i];
+            p3 = polygon.vertices[i];
         }
 
         const triangleArea = 0.5 * ((p2.x - intoVec.x) * (p3.y - intoVec.y) - (p2.y - intoVec.y) * (p3.x - intoVec.x));
@@ -113,23 +113,23 @@ function submergedAreaForChain(shape: Shape, _normal: Vec2, _offset: number, _xf
 
 function submergedAreaForCircle(shape: Shape, normal: Vec2, offset: number, xf: Transform, c: Vec2): number {
     const circle = shape as CircleShape;
-    const p = Transform.multiplyVec2(xf, circle.m_p, new Vec2());
+    const p = Transform.multiplyVec2(xf, circle.p, new Vec2());
     const l = -(Vec2.dot(normal, p) - offset);
 
-    if (l < -circle.m_radius + EPSILON) {
+    if (l < -circle.radius + EPSILON) {
         // Completely dry
         return 0;
     }
-    if (l > circle.m_radius) {
+    if (l > circle.radius) {
         // Completely wet
         c.copy(p);
-        return Math.PI * circle.m_radius * circle.m_radius;
+        return Math.PI * circle.radius * circle.radius;
     }
 
     // Magic
-    const r2 = circle.m_radius * circle.m_radius;
+    const r2 = circle.radius * circle.radius;
     const l2 = l * l;
-    const area = r2 * (Math.asin(l / circle.m_radius) + Math.PI / 2) + l * Math.sqrt(r2 - l2);
+    const area = r2 * (Math.asin(l / circle.radius) + Math.PI / 2) + l * Math.sqrt(r2 - l2);
     const com = ((-2 / 3) * (r2 - l2) ** 1.5) / area;
 
     c.x = p.x + normal.x * com;

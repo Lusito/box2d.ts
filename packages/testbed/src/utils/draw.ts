@@ -25,10 +25,10 @@ const COLOR_STRING_WORLD = new Color(0.5, 0.9, 0.5);
 // This class implements debug drawing callbacks that are invoked
 // inside World::Step.
 export class DebugDraw implements Draw {
-    public m_ctx: CanvasRenderingContext2D | null = null;
+    public ctx: CanvasRenderingContext2D | null = null;
 
     public pushTransform(xf: Transform): void {
-        const ctx: CanvasRenderingContext2D | null = this.m_ctx;
+        const { ctx } = this;
         if (ctx) {
             ctx.save();
             ctx.translate(xf.p.x, xf.p.y);
@@ -37,14 +37,14 @@ export class DebugDraw implements Draw {
     }
 
     public popTransform(_xf: Transform): void {
-        const ctx: CanvasRenderingContext2D | null = this.m_ctx;
+        const { ctx } = this;
         if (ctx) {
             ctx.restore();
         }
     }
 
     public drawPolygon(vertices: XY[], vertexCount: number, color: RGBA): void {
-        const ctx: CanvasRenderingContext2D | null = this.m_ctx;
+        const { ctx } = this;
         if (ctx) {
             ctx.beginPath();
             ctx.moveTo(vertices[0].x, vertices[0].y);
@@ -58,7 +58,7 @@ export class DebugDraw implements Draw {
     }
 
     public drawSolidPolygon(vertices: XY[], vertexCount: number, color: RGBA): void {
-        const ctx: CanvasRenderingContext2D | null = this.m_ctx;
+        const { ctx } = this;
         if (ctx) {
             ctx.beginPath();
             ctx.moveTo(vertices[0].x, vertices[0].y);
@@ -74,7 +74,7 @@ export class DebugDraw implements Draw {
     }
 
     public drawCircle(center: XY, radius: number, color: RGBA): void {
-        const ctx: CanvasRenderingContext2D | null = this.m_ctx;
+        const { ctx } = this;
         if (ctx) {
             ctx.beginPath();
             ctx.arc(center.x, center.y, radius, 0, Math.PI * 2, true);
@@ -84,7 +84,7 @@ export class DebugDraw implements Draw {
     }
 
     public drawSolidCircle(center: XY, radius: number, axis: XY, color: RGBA): void {
-        const ctx: CanvasRenderingContext2D | null = this.m_ctx;
+        const { ctx } = this;
         if (ctx) {
             const cx = center.x;
             const cy = center.y;
@@ -100,7 +100,7 @@ export class DebugDraw implements Draw {
     }
 
     public drawParticles(centers: XY[], radius: number, colors: RGBA[] | null, count: number) {
-        const ctx: CanvasRenderingContext2D | null = this.m_ctx;
+        const { ctx } = this;
         if (ctx) {
             if (colors) {
                 for (let i = 0; i < count; ++i) {
@@ -128,7 +128,7 @@ export class DebugDraw implements Draw {
     }
 
     public drawSegment(p1: XY, p2: XY, color: RGBA): void {
-        const ctx: CanvasRenderingContext2D | null = this.m_ctx;
+        const { ctx } = this;
         if (ctx) {
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
@@ -139,7 +139,7 @@ export class DebugDraw implements Draw {
     }
 
     public drawTransform(xf: Transform): void {
-        const ctx: CanvasRenderingContext2D | null = this.m_ctx;
+        const { ctx } = this;
         if (ctx) {
             this.pushTransform(xf);
 
@@ -160,7 +160,7 @@ export class DebugDraw implements Draw {
     }
 
     public drawPoint(p: XY, size: number, color: RGBA): void {
-        const ctx: CanvasRenderingContext2D | null = this.m_ctx;
+        const { ctx } = this;
         if (ctx) {
             ctx.fillStyle = DebugDraw.makeStyleString(color);
             size /= g_camera.getZoom();
@@ -170,7 +170,7 @@ export class DebugDraw implements Draw {
     }
 
     public drawString(x: number, y: number, align: "left" | "center" | "right", message: string): void {
-        const ctx: CanvasRenderingContext2D | null = this.m_ctx;
+        const { ctx } = this;
         if (ctx) {
             ctx.font = "16px Open Sans";
             ctx.textAlign = align;
@@ -188,7 +188,7 @@ export class DebugDraw implements Draw {
     private static DrawStringWorld_s_cc = new Vec2();
 
     public drawStringWorld(x: number, y: number, message: string): void {
-        const ctx: CanvasRenderingContext2D | null = this.m_ctx;
+        const { ctx } = this;
         if (ctx) {
             const p = DebugDraw.DrawStringWorld_s_p.set(x, y);
 
@@ -210,7 +210,7 @@ export class DebugDraw implements Draw {
     }
 
     public drawAABB(aabb: AABB, color: RGBA): void {
-        const ctx: CanvasRenderingContext2D | null = this.m_ctx;
+        const { ctx } = this;
         if (ctx) {
             ctx.strokeStyle = DebugDraw.makeStyleString(color);
             const { x } = aabb.lowerBound;

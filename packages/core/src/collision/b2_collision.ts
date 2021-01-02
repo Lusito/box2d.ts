@@ -46,8 +46,6 @@ export enum ContactFeatureType {
 export class ContactFeature {
     private m_key = 0;
 
-    private m_key_invalid = false;
-
     /** Feature index on shapeA */
     private m_indexA = 0;
 
@@ -61,20 +59,24 @@ export class ContactFeature {
     private m_typeB = ContactFeatureType.Vertex;
 
     public get key(): number {
-        if (this.m_key_invalid) {
-            this.m_key_invalid = false;
-            this.m_key = this.m_indexA | (this.m_indexB << 8) | (this.m_typeA << 16) | (this.m_typeB << 24);
-        }
         return this.m_key;
     }
 
-    public set key(value: number) {
-        this.m_key = value;
-        this.m_key_invalid = false;
-        this.m_indexA = this.m_key & 0xff;
-        this.m_indexB = (this.m_key >> 8) & 0xff;
-        this.m_typeA = (this.m_key >> 16) & 0xff;
-        this.m_typeB = (this.m_key >> 24) & 0xff;
+    public reset() {
+        this.m_key = 0;
+        this.m_indexA = 0;
+        this.m_indexB = 0;
+        this.m_typeA = ContactFeatureType.Vertex;
+        this.m_typeB = ContactFeatureType.Vertex;
+    }
+
+    public copy(cf: ContactFeature): ContactFeature {
+        this.m_key = cf.m_key;
+        this.m_indexA = cf.m_indexA;
+        this.m_indexB = cf.m_indexB;
+        this.m_typeA = cf.m_typeA;
+        this.m_typeB = cf.m_typeB;
+        return this;
     }
 
     public get indexA(): number {
@@ -83,7 +85,7 @@ export class ContactFeature {
 
     public set indexA(value: number) {
         this.m_indexA = value;
-        this.m_key_invalid = true;
+        this.m_key = this.m_indexA | (this.m_indexB << 8) | (this.m_typeA << 16) | (this.m_typeB << 24);
     }
 
     public get indexB(): number {
@@ -92,7 +94,7 @@ export class ContactFeature {
 
     public set indexB(value: number) {
         this.m_indexB = value;
-        this.m_key_invalid = true;
+        this.m_key = this.m_indexA | (this.m_indexB << 8) | (this.m_typeA << 16) | (this.m_typeB << 24);
     }
 
     public get typeA(): number {
@@ -101,7 +103,7 @@ export class ContactFeature {
 
     public set typeA(value: number) {
         this.m_typeA = value;
-        this.m_key_invalid = true;
+        this.m_key = this.m_indexA | (this.m_indexB << 8) | (this.m_typeA << 16) | (this.m_typeB << 24);
     }
 
     public get typeB(): number {
@@ -110,7 +112,7 @@ export class ContactFeature {
 
     public set typeB(value: number) {
         this.m_typeB = value;
-        this.m_key_invalid = true;
+        this.m_key = this.m_indexA | (this.m_indexB << 8) | (this.m_typeA << 16) | (this.m_typeB << 24);
     }
 }
 
@@ -121,7 +123,7 @@ export class ContactID {
     public readonly cf = new ContactFeature();
 
     public copy(o: ContactID): ContactID {
-        this.key = o.key;
+        this.cf.copy(o.cf);
         return this;
     }
 
@@ -131,10 +133,6 @@ export class ContactID {
 
     public get key(): number {
         return this.cf.key;
-    }
-
-    public set key(value: number) {
-        this.cf.key = value;
     }
 }
 
@@ -167,7 +165,7 @@ export class ManifoldPoint {
         this.localPoint.setZero();
         this.normalImpulse = 0;
         this.tangentImpulse = 0;
-        this.id.key = 0;
+        this.id.cf.reset();
     }
 
     public copy(o: ManifoldPoint): ManifoldPoint {

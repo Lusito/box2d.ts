@@ -23,15 +23,15 @@ import { Settings } from "../../settings";
 import { g_debugDraw } from "../../utils/draw";
 
 class TimeOfImpactTest extends Test {
-    public m_shapeA = new PolygonShape();
+    public shapeA = new PolygonShape();
 
-    public m_shapeB = new PolygonShape();
+    public shapeB = new PolygonShape();
 
     public constructor() {
         super();
 
-        this.m_shapeA.setAsBox(25, 5);
-        this.m_shapeB.setAsBox(2.5, 2.5);
+        this.shapeA.setAsBox(25, 5);
+        this.shapeB.setAsBox(2.5, 2.5);
     }
 
     public step(settings: Settings, timeStep: number): void {
@@ -55,8 +55,8 @@ class TimeOfImpactTest extends Test {
         // sweepB.a -= 300 * Math.PI;
 
         const input = new TOIInput();
-        input.proxyA.setShape(this.m_shapeA, 0);
-        input.proxyB.setShape(this.m_shapeB, 0);
+        input.proxyA.setShape(this.shapeA, 0);
+        input.proxyB.setShape(this.shapeB, 0);
         input.sweepA.copy(sweepA);
         input.sweepB.copy(sweepB);
         input.tMax = 1;
@@ -74,43 +74,43 @@ class TimeOfImpactTest extends Test {
 
         const transformA = new Transform();
         sweepA.getTransform(transformA, 0);
-        for (let i = 0; i < this.m_shapeA.m_count; ++i) {
-            vertices[i] = Transform.multiplyVec2(transformA, this.m_shapeA.m_vertices[i], new Vec2());
+        for (let i = 0; i < this.shapeA.count; ++i) {
+            vertices[i] = Transform.multiplyVec2(transformA, this.shapeA.vertices[i], new Vec2());
         }
-        g_debugDraw.drawPolygon(vertices, this.m_shapeA.m_count, new Color(0.9, 0.9, 0.9));
+        g_debugDraw.drawPolygon(vertices, this.shapeA.count, new Color(0.9, 0.9, 0.9));
 
         const transformB = new Transform();
         sweepB.getTransform(transformB, 0);
 
         // Vec2 localPoint(2, -0.1 );
 
-        for (let i = 0; i < this.m_shapeB.m_count; ++i) {
-            vertices[i] = Transform.multiplyVec2(transformB, this.m_shapeB.m_vertices[i], new Vec2());
+        for (let i = 0; i < this.shapeB.count; ++i) {
+            vertices[i] = Transform.multiplyVec2(transformB, this.shapeB.vertices[i], new Vec2());
         }
-        g_debugDraw.drawPolygon(vertices, this.m_shapeB.m_count, new Color(0.5, 0.9, 0.5));
+        g_debugDraw.drawPolygon(vertices, this.shapeB.count, new Color(0.5, 0.9, 0.5));
         g_debugDraw.drawStringWorld(transformB.p.x, transformB.p.y, `${(0).toFixed(1)}`);
 
         sweepB.getTransform(transformB, output.t);
-        for (let i = 0; i < this.m_shapeB.m_count; ++i) {
-            vertices[i] = Transform.multiplyVec2(transformB, this.m_shapeB.m_vertices[i], new Vec2());
+        for (let i = 0; i < this.shapeB.count; ++i) {
+            vertices[i] = Transform.multiplyVec2(transformB, this.shapeB.vertices[i], new Vec2());
         }
-        g_debugDraw.drawPolygon(vertices, this.m_shapeB.m_count, new Color(0.5, 0.7, 0.9));
+        g_debugDraw.drawPolygon(vertices, this.shapeB.count, new Color(0.5, 0.7, 0.9));
         g_debugDraw.drawStringWorld(transformB.p.x, transformB.p.y, `${output.t.toFixed(3)}`);
 
         sweepB.getTransform(transformB, 1);
-        for (let i = 0; i < this.m_shapeB.m_count; ++i) {
-            vertices[i] = Transform.multiplyVec2(transformB, this.m_shapeB.m_vertices[i], new Vec2());
+        for (let i = 0; i < this.shapeB.count; ++i) {
+            vertices[i] = Transform.multiplyVec2(transformB, this.shapeB.vertices[i], new Vec2());
         }
-        g_debugDraw.drawPolygon(vertices, this.m_shapeB.m_count, new Color(0.9, 0.5, 0.5));
+        g_debugDraw.drawPolygon(vertices, this.shapeB.count, new Color(0.9, 0.5, 0.5));
         g_debugDraw.drawStringWorld(transformB.p.x, transformB.p.y, `${(1).toFixed(1)}`);
 
         // #if 0
         for (let t = 0; t < 1; t += 0.1) {
             sweepB.getTransform(transformB, t);
-            for (let i = 0; i < this.m_shapeB.m_count; ++i) {
-                vertices[i] = Transform.multiplyVec2(transformB, this.m_shapeB.m_vertices[i], new Vec2());
+            for (let i = 0; i < this.shapeB.count; ++i) {
+                vertices[i] = Transform.multiplyVec2(transformB, this.shapeB.vertices[i], new Vec2());
             }
-            g_debugDraw.drawPolygon(vertices, this.m_shapeB.m_count, new Color(0.5, 0.5, 0.5));
+            g_debugDraw.drawPolygon(vertices, this.shapeB.count, new Color(0.5, 0.5, 0.5));
             g_debugDraw.drawStringWorld(transformB.p.x, transformB.p.y, `${t.toFixed(1)}`);
         }
         // #endif

@@ -116,25 +116,25 @@ class SandboxParams {
  */
 class SpecialParticleTracker extends DestructionListener {
     /** Set of particle handles used to track special particles. */
-    public m_particles: ParticleHandle[] = [];
+    public particles: ParticleHandle[] = [];
 
     /**
      * Pointer to the world used to enable / disable this class as a
      * destruction listener.
      */
-    public m_world: World;
+    public world: World;
 
     /**
      * Pointer to the particle system used to retrieve particle
      * handles.
      */
-    public m_particleSystem: ParticleSystem;
+    public particleSystem: ParticleSystem;
 
-    /** Current offset into this.m_colorOscillationPeriod. */
-    public m_colorOscillationTime = 0;
+    /** Current offset into this.colorOscillationPeriod. */
+    public colorOscillationTime = 0;
 
     /** Color oscillation period in seconds. */
-    public m_colorOscillationPeriod = 2;
+    public colorOscillationPeriod = 2;
 
     /**
      * Register this class as a destruction listener so that it's
@@ -144,13 +144,13 @@ class SpecialParticleTracker extends DestructionListener {
         super();
         // DEBUG: assert(world !== null);
         // DEBUG: assert(system !== null);
-        this.m_world = world;
-        this.m_particleSystem = system;
-        this.m_world.setDestructionListener(this);
+        this.world = world;
+        this.particleSystem = system;
+        this.world.setDestructionListener(this);
     }
 
     public destroy(): void {
-        this.m_world.setDestructionListener(null);
+        this.world.setDestructionListener(null);
     }
 
     /**
@@ -158,18 +158,18 @@ class SpecialParticleTracker extends DestructionListener {
      * particles.
      */
     public add(particleIndices: number[], numberOfParticles: number) {
-        // DEBUG: assert(this.m_particleSystem !== null);
+        // DEBUG: assert(this.particleSystem !== null);
         for (
             let i = 0;
-            i < numberOfParticles && this.m_particles.length < SandboxParams.k_numberOfSpecialParticles;
+            i < numberOfParticles && this.particles.length < SandboxParams.k_numberOfSpecialParticles;
             ++i
         ) {
             const particleIndex = particleIndices[i];
-            this.m_particleSystem.setParticleFlags(
+            this.particleSystem.setParticleFlags(
                 particleIndex,
-                this.m_particleSystem.getFlagsBuffer()[particleIndex] | ParticleFlag.DestructionListener,
+                this.particleSystem.getFlagsBuffer()[particleIndex] | ParticleFlag.DestructionListener,
             );
-            this.m_particles.push(this.m_particleSystem.getParticleHandleFromIndex(particleIndex));
+            this.particles.push(this.particleSystem.getParticleHandleFromIndex(particleIndex));
         }
     }
 
@@ -180,9 +180,9 @@ class SpecialParticleTracker extends DestructionListener {
         function fmod(a: number, b: number) {
             return a - Math.floor(a / b) * b;
         }
-        // Oscillate the shade of color over this.m_colorOscillationPeriod seconds.
-        this.m_colorOscillationTime = fmod(this.m_colorOscillationTime + dt, this.m_colorOscillationPeriod);
-        const colorCoeff = 2 * Math.abs(this.m_colorOscillationTime / this.m_colorOscillationPeriod - 0.5);
+        // Oscillate the shade of color over this.colorOscillationPeriod seconds.
+        this.colorOscillationTime = fmod(this.colorOscillationTime + dt, this.colorOscillationPeriod);
+        const colorCoeff = 2 * Math.abs(this.colorOscillationTime / this.colorOscillationPeriod - 0.5);
         const color = new Color().setByteRGBA(
             128 + 128 * (1 - colorCoeff),
             128 + 256 * Math.abs(0.5 - colorCoeff),
@@ -190,8 +190,8 @@ class SpecialParticleTracker extends DestructionListener {
             255,
         );
         // Update the color of all special particles.
-        for (const particle of this.m_particles) {
-            this.m_particleSystem.getColorBuffer()[particle.getIndex()].copy(color);
+        for (const particle of this.particles) {
+            this.particleSystem.getColorBuffer()[particle.getIndex()].copy(color);
         }
     }
 
@@ -206,17 +206,17 @@ class SpecialParticleTracker extends DestructionListener {
      * list of special particles as the handle will become invalid.
      */
     public sayGoodbyeParticle(particleSystem: ParticleSystem, index: number): void {
-        if (particleSystem !== this.m_particleSystem) {
+        if (particleSystem !== this.particleSystem) {
             return;
         }
 
         // NOTE: user data could be used as an alternative method to look up
         // the local handle pointer from the index.
-        // DEBUG: const length = this.m_particles.length;
-        this.m_particles = this.m_particles.filter((value) => {
+        // DEBUG: const length = this.particles.length;
+        this.particles = this.particles.filter((value) => {
             return value.getIndex() !== index;
         });
-        // DEBUG: assert((length - this.m_particles.length) === 1);
+        // DEBUG: assert((length - this.particles.length) === 1);
     }
 }
 
@@ -229,44 +229,44 @@ class SpecialParticleTracker extends DestructionListener {
 
 class SandboxTest extends AbstractParticleTestWithControls {
     /** Count of faucets in the world */
-    public m_faucetEmitterIndex = 0;
+    public faucetEmitterIndex = 0;
 
     /** Count of pumps in the world */
-    public m_pumpIndex = 0;
+    public pumpIndex = 0;
 
     /** How long have we been pushing the pumps? */
-    public m_pumpTimer = 0;
+    public pumpTimer = 0;
 
     /** Pump force */
-    public readonly m_pumpForce = new Vec2();
+    public readonly pumpForce = new Vec2();
 
     /** The shape we will use for the killfield */
-    public m_killFieldShape: PolygonShape;
+    public killFieldShape: PolygonShape;
 
     /** Transform for the killfield shape */
-    public m_killFieldTransform: Transform;
+    public killFieldTransform: Transform;
 
     /** Pumps and emitters */
-    public readonly m_pumps: Array<Body | null> = [];
+    public readonly pumps: Array<Body | null> = [];
 
-    public readonly m_emitters: Array<RadialEmitter | null> = [];
+    public readonly emitters: Array<RadialEmitter | null> = [];
 
     /** Special particle tracker. */
-    public m_specialTracker: SpecialParticleTracker;
+    public specialTracker: SpecialParticleTracker;
 
     public constructor({ particleParameter }: TestContext) {
         super(particleParameter, { x: 0, y: -20 });
 
         // We need some ground for the pumps to slide against
-        const ground = this.m_world.createBody();
+        const ground = this.world.createBody();
 
         // Reset our pointers
         for (let i = 0; i < SandboxParams.k_maxEmitters; i++) {
-            this.m_emitters[i] = null;
+            this.emitters[i] = null;
         }
 
         for (let i = 0; i < SandboxParams.k_maxPumps; i++) {
-            this.m_pumps[i] = null;
+            this.pumps[i] = null;
         }
 
         // Create physical box, no top
@@ -301,22 +301,22 @@ class SandboxTest extends AbstractParticleTestWithControls {
             ground.createFixture({ shape });
         }
 
-        this.m_particleSystem.setRadius(0.25);
+        this.particleSystem.setRadius(0.25);
 
-        this.m_specialTracker = new SpecialParticleTracker(this.m_world, this.m_particleSystem);
+        this.specialTracker = new SpecialParticleTracker(this.world, this.particleSystem);
 
-        this.m_pumpTimer = 0;
+        this.pumpTimer = 0;
 
         this.setupMaze();
 
         // Create killfield shape and transform
-        this.m_killFieldShape = new PolygonShape();
-        this.m_killFieldShape.setAsBox(SandboxParams.k_playfieldRightEdge - SandboxParams.k_playfieldLeftEdge, 1);
+        this.killFieldShape = new PolygonShape();
+        this.killFieldShape.setAsBox(SandboxParams.k_playfieldRightEdge - SandboxParams.k_playfieldLeftEdge, 1);
 
         // Put this at the bottom of the world
-        this.m_killFieldTransform = new Transform();
+        this.killFieldTransform = new Transform();
         const loc = new Vec2(-20, 1);
-        this.m_killFieldTransform.setPositionAngle(loc, 0);
+        this.killFieldTransform.setPositionAngle(loc, 0);
 
         // Setup particle parameters.
         particleParameter.setValues(particleTypes, "water");
@@ -325,8 +325,8 @@ class SandboxTest extends AbstractParticleTestWithControls {
 
     public destroy() {
         // deallocate our emitters
-        for (let i = 0; i < this.m_faucetEmitterIndex; i++) {
-            this.m_emitters[i] = null;
+        for (let i = 0; i < this.faucetEmitterIndex; i++) {
+            this.emitters[i] = null;
         }
     }
 
@@ -359,8 +359,8 @@ class SandboxTest extends AbstractParticleTestWithControls {
 
         // DEBUG: assert(maze.length === SandboxParams.k_tileWidth * SandboxParams.k_tileHeight);
 
-        this.m_faucetEmitterIndex = 0;
-        this.m_pumpIndex = 0;
+        this.faucetEmitterIndex = 0;
+        this.pumpIndex = 0;
 
         // Set up some standard shapes/vertices we'll use later.
         const boxShape = new PolygonShape();
@@ -379,13 +379,13 @@ class SandboxTest extends AbstractParticleTestWithControls {
 
         // Make these just a touch smaller than a tile
         const circleShape = new CircleShape();
-        circleShape.m_radius = SandboxParams.k_tileRadius * 0.7;
+        circleShape.radius = SandboxParams.k_tileRadius * 0.7;
 
         const red = new Color().setByteRGBA(255, 128, 128, 255);
         const green = new Color().setByteRGBA(128, 255, 128, 255);
         const blue = new Color().setByteRGBA(128, 128, 255, 255);
 
-        this.m_pumpForce.set(SandboxParams.k_pumpForce, 0);
+        this.pumpForce.set(SandboxParams.k_pumpForce, 0);
 
         for (let i = 0; i < SandboxParams.k_tileWidth; i++) {
             for (let j = 0; j < SandboxParams.k_tileHeight; j++) {
@@ -441,7 +441,7 @@ class SandboxTest extends AbstractParticleTestWithControls {
     }
 
     public createBody(center: Vec2, shape: Shape, type: BodyType) {
-        const body = this.m_world.createBody({
+        const body = this.world.createBody({
             type,
             position: center,
         });
@@ -451,12 +451,12 @@ class SandboxTest extends AbstractParticleTestWithControls {
     // Inititalizes a pump and its prismatic joint, and adds it to the world
     public addPump(center: Vec2) {
         // Don't make too many pumps
-        // DEBUG: assert(this.m_pumpIndex < SandboxParams.k_maxPumps);
+        // DEBUG: assert(this.pumpIndex < SandboxParams.k_maxPumps);
 
         const shape = new PolygonShape();
         shape.setAsBox(SandboxParams.k_pumpRadius, SandboxParams.k_pumpRadius);
 
-        const body = this.m_world.createBody({
+        const body = this.world.createBody({
             position: center,
             type: BodyType.Dynamic,
             angle: 0,
@@ -466,34 +466,34 @@ class SandboxTest extends AbstractParticleTestWithControls {
         // Create a prismatic joint and connect to the ground, and have it
         // slide along the x axis.
         const prismaticJointDef = new PrismaticJointDef();
-        prismaticJointDef.bodyA = this.m_groundBody;
+        prismaticJointDef.bodyA = this.groundBody;
         prismaticJointDef.bodyB = body;
         prismaticJointDef.collideConnected = false;
         prismaticJointDef.localAxisA.set(1, 0);
         prismaticJointDef.localAnchorA.copy(center);
 
-        this.m_world.createJoint(prismaticJointDef);
+        this.world.createJoint(prismaticJointDef);
 
-        this.m_pumps[this.m_pumpIndex] = body;
-        this.m_pumpIndex++;
+        this.pumps[this.pumpIndex] = body;
+        this.pumpIndex++;
     }
 
     // Initializes and adds a faucet emitter
     public addFaucetEmitter(center: Vec2, color: Color) {
         // Don't make too many emitters
-        // DEBUG: assert(this.m_faucetEmitterIndex < SandboxParams.k_maxPumps);
+        // DEBUG: assert(this.faucetEmitterIndex < SandboxParams.k_maxPumps);
 
         const startingVelocity = new Vec2(0, SandboxParams.k_particleExitSpeedY);
 
         const emitter = new RadialEmitter();
-        emitter.setParticleSystem(this.m_particleSystem);
+        emitter.setParticleSystem(this.particleSystem);
         emitter.setPosition(center);
         emitter.setVelocity(startingVelocity);
         emitter.setSize(new Vec2(SandboxParams.k_defaultEmitterSize, 0));
         emitter.setEmitRate(SandboxParams.k_defaultEmitterRate);
         emitter.setColor(color);
-        this.m_emitters[this.m_faucetEmitterIndex] = emitter;
-        this.m_faucetEmitterIndex++;
+        this.emitters[this.faucetEmitterIndex] = emitter;
+        this.faucetEmitterIndex++;
     }
 
     public jointDestroyed(joint: Joint): void {
@@ -531,8 +531,8 @@ class SandboxTest extends AbstractParticleTestWithControls {
      * Per-frame step updater overridden from Test
      */
     public step(settings: Settings, timeStep: number): void {
-        let dt = settings.m_hertz > 0 ? 1 / settings.m_hertz : 0;
-        if (settings.m_pause && !settings.m_singleStep) {
+        let dt = settings.hertz > 0 ? 1 / settings.hertz : 0;
+        if (settings.pause && !settings.singleStep) {
             dt = 0;
         }
         super.step(settings, timeStep);
@@ -540,38 +540,38 @@ class SandboxTest extends AbstractParticleTestWithControls {
         const particleFlags = this.particleParameter.getValue();
 
         // Step all the emitters
-        for (let i = 0; i < this.m_faucetEmitterIndex; i++) {
+        for (let i = 0; i < this.faucetEmitterIndex; i++) {
             const particleIndices: number[] = [];
-            const emitter = this.m_emitters[i];
+            const emitter = this.emitters[i];
             if (emitter) {
                 emitter.setParticleFlags(particleFlags);
                 const particlesCreated = emitter.step(dt, particleIndices, SandboxParams.k_numberOfSpecialParticles);
-                this.m_specialTracker.add(particleIndices, particlesCreated);
+                this.specialTracker.add(particleIndices, particlesCreated);
             }
         }
 
         // Step the special tracker.
-        this.m_specialTracker.step(dt);
+        this.specialTracker.step(dt);
 
         // Do killfield work--kill every particle near the bottom of the screen
-        this.m_particleSystem.destroyParticlesInShape(this.m_killFieldShape, this.m_killFieldTransform);
+        this.particleSystem.destroyParticlesInShape(this.killFieldShape, this.killFieldTransform);
 
         // Move the pumps
-        for (let i = 0; i < this.m_pumpIndex; i++) {
-            const pump = this.m_pumps[i];
+        for (let i = 0; i < this.pumpIndex; i++) {
+            const pump = this.pumps[i];
             if (pump) {
                 // Pumps can and will clog up if the pile of particles they're
                 // trying to push is too heavy. Increase k_pumpForce to make
                 // stronger pumps.
-                pump.applyForceToCenter(this.m_pumpForce, true);
+                pump.applyForceToCenter(this.pumpForce, true);
             }
 
-            this.m_pumpTimer += dt;
+            this.pumpTimer += dt;
 
             // Reset pump to go back right again
-            if (this.m_pumpTimer > SandboxParams.k_flipTime) {
-                this.m_pumpTimer -= SandboxParams.k_flipTime;
-                this.m_pumpForce.x *= -1;
+            if (this.pumpTimer > SandboxParams.k_flipTime) {
+                this.pumpTimer -= SandboxParams.k_flipTime;
+                this.pumpForce.x *= -1;
             }
         }
     }
