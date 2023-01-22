@@ -1,5 +1,5 @@
-import { tests } from "..";
-import { prepareTests, resultsToMarkdown, runTestAsync, TestResult } from "../testRunner";
+import { tests, prepareTests, resultsToMarkdown, runTestAsync, TestResult } from "@box2d/benchmark";
+
 import { getBrowserInfo } from "./browserInfo";
 
 const startButton = document.getElementById("start") as HTMLButtonElement;
@@ -78,3 +78,7 @@ copyButton.addEventListener("click", () => {
     // eslint-disable-next-line no-alert
     alert("Copied to clipboard");
 });
+
+if (process.env.NODE_ENV !== "production") {
+    new EventSource("/esbuild").addEventListener("change", () => window.location.reload());
+}

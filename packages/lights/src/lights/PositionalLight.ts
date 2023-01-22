@@ -23,13 +23,13 @@ export abstract class PositionalLight extends Light {
 
     protected bodyAngleOffset = 0;
 
-    protected sin!: number[];
+    protected sin: number[] = [];
 
-    protected cos!: number[];
+    protected cos: number[] = [];
 
-    protected endX!: number[];
+    protected endX: number[] = [];
 
-    protected endY!: number[];
+    protected endY: number[] = [];
 
     /**
      * Creates new positional light and automatically adds it to the specified

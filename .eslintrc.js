@@ -2,6 +2,11 @@ const utils = require("@lusito/eslint-config/utils");
 
 module.exports = {
     extends: ["@lusito/eslint-config-react"],
+    ignorePatterns: ".eslintrc.js",
+    parserOptions: {
+        project: "./packages/*/tsconfig.json",
+        tsconfigRootDir: ".",
+    },
     rules: {
         ...utils.getA11yOffRules(), // just for now
         "selector-id-pattern": "off",
@@ -12,6 +17,7 @@ module.exports = {
         "@typescript-eslint/naming-convention": "off",
         "no-bitwise": "off",
         "no-multi-assign": "off",
+        "import/no-unresolved": "off",
         "@typescript-eslint/no-empty-function": "off",
         "@typescript-eslint/no-useless-constructor": "error",
         "@typescript-eslint/explicit-member-accessibility": "error",

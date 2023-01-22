@@ -1,5 +1,5 @@
 import React, { useReducer } from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import "typeface-open-sans";
 import { Router } from "@react-nano/router";
 
@@ -42,9 +42,13 @@ function App() {
 
 document.title = `@Box2D Testbed v${packageData.version}`;
 
-ReactDOM.render(
+const root = createRoot(document.getElementById("root") as HTMLElement);
+root.render(
     <Router mode="hash">
         <App />
     </Router>,
-    document.getElementById("root") as HTMLElement,
 );
+
+if (process.env.NODE_ENV !== "production") {
+    new EventSource("/esbuild").addEventListener("change", () => window.location.reload());
+}

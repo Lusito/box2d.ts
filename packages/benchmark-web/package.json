@@ -1,14 +1,8 @@
 {
-  "name": "@box2d/benchmark",
+  "name": "@box2d/benchmark-web",
   "version": "0.10.0",
-  "description": "A benchmark to compare various js/ts Box2D implementations",
-  "keywords": [
-    "box2d",
-    "performance",
-    "benchmark",
-    "game",
-    "TypeScript"
-  ],
+  "private": true,
+  "description": "A browser benchmark to compare various js/ts Box2D implementations",
   "homepage": "https://lusito.github.io/box2d.ts/",
   "bugs": {
     "url": "https://github.com/lusito/box2d.ts/issues"
@@ -19,23 +13,26 @@
   },
   "license": "ISC",
   "author": "Santo Pfingsten",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "files": [
-    "dist",
-    "thirdparty"
+    "dist"
   ],
   "scripts": {
-    "build": "rimraf dist && tsc -p tsconfig.build.json",
-    "start": "ts-node src/cli/index.ts"
+    "build": "rimraf ../../docs/benchmark && node src/esbuild.js",
+    "start": "node src/esbuild.js serve"
   },
+  "browserslist": [
+    "> 5%"
+  ],
   "dependencies": {
+    "@box2d/benchmark": "^0.10.0",
     "@box2d/core": "^0.10.0",
     "@flyover/box2d": "^1.0.1",
     "box2d.js": "^1.0.4",
+    "box2dweb": "^2.1.0-b",
     "planck-js": "^0.3.31"
   },
   "devDependencies": {
-    "ts-node": "^10.9.1"
+    "esbuild": "^0.17.4",
+    "esbuild-ts-paths": "^1.1.3"
   }
 }

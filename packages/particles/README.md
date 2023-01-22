@@ -14,6 +14,7 @@ Check out demos and compare performance here: https://lusito.github.io/box2d.ts/
 **Fair Warning:** The whole @box2d ecosystem is in an early stage, so it will probably change a lot before we release the first stable version (1.0.0).
 
 Other packages included in the ecosystem:
+
 - Benchmark: Based on [bench2d](https://github.com/joelgwebber/bench2d) by joelgwebber
 - Controllers: From the LiquidFun project
 - Particles: Also from the LiquidFun project

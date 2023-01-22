@@ -1,9 +1,8 @@
-# @box2d/controllers
+# @box2d/benchmark
 
-Controllers for @box2d/core
+A browser benchmark to compare various js/ts Box2D implementations.
 
-@box2d/controllers is a TypeScript port of Googles [LiquidFun](https://github.com/google/liquidfun) controllers.
-This is a fork of [box2d.ts](https://github.com/flyover/box2d.ts) from Isaac Burns (flyover) who did a huge job initially porting Box2D and [LiquidFun](https://github.com/google/liquidfun) to TypeScript.
+Try it here: https://lusito.github.io/box2d.ts/
 
 ## The @box2d Ecosystem
 

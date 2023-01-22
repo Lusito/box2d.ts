@@ -33,13 +33,6 @@
     "> 5%"
   ],
   "dependencies": {
-    "typed-glsl": "0.11.0"
-  },
-  "devDependencies": {
-    "rimraf": "^3.0.2",
-    "typescript": "^4.7.2"
-  },
-  "publishConfig": {
-    "access": "public"
+    "typed-glsl": "0.11.1"
   }
 }

@@ -1,4 +1,5 @@
 # @box2d/lights
+
 [![screenshot](http://img.youtube.com/vi/lfT8ajGbzk0/0.jpg)](http://www.youtube.com/watch?v=lfT8ajGbzk0)
 
 A [TypeScript](https://github.com/Microsoft/TypeScript) port of Kalle Hameleinen's Box2DLights.
@@ -6,19 +7,19 @@ A [TypeScript](https://github.com/Microsoft/TypeScript) port of Kalle Hameleinen
 
 ## Features
 
- * Arbitrary number of lights
- * Gaussian blurred light maps
- * Point light
- * Cone Light
- * Directional Light
- * Chain Light [New in 1.3]
- * Shadows
- * Dynamic/static/xray light
- * Culling
- * Colored ambient light
- * Gamma corrected colors
- * Handler class to do all the work
- * Query method for testing is point inside of light/shadow
+- Arbitrary number of lights
+- Gaussian blurred light maps
+- Point light
+- Cone Light
+- Directional Light
+- Chain Light [New in 1.3]
+- Shadows
+- Dynamic/static/xray light
+- Culling
+- Colored ambient light
+- Gamma corrected colors
+- Handler class to do all the work
+- Query method for testing is point inside of light/shadow
 
 This library offer easy way to add soft dynamic 2d lights to your physic based game.
 
@@ -35,6 +36,7 @@ Check out demos and compare performance here: https://lusito.github.io/box2d.ts/
 **Fair Warning:** The whole @box2d ecosystem is in an early stage, so it will probably change a lot before we release the first stable version (1.0.0).
 
 Other packages included in the ecosystem:
+
 - Benchmark: Based on [bench2d](https://github.com/joelgwebber/bench2d) by joelgwebber
 - Controllers: From the LiquidFun project
 - Particles: Also from the LiquidFun project

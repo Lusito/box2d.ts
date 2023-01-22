@@ -32,11 +32,6 @@
     "> 5%"
   ],
   "devDependencies": {
-    "idtsc": "^1.0.0",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.7.2"
-  },
-  "publishConfig": {
-    "access": "public"
+    "idtsc": "^1.0.0"
   }
 }

@@ -15,18 +15,18 @@ This monorepo is in it's early stage, so to get started, you'll have to taka a l
 
 ## Monorepo Commands:
 
-Most important commands to execute from the root folder (you need [yarn](https://yarnpkg.com/) installed):
-- `yarn` ->  install dependencies
-- `yarn build` ->  build all projects
-- `yarn build:libs` ->  build only the libraries
-- `yarn build:testbed` ->  build the testbed
-- `yarn credit "<username>" <type>` ->  Add user to all contributors list. Use quotes, as otherwise wrong people get added.
-- `yarn start` ->  Run testbed locally
-- `yarn start:fresh` ->  Run testbed locally after building all libraries freshly
-- `yarn bench` ->  Run the benchmark using node.js
-- `yarn bench:web` ->  Start a webserver for running the benchmarks using a browser,
-- `yarn lint` ->  Run linters, formatters, etc.
-- `yarn lint:fix` ->  Run linters, formatters, etc. and autofix if possible
+Most important commands to execute from the root folder (you need [npm 18](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed):
+- `npm ci` ->  install dependencies
+- `npm run build` ->  build all projects
+- `npm run build:libs` ->  build only the libraries
+- `npm run build:testbed` ->  build the testbed
+- `npm run credit "<username>" <type>` ->  Add user to all contributors list. Use quotes, as otherwise wrong people get added.
+- `npm run start` ->  Run testbed locally
+- `npm run bench` ->  Run the benchmark using node.js
+- `npm run bench:web` ->  Start a webserver for running the benchmarks using a browser,
+- `npm run lint` ->  Run linters, formatters, etc.
+- `npm run lint:fix` ->  Run linters, formatters, etc. and autofix if possible
+- `npm run release` ->  Release one of the libraries
 
 ## The @box2d Ecosystem
 
