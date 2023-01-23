@@ -1,0 +1,10 @@
+title: controllers
+description: A TypeScript port of LiquidFuns controllers for @box2d/core
+keywords:
+  - box2d
+  - liquidfun
+  - controller
+  - game
+  - TypeScript
+sidebar:
+  - setup

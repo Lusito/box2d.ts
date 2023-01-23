@@ -1,0 +1,11 @@
+title: debug-draw
+description: Debug drawing helper for @box2d
+keywords:
+  - box2d
+  - debug
+  - canvas
+  - game
+  - TypeScript
+sidebar:
+  - setup
+  - usage

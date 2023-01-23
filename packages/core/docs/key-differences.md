@@ -62,6 +62,10 @@ function doStuff(a: b2Vec2, b: b2Vec2) {
 
 Be sure to check out all methods and static methods of the classes you are interested in to see all possibilities.
 
+## Math Operations
+
+As you might have noticed, math operations return a reference to itself, so you can use chaining. Due to garbage collector considerations, there is no automatic cloning going on!
+
 ## Overloads
 
 JavaScript has no overloads and while TypeScript supports overload method definitions, we'd have to check the parameters in runtime to make this work (not good for performance). That's why we try to avoid them and supply alternatively named functions instead:

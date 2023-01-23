@@ -4,10 +4,16 @@
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Work in Progress of a full Box2D ecosystem for the web.
-This includes [TypeScript](https://github.com/Microsoft/TypeScript) ports of:
-- [Box2D](https://github.com/erincatto/Box2D)
-- [LiquidFun](https://github.com/google/liquidfun)
-- [Box2D Lights](https://github.com/libgdx/box2dlights)
+
+- This project is kept in sync with the original Box2D project (using a special tool to easily compare differences to upstream)!
+- You only need to install what you actually want. Don't need particles or 2D lights? Then just install the core.
+
+## Included libraries:
+  - [@box2d/core](packages/core/README.md), a TypeScript port of [Box2D](https://github.com/erincatto/Box2D)
+  - [@box2d/controllers](packages/controllers/README.md), a TypeScript port of [LiquidFun](https://github.com/google/liquidfun)'s controllers
+  - [@box2d/lights](packages/lights/README.md), a TypeScript port of [Box2D Lights](https://github.com/libgdx/box2dlights)
+  - [@box2d/particles](packages/particles/README.md), a TypeScript port of [LiquidFun](https://github.com/google/liquidfun)'s particles
+  - [@box2d/debug-draw](packages/debug-draw/README.md), a TypeScript port [Box2D](https://github.com/erincatto/Box2D)'s debug drawing helper
 
 ## Quick Start
 

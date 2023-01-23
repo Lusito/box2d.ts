@@ -1,15 +1,8 @@
-# Debug Draw
-
-@box2d/debug-draw is a TypeScript port of Erin Cattos debug drawing helper for [Box2D](https://github.com/erincatto/box2d).
-This is a fork of [box2d.ts](https://github.com/flyover/box2d.ts) from Isaac Burns (flyover) who did a huge job initially porting Box2D and [LiquidFun](https://github.com/google/liquidfun) to TypeScript.
-
-Make sure to check out the [Setup](../README.md) guide first!
-
-## Usage
+# Usage
 
 In order to draw debug graphics, you'll need a canvas element in your HTML. Make sure, that it is an overlay above your game canvas (same position and size). You might also want to set the style `pointer-events: none`.
 
-### Create a New Instance
+## Create a New Instance
 
 ```ts
 // Somewhere at the start, find the element and create a new DebugDraw instance:
@@ -23,7 +16,7 @@ function initDebugDraw() {
 }
 ```
 
-### Prepare Drawing
+## Prepare Drawing
 
 
 ```ts
@@ -52,3 +45,7 @@ function drawDebug(draw: DebugDraw, center: XY, zoom: number, aabb?: b2AABB) {
 Notice how `DrawShapes` and `DrawAABBs` have a third, optional parameter of type AABB.
 This is a performance optimization if you have a big world. Give it the AABB of your camera to reduce the load.
 The other drawing functions might receive such a parameter in the future as well, but currently don't support it.
+
+## Custom Renderer
+
+In case you want to draw to WebGL directly instead of a canvas, you can write your own b2Draw implementation. You won't need this library anymore, but you can take a look at [its code](https://github.com/Lusito/box2d.ts/blob/master/packages/debug-draw/src/index.ts) for a reference.

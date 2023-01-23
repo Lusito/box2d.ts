@@ -1,0 +1,15 @@
+title: particles
+description: A TypeScript port of LiquidFuns particles for @box2d/core
+keywords:
+  - box2d
+  - liquidfun
+  - particles
+  - water
+  - powder
+  - elastic
+  - liquids
+  - fluids
+  - game
+  - TypeScript
+sidebar:
+  - setup

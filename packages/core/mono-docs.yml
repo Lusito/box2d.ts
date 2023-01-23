@@ -1,0 +1,12 @@
+title: core
+description: A TypeScript port of Box2D
+keywords:
+  - box2d
+  - physics
+  - 2d
+  - collision
+  - game
+  - TypeScript
+sidebar:
+  - setup
+  - key-differences

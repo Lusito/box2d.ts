@@ -1,0 +1,16 @@
+title: lights
+description: A TypeScript port of Box2DLights
+keywords:
+  - box2d
+  - libgdx
+  - lights
+  - lighting
+  - shadows
+  - game
+  - TypeScript
+sidebar:
+  - setup
+  - getting-started
+  - glossary
+  - custom-viewport
+  - performance-tuning

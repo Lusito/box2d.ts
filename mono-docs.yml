@@ -1,0 +1,24 @@
+siteName: '@box2d'
+title: ''
+description: A full-blown ecosystem for box2d for the JavaScript/TypeScript world
+footer:
+  # - Zlib/Libpng License | https://github.com/Lusito/react-nano/blob/master/LICENSE
+  - Copyright © 2022 Santo Pfingsten
+keywords:
+  - react
+links:
+  - Benchmarks | /benchmark/
+  - Demos | /testbed/
+  - Github | https://github.com/lusito/box2d.ts
+adjustPaths:
+  - ^\/packages\/([^/]+)(\/docs)?/([^/]+\.html)$|/$1/$3
+  - ^\/packages\/([^/]+)(\/docs)?/([^/]+/)?$|/$1/$3
+projects:
+  - packages/core
+  - packages/controllers
+  - packages/lights
+  - packages/particles
+  - packages/debug-draw
+buildOptions:
+  out: docs-dist
+  siteUrl: https://lusito.github.io/box2d.ts
