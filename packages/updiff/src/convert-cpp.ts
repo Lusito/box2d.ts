@@ -23,6 +23,7 @@ const enumRegex = /^enum(\s+[a-z0-9_]+)?/i;
 const unionRegex = /^union(\s+[a-z0-9_]+)?/i;
 const functionDefRegex = /\s*([a-z0-9_]+)\s*\((.*)\).*;/i;
 const functionRegex = /\s*([a-z0-9_]+)\s*\((.*)\)/i;
+const operatorDefRegex = /\s*operator\s*([+-=!()*]+)(?: const)?\s*\((.*)\).*;/i;
 const operatorRegex = /\s*operator\s*([+-=!()*]+)(?: const)?\s*\((.*)\)/i;
 const templateRegex = /template<[^>]+>/g;
 const ignoreLinesRegex = /^(#ifndef|#ifdef#|#if|#elif|#else|#endif|#include|typedef|extern|friend)\b/;
@@ -96,7 +97,10 @@ function parseClass(line: string, lines: string[], module: ModuleType, comment: 
         const classLine = readLine(classLines);
         const classLineTrimmedEarly = classLine.replace(templateRegex, "").trimLeft();
         if (classLineTrimmedEarly.startsWith("/*")) {
-            comments.push(classLine, ...parseUntilMultilineCommentEnd(classLines));
+            comments.push(classLine);
+            if (!classLine.includes("*/")) {
+                comments.push(...parseUntilMultilineCommentEnd(classLines));
+            }
             continue;
         }
         const [classLineTrimmed, classLineComment] = classLineTrimmedEarly.split("//");
@@ -126,6 +130,13 @@ function parseClass(line: string, lines: string[], module: ModuleType, comment: 
                 line: classLine.replace(/^#define\s+/, ""),
                 comment: comments.join("\n"),
             });
+            comments.length = 0;
+        } else if (operatorDefRegex.test(classLineTrimmed)) {
+            const [, funcName, funcParams] = operatorDefRegex.exec(classLineTrimmed)!;
+            const func = createFunction(classEntry, funcName, true);
+            if (funcParams) func.params = cleanParams(funcParams);
+            func.modifier = modifier;
+            if (comments.length) func.comment = `${func.comment}\n${comments.join("\n")}`.trim();
             comments.length = 0;
         } else if (functionDefRegex.test(classLineTrimmed)) {
             const [, funcName, funcParams] = functionDefRegex.exec(classLineTrimmed)!;
@@ -166,7 +177,10 @@ function parseFile(file: string, module: ModuleType) {
         const line = readLine(lines);
         const lineTrimmedEarly = line.replace(templateRegex, "").trimLeft();
         if (lineTrimmedEarly.startsWith("/*")) {
-            comments.push(line, ...parseUntilMultilineCommentEnd(lines));
+            comments.push(line);
+            if (!line.includes("*/")) {
+                comments.push(...parseUntilMultilineCommentEnd(lines));
+            }
             continue;
         }
         const [lineTrimmed, lineComment] = lineTrimmedEarly.split("//");
@@ -243,7 +257,7 @@ function parseFile(file: string, module: ModuleType) {
             // } else if (lineTrimmed.startsWith("enum ")) {
             //     comments.length = 0;
         } else {
-            console.error(lineTrimmed, lines[0]);
+            console.error("No regex matches line", lineTrimmed, lines[0]);
         }
     }
 }

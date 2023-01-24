@@ -127,7 +127,10 @@ function parseClass(line: string, lines: string[], module: ModuleType, comment: 
         const classLine = readLine(classLines).replace(templateRegex, "");
         const classLineTrimmedEarly = classLine.trimLeft();
         if (classLineTrimmedEarly.startsWith("/*")) {
-            comments.push(classLine, ...parseUntilMultilineCommentEnd(classLines));
+            comments.push(classLine);
+            if (!classLine.includes("*/")) {
+                comments.push(...parseUntilMultilineCommentEnd(classLines));
+            }
             continue;
         }
         const [classLineTrimmed, classLineComment] = classLineTrimmedEarly.split("//");
@@ -144,7 +147,8 @@ function parseClass(line: string, lines: string[], module: ModuleType, comment: 
         if (methodRegex.test(classLineTrimmed)) {
             const funcLine = parseParams(classLines, classLine).join("");
             const [, funcBody] = parseBody(classLines, "");
-            if (!methodRegex.exec(funcLine)) console.error(classLine, "----", funcLine);
+            if (!methodRegex.exec(funcLine))
+                console.error("methodRegex does not match funcLine", classLine, "----", funcLine);
             const [, modifier, funcName, funcParams] = methodRegex.exec(funcLine)!;
             parseFunction(funcBody, classEntry, comments.join("\n"), funcName, funcParams, (modifier || "").trim());
             comments.length = 0;
@@ -178,7 +182,10 @@ function parseFile(file: string, module: ModuleType) {
         const line = readLine(lines).replace(templateRegex, "");
         const lineTrimmedEarly = line.trimLeft();
         if (lineTrimmedEarly.startsWith("/*")) {
-            comments.push(line, ...parseUntilMultilineCommentEnd(lines));
+            comments.push(line);
+            if (!line.includes("*/")) {
+                comments.push(...parseUntilMultilineCommentEnd(lines));
+            }
             continue;
         }
         const [lineTrimmed, lineComment] = lineTrimmedEarly.split("//");
@@ -220,7 +227,7 @@ function parseFile(file: string, module: ModuleType) {
         } else if (functionRegex.test(lineTrimmed)) {
             const funcLine = parseParams(lines, line).join("");
             const [, funcBody] = parseBody(lines, "");
-            if (!functionRegex.exec(funcLine)) console.error(line, funcLine);
+            if (!functionRegex.exec(funcLine)) console.error("functionRegex does not match funcLine", line, funcLine);
             const [, funcName, funcParams] = functionRegex.exec(funcLine)!;
             module.functions[funcName] = {
                 comment: comments.join("\n"),
@@ -231,7 +238,7 @@ function parseFile(file: string, module: ModuleType) {
             };
             comments.length = 0;
         } else {
-            console.error(lineTrimmed, lines[0]);
+            console.error("No regex matches line (ts)", lineTrimmed, lines[0], file);
         }
     }
 }
