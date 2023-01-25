@@ -4,7 +4,7 @@ module.exports = {
     // fixme: move to prettier-config:
     overrides: [
         {
-            files: ["*.yml", ".yaml"],
+            files: ["*.json", ".*rc", "*.md", "*.yml", ".yaml"],
             options: {
                 tabWidth: 2
             }
