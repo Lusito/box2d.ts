@@ -11,11 +11,15 @@ environment. Here are some of the features:
 
 ![Box2D Testbed](images/testbed.png)
 
+The above screenshot is from the C++ version. You can try the @box2d version online:
+
+https://lusito.github.io/box2d.ts/testbed/
+
 The testbed has many examples of Box2D usage in the test cases and the
 framework itself. I encourage you to explore and tinker with the testbed
 as you learn Box2D.
 
-Note: the testbed is written using [GLFW](https://www.glfw.org) and
-[imgui](https://github.com/ocornut/imgui). The testbed is not part of the
-Box2D library. The Box2D library is agnostic about rendering. As shown by
+Note: the testbed is written using [React](https://reactjs.org/).
+The testbed is not part of the Box2D library.
+The Box2D library is agnostic about rendering. As shown by
 the HelloWorld example, you don't need a renderer to use Box2D.

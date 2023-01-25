@@ -12,10 +12,10 @@ sidebar:
   - key-differences
   - overview
   - hello
-  # - testbed
-  # - common
-  # - collision
+  - testbed
+  - common
+  - collision
   # - dynamics
-  # - loose-ends
-  # - references
-  # - FAQ
+  - loose-ends
+  - references
+  - FAQ

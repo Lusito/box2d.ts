@@ -6,15 +6,23 @@ Box2D is a feature rich 2D rigid body physics engine, written in C++ by Erin Cat
 
 Box2D uses the [MIT license](https://en.wikipedia.org/wiki/MIT_License) license and can be used free of charge.
 
-## What platforms does Box2D support?
+## What is @box2d?
 
-Box2D is developed on Windows using Visual C++. Ports are also available for Flash, Java, C#, Python.
+@box2d is a full-blown ecosystem for box2d for the JavaScript/TypeScript world. It can be used both in the browser and in node.js.
 
-Erin Catto maintains the C++ version, but provides no support for other languages. Other languages are supported by the community and possibly by the authors of those ports.
+It includes more libraries to enable light rendering, liquid simulation and more.
+
+@box2d/core represents the original Box2D part.
 
 ## Who makes it?
 
 Erin Catto is the driving force behind Box2D, with various others supporting the ports. Box2D is an open source project, and accepts community feedback.
+
+Santo Pfingsten is the author of @box2d, building on [previous work](https://github.com/flyover/box2d.ts) by from Isaac Burns (flyover).
+@box2d is also an open source project, partially on different licenses (depending on which part). This was not an active choice,
+but was due to the fact, that other libraries, which have been ported to TypeScript have been released under a different license.
+
+Check out each package for their license to see what is being used. @box2d/core for example uses the original MIT license from Box2D.
 
 ## How do I get help?
 
@@ -32,7 +40,7 @@ If you grab the latest code from the git master branch you will likely find feat
 
 ### Programming
 
-You should have a working knowledge of C++ before you use Box2D. You should understand classes, inheritance, and pointers. There are plenty of resources on the web for learning C++. You should also understand your development environment: compilation, linking, and debugging.
+You should have a working knowledge of TypeScript or at least JavaScript before you use Box2D. You should understand classes, inheritance, references, and the implications of garbage collection. There are plenty of resources on the web for learning TypeScript/JavaScript. You should also understand your development environment: bundling, the dev-server, and debugging.
 
 ### Math and Physics
 
@@ -49,29 +57,9 @@ Box2D is tuned for meters-kilograms-seconds (MKS). Your moving objects should be
 Suppose you have a sprite for a character that is 100x100 pixels. You decide to use a scaling factor that is 0.01. This will make the character physics box 1m x 1m. So go make a physics box that is 1x1. Now suppose the character starts out at pixel coordinate (345,679). So position the physics box at (3.45,6.79). Now simulate the physics world. Suppose the character physics box moves to (2.31,4.98), so move your character sprite to pixel coordinates (231,498).
 Now the only tricky part is choosing a scaling factor. This really depends on your game. You should try to get your moving objects in the range 0.1 - 10 meters, with 1 meter being the sweet spot.
 
-### Why don't you use this awesome C++ feature?
+### Can I use @box2d with just JavaScript
 
-Box2D is designed to be portable, so I try to keep the C++ usage simple. Also, I don't use the STL (except sort) or other libraries to keep the dependencies low. I keep template usage low and don't use name spaces. Remember, just because a C++ feature exists, that doesn't mean you need to use it.
-
-The many ports of Box2D to other languages platforms shows that this strategy has been successful.
-
-### Can I use Box2D in a DLL?
-
-Box2D was not designed to be used in a DLL. You may have to change how static data is used to make this work.
-
-### Is Box2D thread-safe?
-
-No. Box2D will likely never be thread-safe. Box2D has a large API and trying to make such an API thread-safe would have a large performance and complexity impact.
-
-## Build Issues
-
-### Why doesn't my code compile and/or link?
-
-There are many reasons why a build can go bad. Here are a few that have come up:
-
-* Using old Box2D headers with new code
-* Not linking the Box2D library with your application
-* Using old project files that don't include some new source files
+Like most npm packages written in TypeScript, @box2d is transpiled to JavaScript + types, so you can use it with JavaScript. You will get a better experience with TypeScript though.
 
 ## Rendering
 
@@ -81,11 +69,12 @@ Box2D is only a physics engine. How you draw stuff is up to you.
 
 ### But the Testbed draws stuff
 
-Visualization is very important for debugging collision and physics. I wrote the test bed to help me test Box2D and give you examples of how to use Box2D. The TestBed is not part of the Box2D library.
+Visualization is very important for debugging collision and physics. I wrote the test bed to help me test Box2D and give you examples of how to use Box2D. The TestBed is not part of the Box2D library. 
 
 ### How do I draw shapes?
 
-Drawing shapes is not supported and shape internal data is likely to change. Instead you should implement the `b2DebugDraw` interface.
+Drawing shapes is not supported and shape internal data is likely to change. Instead you should implement the `b2Draw` interface.
+You can use the @core/debug-draw library for simple debugging on a canvas or use it as a reference for your own renderer.
 
 ## Accuracy
 
@@ -118,9 +107,9 @@ Box2D does not have any support for coordinate frame wrapping. You would likely 
 
 ### Is Box2D deterministic?
 
-For the same input, and same binary, Box2D will reproduce any simulation. Box2D does not use any random numbers nor base any computation on random events (such as timers, etc).
+For the same input, and same browser, @box2d will reproduce any simulation. Box2D does not use any random numbers nor base any computation on random events (such as timers, etc).
 
-However, people often want more stringent determinism. People often want to know if Box2D can produce identical results on different binaries and on different platforms. The answer is no. The reason for this answer has to do with how floating point math is implemented in many compilers and processors. I recommend reading this article if you are curious: http://www.yosefk.com/blog/consistency-how-to-defeat-the-purpose-of-ieee-floating-point.html
+However, people often want more stringent determinism. People often want to know if Box2D can produce identical results on different browsers and on different platforms. The answer is no. The reason for this answer has to do with how floating point math is implemented in many compilers and processors. I recommend reading this article if you are curious: http://www.yosefk.com/blog/consistency-how-to-defeat-the-purpose-of-ieee-floating-point.html
 
 ### But I really want determinism
 
@@ -134,6 +123,8 @@ So the question of accuracy has been answered: failure.
 
 The only remaining question is how do we make it convenient. On this opinions may vary.
 
+*TODO:* The following does **not** apply to the TypeScript version and needs to be rewritten:
+
 `b2Settings` is just that. Settings you can adjust if you know what you are doing.
 
 ## What are the biggest mistakes made by new users?
@@ -141,6 +132,5 @@ The only remaining question is how do we make it convenient. On this opinions ma
 * Using pixels for length instead of meters.
 * Expecting Box2D to give pixel perfect results.
 * Using b2Polygon to create concave polygons.
-* Testing their code in release mode.
-* Not learning C++ before using Box2D.
+* Not learning TypeScript/JavaScript before using Box2D.
 * Not reading this FAQ. :)

@@ -6,12 +6,6 @@ the box's position over time.
 
 This is a good example of how to get up and running with Box2D.
 
-## Fair warning
-This documentation page has been ported from the C++ version and
-might not have been adjusted in all aspects to the TypeScript version.
-If you find anything that doesn't add up, please write an issue on the
-[GitHub repository](https://github.com/lusito/box2d.ts).
-
 ## Creating a World
 Every Box2D program begins with the creation of a b2World object.
 b2World is the physics hub that manages memory, objects, and simulation.
@@ -19,7 +13,7 @@ b2World is the physics hub that manages memory, objects, and simulation.
 It is easy to create a Box2D world. First, we define the gravity vector.
 
 ```ts
-const gravity = { x: 0, y: -10 };
+const gravity: XY = { x: 0, y: -10 };
 ```
 
 Now we create the world object.
@@ -221,8 +215,7 @@ dynamic body. Here is the simulation loop that simulates 60 time steps
 for a total of 1 second of simulated time.
 
 ```ts
-for (let i = 0; i < 60; ++i)
-{
+for (let i = 0; i < 60; ++i) {
     world.Step(timeStep, stepConfig);
     const position = body.GetPosition();
     const angle = body.GetAngle();
@@ -244,8 +237,9 @@ output should look like this:
 ```
 
 ## Cleanup
+FIXME::
 When a world leaves scope or is deleted by calling delete on a pointer,
 all the memory reserved for bodies, fixtures, and joints is freed. This
 is done to improve performance and make your life easier. However, you
-will need to nullify any body, fixture, or joint pointers you have
+will need to remove any body, fixture, or joint references you have
 because they will become invalid.

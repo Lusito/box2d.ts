@@ -264,14 +264,14 @@ export abstract class b2Joint {
     }
 
     /**
-     * Get the user data pointer.
+     * Get the user data reference.
      */
     public GetUserData(): any {
         return this.m_userData;
     }
 
     /**
-     * Set the user data pointer.
+     * Set the user data reference.
      */
     public SetUserData(data: any): void {
         this.m_userData = data;

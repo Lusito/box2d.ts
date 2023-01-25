@@ -9,12 +9,6 @@ a physics engine is just a system for procedural animation.
 engine begin with the b2 prefix, so that existing code and examples
 from the C++ version are easily ported.
 
-## Fair warning
-This documentation page has been ported from the C++ version and
-might not have been adjusted in all aspects to the TypeScript version.
-If you find anything that doesn't add up, please write an issue on the
-[GitHub repository](https://github.com/lusito/box2d.ts).
-
 ## Prerequisites
 In this manual I'll assume you are familiar with basic physics
 concepts, such as mass, force, torque, and impulses. If not, please

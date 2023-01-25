@@ -40,10 +40,10 @@ shapes move rigidly with the host body. In summary:
 Circle shapes have a position and radius. Circles are solid. You cannot
 make a hollow circle using the circle shape.
 
-```cpp
-b2CircleShape circle;
-circle.m_p.Set(2.0f, 3.0f);
-circle.m_radius = 0.5f;
+```ts
+const circle = new b2CircleShape();
+const radius = 0.5;
+circle.Set({ x: 2, y: 3 }, radius);
 ```
 
 ### Polygon Shapes
@@ -77,23 +77,22 @@ the convex hull computation might become slow. Also note that the convex
 hull function may eliminate and/or re-order the points you provide.
 Vertices that are closer than `b2_linearSlop` may be merged.
 
-```cpp
+```ts
 // This defines a triangle in CCW order.
-b2Vec2 vertices[3];
-vertices[0].Set(0.0f, 0.0f);
-vertices[1].Set(1.0f, 0.0f);
-vertices[2].Set(0.0f, 1.0f);
+const vertices: XY[] = [
+    { x: 0, y: 0 },
+    { x: 1, y: 0 },
+    { x: 0, y: 1 },
+];
 
-int32 count = 3;
-b2PolygonShape polygon;
-polygon.Set(vertices, count);
+const polygon = new b2PolygonShape();
+polygon.Set(vertices, vertices.length);
 ```
 
-The polygon shape has some convenience functions to create boxes.
+The polygon shape has a convenience function to create boxes.
 
-```cpp
-void SetAsBox(float hx, float hy);
-void SetAsBox(float hx, float hy, const b2Vec2& center, float angle);
+```ts
+public SetAsBox(hx: number, hy: number, center?: XY, angle = 0): b2PolygonShape {
 ```
 
 Polygons inherit a radius from b2Shape. The radius creates a skin around
@@ -109,7 +108,7 @@ representation can be larger than the polygon to hide any gaps.
 
 ![Skin Collision](images/skin_collision.svg)
 
-Not that polygon skin is only provided to help with continuous collision.
+Note that polygon skin is only provided to help with continuous collision.
 The purpose is not to simulate rounded polygons.
 
 ### Edge Shapes
@@ -120,12 +119,12 @@ themselves. The collision algorithms used by Box2D require that at least
 one of two colliding shapes have volume. Edge shapes have no volume, so
 edge-edge collision is not possible.
 
-```cpp
+```ts
 // This an edge shape.
-b2Vec2 v1(0.0f, 0.0f);
-b2Vec2 v2(1.0f, 0.0f);
+const v1: XY = { x: 0, y: 0 };
+const v2: XY = { x: 1, y: 0 };
 
-b2EdgeShape edge;
+const edge = new b2EdgeShape();
 edge.SetTwoSided(v1, v2);
 ```
 
@@ -153,14 +152,14 @@ one-sided collision. The front face is to the right when looking from the first
 vertex towards the second vertex. This matches the CCW winding order
 used by polygons.
 
-```cpp
+```ts
 // This is an edge shape with ghost vertices.
-b2Vec2 v0(1.7f, 0.0f);
-b2Vec2 v1(1.0f, 0.25f);
-b2Vec2 v2(0.0f, 0.0f);
-b2Vec2 v3(-1.7f, 0.4f);
+const v0: XY = { x: 1.7, y: 0 };
+const v1: XY = { x: 1, y: 0.25 };
+const v2: XY = { x: 0, y: 0 };
+const v3: XY = { x: -1.7, y: 0.4 };
 
-b2EdgeShape edge;
+const edge = new b2EdgeShape();
 edge.SetOneSided(v0, v1, v2, v3);
 ```
 
@@ -180,15 +179,16 @@ two-sided edge shapes. The efficiency is similar.
 The simplest way to use chain shapes is to create loops. Simply provide an
 array of vertices.
 
-```cpp
-b2Vec2 vs[4];
-vs[0].Set(1.7f, 0.0f);
-vs[1].Set(1.0f, 0.25f);
-vs[2].Set(0.0f, 0.0f);
-vs[3].Set(-1.7f, 0.4f);
+```ts
+const vs: XY[] = [
+    { x: 1.7, y: 0 },
+    { x: 1, y: 0.25 },
+    { x: 0, y: 0 },
+    { x: -1.7, y: 0.4 },
+];
 
-b2ChainShape chain;
-chain.CreateLoop(vs, 4);
+const chain = new b2ChainShape();
+chain.CreateLoop(vs, vs.length);
 ```
 
 The edge normal depends on the winding order. A counter-clockwise winding order orients the normal outwards and a clockwise winding order orients the normal inwards.
@@ -202,9 +202,14 @@ You can connect chains together using ghost vertices, like we did with b2EdgeSha
 
 ![Chain Shape](images/chain_shape.svg)
 
-```cpp
-b2ChainShape::CreateChain(const b2Vec2* vertices, int32 count,
-		const b2Vec2& prevVertex, const b2Vec2& nextVertex);
+```ts
+// class b2ChainShape
+public CreateChain(
+        vertices: XY[],
+        count: number,
+        prevVertex: Readonly<XY>,
+        nextVertex: Readonly<XY>,
+    ): b2ChainShape {
 ```
 
 Self-intersection of chain shapes is not supported. It might work, it
@@ -218,12 +223,11 @@ Each edge in the chain is treated as a child shape and can be accessed
 by index. When a chain shape is connected to a body, each edge gets its
 own bounding box in the broad-phase collision tree.
 
-```cpp
+```ts
 // Visit each child edge.
-for (int32 i = 0; i < chain.GetChildCount(); ++i)
-{
-    b2EdgeShape edge;
-    chain.GetChildEdge(&edge, i);
+for (let i = 0; i < chain.GetChildCount(); ++i) {
+    const edge = new b2EdgeShape();
+    chain.GetChildEdge(edge, i);
 
     ...
 }
@@ -236,12 +240,12 @@ You can perform a couple geometric queries on a single shape.
 You can test a point for overlap with a shape. You provide a transform
 for the shape and a world point.
 
-```cpp
-b2Transform transform;
+```ts
+const transform = new b2Transform();
 transform.SetIdentity();
-b2Vec2 point(5.0f, 2.0f);
+const point: XY = { x: 5, 2 };
 
-bool hit = shape->TestPoint(transform, point);
+const hit = shape.TestPoint(transform, point);
 ```
 
 Edge and chain shapes always return false, even if the chain is a loop.
@@ -253,22 +257,22 @@ You can cast a ray at a shape to get the point of first intersection and normal 
 > No hit will register if the ray starts inside a convex shape like a circle or polygon. This is consistent with Box2D treating convex shapes as solid. 
 >
 
-```cpp
-b2Transfrom transform;
+```ts
+const transform = new b2Transfrom();
 transform.SetIdentity();
 
-b2RayCastInput input;
-input.p1.Set(0.0f, 0.0f);
-input.p2.Set(1.0f, 0.0f);
-input.maxFraction = 1.0f;
-int32 childIndex = 0;
+const input = new b2RayCastInput();
+input.p1.Set(0, 0);
+input.p2.Set(1, 0);
+input.maxFraction = 1;
+const childIndex = 0;
 
-b2RayCastOutput output;
-bool hit = shape->RayCast(&output, input, transform, childIndex);
+const output = new b2RayCastOutput();
+const hit = shape.RayCast(output, input, transform, childIndex);
 
-if (hit)
-{
-    b2Vec2 hitPoint = input.p1 + output.fraction * (input.p2 -- input.p1);
+if (hit) {
+    const hitPoint = input.p1.Clone().AddScaled(output.fraction, Math.Subtract(input.p2, input.p1, new b2Vec2()));
+    // Keep in mind, that the above line might be bad for garbage collection. Avoid Clone() and new b2Vec2() for code that runs often!
     ...
 }
 ```
@@ -283,9 +287,9 @@ The Collision module contains functions that take a pair of shapes and compute s
 ### Overlap
 You can test two shapes for overlap using this function:
 
-```cpp
-b2Transform xfA = ..., xfB = ...;
-bool overlap = b2TestOverlap(shapeA, indexA, shapeB, indexB, xfA, xfB);
+```ts
+const xfA: b2Transform = ..., xfB: b2Transform = ...;
+const overlap = b2TestOverlap(shapeA, indexA, shapeB, indexB, xfA, xfB);
 ```
 
 Again you must provide child indices to for the case of chain shapes.
@@ -295,7 +299,7 @@ Box2D has functions to compute contact points for overlapping shapes. If
 we consider circle-circle or circle-polygon, we can only get one contact
 point and normal. In the case of polygon-polygon we can get two points.
 These points share the same normal vector so Box2D groups them into a
-manifold structure. The contact solver takes advantage of this to
+manifold class. The contact solver takes advantage of this to
 improve stacking stability.
 
 ![Contact Manifold](images/manifolds.svg)
@@ -303,24 +307,23 @@ improve stacking stability.
 Normally you don't need to compute contact manifolds directly, however
 you will likely use the results produced in the simulation.
 
-The b2Manifold structure holds a normal vector and up to two contact
+The b2Manifold class holds a normal vector and up to two contact
 points. The normal and points are held in local coordinates. As a
 convenience for the contact solver, each point stores the normal and
 tangential (friction) impulses.
 
 The data stored in b2Manifold is optimized for internal use. If you need
-this data, it is usually best to use the b2WorldManifold structure to
+this data, it is usually best to use the b2WorldManifold class to
 generate the world coordinates of the contact normal and points. You
 need to provide a b2Manifold and the shape transforms and radii.
 
-```cpp
-b2WorldManifold worldManifold;
-worldManifold.Initialize(&manifold, transformA, shapeA.m_radius,
+```ts
+const worldManifold = new b2WorldManifold();
+worldManifold.Initialize(manifold, transformA, shapeA.m_radius,
 transformB, shapeB.m_radius);
 
-for (int32 i = 0; i < manifold.pointCount; ++i)
-{
-    b2Vec2 point = worldManifold.points[i];
+for (let i = 0; i < manifold.pointCount; ++i) {
+    const point = worldManifold.points[i];
     ...
 }
 ```
@@ -331,12 +334,11 @@ manifold.
 During simulation shapes may move and the manifolds may change. Points
 may be added or removed. You can detect this using b2GetPointStates.
 
-```cpp
-b2PointState state1[2], state2[2];
-b2GetPointStates(state1, state2, &manifold1, &manifold2);
+```ts
+const state1 = [new b2PointState(), new b2PointState()], state2 = [new b2PointState(), new b2PointState()];
+b2GetPointStates(state1, state2, manifold1, manifold2);
 
-if (state1[0] == b2_removeState)
-{
+if (state1[0] === b2_removeState) {
     // process event
 }
 ```
@@ -381,7 +383,7 @@ these missed rotational collisions should not harm game play. They tend
 to be glancing collisions.
 
 The function requires two shapes (converted to b2DistanceProxy) and two
-b2Sweep structures. The sweep structure defines the initial and final
+b2Sweep instances. The sweep class defines the initial and final
 transforms of the shapes.
 
 You can use fixed rotations to perform a *shape cast*. In this case, the

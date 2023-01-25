@@ -2,22 +2,23 @@
 
 ## User Data
 The `b2Fixture`, `b2Body`, and `b2Joint` classes allow you to attach user data
-as a uintptr_t. This is handy when you are examining Box2D data
+as a `any`. This is handy when you are examining Box2D data
 structures and you want to determine how they relate to the objects in
 your game engine.
 
-For example, it is typical to attach an actor pointer to the rigid body
+For example, it is typical to attach an actor reference to the rigid body
 on that actor. This sets up a circular reference. If you have the actor,
 you can get the body. If you have the body, you can get the actor.
 
-```cpp
-GameActor* actor = GameCreateActor();
-b2BodyDef bodyDef;
-bodyDef.userData.pointer = reinterpret_cast<uintptr_t>(actor);
-actor->body = myWorld->CreateBody(&bodyDef);
+```ts
+const actor = GameCreateActor();
+const bodyDef: b2BodyDef = {
+    userData: actor,
+};
+actor.body = myWorld.CreateBody(bodyDef);
 ```
 
-You can also use this to hold an integral value rather than a pointer.
+You can also use this to hold an integral value rather than a reference.
 
 Here are some examples of cases where you would need the user data:
 -   Applying damage to an actor using a collision result.
@@ -27,55 +28,49 @@ Here are some examples of cases where you would need the user data:
 
 Keep in mind that user data is optional and you can put anything in it.
 However, you should be consistent. For example, if you want to store an
-actor pointer on one body, you should keep an actor pointer on all
-bodies. Don't store an actor pointer on one body, and a foo pointer on
-another body. Casting an actor pointer to a foo pointer may lead to a
+actor reference on one body, you should keep an actor reference on all
+bodies. Don't store an actor reference on one body, and a foo reference on
+another body. Casting an actor reference to a foo reference may lead to a
 crash.
 
-User data pointers are 0 by default.
+User data references are undefined by default.
 
 For fixtures you might consider defining a user data structure that lets
 you store game specific information, such as material type, effects
 hooks, sound hooks, etc.
 
-```cpp
-struct FixtureUserData
-{
-    int materialIndex;
+```ts
+type FixtureUserData = {
+    materialIndex: number;
     // ...
 };
 
-FixtureUserData myData = new FixtureUserData;
-myData->materialIndex = 2;
+const myData: FixtureUserData = {
+    materialIndex = 2;
+};
 
-b2FixtureDef fixtureDef;
-fixtureDef.shape = &someShape;
-fixtureDef.userData.pointer = reinterpret_cast<uintptr_t>(myData);
+const fixtureDef: b2FixtureDef = {
+    shape: someShape,
+    userData: myData,
+};
 
-b2Fixture* fixture = body->CreateFixture(&fixtureDef);
-// ...
-
-delete fixture->GetUserData();
-body->DestroyFixture(fixture);
+const fixture = body.CreateFixture(fixtureDef);
 ```
 
 ## Custom User Data
-You can define custom data structures that are embedded in the Box2D data
-structures. This is done by defining `B2_USER_SETTINGS` and providing the
-file `b2_user_settings.h`. See `b2_settings.h` for details.
+
+*TODO:* It would be good, if the user could specify the type of user data for a body, etc.
 
 ## Implicit Destruction
-Box2D doesn't use reference counting. So if you destroy a body it is
-really gone. Accessing a pointer to a destroyed body has undefined
-behavior. In other words, your program will likely crash and burn. To
-help fix these problems, the debug build memory manager fills destroyed
-entities with FDFDFDFD. This can help find problems more easily in some
-cases.
+
+@box2d is in the JavaScript environment and as such, the garbage collector
+is responsible for removing unused objects. For that to be possible, you need
+to make sure you have no references left to those objects.
 
 If you destroy a Box2D entity, it is up to you to make sure you remove
 all references to the destroyed object. This is easy if you only have a
 single reference to the entity. If you have multiple references, you
-might consider implementing a handle class to wrap the raw pointer.
+might consider implementing a handle class to wrap the reference.
 
 Often when using Box2D you will create and destroy many bodies, shapes,
 and joints. Managing these entities is somewhat automated by Box2D. If
@@ -89,11 +84,11 @@ convenient. However, you must be aware of one crucial issue:
 
 > **Caution**:
 > When a body is destroyed, all fixtures and joints attached to the body
-> are automatically destroyed. You must nullify any pointers you have to
-> those shapes and joints. Otherwise, your program will die horribly if
+> are automatically destroyed. You must remove any references you have to
+> those shapes and joints. Otherwise, your program will behave strange if
 > you try to access or destroy those shapes or joints later.
 
-To help you nullify your joint pointers, Box2D provides a listener class
+To help you remove your joint references, Box2D provides a listener class
 named b2DestructionListener that you can implement and provide to your
 world object. Then the world object will notify you when a joint is
 going to be implicitly destroyed
@@ -105,8 +100,8 @@ implementation of b2DestructionListener to keep cleanup code
 centralized.
 
 Implicit destruction is a great convenience in many cases. It can also
-make your program fall apart. You may store pointers to shapes and
-joints somewhere in your code. These pointers become orphaned when an
+make your program fall apart. You may store references to shapes and
+joints somewhere in your code. These references become orphaned when an
 associated body is destroyed. The situation becomes worse when you
 consider that joints are often created by a part of the code unrelated
 to management of the associated body. For example, the testbed creates a
@@ -114,19 +109,17 @@ b2MouseJoint for interactive manipulation of bodies on the screen.
 
 Box2D provides a callback mechanism to inform your application when
 implicit destruction occurs. This gives your application a chance to
-nullify the orphaned pointers. This callback mechanism is described
+remove the orphaned references. This callback mechanism is described
 later in this manual.
 
 You can implement a `b2DestructionListener` that allows b2World to inform
 you when a shape or joint is implicitly destroyed because an associated
 body was destroyed. This will help prevent your code from accessing
-orphaned pointers.
+orphaned references.
 
-```cpp
-class MyDestructionListener : public b2DestructionListener
-{
-    void SayGoodbye(b2Joint* joint)
-    {
+```ts
+class MyDestructionListener extends b2DestructionListener {
+    override void SayGoodbye(joint: b2Joint) {
         // remove all references to joint.
     }
 };
@@ -135,8 +128,8 @@ class MyDestructionListener : public b2DestructionListener
 You can then register an instance of your destruction listener with your
 world object. You should do this during world initialization.
 
-```cpp
-myWorld->SetListener(myDestructionListener);
+```ts
+myWorld.SetDestructionListener(myDestructionListener);
 ```
 
 ## Pixels and Coordinate Systems
@@ -146,9 +139,9 @@ your game is expressed in terms of pixels. To deal with this in the
 testbed I have the whole *game* work in meters and just use an OpenGL
 viewport transformation to scale the world into screen space.
 
-```cpp
-float lowerX = -25.0f, upperX = 25.0f, lowerY = -5.0f, upperY = 25.0f;
-gluOrtho2D(lowerX, upperX, lowerY, upperY);
+```ts
+const lowerX = -25, upperX = 25, lowerY = -5, upperY = 25;
+yourOrtho2D(lowerX, upperX, lowerY, upperY);
 ```
 
 If your game must work in pixel units then you should convert your
@@ -162,16 +155,16 @@ have determined to use 50 pixels per meter (because your character is 75
 pixels tall). Then you can convert from pixels to meters using these
 formulas:
 
-```cpp
-xMeters = 0.02f * xPixels;
-yMeters = 0.02f * yPixels;
+```ts
+xMeters = 0.02 * xPixels;
+yMeters = 0.02 * yPixels;
 ```
 
 In reverse:
 
-```cpp
-xPixels = 50.0f * xMeters;
-yPixels = 50.0f * yMeters;
+```ts
+xPixels = 50 * xMeters;
+yPixels = 50 * yMeters;
 ```
 
 You should consider using MKS units in your game code and just convert
@@ -184,7 +177,7 @@ make sure nothing breaks. You can also try adjusting it to improve
 stability.
 
 ## Debug Drawing
-You can implement the b2DebugDraw class to get detailed drawing of the
+You can implement the b2Draw interface to get detailed drawing of the
 physics world. Here are the available entities:
 - shape outlines
 - joint connectivity

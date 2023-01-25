@@ -1,4 +1,4 @@
-# Key Differences
+# Key Differences to C++
 
 The TypeScript API differs in a few points from the original C++ API.
 
@@ -65,6 +65,12 @@ Be sure to check out all methods and static methods of the classes you are inter
 ## Math Operations
 
 As you might have noticed, math operations return a reference to itself, so you can use chaining. Due to garbage collector considerations, there is no automatic cloning going on!
+
+## Vec2 vs XY
+
+You might have noticed the type XY, which seems to be in places, where the C++ version of Box2D used b2Vec2.
+This change has been introduced to simplify the code, as in most cases, we only care about the x/y properties of the vector.
+So in some cases, you can just use `{ x: 1, y: 2 }` instead of `new b2Vec2(1, 2)`
 
 ## Overloads
 

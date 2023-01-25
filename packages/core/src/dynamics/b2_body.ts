@@ -212,7 +212,7 @@ export class b2Body {
     public m_sleepTime = 0;
 
     /** @internal */
-    public m_userData: any = null;
+    public m_userData: any;
 
     /** @internal */
     public constructor(bd: b2BodyDef, world: b2World) {
@@ -1129,7 +1129,7 @@ export class b2Body {
     }
 
     /**
-     * Get the user data pointer that was provided in the body definition.
+     * Get the user data reference that was provided in the body definition.
      */
     public GetUserData(): any {
         return this.m_userData;
