@@ -21,7 +21,7 @@
 // SOFTWARE.
 
 // DEBUG: import { b2Assert } from "../common/b2_common";
-import { b2_linearSlop } from "../common/b2_common";
+import { b2_angularSlop, b2_linearSlop } from "../common/b2_common";
 import { b2Vec2, b2Rot, XY } from "../common/b2_math";
 import { b2Joint, b2JointDef, b2JointType, b2IJointDef } from "./b2_joint";
 import { b2PrismaticJoint } from "./b2_prismatic_joint";
@@ -128,6 +128,8 @@ export class b2GearJoint extends b2Joint {
 
     protected m_ratio = 0;
 
+    protected m_tolerance = 0;
+
     protected m_impulse = 0;
 
     // Solver temp
@@ -215,6 +217,9 @@ export class b2GearJoint extends b2Joint {
             this.m_localAxisC.SetZero();
 
             coordinateA = aA - aC - this.m_referenceAngleA;
+
+            // position error is measured in radians
+            this.m_tolerance = b2_angularSlop;
         } else {
             const prismatic = def.joint1 as b2PrismaticJoint;
             this.m_localAnchorC.Copy(prismatic.m_localAnchorA);
@@ -229,6 +234,9 @@ export class b2GearJoint extends b2Joint {
                 b2Vec2.s_t0,
             );
             coordinateA = b2Vec2.Dot(pA.Subtract(pC), this.m_localAxisC);
+
+            // position error is measured in meters
+            this.m_tolerance = b2_linearSlop;
         }
 
         this.m_bodyD = this.m_joint2.GetBodyA();
@@ -426,8 +434,6 @@ export class b2GearJoint extends b2Joint {
         qC.Set(aC);
         qD.Set(aD);
 
-        const linearError = 0;
-
         let coordinateA: number;
         let coordinateB: number;
 
@@ -503,8 +509,11 @@ export class b2GearJoint extends b2Joint {
         data.positions[this.m_indexC].a = aC;
         data.positions[this.m_indexD].a = aD;
 
-        // TODO_ERIN not implemented
-        return linearError < b2_linearSlop;
+        if (Math.abs(C) < this.m_tolerance) {
+            return true;
+        }
+
+        return false;
     }
 
     public GetAnchorA<T extends XY>(out: T): T {

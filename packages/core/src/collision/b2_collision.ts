@@ -29,10 +29,13 @@ import {
     b2_maxManifoldPoints,
     b2MakeNumberArray,
     b2MakeArray,
+    b2_linearSlop,
+    b2Assert,
 } from "../common/b2_common";
 import { b2Vec2, b2Rot, b2Transform, XY } from "../common/b2_math";
 import type { b2Shape } from "./b2_shape";
 import { b2Distance, b2DistanceInput, b2DistanceOutput, b2SimplexCache } from "./b2_distance";
+import { b2_maxPolygonVertices } from "../common/b2_settings";
 
 export enum b2ContactFeatureType {
     e_vertex = 0,
@@ -747,4 +750,291 @@ export function b2TestOverlap(
     b2Distance(output, simplexCache, input);
 
     return output.distance < 10 * b2_epsilon;
+}
+
+/// Convex hull used for polygon collision
+export type b2Hull = Array<Readonly<XY>>;
+
+const b2RecurseHull_s_e = new b2Vec2();
+const b2RecurseHull_s_c = new b2Vec2();
+const emptyHull: Readonly<b2Hull> = [];
+
+// quickhull recursion
+function b2RecurseHull(p1: Readonly<XY>, p2: Readonly<XY>, ps: Array<Readonly<XY>>): Readonly<b2Hull> {
+    if (ps.length === 0) {
+        return emptyHull;
+    }
+
+    // create an edge vector pointing from p1 to p2
+    const e = b2Vec2.Subtract(p2, p1, b2RecurseHull_s_e);
+    e.Normalize();
+
+    // discard points left of e and find point furthest to the right of e
+    const rightPoints: Array<Readonly<XY>> = [];
+
+    let bestIndex = 0;
+    let bestDistance = b2Vec2.Cross(b2Vec2.Subtract(ps[bestIndex], p1, b2RecurseHull_s_c), e);
+    if (bestDistance > 0) {
+        rightPoints.push(ps[bestIndex]);
+    }
+
+    for (let i = 1; i < ps.length; ++i) {
+        const distance = b2Vec2.Cross(b2Vec2.Subtract(ps[i], p1, b2RecurseHull_s_c), e);
+        if (distance > bestDistance) {
+            bestIndex = i;
+            bestDistance = distance;
+        }
+
+        if (distance > 0) {
+            rightPoints.push(ps[i]);
+        }
+    }
+
+    if (bestDistance < 2 * b2_linearSlop) {
+        return emptyHull;
+    }
+
+    const bestPoint = ps[bestIndex];
+
+    // compute hull to the right of p1-bestPoint
+    const hull1 = b2RecurseHull(p1, bestPoint, rightPoints);
+
+    // compute hull to the right of bestPoint-p2
+    const hull2 = b2RecurseHull(bestPoint, p2, rightPoints);
+
+    // stich together hulls
+    const hull = [...hull1, bestPoint, ...hull2];
+
+    b2Assert(hull.length < b2_maxPolygonVertices);
+
+    return hull;
+}
+
+const b2ComputeHull_s_e = new b2Vec2();
+const b2ComputeHull_s_v = new b2Vec2();
+const b2ComputeHull_s_c = new b2Vec2();
+const b2ComputeHull_s_d = new b2Vec2();
+const b2ComputeHull_s_aabb = new b2AABB();
+
+/**
+ * Compute the convex hull of a set of points.
+ * quickhull algorithm
+ * - merges vertices based on b2_linearSlop
+ * - removes collinear points using b2_linearSlop
+ * - returns an empty hull if it fails
+ *
+ * Some failure cases:
+ * - all points very close together
+ * - all points on a line
+ * - less than 3 points
+ * - more than b2_maxPolygonVertices points
+ *
+ * This welds close points and removes collinear points.
+ *
+ * @returns an empty hull if it fails.
+ */
+export function b2ComputeHull(points: ReadonlyArray<Readonly<XY>>, count: number): Readonly<b2Hull> {
+    if (count < 3 || count > b2_maxPolygonVertices) {
+        // check your data
+        return emptyHull;
+    }
+
+    count = Math.min(count, b2_maxPolygonVertices);
+
+    const aabb = b2ComputeHull_s_aabb;
+    aabb.lowerBound.Set(b2_maxFloat, b2_maxFloat);
+    aabb.upperBound.Set(-b2_maxFloat, -b2_maxFloat);
+
+    // Perform aggressive point welding. First point always remains.
+    // Also compute the bounding box for later.
+    const ps: Array<Readonly<XY>> = [];
+    const tolSqr = 16 * b2_linearSlop * b2_linearSlop;
+    for (let i = 0; i < count; ++i) {
+        b2Vec2.Min(aabb.lowerBound, points[i], aabb.lowerBound);
+        b2Vec2.Max(aabb.upperBound, points[i], aabb.upperBound);
+
+        const vi = points[i];
+
+        let unique = true;
+        for (let j = 0; j < i; ++j) {
+            const vj = points[j];
+
+            const distSqr = b2Vec2.DistanceSquared(vi, vj);
+            if (distSqr < tolSqr) {
+                unique = false;
+                break;
+            }
+        }
+
+        if (unique) {
+            ps.push(vi);
+        }
+    }
+
+    let n = ps.length;
+
+    if (n < 3) {
+        // all points very close together, check your data and check your scale
+        return emptyHull;
+    }
+
+    // Find an extreme point as the first point on the hull
+    const c = aabb.GetCenter(b2ComputeHull_s_c);
+    let i1 = 0;
+    let dsq1 = b2Vec2.DistanceSquared(c, ps[i1]);
+    for (let i = 1; i < n; ++i) {
+        const dsq = b2Vec2.DistanceSquared(c, ps[i]);
+        if (dsq > dsq1) {
+            i1 = i;
+            dsq1 = dsq;
+        }
+    }
+
+    // remove p1 from working set
+    const p1 = ps[i1];
+    ps[i1] = ps[n - 1];
+    n -= 1;
+
+    let i2 = 0;
+    let dsq2 = b2Vec2.DistanceSquared(p1, ps[i2]);
+    for (let i = 1; i < n; ++i) {
+        const dsq = b2Vec2.DistanceSquared(p1, ps[i]);
+        if (dsq > dsq2) {
+            i2 = i;
+            dsq2 = dsq;
+        }
+    }
+
+    // remove p2 from working set
+    const p2 = ps[i2];
+    ps[i2] = ps[n - 1];
+    n -= 1;
+
+    // split the points into points that are left and right of the line p1-p2.
+    const rightPoints: Array<Readonly<XY>> = [];
+    const leftPoints: Array<Readonly<XY>> = [];
+
+    const e = b2Vec2.Subtract(p2, p1, b2ComputeHull_s_e);
+    e.Normalize();
+
+    for (let i = 0; i < n; ++i) {
+        const d = b2Vec2.Cross(b2Vec2.Subtract(ps[i], p1, b2ComputeHull_s_d), e);
+
+        // slop used here to skip points that are very close to the line p1-p2
+        if (d >= 2 * b2_linearSlop) {
+            rightPoints.push(ps[i]);
+        } else if (d <= -2 * b2_linearSlop) {
+            leftPoints.push(ps[i]);
+        }
+    }
+
+    // compute hulls on right and left
+    const hull1 = b2RecurseHull(p1, p2, rightPoints);
+    const hull2 = b2RecurseHull(p2, p1, leftPoints);
+
+    if (hull1.length === 0 && hull2.length === 0) {
+        // all points collinear
+        return emptyHull;
+    }
+
+    // stitch hulls together, preserving CCW winding order
+    const hull = [p1, ...hull1, p2, ...hull2];
+
+    b2Assert(hull.length <= b2_maxPolygonVertices);
+
+    // merge collinear
+    let searching = true;
+    while (searching && hull.length > 2) {
+        searching = false;
+
+        for (let i = 0; i < hull.length; ++i) {
+            const i1b = i;
+            const i2b = (i + 1) % hull.length;
+            const i3b = (i + 2) % hull.length;
+
+            const p1b = hull[i1b];
+            const p2b = hull[i2b];
+            const p3b = hull[i3b];
+
+            const eb = b2Vec2.Subtract(p3b, p1b, b2ComputeHull_s_e);
+            eb.Normalize();
+
+            const v = b2Vec2.Subtract(p2b, p1b, b2ComputeHull_s_v);
+            const distance = b2Vec2.Cross(v, eb);
+            if (distance <= 2 * b2_linearSlop) {
+                // remove midpoint from hull
+                hull.splice(i2b, 1);
+
+                // continue searching for collinear points
+                searching = true;
+
+                break;
+            }
+        }
+    }
+
+    if (hull.length < 3) {
+        // all points collinear, shouldn't be reached since this was validated above
+        hull.length = 0;
+    }
+
+    return hull;
+}
+
+const b2ValidateHull_s_e = new b2Vec2();
+const b2ValidateHull_s_d = new b2Vec2();
+/**
+ * This determines if a hull is valid. Checks for:
+ * - convexity
+ * - collinear points
+ * This is expensive and should not be called at runtime.
+ */
+export function b2ValidateHull(hull: Readonly<b2Hull>, count: number): boolean {
+    if (count < 3 || b2_maxPolygonVertices < count) {
+        return false;
+    }
+
+    // test that every point is behind every edge
+    for (let i = 0; i < count; ++i) {
+        // create an edge vector
+        const i1 = i;
+        const i2 = i < count - 1 ? i1 + 1 : 0;
+        const p = hull[i1];
+        const e = b2Vec2.Subtract(hull[i2], p, b2ValidateHull_s_e);
+        e.Normalize();
+
+        for (let j = 0; j < count; ++j) {
+            // skip points that subtend the current edge
+            if (j === i1 || j === i2) {
+                continue;
+            }
+
+            const distance = b2Vec2.Cross(b2Vec2.Subtract(hull[j], p, b2ValidateHull_s_d), e);
+            if (distance >= 0) {
+                return false;
+            }
+        }
+    }
+
+    // test for collinear points
+    for (let i = 0; i < count; ++i) {
+        const i1 = i;
+        const i2 = (i + 1) % count;
+        const i3 = (i + 2) % count;
+
+        const p1 = hull[i1];
+        const p2 = hull[i2];
+        const p3 = hull[i3];
+
+        const e = b2Vec2.Subtract(p3, p1, b2ValidateHull_s_e);
+        e.Normalize();
+
+        const distance = b2Vec2.Cross(b2Vec2.Subtract(p2, p1, b2ValidateHull_s_d), e);
+        if (distance <= b2_linearSlop) {
+            // p1-p2-p3 are collinear
+            return false;
+        }
+    }
+
+    return true;
 }

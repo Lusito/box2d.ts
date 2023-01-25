@@ -372,58 +372,58 @@ export class b2Vec2 implements XY {
     /**
      * Subtract two vectors component-wise.
      */
-    public static Subtract<T extends XY>(a: XY, b: XY, out: T) {
+    public static Subtract<T extends XY>(a: Readonly<XY>, b: Readonly<XY>, out: T) {
         out.x = a.x - b.x;
         out.y = a.y - b.y;
         return out;
     }
 
-    public static Scale<T extends XY>(s: number, v: XY, out: T) {
+    public static Scale<T extends XY>(s: number, v: Readonly<XY>, out: T) {
         out.x = v.x * s;
         out.y = v.y * s;
         return out;
     }
 
-    public static AddScaled<T extends XY>(a: XY, s: number, b: XY, out: T) {
+    public static AddScaled<T extends XY>(a: Readonly<XY>, s: number, b: Readonly<XY>, out: T) {
         out.x = a.x + s * b.x;
         out.y = a.y + s * b.y;
         return out;
     }
 
-    public static SubtractScaled<T extends XY>(a: XY, s: number, b: XY, out: T) {
+    public static SubtractScaled<T extends XY>(a: Readonly<XY>, s: number, b: Readonly<XY>, out: T) {
         out.x = a.x - s * b.x;
         out.y = a.y - s * b.y;
         return out;
     }
 
-    public static AddCrossScalarVec2<T extends XY>(a: XY, s: number, v: XY, out: T) {
+    public static AddCrossScalarVec2<T extends XY>(a: Readonly<XY>, s: number, v: Readonly<XY>, out: T) {
         const v_x = v.x;
         out.x = a.x - s * v.y;
         out.y = a.y + s * v_x;
         return out;
     }
 
-    public static Mid<T extends XY>(a: XY, b: XY, out: T) {
+    public static Mid<T extends XY>(a: Readonly<XY>, b: Readonly<XY>, out: T) {
         out.x = (a.x + b.x) * 0.5;
         out.y = (a.y + b.y) * 0.5;
         return out;
     }
 
-    public static Extents<T extends XY>(a: XY, b: XY, out: T) {
+    public static Extents<T extends XY>(a: Readonly<XY>, b: Readonly<XY>, out: T) {
         out.x = (b.x - a.x) * 0.5;
         out.y = (b.y - a.y) * 0.5;
         return out;
     }
 
-    public static Equals(a: XY, b: XY) {
+    public static Equals(a: Readonly<XY>, b: Readonly<XY>) {
         return a.x === b.x && a.y === b.y;
     }
 
-    public static Distance(a: XY, b: XY) {
+    public static Distance(a: Readonly<XY>, b: Readonly<XY>) {
         return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
     }
 
-    public static DistanceSquared(a: XY, b: XY) {
+    public static DistanceSquared(a: Readonly<XY>, b: Readonly<XY>) {
         return (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
     }
 

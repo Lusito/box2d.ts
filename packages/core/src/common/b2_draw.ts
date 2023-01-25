@@ -190,19 +190,19 @@ export interface b2Draw {
 
     PopTransform(xf: b2Transform): void;
 
-    DrawPolygon(vertices: XY[], vertexCount: number, color: RGBA): void;
+    DrawPolygon(vertices: ReadonlyArray<Readonly<XY>>, vertexCount: number, color: RGBA): void;
 
-    DrawSolidPolygon(vertices: XY[], vertexCount: number, color: RGBA): void;
+    DrawSolidPolygon(vertices: ReadonlyArray<Readonly<XY>>, vertexCount: number, color: RGBA): void;
 
-    DrawCircle(center: XY, radius: number, color: RGBA): void;
+    DrawCircle(center: Readonly<XY>, radius: number, color: RGBA): void;
 
-    DrawSolidCircle(center: XY, radius: number, axis: XY, color: RGBA): void;
+    DrawSolidCircle(center: Readonly<XY>, radius: number, axis: Readonly<XY>, color: RGBA): void;
 
-    DrawSegment(p1: XY, p2: XY, color: RGBA): void;
+    DrawSegment(p1: Readonly<XY>, p2: Readonly<XY>, color: RGBA): void;
 
     DrawTransform(xf: b2Transform): void;
 
-    DrawPoint(p: XY, size: number, color: RGBA): void;
+    DrawPoint(p: Readonly<XY>, size: number, color: RGBA): void;
 }
 
 export const debugColors = {

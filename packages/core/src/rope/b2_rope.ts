@@ -66,7 +66,7 @@ export class b2RopeTuning {
 
     public stretchStiffness = 1;
 
-    public stretchHertz = 0;
+    public stretchHertz = 1;
 
     public stretchDamping = 0;
 

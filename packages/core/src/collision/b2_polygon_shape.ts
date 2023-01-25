@@ -21,11 +21,11 @@
 // SOFTWARE.
 
 // DEBUG: import { b2Assert, b2_epsilon_sq } from "../common/b2_common";
-import { b2Assert, b2MakeArray, b2_linearSlop, b2_polygonRadius } from "../common/b2_common";
+import { b2Assert, b2MakeArray, b2_polygonRadius } from "../common/b2_common";
 import { b2Color, b2Draw } from "../common/b2_draw";
 import { b2Vec2, b2Rot, b2Transform, XY } from "../common/b2_math";
 import { b2_maxPolygonVertices } from "../common/b2_settings";
-import { b2AABB, b2RayCastInput, b2RayCastOutput } from "./b2_collision";
+import { b2AABB, b2ComputeHull, b2Hull, b2RayCastInput, b2RayCastOutput, b2ValidateHull } from "./b2_collision";
 import { b2DistanceProxy } from "./b2_distance";
 import { b2MassData, b2Shape, b2ShapeType } from "./b2_shape";
 
@@ -67,8 +67,6 @@ const temp = {
         xf: new b2Transform(),
     },
 };
-
-const weldingDistanceSquared = (0.5 * b2_linearSlop) ** 2;
 
 function ComputeCentroid(vs: b2Vec2[], count: number, out: b2Vec2): b2Vec2 {
     // DEBUG: b2Assert(count >= 3);
@@ -112,6 +110,7 @@ function ComputeCentroid(vs: b2Vec2[], count: number, out: b2Vec2): b2Vec2 {
     return c;
 }
 
+const setHull_s_edge = new b2Vec2();
 /**
  * A solid convex polygon. It is assumed that the interior of the polygon is to
  * the left of each edge.
@@ -165,107 +164,45 @@ export class b2PolygonShape extends b2Shape {
      * Create a convex hull from the given array of points.
      *
      * @warning the points may be re-ordered, even if they form a convex polygon
-     * @warning collinear points are handled but not removed. Collinear points
-     * may lead to poor stacking behavior.
+     * @warning if this fails then the polygon is invalid
+     * @returns true if valid
      */
-    public Set(vertices: XY[], count = vertices.length): b2PolygonShape {
-        // DEBUG: b2Assert(3 <= count && count <= b2_maxPolygonVertices);
-        if (count < 3) {
-            return this.SetAsBox(1, 1);
+    public Set(vertices: XY[], count = vertices.length): boolean {
+        const hull = b2ComputeHull(vertices, count);
+
+        if (hull.length < 3) {
+            return false;
         }
 
-        let n = Math.min(count, b2_maxPolygonVertices);
+        this.SetHull(hull, hull.length);
 
-        // Perform welding and copy vertices into local buffer.
-        const ps: XY[] = [];
-        for (let i = 0; i < n; ++i) {
-            const v = vertices[i];
+        return true;
+    }
 
-            const unique = ps.every((p) => b2Vec2.DistanceSquared(v, p) >= weldingDistanceSquared);
-            if (unique) {
-                ps.push(v);
-            }
-        }
+    public SetHull(hull: Readonly<b2Hull>, count: number): b2PolygonShape {
+        b2Assert(count >= 3);
 
-        n = ps.length;
-        if (n < 3) {
-            // Polygon is degenerate.
-            // DEBUG: b2Assert(false);
-            return this.SetAsBox(1, 1);
-        }
+        this.m_count = count;
 
-        // Create the convex hull using the Gift wrapping algorithm
-        // http://en.wikipedia.org/wiki/Gift_wrapping_algorithm
-
-        // Find the right most point on the hull
-        let i0 = 0;
-        let x0 = ps[0].x;
-        for (let i = 1; i < n; ++i) {
-            const { x } = ps[i];
-            if (x > x0 || (x === x0 && ps[i].y < ps[i0].y)) {
-                i0 = i;
-                x0 = x;
-            }
-        }
-
-        const hull: number[] = [];
-        let m = 0;
-        let ih = i0;
-
-        for (;;) {
-            // DEBUG: b2Assert(m < b2_maxPolygonVertices);
-            hull[m] = ih;
-
-            let ie = 0;
-            for (let j = 1; j < n; ++j) {
-                if (ie === ih) {
-                    ie = j;
-                    continue;
-                }
-
-                const r = b2Vec2.Subtract(ps[ie], ps[hull[m]], temp.Set.r);
-                const v = b2Vec2.Subtract(ps[j], ps[hull[m]], temp.Set.v);
-                const c = b2Vec2.Cross(r, v);
-                if (c < 0) {
-                    ie = j;
-                }
-
-                // Collinearity check
-                if (c === 0 && v.LengthSquared() > r.LengthSquared()) {
-                    ie = j;
-                }
-            }
-
-            ++m;
-            ih = ie;
-
-            if (ie === i0) {
-                break;
-            }
-        }
-
-        b2Assert(m >= 3, "Polygon is degenerate");
-
-        this.m_count = m;
-        this.m_vertices = b2MakeArray(this.m_count, b2Vec2);
-        this.m_normals = b2MakeArray(this.m_count, b2Vec2);
-
-        // Copy vertices.
-        for (let i = 0; i < m; ++i) {
-            this.m_vertices[i].Copy(ps[hull[i]]);
+        // Copy vertices
+        this.m_vertices = b2MakeArray(count, b2Vec2);
+        for (let i = 0; i < count; ++i) {
+            this.m_vertices[i].Copy(hull[i]);
         }
 
         // Compute normals. Ensure the edges have non-zero length.
-        for (let i = 0; i < m; ++i) {
+        this.m_normals = b2MakeArray(count, b2Vec2);
+        for (let i = 0; i < this.m_count; ++i) {
             const i1 = i;
-            const i2 = i + 1 < m ? i + 1 : 0;
-            const edge = b2Vec2.Subtract(this.m_vertices[i2], this.m_vertices[i1], b2Vec2.s_t0);
-            // DEBUG: b2Assert(edge.LengthSquared() > b2_epsilon_sq);
-            b2Vec2.CrossVec2One(edge, this.m_normals[i]).Normalize();
+            const i2 = i + 1 < this.m_count ? i + 1 : 0;
+            const edge = b2Vec2.Subtract(this.m_vertices[i2], this.m_vertices[i1], setHull_s_edge);
+            // DEBUG: b2Assert(edge.LengthSquared() > b2_epsilon * b2_epsilon);
+            b2Vec2.CrossVec2Scalar(edge, 1, this.m_normals[i]);
+            this.m_normals[i].Normalize();
         }
 
         // Compute the polygon centroid.
-        ComputeCentroid(this.m_vertices, m, this.m_centroid);
+        ComputeCentroid(this.m_vertices, this.m_count, this.m_centroid);
 
         return this;
     }
@@ -487,27 +424,11 @@ export class b2PolygonShape extends b2Shape {
     }
 
     public Validate(): boolean {
-        const { e, v } = temp.Validate;
-        for (let i = 0; i < this.m_count; ++i) {
-            const i1 = i;
-            const i2 = i < this.m_count - 1 ? i1 + 1 : 0;
-            const p = this.m_vertices[i1];
-            b2Vec2.Subtract(this.m_vertices[i2], p, e);
-
-            for (let j = 0; j < this.m_count; ++j) {
-                if (j === i1 || j === i2) {
-                    continue;
-                }
-
-                b2Vec2.Subtract(this.m_vertices[j], p, v);
-                const c = b2Vec2.Cross(e, v);
-                if (c < 0) {
-                    return false;
-                }
-            }
+        if (this.m_count < 3 || b2_maxPolygonVertices < this.m_count) {
+            return false;
         }
 
-        return true;
+        return b2ValidateHull(this.m_vertices, this.m_count);
     }
 
     public SetupDistanceProxy(proxy: b2DistanceProxy, _index: number): void {

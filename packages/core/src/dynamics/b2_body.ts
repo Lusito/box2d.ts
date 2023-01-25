@@ -335,6 +335,8 @@ export class b2Body {
         // You tried to remove a shape that is not attached to this body.
         // DEBUG: b2Assert(found);
 
+        const density = fixture.m_density;
+
         // Destroy any contacts associated with the fixture.
         let edge: b2ContactEdge | null = this.m_contactList;
         while (edge) {
@@ -362,7 +364,10 @@ export class b2Body {
         --this.m_fixtureCount;
 
         // Reset the mass data.
-        this.ResetMassData();
+        // Reset the mass data
+        if (density > 0.0) {
+            this.ResetMassData();
+        }
     }
 
     /**

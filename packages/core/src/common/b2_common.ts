@@ -138,7 +138,7 @@ export const b2_angularSleepTolerance = (2 / 180) * Math.PI;
 export const b2_version = {
     major: 2,
     minor: 4,
-    patch: 0,
+    patch: 1,
 };
 
 export function b2MakeNumberArray(length: number, init = 0): number[] {

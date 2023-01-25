@@ -672,26 +672,24 @@ export function b2Distance(output: b2DistanceOutput, cache: b2SimplexCache, inpu
     // Cache the simplex.
     simplex.WriteCache(cache);
 
-    // Apply radii if requested.
+    // Apply radii if requested
     if (input.useRadii) {
-        const rA = proxyA.m_radius;
-        const rB = proxyB.m_radius;
-
-        if (output.distance > rA + rB && output.distance > b2_epsilon) {
-            // Shapes are still no overlapped.
-            // Move the witness points to the outer surface.
-            output.distance -= rA + rB;
-            const normal = b2Vec2.Subtract(output.pointB, output.pointA, b2Distance_s_normal);
-            normal.Normalize();
-            output.pointA.AddScaled(rA, normal);
-            output.pointB.SubtractScaled(rB, normal);
-        } else {
-            // Shapes are overlapped when radii are considered.
-            // Move the witness points to the middle.
+        if (output.distance < b2_epsilon) {
+            // Shapes are too close to safely compute normal
             const p = b2Vec2.Mid(output.pointA, output.pointB, b2Distance_s_p);
             output.pointA.Copy(p);
             output.pointB.Copy(p);
             output.distance = 0;
+        } else {
+            // Keep closest points on perimeter even if overlapped, this way
+            // the points move smoothly.
+            const rA = proxyA.m_radius;
+            const rB = proxyB.m_radius;
+            const normal = b2Vec2.Subtract(output.pointB, output.pointA, b2Distance_s_normal);
+            normal.Normalize();
+            output.distance = Math.max(0, output.distance - rA - rB);
+            output.pointA.AddScaled(rA, normal);
+            output.pointB.SubtractScaled(rB, normal);
         }
     }
 }

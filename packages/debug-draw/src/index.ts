@@ -64,6 +64,8 @@ export class DebugDraw implements b2Draw {
     }
 
     public DrawPolygon(vertices: XY[], vertexCount: number, color: RGBA): void {
+        if (vertexCount < 2) return;
+
         this.ctx.beginPath();
         this.ctx.moveTo(vertices[0].x, vertices[0].y);
         for (let i = 1; i < vertexCount; i++) {
@@ -75,6 +77,8 @@ export class DebugDraw implements b2Draw {
     }
 
     public DrawSolidPolygon(vertices: XY[], vertexCount: number, color: RGBA): void {
+        if (vertexCount < 2) return;
+
         this.ctx.beginPath();
         this.ctx.moveTo(vertices[0].x, vertices[0].y);
         for (let i = 1; i < vertexCount; i++) {

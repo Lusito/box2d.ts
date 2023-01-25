@@ -213,7 +213,7 @@ export class b2MouseJoint extends b2Joint {
         this.m_C.Scale(this.m_beta);
 
         // Cheat with some damping
-        wB *= 0.98;
+        wB *= Math.max(0, 1 - 0.02 * (60 * data.step.dt));
 
         if (data.step.warmStarting) {
             this.m_impulse.Scale(data.step.dtRatio);
