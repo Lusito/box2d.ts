@@ -6,22 +6,26 @@ the box's position over time.
 
 This is a good example of how to get up and running with Box2D.
 
+## Fair warning
+This documentation page has been ported from the C++ version and
+might not have been adjusted in all aspects to the TypeScript version.
+If you find anything that doesn't add up, please write an issue on the
+[GitHub repository](https://github.com/lusito/box2d.ts).
+
 ## Creating a World
 Every Box2D program begins with the creation of a b2World object.
 b2World is the physics hub that manages memory, objects, and simulation.
-You can allocate the physics world on the stack, heap, or data section.
 
 It is easy to create a Box2D world. First, we define the gravity vector.
 
-```cpp
-b2Vec2 gravity(0.0f, -10.0f);
+```ts
+const gravity = { x: 0, y: -10 };
 ```
 
-Now we create the world object. Note that we are creating the world on
-the stack, so the world must remain in scope.
+Now we create the world object.
 
-```cpp
-b2World world(gravity);
+```ts
+const world = b2World.Create(gravity);
 ```
 
 So now we have our physics world, let's start adding some stuff to it.
@@ -37,9 +41,10 @@ For step 1 we create the ground body. For this we need a body
 definition. With the body definition we specify the initial position of
 the ground body.
 
-```cpp
-b2BodyDef groundBodyDef;
-groundBodyDef.position.Set(0.0f, -10.0f);
+```ts
+const groundBodyDef: b2BodyDef = {
+    position: { x: 0, y: -10 }
+};
 ```
 
 For step 2 the body definition is passed to the world object to create
@@ -47,17 +52,17 @@ the ground body. The world object does not keep a reference to the body
 definition. Bodies are static by default. Static bodies don't collide
 with other static bodies and are immovable.
 
-```cpp
-b2Body* groundBody = world.CreateBody(&groundBodyDef);
+```ts
+const body = world.CreateBody(groundBodyDef);
 ```
 
 For step 3 we create a ground polygon. We use the SetAsBox shortcut to
 form the ground polygon into a box shape, with the box centered on the
 origin of the parent body.
 
-```cpp
-b2PolygonShape groundBox;
-groundBox.SetAsBox(50.0f, 10.0f);
+```ts
+const box = new b2PolygonShape();
+box.SetAsBox(50, 10);
 ```
 
 The SetAsBox function takes the **half**-**width** and
@@ -69,17 +74,13 @@ real world objects. For example, a barrel is about 1 meter tall. Due to
 the limitations of floating point arithmetic, using Box2D to model the
 movement of glaciers or dust particles is not a good idea.
 
-We finish the ground body in step 4 by creating the shape fixture. For
-this step we have a shortcut. We do not have a need to alter the default
-fixture material properties, so we can pass the shape directly to the
-body without creating a fixture definition. Later we will see how to use
-a fixture definition for customized material properties. The second
-parameter is the shape density in kilograms per meter squared. A static
-body has zero mass by definition, so the density is not used in this
-case.
+We finish the ground body in step 4 by creating the shape fixture.
+A b2FixtureDef has lots of optional properties. For now, we only care
+about shape. Later we will see how to use the other properties.
+For a static body we don't need anything more right now.
 
-```cpp
-groundBody->CreateFixture(&groundBox, 0.0f);
+```ts
+groundBody.CreateFixture({ shape: groundBox });
 ```
 
 Box2D does not keep a reference to the shape. It clones the data into a
@@ -108,11 +109,12 @@ First we create the body using CreateBody. By default bodies are static,
 so we should set the b2BodyType at construction time to make the body
 dynamic.
 
-```cpp
-b2BodyDef bodyDef;
-bodyDef.type = b2_dynamicBody;
-bodyDef.position.Set(0.0f, 4.0f);
-b2Body* body = world.CreateBody(&bodyDef);
+```ts
+const bodyDef: b2BodyDef = {
+    type: b2BodyType.b2_dynamicBody,
+    position: { x: 0, y: 4 }
+};
+const body = world.CreateBody(bodyDef);
 ```
 
 > **Caution**:
@@ -122,20 +124,21 @@ b2Body* body = world.CreateBody(&bodyDef);
 Next we create and attach a polygon shape using a fixture definition.
 First we create a box shape:
 
-```cpp
-b2PolygonShape dynamicBox;
-dynamicBox.SetAsBox(1.0f, 1.0f);
+```ts
+const dynamicBox = new b2PolygonShape();
+dynamicBox.SetAsBox(1, 1);
 ```
 
 Next we create a fixture definition using the box. Notice that we set
 density to 1. The default density is zero. Also, the friction on the
 shape is set to 0.3.
 
-```cpp
-b2FixtureDef fixtureDef;
-fixtureDef.shape = &dynamicBox;
-fixtureDef.density = 1.0f;
-fixtureDef.friction = 0.3f;
+```ts
+const fixtureDef: b2FixtureDef = {
+    shape: groundBox,
+    density: 1,
+    friction: 0.3,
+};
 ```
 
 > **Caution**:
@@ -146,8 +149,8 @@ Using the fixture definition we can now create the fixture. This
 automatically updates the mass of the body. You can add as many fixtures
 as you like to a body. Each one contributes to the total mass.
 
-```cpp
-body->CreateFixture(&fixtureDef);
+```ts
+body.CreateFixture(fixtureDef);
 ```
 
 That's it for initialization. We are now ready to begin simulating.
@@ -169,8 +172,8 @@ variable time step produces variable results, which makes it difficult
 to debug. So don't tie the time step to your frame rate (unless you
 really, really have to). Without further ado, here is the time step.
 
-```cpp
-float timeStep = 1.0f / 60.0f;
+```ts
+const timeStep = 1 / 60;
 ```
 
 In addition to the integrator, Box2D also uses a larger bit of code
@@ -195,9 +198,11 @@ more iterations decreases performance but improves the quality of your
 simulation. For this simple example, we don't need much iteration. Here
 are our chosen iteration counts.
 
-```cpp
-int32 velocityIterations = 6;
-int32 positionIterations = 2;
+```ts
+const stepConfig: b2StepConfig = {
+    velocityIterations: 6,
+    positionIterations: 2,
+};
 ```
 
 Note that the time step and the iteration count are completely
@@ -215,13 +220,13 @@ graphical output. The code prints out the position and rotation of the
 dynamic body. Here is the simulation loop that simulates 60 time steps
 for a total of 1 second of simulated time.
 
-```cpp
-for (int32 i = 0; i < 60; ++i)
+```ts
+for (let i = 0; i < 60; ++i)
 {
-    world.Step(timeStep, velocityIterations, positionIterations);
-    b2Vec2 position = body->GetPosition();
-    float angle = body->GetAngle();
-    printf("%4.2f %4.2f %4.2f\n", position.x, position.y, angle);
+    world.Step(timeStep, stepConfig);
+    const position = body.GetPosition();
+    const angle = body.GetAngle();
+    console.log(`${position.x.toFixed(2)} ${position.y.toFixed(2)} ${angle.toFixed(2)}\n`);
 }
 ```
 

@@ -1,12 +1,19 @@
 # Overview
+
 Box2D is a 2D rigid body simulation library for games. Programmers can
 use it in their games to make objects move in realistic ways and make
 the game world more interactive. From the game engine's point of view,
 a physics engine is just a system for procedural animation.
 
-Box2D is written in portable C++. Most of the types defined in the
-engine begin with the b2 prefix. Hopefully this is sufficient to avoid
-name clashing with your game engine.
+@box2d is written in TypeScript. Most of the types defined in the
+engine begin with the b2 prefix, so that existing code and examples
+from the C++ version are easily ported.
+
+## Fair warning
+This documentation page has been ported from the C++ version and
+might not have been adjusted in all aspects to the TypeScript version.
+If you find anything that doesn't add up, please write an issue on the
+[GitHub repository](https://github.com/lusito/box2d.ts).
 
 ## Prerequisites
 In this manual I'll assume you are familiar with basic physics
@@ -17,13 +24,21 @@ Box2D was created as part of a physics tutorial at the Game Developer
 Conference. You can get these tutorials from the download section of
 box2d.org.
 
-Since Box2D is written in C++, you are expected to be experienced in C++
-programming. Box2D should not be your first C++ programming project! You
-should be comfortable with compiling, linking, and debugging.
+@box2d is a TypeScript port of Erin Cattos [Box2D](https://github.com/erincatto/box2d).
+This is a fork of [box2d.ts](https://github.com/flyover/box2d.ts) from Isaac Burns (flyover)
+who did a huge job initially porting Box2D and [LiquidFun](https://github.com/google/liquidfun) to TypeScript.
+
+In order to avoid changing the whole documentation wording from Box2D to @box2d,
+please assume them to be synonymous within this documentation unless specified otherwise.
+
+Since Box2D is written in TypeScript, you are expected to be experienced
+in TypeScript or at least JavaScript programming.
+Box2D should not be your first TypeScript/JavaScript programming project! You
+should be comfortable with bundling, creating a dev-server, and debugging.
 
 > **Caution**:
-> Box2D should not be your first C++ project. Please learn C++
-> programming, compiling, linking, and debugging before working with
+> Box2D should not be your first TypeScript/JavaScript project. Please learn TS/JS
+> programming, bundling and debugging before working with
 > Box2D. There are many resources for this on the net.
 
 ## Scope
@@ -31,19 +46,22 @@ This manual covers the majority of the Box2D API. However, not every
 aspect is covered. Please look at the testbed included
 with Box2D to learn more.
 
-This manual is only updated with new releases. The latest version of
-Box2D may be out of sync with this manual.
+This manual is updated with every commit in the master branch,
+so it might be newer than the version you currently have installed.
+Nonetheless, since there is no major work going on with the API,
+it should not change too much.
 
 ## Feedback and Bugs
 Please file bugs and feature requests here:
-[Box2D Issues](https://github.com/erincatto/box2d/issues)
+[@box2d Issues](https://github.com/Lusito/box2d.ts/issues)
 
 You can help to ensure your issue gets fixed if you provide sufficient
 detail. A testbed example that reproduces the problem is ideal. You can
 read about the testbed later in this document.
 
 There is also a [Discord server](https://discord.gg/NKYgCBP) and a
-[subreddit](https://reddit.com/r/box2d) for Box2D.
+[subreddit](https://reddit.com/r/box2d) for the C++ version of Box2D
+if you need general help with Box2D (rather than the TypeScript port).
 
 ## Core Concepts
 Box2D works with several fundamental concepts and objects. We briefly
@@ -167,11 +185,17 @@ the magnitude of the angle becomes too large (use `b2Body::SetTransform`).
 > Box2D uses radians, not degrees.
 
 ## Changing the length units
+
+*TODO:* The following is **not** (yet) **possible** in the TypeScript version:
+
 Advanced users may change the length unit modifying `b2_lengthUnitsPerMeter`.
 You can avoid merge conflicts by defining `B2_USER_SETTINGS` and providing
 `b2_user_settings.h`. See the file `b2_settings.h` for details.
 
 ## Factories and Definitions
+
+*TODO:* The following does **not** apply to the TypeScript version and needs to be rewritten:
+
 Fast memory management plays a central role in the design of the Box2D
 API. So when you create a b2Body or a b2Joint, you need to call the
 factory functions on b2World. You should never try to allocate these
