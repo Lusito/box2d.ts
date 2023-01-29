@@ -197,11 +197,7 @@ the magnitude of the angle becomes too large (use `b2Body::SetTransform`).
 
 ## Changing the length units
 
-_TODO:_ The following is **not** (yet) **possible** in the TypeScript version:
-
-Advanced users may change the length unit modifying `b2_lengthUnitsPerMeter`.
-You can avoid merge conflicts by defining `B2_USER_SETTINGS` and providing
-`b2_user_settings.ts`. See the file `b2_settings.ts` for details.
+Advanced users may [change the length unit](common.md#settings).
 
 ## Factories and Definitions
 

@@ -123,9 +123,7 @@ So the question of accuracy has been answered: failure.
 
 The only remaining question is how do we make it convenient. On this opinions may vary.
 
-_TODO:_ The following does **not** apply to the TypeScript version and needs to be rewritten:
-
-`b2Settings` is just that. Settings you can adjust if you know what you are doing.
+`b2Settings` is just that. Settings you can adjust if you know what you are doing. See [Settings](common.md#settings) for more details.
 
 ## What are the biggest mistakes made by new users?
 

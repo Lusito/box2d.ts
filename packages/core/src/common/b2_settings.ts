@@ -1,5 +1,7 @@
 // MIT License
 
+import { settings } from "../config";
+
 // Copyright (c) 2019 Erin Catto
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,16 +23,15 @@
 // SOFTWARE.
 
 // Tunable Constants
-// TODO: Make this overridable by user as box2d allows it too.
 
 /**
  * You can use this to change the length scale used by your game.
  * For example for inches you could use 39.4.
  */
-export const b2_lengthUnitsPerMeter = 1;
+export const b2_lengthUnitsPerMeter = settings.lengthUnitsPerMeter;
 
 /**
  * The maximum number of vertices on a convex polygon. You cannot increase
  * this too much because b2BlockAllocator has a maximum object size.
  */
-export const b2_maxPolygonVertices = 8;
+export const b2_maxPolygonVertices = settings.maxPolygonVertices;
