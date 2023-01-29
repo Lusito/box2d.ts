@@ -82,7 +82,7 @@ export class b2WeldJointDef extends b2JointDef implements b2IWeldJointDef {
         super(b2JointType.e_weldJoint);
     }
 
-    public Initialize(bA: b2Body, bB: b2Body, anchor: b2Vec2): void {
+    public Initialize(bA: b2Body, bB: b2Body, anchor: Readonly<XY>): void {
         this.bodyA = bA;
         this.bodyB = bB;
         this.bodyA.GetLocalPoint(anchor, this.localAnchorA);

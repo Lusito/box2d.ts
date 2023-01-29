@@ -94,10 +94,10 @@ export class b2PulleyJointDef extends b2JointDef implements b2IPulleyJointDef {
     public Initialize(
         bA: b2Body,
         bB: b2Body,
-        groundA: b2Vec2,
-        groundB: b2Vec2,
-        anchorA: b2Vec2,
-        anchorB: b2Vec2,
+        groundA: Readonly<XY>,
+        groundB: Readonly<XY>,
+        anchorA: Readonly<XY>,
+        anchorB: Readonly<XY>,
         r: number,
     ): void {
         this.bodyA = bA;

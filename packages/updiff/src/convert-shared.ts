@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import fs from "fs";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import rimraf from "rimraf";
 
 const incompleteLine = /[,(]\s*$/;

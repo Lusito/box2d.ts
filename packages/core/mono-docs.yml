@@ -15,7 +15,7 @@ sidebar:
   - testbed
   - common
   - collision
-  # - dynamics
+  - dynamics
   - loose-ends
   - references
   - FAQ

@@ -1,10 +1,12 @@
 # Dynamics Module
+
 The Dynamics module is the most complex part of Box2D and is the part
 you likely interact with the most. The Dynamics module sits on top of
 the Common and Collision modules, so you should be somewhat familiar
 with those by now.
 
 The Dynamics module contains:
+
 - fixture class
 - rigid body class
 - contact class
@@ -21,11 +23,13 @@ closely.
 The dynamics module is covered in the following chapters.
 
 ## Bodies
+
 Bodies have position and velocity. You can apply forces, torques, and
 impulses to bodies. Bodies can be static, kinematic, or dynamic. Here
 are the body type definitions:
 
 #### b2_staticBody
+
 A static body does not move under simulation and behaves as if it has
 infinite mass. Internally, Box2D stores zero for the mass and the
 inverse mass. Static bodies can be moved manually by the user. A static
@@ -33,6 +37,7 @@ body has zero velocity. Static bodies do not collide with other static
 or kinematic bodies.
 
 #### b2_kinematicBody
+
 A kinematic body moves under simulation according to its velocity.
 Kinematic bodies do not respond to forces. They can be moved manually by
 the user, but normally a kinematic body is moved by setting its
@@ -41,6 +46,7 @@ Box2D stores zero for the mass and the inverse mass. Kinematic bodies do
 not collide with other kinematic or static bodies.
 
 #### b2_dynamicBody
+
 A dynamic body is fully simulated. They can be moved manually by the
 user, but normally they move according to forces. A dynamic body can
 collide with all body types. A dynamic body always has finite, non-zero
@@ -57,35 +63,39 @@ Fixtures have collision geometry and density. Normally, bodies acquire
 their mass properties from the fixtures. However, you can override the
 mass properties after a body is constructed.
 
-You usually keep pointers to all the bodies you create. This way you can
+You usually keep references to all the bodies you create. This way you can
 query the body positions to update the positions of your graphical
-entities. You should also keep body pointers so you can destroy them
+entities. You should also keep body references so you can destroy them
 when you are done with them.
 
 ### Body Definition
+
 Before a body is created you must create a body definition (b2BodyDef).
 The body definition holds the data needed to create and initialize a
 body.
 
 Box2D copies the data out of the body definition; it does not keep a
-pointer to the body definition. This means you can recycle a body
+reference to the body definition. This means you can recycle a body
 definition to create multiple bodies.
 
 Let's go over some of the key members of the body definition.
 
 ### Body Type
+
 As discussed at the beginning of this chapter, there are three different
 body types: static, kinematic, and dynamic. You should establish the
 body type at creation because changing the body type later is expensive.
 
-```cpp
-b2BodyDef bodyDef;
-bodyDef.type = b2_dynamicBody;
+```ts
+const bodyDef: b2BodyDef = {
+  type: b2BodyType.b2_dynamicBody,
+};
 ```
 
 Setting the body type is mandatory.
 
 ### Position and Angle
+
 The body definition gives you the chance to initialize the position of
 the body on creation. This has far better performance than creating the
 body at the world origin and then moving the body.
@@ -110,10 +120,12 @@ change the mass properties of the body, then the center of mass may move
 on the body, but the origin position does not change and the attached
 shapes and joints do not move.
 
-```cpp
-b2BodyDef bodyDef;
-bodyDef.position.Set(0.0f, 2.0f); // the body's origin position.
-bodyDef.angle = 0.25f * b2_pi; // the body's angle in radians.
+```ts
+const bodyDef: b2BodyDef = {
+  // ...
+  position: { x: 0, y: 2 }, // the body's origin position.
+  angle: 0.25 * Math.PI, // the body's angle in radians.
+};
 ```
 
 A rigid body is also a frame of reference. You can define fixtures and
@@ -121,6 +133,7 @@ joints in that frame. Those fixtures and joint anchors never move in the
 local frame of the body.
 
 ### Damping
+
 Damping is used to reduce the world velocity of bodies. Damping is
 different than friction because friction only occurs with contact.
 Damping is not a replacement for friction and the two effects should be
@@ -131,10 +144,12 @@ damping, and infinity meaning full damping. Normally you will use a
 damping value between 0 and 0.1. I generally do not use linear damping
 because it makes bodies look like they are floating.
 
-```cpp
-b2BodyDef bodyDef;
-bodyDef.linearDamping = 0.0f;
-bodyDef.angularDamping = 0.01f;
+```ts
+const bodyDef: b2BodyDef = {
+  // ...
+  linearDamping: 0,
+  angularDamping: 0.01,
+};
 ```
 
 Damping is approximated for stability and performance. At small damping
@@ -143,16 +158,20 @@ larger damping values, the damping effect will vary with the time step.
 This is not an issue if you use a fixed time step (recommended).
 
 ### Gravity Scale
+
 You can use the gravity scale to adjust the gravity on a single body. Be
 careful though, increased gravity can decrease stability.
 
-```cpp
+```ts
 // Set the gravity scale to zero so this body will float
-b2BodyDef bodyDef;
-bodyDef.gravityScale = 0.0f;
+const bodyDef: b2BodyDef = {
+  // ...
+  gravityScale: 0,
+};
 ```
 
 ### Sleep Parameters
+
 What does sleep mean? Well it is expensive to simulate bodies, so the
 less we have to simulate the better. When a body comes to rest we would
 like to stop simulating it.
@@ -166,26 +185,32 @@ them is destroyed. You can also wake a body manually.
 The body definition lets you specify whether a body can sleep and
 whether a body is created sleeping.
 
-```cpp
-b2BodyDef bodyDef;
-bodyDef.allowSleep = true;
-bodyDef.awake = true;
+```ts
+const bodyDef: b2BodyDef = {
+  // ...
+  allowSleep: true,
+  awake: true,
+};
 ```
 
 ### Fixed Rotation
+
 You may want a rigid body, such as a character, to have a fixed
 rotation. Such a body should not rotate, even under load. You can use
 the fixed rotation setting to achieve this:
 
-```cpp
-b2BodyDef bodyDef;
-bodyDef.fixedRotation = true;
+```ts
+const bodyDef: b2BodyDef = {
+  // ...
+  fixedRotation: true,
+};
 ```
 
 The fixed rotation flag causes the rotational inertia and its inverse to
 be set to zero.
 
 ### Bullets
+
 Game simulation usually generates a sequence of images that are played
 at some frame rate. This is called discrete simulation. In discrete
 simulation, rigid bodies can move by a large amount in one time step. If
@@ -212,14 +237,17 @@ perform CCD with both static and dynamic bodies. You should decide what
 bodies should be bullets based on your game design. If you decide a body
 should be treated as a bullet, use the following setting.
 
-```cpp
-b2BodyDef bodyDef;
-bodyDef.bullet = true;
+```ts
+const bodyDef: b2BodyDef = {
+  // ...
+  bullet: true,
+};
 ```
 
 The bullet flag only affects dynamic bodies.
 
 ### Activation
+
 You may wish a body to be created but not participate in collision or
 dynamics. This state is similar to sleeping except the body will not be
 woken by other bodies and the body's fixtures will not be placed in the
@@ -228,9 +256,11 @@ casts, etc.
 
 You can create a body in an inactive state and later re-activate it.
 
-```cpp
-b2BodyDef bodyDef;
-bodyDef.active = true;
+```ts
+const bodyDef: b2BodyDef = {
+  // ...
+  active: true,
+};
 ```
 
 Joints may be connected to inactive bodies. These joints will not be
@@ -242,52 +272,57 @@ from scratch. So you should not use activation for streaming worlds. Use
 creation/destruction for streaming worlds to save memory.
 
 ### User Data
-User data is a void pointer. This gives you a hook to link your
+
+User data is a reference. This gives you a hook to link your
 application objects to bodies. You should be consistent to use the same
 object type for all body user data.
 
-```cpp
-b2BodyDef bodyDef;
-bodyDef.userData.pointer = reinterpret_cast<uintptr_t>(&myActor);
+```ts
+const bodyDef: b2BodyDef = {
+  // ...
+  userData: myActor,
+};
 ```
 
 ### Body Factory
-Bodies are created and destroyed using a body factory provided by the
-world class. This lets the world create the body with an efficient
-allocator and add the body to the world data structure.
 
-```cpp
-b2World* myWorld;
-b2Body* dynamicBody = myWorld->CreateBody(&bodyDef);
+Bodies are created and destroyed using a body factory provided by the
+world class. This lets the world create the body and add the body to the world data structure.
+
+```ts
+const myWorld: b2World = ...;
+const dynamicBody: b2Body = myWorld.createBody(bodyDef);
 
 // ... do stuff ...
 
-myWorld->DestroyBody(dynamicBody);
-dynamicBody = nullptr;
+myWorld.DestroyBody(dynamicBody);
+// stop using dynamicBody from this point on!
 ```
 
 > **Caution**:
-> You should never use new or malloc to create a body. The world won't
+> You should never use new to create a body. The world won't
 > know about the body and the body won't be properly initialized.
 
 Box2D does not keep a reference to the body definition or any of the
-data it holds (except user data pointers). So you can create temporary
+data it holds (except user data references). So you can create temporary
 body definitions and reuse the same body definitions.
 
 Box2D allows you to avoid destroying bodies by deleting your b2World
 object, which does all the cleanup work for you. However, you should be
-mindful to nullify body pointers that you keep in your game engine.
+mindful to remove body references that you keep in your game engine.
 
 When you destroy a body, the attached fixtures and joints are
 automatically destroyed. This has important implications for how you
-manage shape and joint pointers.
+manage shape and joint references.
 
 ### Using a Body
+
 After creating a body, there are many operations you can perform on the
 body. These include setting mass properties, accessing position and
 velocity, applying forces, and transforming points and vectors.
 
 ### Mass Data
+
 A body has mass (scalar), center of mass (2-vector), and rotational
 inertia (scalar). For static bodies, the mass and rotational inertia are
 set to zero. When a body has fixed rotation, its rotational inertia is
@@ -298,56 +333,64 @@ when fixtures are added to the body. You can also adjust the mass of a
 body at run-time. This is usually done when you have special game
 scenarios that require altering the mass.
 
-```cpp
-void b2Body::SetMassData(const b2MassData* data);
+```ts
+// on b2Body:
+public SetMassData(massData: b2MassData): void;
 ```
 
 After setting a body's mass directly, you may wish to revert to the
 natural mass dictated by the fixtures. You can do this with:
 
-```cpp
-void b2Body::ResetMassData();
+```ts
+// on b2Body:
+public ResetMassData(): void;
 ```
 
 The body's mass data is available through the following functions:
 
-```cpp
-float b2Body::GetMass() const;
-float b2Body::GetInertia() const;
-const b2Vec2& b2Body::GetLocalCenter() const;
-void b2Body::GetMassData(b2MassData* data) const;
+```ts
+// on b2Body:
+public GetMass(): number;
+public GetInertia(): number;
+public GetLocalCenter(): Readonly<b2Vec2>;
+public GetMassData(data: b2MassData): b2MassData;
 ```
 
 ### State Information
+
 There are many aspects to the body's state. You can access this state
 data efficiently through the following functions:
 
-```cpp
-void b2Body::SetType(b2BodyType type);
-b2BodyType b2Body::GetType();
-void b2Body::SetBullet(bool flag);
-bool b2Body::IsBullet() const;
-void b2Body::SetSleepingAllowed(bool flag);
-bool b2Body::IsSleepingAllowed() const;
-void b2Body::SetAwake(bool flag);
-bool b2Body::IsAwake() const;
-void b2Body::SetEnabled(bool flag);
-bool b2Body::IsEnabled() const;
-void b2Body::SetFixedRotation(bool flag);
-bool b2Body::IsFixedRotation() const;
+```ts
+// on b2Body:
+public SetType(type: b2BodyType): void;
+public GetType(): b2BodyType;
+public SetBullet(flag: boolean): void;
+public IsBullet(): boolean;
+public SetSleepingAllowed(flag: boolean): void;
+public IsSleepingAllowed(): boolean;
+public SetAwake(flag: boolean): void;
+public IsAwake(): boolean;
+public SetEnabled(flag: boolean): void;
+public IsEnabled(): boolean;
+public SetFixedRotation(flag: boolean): void;
+public IsFixedRotation(): boolean;
 ```
 
 ### Position and Velocity
+
 You can access the position and rotation of a body. This is common when
 rendering your associated game actor. You can also set the position,
 although this is less common since you will normally use Box2D to
 simulate movement.
 
-```cpp
-bool b2Body::SetTransform(const b2Vec2& position, float angle);
-const b2Transform& b2Body::GetTransform() const;
-const b2Vec2& b2Body::GetPosition() const;
-float b2Body::GetAngle() const;
+```ts
+// on b2Body:
+public SetTransformVec(position: XY, angle: number): void;
+public SetTransformXY(x: number, y: number, angle: number): void
+public GetTransform(): Readonly<b2Transform>;
+public GetPosition(): Readonly<b2Vec2>;
+public GetAngle(): number;
 ```
 
 You can access the center of mass position in local and world
@@ -357,9 +400,9 @@ will usually work with the body transform. For example, you may have a
 body that is square. The body origin might be a corner of the square,
 while the center of mass is located at the center of the square.
 
-```cpp
-const b2Vec2& b2Body::GetWorldCenter() const;
-const b2Vec2& b2Body::GetLocalCenter() const;
+```ts
+public GetWorldCenter(): Readonly<b2Vec2>;
+public GetLocalCenter(): Readonly<b2Vec2>;
 ```
 
 You can access the linear and angular velocity. The linear velocity is
@@ -367,15 +410,16 @@ for the center of mass. Therefore, the linear velocity may change if the
 mass properties change.
 
 ### Forces and Impulses
+
 You can apply forces, torques, and impulses to a body. When you apply a
 force or an impulse, you provide a world point where the load is
 applied. This often results in a torque about the center of mass.
 
-```cpp
-void b2Body::ApplyForce(const b2Vec2& force, const b2Vec2& point);
-void b2Body::ApplyTorque(float torque);
-void b2Body::ApplyLinearImpulse(const b2Vec2& impulse, const b2Vec2& point);
-void b2Body::ApplyAngularImpulse(float impulse);
+```ts
+public ApplyForce(force: XY, point: XY, wake = true): void;
+public ApplyTorque(torque: number, wake = true): void;
+public ApplyLinearImpulse(impulse: XY, point: XY, wake = true): void;
+public ApplyAngularImpulse(impulse: number, wake = true): void ;
 ```
 
 Applying a force, torque, or impulse wakes the body. Sometimes this is
@@ -383,36 +427,36 @@ undesirable. For example, you may be applying a steady force and want to
 allow the body to sleep to improve performance. In this case you can use
 the following code.
 
-```cpp
-if (myBody->IsAwake() == true)
-{
-    myBody->ApplyForce(myForce, myPoint);
+```ts
+if (myBody.IsAwake() === true) {
+  myBody.ApplyForce(myForce, myPoint);
 }
 ```
 
 ### Coordinate Transformations
+
 The body class has some utility functions to help you transform points
 and vectors between local and world space. If you don't understand
 these concepts, please read \"Essential Mathematics for Games and
 Interactive Applications\" by Jim Van Verth and Lars Bishop. These
 functions are efficient (when inlined).
 
-```cpp
-b2Vec2 b2Body::GetWorldPoint(const b2Vec2& localPoint);
-b2Vec2 b2Body::GetWorldVector(const b2Vec2& localVector);
-b2Vec2 b2Body::GetLocalPoint(const b2Vec2& worldPoint);
-b2Vec2 b2Body::GetLocalVector(const b2Vec2& worldVector);
+```ts
+public GetWorldPoint<T extends XY>(localPoint: Readonly<XY>, out: T): T;
+public GetWorldVector<T extends XY>(localVector: Readonly<XY>, out: T): T;
+public GetLocalPoint<T extends XY>(worldPoint: Readonly<XY>, out: T): T;
+public GetLocalVector<T extends XY>(worldVector: Readonly<XY>, out: T): T;
 ```
 
 ### Acessing Fixtures, Joints, and Contacts
+
 You can iterate over a body's fixtures. This is mainly useful if you
 need to access the fixture's user data.
 
-```cpp
-for (b2Fixture* f = body->GetFixtureList(); f; f = f->GetNext())
-{
-    MyFixtureData* data = (MyFixtureData*)f->GetUserData();
-    // do something with data ...
+```ts
+for (let f: b2Fixture | null = b.GetFixtureList(); f; f = f.GetNext()) {
+  const data: MyFixtureData = f.GetUserData();
+  // do something with data ...
 }
 ```
 
@@ -424,36 +468,40 @@ contact list may not contain all the contacts that existed during the
 previous time step.
 
 ## Fixtures
+
 Recall that shapes don't know about bodies and may be used independently
 of the physics simulation. Therefore Box2D provides the b2Fixture class
 to attach shapes to bodies. A body may have zero or more fixtures. A
-body with multiple fixtures is sometimes called a *compound body.*
+body with multiple fixtures is sometimes called a _compound body._
 
 Fixtures hold the following:
+
 - a single shape
 - broad-phase proxies
 - density, friction, and restitution
 - collision filtering flags
-- back pointer to the parent body
+- back reference to the parent body
 - user data
 - sensor flag
 
 These are described in the following sections.
 
 ### Fixture Creation
+
 Fixtures are created by initializing a fixture definition and then
 passing the definition to the parent body.
 
-```cpp
-b2Body* myBody;
-b2FixtureDef fixtureDef;
-fixtureDef.shape = &myShape;
-fixtureDef.density = 1.0f;
-b2Fixture* myFixture = myBody->CreateFixture(&fixtureDef);
+```ts
+const myBody: b2Body = ...;
+const fixtureDef: b2FixtureDef = {
+    shape: myShape;
+    density: 1,
+};
+const myFixture: b2Fixture = myBody.CreateFixture(fixtureDef);
 ```
 
 This creates the fixture and attaches it to the body. You do not need to
-store the fixture pointer since the fixture will automatically be
+store the fixture reference since the fixture will automatically be
 destroyed when the parent body is destroyed. You can create multiple
 fixtures on a single body.
 
@@ -461,11 +509,12 @@ You can destroy a fixture on the parent body. You may do this to model a
 breakable object. Otherwise you can just leave the fixture alone and let
 the body destruction take care of destroying the attached fixtures.
 
-```cpp
-myBody->DestroyFixture(myFixture);
+```ts
+myBody.DestroyFixture(myFixture);
 ```
 
 ### Density
+
 The fixture density is used to compute the mass properties of the parent
 body. The density can be zero or positive. You should generally use
 similar densities for all your fixtures. This will improve stacking
@@ -474,14 +523,15 @@ stability.
 The mass of a body is not adjusted when you set the density. You must
 call ResetMassData for this to occur.
 
-```cpp
-b2Fixture* fixture;
-fixture->SetDensity(5.0f);
-b2Body*
-body->ResetMassData();
+```ts
+const fixture: b2Fixture = ...;
+fixture.SetDensity(5);
+const body: b2Body = ...;
+body.ResetMassData();
 ```
 
 ### Friction
+
 Friction is used to make objects slide along each other realistically.
 Box2D supports static and dynamic friction, but uses the same parameter
 for both. Friction is simulated accurately in Box2D and the friction
@@ -492,11 +542,11 @@ and a value of 1 makes the friction strong. When the friction force is
 computed between two shapes, Box2D must combine the friction parameters
 of the two parent fixtures. This is done with the geometric mean:
 
-```cpp
-b2Fixture* fixtureA;
-b2Fixture* fixtureB;
-float friction;
-friction = sqrtf(fixtureA->friction * fixtureB->friction);
+```ts
+const fixtureA: b2Fixture = ...;
+const fixtureB: b2Fixture = ...;
+
+const friction: number = Math.sqrt(fixtureA.friction * fixtureB.friction);
 ```
 
 So if one fixture has zero friction then the contact will have zero
@@ -507,6 +557,7 @@ You can override the default mixed friction using
 callback.
 
 ### Restitution
+
 Restitution is used to make objects bounce. The restitution value is
 usually set to be between 0 and 1. Consider dropping a ball on a table.
 A value of zero means the ball won't bounce. This is called an
@@ -514,11 +565,10 @@ inelastic collision. A value of one means the ball's velocity will be
 exactly reflected. This is called a perfectly elastic collision.
 Restitution is combined using the following formula.
 
-```cpp
-b2Fixture* fixtureA;
-b2Fixture* fixtureB;
-float restitution;
-restitution = b2Max(fixtureA->restitution, fixtureB->restitution);
+```ts
+const fixtureA: b2Fixture = ...;
+const fixtureB: b2Fixture = ...;
+const restitution: number = b2Max(fixtureA.restitution, fixtureB.restitution);
 ```
 
 Restitution is combined this way so that you can have a bouncy super
@@ -531,9 +581,10 @@ callback.
 When a shape develops multiple contacts, restitution is simulated
 approximately. This is because Box2D uses an iterative solver. Box2D
 also uses inelastic collisions when the collision velocity is small.
-This is done to prevent jitter. See `b2_velocityThreshold`.
+This is done to prevent jitter. See `b2ContactVelocityConstraint::threshold`.
 
 ### Filtering
+
 Collision filtering allows you to prevent collision between fixtures.
 For example, say you make a character that rides a bicycle. You want the
 bicycle to collide with the terrain and the character to collide with
@@ -548,25 +599,27 @@ multiplayer game that all players don't collide with each other and
 monsters don't collide with each other, but players and monsters should
 collide. This is done with masking bits. For example:
 
-```cpp
-b2FixtureDef playerFixtureDef, monsterFixtureDef;
-playerFixtureDef.filter.categoryBits = 0x0002;
-monsterFixtureDef.filter.categoryBits = 0x0004;
-playerFixtureDef.filter.maskBits = 0x0004;
-monsterFixtureDef.filter.maskBits = 0x0002;
+```ts
+const playerFixtureDef: b2FixtureDef = {
+  categoryBits: 0x0002,
+  maskBits: 0x0004,
+};
+const monsterFixtureDef: b2FixtureDef = {
+  categoryBits: 0x0004,
+  maskBits: 0x0002,
+};
 ```
 
 Here is the rule for a collision to occur:
 
-```cpp
-uint16 catA = fixtureA.filter.categoryBits;
-uint16 maskA = fixtureA.filter.maskBits;
-uint16 catB = fixtureB.filter.categoryBits;
-uint16 maskB = fixtureB.filter.maskBits;
+```ts
+const catA: number = fixtureA.filter.categoryBits;
+const maskA: number = fixtureA.filter.maskBits;
+const catB: number = fixtureB.filter.categoryBits;
+const maskB: number = fixtureB.filter.maskBits;
 
-if ((catA & maskB) != 0 && (catB & maskA) != 0)
-{
-    // fixtures can collide
+if ((catA & maskB) !== 0 && (catB & maskA) !== 0) {
+  // fixtures can collide
 }
 ```
 
@@ -577,7 +630,7 @@ things that are somehow related, like the parts of a bicycle. In the
 following example, fixture1 and fixture2 always collide, but fixture3
 and fixture4 never collide.
 
-```cpp
+```ts
 fixture1Def.filter.groupIndex = 2;
 fixture2Def.filter.groupIndex = 2;
 fixture3Def.filter.groupIndex = -8;
@@ -590,18 +643,20 @@ has higher precedence than category filtering.
 
 Note that additional collision filtering occurs in Box2D. Here is a
 list:
+
 - A fixture on a static body can only collide with a dynamic body.
 - A fixture on a kinematic body can only collide with a dynamic body.
 - Fixtures on the same body never collide with each other.
 - You can optionally enable/disable collision between fixtures on bodies connected by a joint.
 
 Sometimes you might need to change collision filtering after a fixture
-has already been created. You can get and set the b2Filter structure on
+has already been created. You can get and set the b2Filter class on
 an existing fixture using b2Fixture::GetFilterData and
 b2Fixture::SetFilterData. Note that changing the filter data will not
 add or remove contacts until the next time step (see the World class).
 
 ### Sensors
+
 Sometimes game logic needs to know when two fixtures overlap yet there
 should be no collision response. This is done by using sensors. A sensor
 is a fixture that detects collision but does not produce a response.
@@ -615,10 +670,12 @@ static, or static versus static.
 
 Sensors do not generate contact points. There are two ways to get the
 state of a sensor:
+
 1. `b2Contact::IsTouching`
 2. `b2ContactListener::BeginContact` and `b2ContactListener::EndContact`
 
 ## Joints
+
 Joints are used to constrain bodies to the world or to each other.
 Typical examples in games include ragdolls, teeters, and pulleys. Joints
 can be combined in many different ways to create interesting motions.
@@ -636,6 +693,7 @@ motor will attempt to keep the joint from moving until the load becomes
 too strong.
 
 ### Joint Definition
+
 Each joint type has a definition that derives from b2JointDef. All
 joints are connected between two different bodies. One body may be static.
 Joints between static and/or kinematic bodies are allowed, but have no
@@ -644,7 +702,7 @@ effect and use some processing time.
 You can specify user data for any joint type and you can provide a flag
 to prevent the attached bodies from colliding with each other. This is
 actually the default behavior and you must set the collideConnected
-Boolean to allow collision between to connected bodies.
+boolean to allow collision between to connected bodies.
 
 Many joint definitions require that you provide some geometric data.
 Often a joint will be defined by anchor points. These are points fixed
@@ -665,34 +723,33 @@ The rest of the joint definition data depends on the joint type. We
 cover these now.
 
 ### Joint Factory
+
 Joints are created and destroyed using the world factory methods. This
 brings up an old issue:
 
 > **Caution**:
-> Don't try to create a joint on the stack or on the heap using new or
-> malloc. You must create and destroy bodies and joints using the create
+> Don't try to create a joint using new.
+> You must create and destroy bodies and joints using the create
 > and destroy methods of the b2World class.
 
 Here's an example of the lifetime of a revolute joint:
 
-```cpp
-b2World* myWorld;
-b2RevoluteJointDef jointDef;
-jointDef.bodyA = myBodyA;
-jointDef.bodyB = myBodyB;
-jointDef.anchorPoint = myBodyA->GetCenterPosition();
+```ts
+const myWorld: b2World = ...;
+const jointDef = new b2RevoluteJointDef();
+jointDef.initialize(myBodyA, myBodyB, myBodyA.GetCenterPosition());
 
-b2RevoluteJoint* joint = (b2RevoluteJoint*)myWorld->CreateJoint(&jointDef);
+const joint: b2RevoluteJoint = myWorld.CreateJoint(jointDef);
 
 // ... do stuff ...
 
-myWorld->DestroyJoint(joint);
-joint = nullptr;
+myWorld.DestroyJoint(joint);
+// stop using the joint from this point on!
 ```
 
-It is always good to nullify your pointer after they are destroyed. This
-will make the program crash in a controlled manner if you try to reuse
-the pointer.
+It is always good to remove your reference after they are destroyed. This
+will make the program behave unexpectedly if you try to reuse
+the reference.
 
 The lifetime of a joint is not simple. Heed this warning well:
 
@@ -705,6 +762,7 @@ In this case you don't need to implement the listener class. See the
 section on Implicit Destruction for details.
 
 ### Using Joints
+
 Many simulations create the joints and don't access them again until
 they are destroyed. However, there is a lot of useful data contained in
 joints that you can use to create a rich simulation.
@@ -712,12 +770,13 @@ joints that you can use to create a rich simulation.
 First of all, you can get the bodies, anchor points, and user data from
 a joint.
 
-```cpp
-b2Body* b2Joint::GetBodyA();
-b2Body* b2Joint::GetBodyB();
-b2Vec2 b2Joint::GetAnchorA();
-b2Vec2 b2Joint::GetAnchorB();
-void* b2Joint::GetUserData();
+```ts
+// on b2Joint:
+public GetBodyA(): b2Body;
+public GetBodyB(): bn2Body;
+public GetAnchorA<T extends XY>(out: T): T;
+public GetAnchorB<T extends XY>(out: T): T;
+public GetUserData(): any;
 ```
 
 All joints have a reaction force and torque. This the reaction force
@@ -725,12 +784,13 @@ applied to body 2 at the anchor point. You can use reaction forces to
 break joints or trigger other game events. These functions may do some
 computations, so don't call them if you don't need the result.
 
-```cpp
-b2Vec2 b2Joint::GetReactionForce();
-float b2Joint::GetReactionTorque();
+```ts
+public GetReactionForce<T extends XY>(inv_dt: number, out: T): T;
+public GetReactionTorque(inv_dt: number): number;
 ```
 
 ### Distance Joint
+
 One of the simplest joint is a distance joint which says that the
 distance between two points on two bodies must be constant. When you
 specify a distance joint the two bodies should already be in place. Then
@@ -743,10 +803,9 @@ to body 2. These points imply the length of the distance constraint.
 Here is an example of a distance joint definition. In this case we
 decide to allow the bodies to collide.
 
-```cpp
-b2DistanceJointDef jointDef;
-jointDef.Initialize(myBodyA, myBodyB, worldAnchorOnBodyA,
-worldAnchorOnBodyB);
+```ts
+const jointDef = new b2DistanceJointDef();
+jointDef.Initialize(myBodyA, myBodyB, worldAnchorOnBodyA, worldAnchorOnBodyB);
 jointDef.collideConnected = true;
 ```
 
@@ -755,12 +814,17 @@ connection. See the Web example in the testbed to see how this behaves.
 
 Softness is achieved by tuning two constants in the definition:
 stiffness and damping. It can be non-intuitive setting these values directly
-since they have units in terms on Newtons. Box2D provides and API to compute
+since they have units in terms on Newtons. Box2D provides an API to compute
 these values in terms of frequency and damping ratio.
-```cpp
-void b2LinearStiffness(float& stiffness, float& damping,
-	float frequencyHertz, float dampingRatio,
-	const b2Body* bodyA, const b2Body* bodyB);
+
+```ts
+function b2LinearStiffness(
+  def: { stiffness: number; damping: number },
+  frequencyHertz: number,
+  dampingRatio: number,
+  bodyA: b2Body,
+  bodyB: b2Body,
+): void;
 ```
 
 Think of the frequency as the frequency of a harmonic oscillator (like a
@@ -773,16 +837,17 @@ The damping ratio is non-dimensional and is typically between 0 and 1,
 but can be larger. At 1, the damping is critical (all oscillations
 should vanish).
 
-```cpp
-float frequencyHz = 4.0f;
-float dampingRatio = 0.5f;
-b2LinearStiffness(jointDef.stiffness, jointDef.damping, frequencyHz, dampingRatio, jointDef.bodyA, jointDef.bodyB);
+```ts
+const frequencyHz = 4;
+const dampingRatio = 0.5;
+b2LinearStiffness(jointDef, frequencyHz, dampingRatio, jointDef.bodyA, jointDef.bodyB);
 ```
 
 It is also possible to define a minimum and maximum length for the distance joint.
 See `b2DistanceJointDef` for details.
 
 ### Revolute Joint
+
 A revolute joint forces two bodies to share a common anchor point, often
 called a hinge point. The revolute joint has a single degree of freedom:
 the relative rotation of the two bodies. This is called the joint angle.
@@ -796,9 +861,9 @@ bodies are already in the correct position.
 In this example, two bodies are connected by a revolute joint at the
 first body's center of mass.
 
-```cpp
-b2RevoluteJointDef jointDef;
-jointDef.Initialize(myBodyA, myBodyB, myBodyA->GetWorldCenter());
+```ts
+const jointDef = new b2RevoluteJointDef();
+jointDef.Initialize(myBodyA, myBodyB, myBodyA.GetWorldCenter());
 ```
 
 The revolute joint angle is positive when bodyB rotates CCW about the
@@ -820,7 +885,7 @@ of the angle). The speed can be negative or positive. A motor can have
 infinite force, but this is usually not desirable. Recall the eternal
 question:
 
-> *What happens when an irresistible force meets an immovable object?*
+> _What happens when an irresistible force meets an immovable object?_
 
 I can tell you it's not pretty. So you can provide a maximum torque for
 the joint motor. The joint motor will maintain the specified speed
@@ -837,51 +902,54 @@ Here's a revision of the revolute joint definition above; this time the
 joint has a limit and a motor enabled. The motor is setup to simulate
 joint friction.
 
-```cpp
-b2RevoluteJointDef jointDef;
-jointDef.Initialize(bodyA, bodyB, myBodyA->GetWorldCenter());
-jointDef.lowerAngle = -0.5f * b2_pi; // -90 degrees
-jointDef.upperAngle = 0.25f * b2_pi; // 45 degrees
+```ts
+const jointDef = new b2RevoluteJointDef();
+jointDef.Initialize(bodyA, bodyB, myBodyA.GetWorldCenter());
+jointDef.lowerAngle = -0.5 * Math.PI; // -90 degrees
+jointDef.upperAngle = 0.25 * Math.PI; // 45 degrees
 jointDef.enableLimit = true;
-jointDef.maxMotorTorque = 10.0f;
-jointDef.motorSpeed = 0.0f;
+jointDef.maxMotorTorque = 10.0;
+jointDef.motorSpeed = 0.0;
 jointDef.enableMotor = true;
 ```
+
 You can access a revolute joint's angle, speed, and motor torque.
 
-```cpp
-float b2RevoluteJoint::GetJointAngle() const;
-float b2RevoluteJoint::GetJointSpeed() const;
-float b2RevoluteJoint::GetMotorTorque() const;
+```ts
+// on b2RevoluteJoint:
+public GetJointAngle(): number;
+public GetJointSpeed(): number;
+public GetMotorTorque(inv_dt: number): number;
 ```
 
 You also update the motor parameters each step.
 
-```cpp
-void b2RevoluteJoint::SetMotorSpeed(float speed);
-void b2RevoluteJoint::SetMaxMotorTorque(float torque);
+```ts
+// on b2RevoluteJoint:
+public SetMotorSpeed(speed: number): number;
+public SetMaxMotorTorque(torque: number): void;
 ```
 
 Joint motors have some interesting abilities. You can update the joint
 speed every time step so you can make the joint move back-and-forth like
 a sine-wave or according to whatever function you want.
 
-```cpp
+```ts
 // ... Game Loop Begin ...
 
-myJoint->SetMotorSpeed(cosf(0.5f * time));
+myJoint.SetMotorSpeed(Math.cos(0.5 * time));
 
 // ... Game Loop End ...
 ```
 
 You can also use joint motors to track a desired joint angle. For example:
 
-```cpp
+```ts
 // ... Game Loop Begin ...
 
-float angleError = myJoint->GetJointAngle() - angleTarget;
-float gain = 0.1f;
-myJoint->SetMotorSpeed(-gain * angleError);
+const angleError = myJoint.GetJointAngle() - angleTarget;
+const gain = 0.1;
+myJoint.SetMotorSpeed(-gain * angleError);
 
 // ... Game Loop End ...
 ```
@@ -890,6 +958,7 @@ Generally your gain parameter should not be too large. Otherwise your
 joint may become unstable.
 
 ### Prismatic Joint
+
 A prismatic joint allows for relative translation of two bodies along a
 specified axis. A prismatic joint prevents relative rotation. Therefore,
 a prismatic joint has a single degree of freedom.
@@ -901,15 +970,15 @@ description; just substitute translation for angle and force for torque.
 Using this analogy provides an example prismatic joint definition with a
 joint limit and a friction motor:
 
-```cpp
-b2PrismaticJointDef jointDef;
-b2Vec2 worldAxis(1.0f, 0.0f);
-jointDef.Initialize(myBodyA, myBodyB, myBodyA->GetWorldCenter(), worldAxis);
-jointDef.lowerTranslation = -5.0f;
-jointDef.upperTranslation = 2.5f;
+```ts
+const jointDef = new b2PrismaticJointDef();
+const worldAxis: XY = { x: 1, y: 0 };
+jointDef.Initialize(myBodyA, myBodyB, myBodyA.GetWorldCenter(), worldAxis);
+jointDef.lowerTranslation = -5;
+jointDef.upperTranslation = 2.5;
 jointDef.enableLimit = true;
-jointDef.maxMotorForce = 1.0f;
-jointDef.motorSpeed = 0.0f;
+jointDef.maxMotorForce = 1;
+jointDef.motorSpeed = 0;
 jointDef.enableMotor = true;
 ```
 
@@ -924,22 +993,24 @@ lower and upper translation limits.
 Using a prismatic joint is similar to using a revolute joint. Here are
 the relevant member functions:
 
-```cpp
-float PrismaticJoint::GetJointTranslation() const;
-float PrismaticJoint::GetJointSpeed() const;
-float PrismaticJoint::GetMotorForce() const;
-void PrismaticJoint::SetMotorSpeed(float speed);
-void PrismaticJoint::SetMotorForce(float force);
+```ts
+// on b2PrismaticJoint
+public GetJointTranslation(): number;
+public GetJointSpeed(): number;
+public GetMotorForce(inv_dt: number): number;
+public SetMotorSpeed(speed: number): number;
+public SetMaxMotorForce(force: number): void;
 ```
 
 ### Pulley Joint
+
 A pulley is used to create an idealized pulley. The pulley connects two
 bodies to ground and to each other. As one body goes up, the other goes
 down. The total length of the pulley rope is conserved according to the
 initial configuration.
 
-```
-length1 + length2 == constant
+```ts
+length1 + length2 === constant;
 ```
 
 You can supply a ratio that simulates a block and tackle. This causes
@@ -947,8 +1018,8 @@ one side of the pulley to extend faster than the other. At the same time
 the constraint force is smaller on one side than the other. You can use
 this to create mechanical leverage.
 
-```
-length1 + ratio * length2 == constant
+```ts
+length1 + ratio * length2 === constant;
 ```
 
 For example, if the ratio is 2, then length1 will vary at twice the rate
@@ -964,27 +1035,29 @@ to prevent this.
 
 Here is an example pulley definition:
 
-```cpp
-b2Vec2 anchor1 = myBody1->GetWorldCenter();
-b2Vec2 anchor2 = myBody2->GetWorldCenter();
+```ts
+const anchor1 = myBody1.GetWorldCenter();
+const anchor2 = myBody2.GetWorldCenter();
 
-b2Vec2 groundAnchor1(p1.x, p1.y + 10.0f);
-b2Vec2 groundAnchor2(p2.x, p2.y + 12.0f);
+const groundAnchor1: XY = { x: p1.x, y: p1.y + 10 };
+const groundAnchor2: XY = { x: p2.x, y: p2.y + 12 };
 
-float ratio = 1.0f;
+const ratio = 1;
 
-b2PulleyJointDef jointDef;
+const jointDef = new b2PulleyJointDef();
 jointDef.Initialize(myBody1, myBody2, groundAnchor1, groundAnchor2, anchor1, anchor2, ratio);
 ```
 
 Pulley joints provide the current lengths.
 
-```cpp
-float PulleyJoint::GetLengthA() const;
-float PulleyJoint::GetLengthB() const;
+```ts
+// on b2PulleyJoint:
+public GetLengthA(): number;
+public GetLengthB(): number;
 ```
 
 ### Gear Joint
+
 If you want to create a sophisticated mechanical contraption you might
 want to use gears. In principle you can create gears in Box2D by using
 compound shapes to model gear teeth. This is not very efficient and
@@ -1002,32 +1075,33 @@ joint is a revolute joint (angular) and the other joint is prismatic
 (translation), and then the gear ratio will have units of length or one
 over length.
 
-```
-coordinate1 + ratio * coordinate2 == constant
+```ts
+coordinate1 + ratio * coordinate2 === constant;
 ```
 
 Here is an example gear joint. The bodies myBodyA and myBodyB are any
 bodies from the two joints, as long as they are not the same bodies.
 
-```cpp
-b2GearJointDef jointDef;
+```ts
+const jointDef = new b2GearJointDef();
 jointDef.bodyA = myBodyA;
 jointDef.bodyB = myBodyB;
 jointDef.joint1 = myRevoluteJoint;
 jointDef.joint2 = myPrismaticJoint;
-jointDef.ratio = 2.0f * b2_pi / myLength;
+jointDef.ratio = (2 * Math.PI) / myLength;
 ```
 
 Note that the gear joint depends on two other joints. This creates a
-fragile situation. What happens if those joints are deleted?
+fragile situation. What happens if those joints are destroyed?
 
 > **Caution**:
-> Always delete gear joints before the revolute/prismatic joints on the
-> gears. Otherwise your code will crash in a bad way due to the orphaned
-> joint pointers in the gear joint. You should also delete the gear joint
-> before you delete any of the bodies involved.
+> Always destroy gear joints before the revolute/prismatic joints on the
+> gears. Otherwise you will see unexpected behavior due to the orphaned
+> joint references in the gear joint. You should also destroy the gear joint
+> before you destroy any of the bodies involved.
 
 ### Mouse Joint
+
 The mouse joint is used in the testbed to manipulate bodies with the
 mouse. It attempts to drive a point on a body towards the current
 position of the cursor. There is no restriction on rotation.
@@ -1045,15 +1119,17 @@ The mouse joint doesn't work very well in that context. You may wish to
 consider using kinematic bodies instead.
 
 ### Wheel Joint
+
 The wheel joint restricts a point on bodyB to a line on bodyA. The wheel
-joint also provides a suspension spring. See b2WheelJoint.h and Car.h
+joint also provides a suspension spring. See b2_wheel_joint.ts and car.ts
 for details.
 
 ![Wheel Joint](images/wheel_joint.svg)
 
 ### Weld Joint
+
 The weld joint attempts to constrain all relative motion between two
-bodies. See the Cantilever.h in the testbed to see how the weld joint
+bodies. See the cantilever.ts in the testbed to see how the weld joint
 behaves.
 
 It is tempting to use the weld joint to define breakable structures.
@@ -1066,26 +1142,30 @@ fixture and recreate it on a new body. See the Breakable example in the
 testbed.
 
 ### Friction Joint
+
 The friction joint is used for top-down friction. The joint provides 2D
-translational friction and angular friction. See b2FrictionJoint.h and
-apply_force.cpp for details.
+translational friction and angular friction. See b2_friction_joint.ts and
+apply_force.ts for details.
 
 ### Motor Joint
+
 A motor joint lets you control the motion of a body by specifying target
 position and rotation offsets. You can set the maximum motor force and
 torque that will be applied to reach the target position and rotation.
 If the body is blocked, it will stop and the contact forces will be
 proportional the maximum motor force and torque. See b2MotorJoint and
-motor_joint.cpp for details.
+motor_joint.ts for details.
 
 ### Wheel Joint
+
 The wheel joint is designed specifically for vehicles. It provides a translation
 and rotation. The translation has a spring and damper to simulate the vehicle
 suspension. The rotation allows the wheel to rotate. You can specify an rotational
-motor to drive the wheel and to apply braking. See b2WheelJoint, wheel_joint.cpp,
-and car.cpp for details.
+motor to drive the wheel and to apply braking. See b2WheelJoint, wheel_joint.ts,
+and car.ts for details.
 
 ## Contacts
+
 Contacts are objects created by Box2D to manage collision between two
 fixtures. If the fixture has children, such as a chain shape, then a
 contact exists for each relevant child. There are different kinds of
@@ -1097,35 +1177,42 @@ circle-circle collision.
 Here is some terminology associated with contacts.
 
 ##### contact point
+
 A contact point is a point where two shapes touch. Box2D approximates
 contact with a small number of points.
 
 ##### contact normal
+
 A contact normal is a unit vector that points from one shape to another.
 By convention, the normal points from fixtureA to fixtureB.
 
 ##### contact separation
+
 Separation is the opposite of penetration. Separation is negative when
 shapes overlap. It is possible that future versions of Box2D will create
 contact points with positive separation, so you may want to check the
 sign when contact points are reported.
 
 ##### contact manifold
+
 Contact between two convex polygons may generate up to 2 contact points.
 Both of these points use the same normal, so they are grouped into a
 contact manifold, which is an approximation of a continuous region of
 contact.
 
 ##### normal impulse
+
 The normal force is the force applied at a contact point to prevent the
 shapes from penetrating. For convenience, Box2D works with impulses. The
 normal impulse is just the normal force multiplied by the time step.
 
 ##### tangent impulse
+
 The tangent force is generated at a contact point to simulate friction.
 For convenience, this is stored as an impulse.
 
 ##### contact ids
+
 Box2D tries to re-use the contact force results from a time step as the
 initial guess for the next time step. Box2D uses contact ids to match
 contact points across time steps. The ids contain geometric features
@@ -1144,15 +1231,16 @@ until the AABBs stop overlapping. Box2D takes the latter approach
 because it lets the system cache information to improve performance.
 
 ### Contact Class
+
 As mentioned before, the contact class is created and destroyed by
 Box2D. Contact objects are not created by the user. However, you are
 able to access the contact class and interact with it.
 
 You can access the raw contact manifold:
 
-```cpp
-b2Manifold* b2Contact::GetManifold();
-const b2Manifold* b2Contact::GetManifold() const;
+```ts:
+// on b2Contact:
+public GetManifold(): b2Manifold;
 ```
 
 You can potentially modify the manifold, but this is generally not
@@ -1160,8 +1248,9 @@ supported and is for advanced usage.
 
 There is a helper function to get the `b2WorldManifold`:
 
-```cpp
-void b2Contact::GetWorldManifold(b2WorldManifold* worldManifold) const;
+```ts
+// on b2Contact:
+public GetWorldManifold(worldManifold: b2WorldManifold): void;
 ```
 
 This uses the current positions of the bodies to compute world positions
@@ -1169,8 +1258,8 @@ of the contact points.
 
 Sensors do not create manifolds, so for them use:
 
-```cpp
-bool touching = sensorContact->IsTouching();
+```ts
+const touching = sensorContact.IsTouching();
 ```
 
 This function also works for non-sensors.
@@ -1178,37 +1267,36 @@ This function also works for non-sensors.
 You can get the fixtures from a contact. From those you can get the
 bodies.
 
-```cpp
-b2Fixture* fixtureA = myContact->GetFixtureA();
-b2Body* bodyA = fixtureA->GetBody();
-MyActor* actorA = (MyActor*)bodyA->GetUserData().pointer;
+```ts
+const fixtureA: b2Fixture = myContact.GetFixtureA();
+const bodyA: b2Body = fixtureA.GetBody();
+const actorA: MyActor = bodyA.GetUserData();
 ```
 
 You can disable a contact. This only works inside the
 b2ContactListener::PreSolve event, discussed below.
 
 ### Accessing Contacts
+
 You can get access to contacts in several ways. You can access the
 contacts directly on the world and body structures. You can also
 implement a contact listener.
 
 You can iterate over all contacts in the world:
 
-```cpp
-for (b2Contact* c = myWorld->GetContactList(); c; c = c->GetNext())
-{
-    // process c
+```ts
+for (let c: b2Contact | null = myWorld.GetContactList(); c; c = c.GetNext()) {
+  // process c
 }
 ```
 
 You can also iterate over all the contacts on a body. These are stored
-in a graph using a contact edge structure.
+in a graph using a contact edge class.
 
-```cpp
-for (b2ContactEdge* ce = myBody->GetContactList(); ce; ce = ce->next)
-{
-    b2Contact* c = ce->contact;
-    // process c
+```ts
+for (let ce: b2ContactEdge | null = myBody.GetContactList(); ce; ce = ce.next) {
+  const c: b2Contact = ce.contact;
+  // process c
 }
 ```
 
@@ -1221,48 +1309,52 @@ described below.
 > b2ContactListener to get the most accurate results.
 
 ### Contact Listener
-You can receive contact data by implementing b2ContactListener. The
+
+You can receive contact data by extending b2ContactListener. The
 contact listener supports several events: begin, end, pre-solve, and
 post-solve.
 
-```cpp
-class MyContactListener : public b2ContactListener
-{
-public:
+```ts
+class MyContactListener extends b2ContactListener {
+  public BeginContact(contact: b2Contact): void {
+    /* handle begin event */
+  }
 
-void BeginContact(b2Contact* contact)
-{ /* handle begin event */ }
+  public EndContact(contact: b2Contact): void {
+    /* handle end event */
+  }
 
-void EndContact(b2Contact* contact)
-{ /* handle end event */ }
+  public PreSolve(contact: b2Contact, oldManifold: b2Manifold): void {
+    /* handle pre-solve event */
+  }
 
-void PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
-{ /* handle pre-solve event */ }
-
-void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
-{ /* handle post-solve event */ }
-};
+  public PostSolve(contact: b2Contact, impulse: b2ContactImpulse): void {
+    /* handle post-solve event */
+  }
+}
 ```
 
 > **Caution**:
-> Do not keep a reference to the pointers sent to b2ContactListener.
+> Do not keep a reference to the references sent to b2ContactListener.
 > Instead make a deep copy of the contact point data into your own buffer.
 > The example below shows one way of doing this.
 
 At run-time you can create an instance of the listener and register it
-with b2World::SetContactListener. Be sure your listener remains in scope
-while the world object exists.
+with b2World::SetContactListener.
 
 #### Begin Contact Event
+
 This is called when two fixtures begin to overlap. This is called for
 sensors and non-sensors. This event can only occur inside the time step.
 
-####  End Contact Event
+#### End Contact Event
+
 This is called when two fixtures cease to overlap. This is called for
 sensors and non-sensors. This may be called when a body is destroyed, so
 this event can occur outside the time step.
 
 #### Pre-Solve Event
+
 This is called after collision detection, but before collision
 resolution. This gives you a chance to disable the contact based on the
 current configuration. For example, you can implement a one-sided
@@ -1272,14 +1364,12 @@ so you will need to disable the contact every time-step. The pre-solve
 event may be fired multiple times per time step per contact due to
 continuous collision detection.
 
-```cpp
-void PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
-{
-    b2WorldManifold worldManifold;
-    contact->GetWorldManifold(&worldManifold);
-    if (worldManifold.normal.y < -0.5f)
-    {
-        contact->SetEnabled(false);
+```ts
+public PreSolve(contact: b2Contact, oldManifold: b2Manifold): void {
+    const worldManifold = new b2WorldManifold();
+    contact.GetWorldManifold(worldManifold);
+    if (worldManifold.normal.y < -0.5) {
+        contact.SetEnabled(false);
     }
 }
 ```
@@ -1287,27 +1377,25 @@ void PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
 The pre-solve event is also a good place to determine the point state
 and the approach velocity of collisions.
 
-```cpp
-void PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
-{
-    b2WorldManifold worldManifold;
-    contact->GetWorldManifold(&worldManifold);
+```ts
+public PreSolve(contact: b2Contact, oldManifold: b2Manifold): void {
+    const worldManifold = new b2WorldManifold();
+    contact.GetWorldManifold(worldManifold);
 
-    b2PointState state1[2], state2[2];
-    b2GetPointStates(state1, state2, oldManifold, contact->GetManifold());
+    const state1: b2PointState[] = [];
+    const state2: b2PointState[] = [];
+    b2GetPointStates(state1, state2, oldManifold, contact.GetManifold());
 
-    if (state2[0] == b2_addState)
-    {
-        const b2Body* bodyA = contact->GetFixtureA()->GetBody();
-        const b2Body* bodyB = contact->GetFixtureB()->GetBody();
-        b2Vec2 point = worldManifold.points[0];
-        b2Vec2 vA = bodyA->GetLinearVelocityFromWorldPoint(point);
-        b2Vec2 vB = bodyB->GetLinearVelocityFromWorldPoint(point);
+    if (state2[0] === b2_addState) {
+        const bodyA: b2Body = contact.GetFixtureA().GetBody();
+        const bodyB: b2Body = contact.GetFixtureB().GetBody();
+        const point: b2Vec2 = worldManifold.points[0];
+        const vA: b2Vec2 = bodyA.GetLinearVelocityFromWorldPoint(point, new b2Vec2());
+        const vB: b2Vec2 = bodyB.GetLinearVelocityFromWorldPoint(point, new b2Vec2());
 
-        float approachVelocity = b2Dot(vB -- vA, worldManifold.normal);
+        const approachVelocity: number = b2Vec2.Dot(b2Vec2.Subtract(vB, vA, new b2Vec2()), worldManifold.normal);
 
-        if (approachVelocity > 1.0f)
-        {
+        if (approachVelocity > 1) {
             MyPlayCollisionSound();
         }
     }
@@ -1315,6 +1403,7 @@ void PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
 ```
 
 #### Post-Solve Event
+
 The post solve event is where you can gather collision impulse results.
 If you don't care about the impulses, you should probably just implement
 the pre-solve event.
@@ -1324,7 +1413,7 @@ inside a contact callback. For example, you may have a collision that
 applies damage and try to destroy the associated actor and its rigid
 body. However, Box2D does not allow you to alter the physics world
 inside a callback because you might destroy objects that Box2D is
-currently processing, leading to orphaned pointers.
+currently processing, leading to orphaned references.
 
 The recommended practice for processing contact points is to buffer all
 contact data that you care about and process it after the time step. You
@@ -1332,69 +1421,51 @@ should always process the contact points immediately after the time
 step; otherwise some other client code might alter the physics world,
 invalidating the contact buffer. When you process the contact buffer you
 can alter the physics world, but you still need to be careful that you
-don't orphan pointers stored in the contact point buffer. The testbed
+don't orphan references stored in the contact point buffer. The testbed
 has example contact point processing that is safe from orphaned
-pointers.
+references.
 
 This code from the CollisionProcessing test shows how to handle orphaned
 bodies when processing the contact buffer. Here is an excerpt. Be sure
 to read the comments in the listing. This code assumes that all contact
 points have been buffered in the b2ContactPoint array m_points.
 
-```cpp
+```ts
 // We are going to destroy some bodies according to contact
 // points. We must buffer the bodies that should be destroyed
 // because they may belong to multiple contact points.
-const int32 k_maxNuke = 6;
-b2Body* nuke[k_maxNuke];
-int32 nukeCount = 0;
+const k_maxNuke = 6;
+// Using a set to prevent duplicates
+const nuke = new Set<b2Body>();
+let nukeCount = 0;
 
 // Traverse the contact buffer. Destroy bodies that
 // are touching heavier bodies.
-for (int32 i = 0; i < m_pointCount; ++i)
-{
-    ContactPoint* point = m_points + i;
-    b2Body* bodyA = point->fixtureA->GetBody();
-    b2Body* bodyB = point->FixtureB->GetBody();
-    float massA = bodyA->GetMass();
-    float massB = bodyB->GetMass();
+for (const point of m_points) {
+  const bodyA: b2Body = point.fixtureA.GetBody();
+  const bodyB: b2Body = point.FixtureB.GetBody();
+  const massA: number = bodyA.GetMass();
+  const massB: number = bodyB.GetMass();
 
-    if (massA > 0.0f && massB > 0.0f)
-    {
-        if (massB > massA)
-        {
-            nuke[nukeCount++] = bodyA;
-        }
-        else
-        {
-            nuke[nukeCount++] = bodyB;
-        }
-
-        if (nukeCount == k_maxNuke)
-        {
-            break;
-        }
-    }
-}
-
-// Sort the nuke array to group duplicates.
-std::sort(nuke, nuke + nukeCount);
-
-// Destroy the bodies, skipping duplicates.
-int32 i = 0;
-while (i < nukeCount)
-{
-    b2Body* b = nuke[i++];
-    while (i < nukeCount && nuke[i] == b)
-    {
-        ++i;
+  if (massA > 0 && massB > 0) {
+    if (massB > massA) {
+      nuke.add(bodyA);
+    } else {
+      nuke.add(bodyB);
     }
 
-    m_world->DestroyBody(b);
+    if (nukeCount === k_maxNuke) {
+      break;
+    }
+  }
 }
+
+// Destroy the bodies
+nuke.forEach((b) => m_world.DestroyBody(b));
 ```
 
 ### Contact Filtering
+
 Often in a game you don't want all objects to collide. For example, you
 may want to create a door that only certain characters can pass through.
 This is called contact filtering, because some interactions are filtered
@@ -1402,74 +1473,75 @@ out.
 
 Box2D allows you to achieve custom contact filtering by implementing a
 b2ContactFilter class. This class requires you to implement a
-ShouldCollide function that receives two b2Shape pointers. Your function
+ShouldCollide function that receives two b2Shape references. Your function
 returns true if the shapes should collide.
 
 The default implementation of ShouldCollide uses the b2FilterData
 defined in Chapter 6, Fixtures.
 
-```cpp
-bool b2ContactFilter::ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB)
-{
-    const b2Filter& filterA = fixtureA->GetFilterData();
-    const b2Filter& filterB = fixtureB->GetFilterData();
+```ts
+public ShouldCollide(fixtureA: b2Fixture, fixtureB: b2Fixture): boolean {
+    const filterA: Readonly<b2Filter> = fixtureA.GetFilterData();
+    const filterB: Readonly<b2Filter> = fixtureB.GetFilterData();
 
-    if (filterA.groupIndex == filterB.groupIndex && filterA.groupIndex != 0)
-    {
+    if (filterA.groupIndex === filterB.groupIndex && filterA.groupIndex !== 0) {
         return filterA.groupIndex > 0;
     }
 
-    bool collideA = (filterA.maskBits & filterB.categoryBits) != 0;
-    bool collideB = (filterA.categoryBits & filterB.maskBits) != 0
-    bool collide =  collideA && collideB;
+    const collideA = (filterA.maskBits & filterB.categoryBits) !== 0;
+    const collideB = (filterA.categoryBits & filterB.maskBits) !== 0
+    const collide =  collideA && collideB;
     return collide;
 }
 ```
 
 At run-time you can create an instance of your contact filter and
-register it with b2World::SetContactFilter. Make sure your filter stays
-in scope while the world exists.
+register it with b2World::SetContactFilter.
 
-```cpp
-MyContactFilter filter;
-world->SetContactFilter(&filter);
-// filter remains in scope ...
+```ts
+const filter = new MyContactFilter();
+world.SetContactFilter(filter);
 ```
 
 ## World
+
 The `b2World` class contains the bodies and joints. It manages all aspects
 of the simulation and allows for asynchronous queries (like AABB queries
 and ray-casts). Much of your interactions with Box2D will be with a
 b2World object.
 
 ### Creating and Destroying a World
-Creating a world is fairly simple. You just need to provide a gravity
-vector and a Boolean indicating if bodies can sleep. Usually you will
-create and destroy a world using new and delete.
 
-```cpp
-b2World* myWorld = new b2World(gravity, doSleep);
+Creating a world is fairly simple. You just need to provide a gravity
+vector. Usually you will create a world like this:
+
+```ts
+const myWorld = new b2World.Create(gravity);
 
 // ... do stuff ...
-
-delete myWorld;
 ```
 
+Unlike the C++, there is no destroying a world. Just remove all references and the garbage collector will take care of the rest.
+
 ### Using a World
+
 The world class contains factories for creating and destroying bodies
 and joints. These factories are discussed later in the sections on
 bodies and joints. There are some other interactions with b2World that I
 will cover now.
 
 ### Simulation
+
 The world class is used to drive the simulation. You specify a time step
 and a velocity and position iteration count. For example:
 
-```cpp
-float timeStep = 1.0f / 60.f;
-int32 velocityIterations = 10;
-int32 positionIterations = 8;
-myWorld->Step(timeStep, velocityIterations, positionIterations);
+```ts
+const timeStep = 1 / 60;
+const stepConfig: b2StepConfig = {
+  velocityIterations: 10,
+  positionIterations: 8,
+};
+myWorld.Step(timeStep, stepConfig);
 ```
 
 After the time step you can examine your bodies and joints for
@@ -1496,53 +1568,51 @@ After stepping, you should clear any forces you have applied to your
 bodies. This is done with the command `b2World::ClearForces`. This lets
 you take multiple sub-steps with the same force field.
 
-```cpp
-myWorld->ClearForces();
+```ts
+myWorld.ClearForces();
 ```
 
 ### Exploring the World
+
 The world is a container for bodies, contacts, and joints. You can grab
 the body, contact, and joint lists off the world and iterate over them.
 For example, this code wakes up all the bodies in the world:
 
-```cpp
-for (b2Body* b = myWorld->GetBodyList(); b; b = b->GetNext())
-{
-    b->SetAwake(true);
+```ts
+for (let b: b2Body | null = myWorld.GetBodyList(); b; b = b.GetNext()) {
+  b.SetAwake(true);
 }
 ```
+
+_FIXME:_ unclear, if the following issue applies to ts/js as well or just to C++.
 
 Unfortunately real programs can be more complicated. For example, the
 following code is broken:
 
-```cpp
-for (b2Body* b = myWorld->GetBodyList(); b; b = b->GetNext())
-{
-    GameActor* myActor = (GameActor*)b->GetUserData().pointer;
-    if (myActor->IsDead())
-    {
-        myWorld->DestroyBody(b); // ERROR: now GetNext returns garbage.
-    }
+```ts
+for (let b: b2Body | null = myWorld.GetBodyList(); b; b = b.GetNext()) {
+  const myActor: GameActor = b.GetUserData();
+  if (myActor.IsDead()) {
+    myWorld.DestroyBody(b); // ERROR: now GetNext returns garbage.
+  }
 }
 ```
 
 Everything goes ok until a body is destroyed. Once a body is destroyed,
-its next pointer becomes invalid. So the call to `b2Body::GetNext()` will
-return garbage. The solution to this is to copy the next pointer before
+its next reference becomes invalid. So the call to `b2Body::GetNext()` will
+return garbage. The solution to this is to copy the next reference before
 destroying the body.
 
-```cpp
-b2Body* node = myWorld->GetBodyList();
-while (node)
-{
-    b2Body* b = node;
-    node = node->GetNext();
-    
-    GameActor* myActor = (GameActor*)b->GetUserData().pointer;
-    if (myActor->IsDead())
-    {
-        myWorld->DestroyBody(b);
-    }
+```ts
+let node: b2Body | null = myWorld.GetBodyList();
+while (node) {
+  const b = node;
+  node = node.GetNext();
+
+  const myActor: GameActor = b.GetUserData();
+  if (myActor.IsDead()) {
+    myWorld.DestroyBody(b);
+  }
 }
 ```
 
@@ -1551,22 +1621,19 @@ game function that may destroy multiple bodies. In this case you need to
 be very careful. The solution is application specific, but for
 convenience I'll show one method of solving the problem.
 
-```cpp
-b2Body* node = myWorld->GetBodyList();
-while (node)
-{
-    b2Body* b = node;
-    node = node->GetNext();
+```ts
+let node: b2Body | null = myWorld.GetBodyList();
+while (node) {
+  const b = node;
+  node = node.GetNext();
 
-    GameActor* myActor = (GameActor*)b->GetUserData().pointer;
-    if (myActor->IsDead())
-    {
-        bool otherBodiesDestroyed = GameCrazyBodyDestroyer(b);
-        if (otherBodiesDestroyed)
-        {
-            node = myWorld->GetBodyList();
-        }
+  const myActor: GameActor = b.GetUserData();
+  if (myActor.IsDead()) {
+    const otherBodiesDestroyed: boolean = GameCrazyBodyDestroyer(b);
+    if (otherBodiesDestroyed) {
+      node = myWorld.GetBodyList();
     }
+  }
 }
 ```
 
@@ -1574,6 +1641,7 @@ Obviously to make this work, GameCrazyBodyDestroyer must be honest about
 what it has destroyed.
 
 ### AABB Queries
+
 Sometimes you want to determine all the shapes in a region. The b2World
 class has a fast log(N) method for this using the broad-phase data
 structure. You provide an AABB in world coordinates and an
@@ -1583,32 +1651,27 @@ query, otherwise return false. For example, the following code finds all
 the fixtures that potentially intersect a specified AABB and wakes up
 all of the associated bodies.
 
-```cpp
-class MyQueryCallback : public b2QueryCallback
-{
-public:
-    bool ReportFixture(b2Fixture* fixture)
-    {
-        b2Body* body = fixture->GetBody();
-        body->SetAwake(true);
+```ts
+const myQueryCallback: b2QueryCallback = (fixture: b2Fixture): boolean => {
+  const body: b2Body = fixture.GetBody();
+  body.SetAwake(true);
 
-        // Return true to continue the query.
-        return true;
-    }
+  // Return true to continue the query.
+  return true;
 };
 
 // Elsewhere ...
-MyQueryCallback callback;
-b2AABB aabb;
+const aabb = new b2AABB();
 
-aabb.lowerBound.Set(-1.0f, -1.0f);
-aabb.upperBound.Set(1.0f, 1.0f);
-myWorld->Query(&callback, aabb);
+aabb.lowerBound.Set(-1, -1);
+aabb.upperBound.Set(1, 1);
+myWorld.QueryAABB(aabb, myQueryCallback);
 ```
 
 You cannot make any assumptions about the order of the callbacks.
 
 ### Ray Casts
+
 You can use ray casts to do line-of-sight checks, fire guns, etc. You
 perform a ray cast by implementing a callback class and providing the
 start and end points. The world class calls your class with each fixture
@@ -1630,37 +1693,36 @@ ray cast will proceed as if the fixture does not exist.
 
 Here is an example:
 
-```cpp
+```ts
 // This class captures the closest hit shape.
-class MyRayCastCallback : public b2RayCastCallback
-{
-public:
-    MyRayCastCallback()
-    {
-        m_fixture = NULL;
-    }
+// Note that you don't need a class for this, you can do it with functions (and closures) as well!
+class MyRayCastCallback {
+  public fixture: b2Fixture | null = null;
+  public readonly point = new b2Vec2();
+  public readonly normal = new b2Vec2();
+  public fraction = 0;
 
-    float ReportFixture(b2Fixture* fixture, const b2Vec2& point,
-                        const b2Vec2& normal, float fraction)
-    {
-        m_fixture = fixture;
-        m_point = point;
-        m_normal = normal;
-        m_fraction = fraction;
-        return fraction;
-    }
-
-    b2Fixture* m_fixture;
-    b2Vec2 m_point;
-    b2Vec2 m_normal;
-    float m_fraction;
-};
+  public callback: b2RayCastCallback = (
+    fixture: b2Fixture,
+    point: b2Vec2,
+    normal: b2Vec2,
+    fraction: number,
+  ): number => {
+    this.fixture = fixture;
+    this.point.Copy(point);
+    this.normal.Copy(normal);
+    this.fraction = fraction;
+    return fraction;
+  };
+}
 
 // Elsewhere ...
-MyRayCastCallback callback;
-b2Vec2 point1(-1.0f, 0.0f);
-b2Vec2 point2(3.0f, 1.0f);
-myWorld->RayCast(&callback, point1, point2);
+const myCallback = new MyRayCastCallback();
+const point1: XY = { x: -1, y: 0 };
+const point2: XY = { x: 3, y: 1 };
+myWorld.RayCast(point1, point2, myCallback.callback);
+const { fixture, point, normal, fraction } = myCallback;
+// ...
 ```
 
 > **Caution**:

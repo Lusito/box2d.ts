@@ -1,4 +1,5 @@
 # Hello Box2D
+
 In the distribution of Box2D is a Hello World project. The program
 creates a large ground box and a small dynamic box. This code does not
 contain any graphics. All you will see is text output in the console of
@@ -7,6 +8,7 @@ the box's position over time.
 This is a good example of how to get up and running with Box2D.
 
 ## Creating a World
+
 Every Box2D program begins with the creation of a b2World object.
 b2World is the physics hub that manages memory, objects, and simulation.
 
@@ -25,7 +27,9 @@ const world = b2World.Create(gravity);
 So now we have our physics world, let's start adding some stuff to it.
 
 ## Creating a Ground Box
+
 Bodies are built using the following steps:
+
 1. Define a body with position, damping, etc.
 2. Use the world object to create the body.
 3. Define fixtures with a shape, friction, density, etc.
@@ -37,7 +41,7 @@ the ground body.
 
 ```ts
 const groundBodyDef: b2BodyDef = {
-    position: { x: 0, y: -10 }
+  position: { x: 0, y: -10 },
 };
 ```
 
@@ -95,6 +99,7 @@ Many of the assumptions made in Box2D are based on the rigid body model.
 If this is violated many things will break
 
 ## Creating a Dynamic Body
+
 So now we have a ground body. We can use the same technique to create a
 dynamic body. The main difference, besides dimensions, is that we must
 establish the dynamic body's mass properties.
@@ -105,8 +110,8 @@ dynamic.
 
 ```ts
 const bodyDef: b2BodyDef = {
-    type: b2BodyType.b2_dynamicBody,
-    position: { x: 0, y: 4 }
+  type: b2BodyType.b2_dynamicBody,
+  position: { x: 0, y: 4 },
 };
 const body = world.CreateBody(bodyDef);
 ```
@@ -129,9 +134,9 @@ shape is set to 0.3.
 
 ```ts
 const fixtureDef: b2FixtureDef = {
-    shape: groundBox,
-    density: 1,
-    friction: 0.3,
+  shape: groundBox,
+  density: 1,
+  friction: 0.3,
 };
 ```
 
@@ -150,6 +155,7 @@ body.CreateFixture(fixtureDef);
 That's it for initialization. We are now ready to begin simulating.
 
 ## Simulating the World
+
 So we have initialized the ground box and a dynamic box. Now we are
 ready to set Newton loose to do his thing. We just have a couple more
 issues to consider.
@@ -194,8 +200,8 @@ are our chosen iteration counts.
 
 ```ts
 const stepConfig: b2StepConfig = {
-    velocityIterations: 6,
-    positionIterations: 2,
+  velocityIterations: 6,
+  positionIterations: 2,
 };
 ```
 
@@ -216,10 +222,10 @@ for a total of 1 second of simulated time.
 
 ```ts
 for (let i = 0; i < 60; ++i) {
-    world.Step(timeStep, stepConfig);
-    const position = body.GetPosition();
-    const angle = body.GetAngle();
-    console.log(`${position.x.toFixed(2)} ${position.y.toFixed(2)} ${angle.toFixed(2)}\n`);
+  world.Step(timeStep, stepConfig);
+  const position = body.GetPosition();
+  const angle = body.GetAngle();
+  console.log(`${position.x.toFixed(2)} ${position.y.toFixed(2)} ${angle.toFixed(2)}\n`);
 }
 ```
 
@@ -237,9 +243,7 @@ output should look like this:
 ```
 
 ## Cleanup
-FIXME::
-When a world leaves scope or is deleted by calling delete on a pointer,
-all the memory reserved for bodies, fixtures, and joints is freed. This
-is done to improve performance and make your life easier. However, you
-will need to remove any body, fixture, or joint references you have
-because they will become invalid.
+
+Unlike the C++, there is no destroying a world. Just remove all references and the garbage collector will take care of the rest.
+However, you will need to remove any body, fixture, or joint references you have
+because will prevent the garbage collector from doing its thing.

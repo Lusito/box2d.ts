@@ -26,24 +26,26 @@ The usual approach is to have temporary objects, which you can reuse.
 ```ts
 // Bad:
 export function doStuff(xx: number, xy: number, yx: number, yy: number) {
-    const a = new b2Vec2(xx, xy);
-    const b = new b2Vec2(yx, yy);
-    //...
-    return b2Vec2.Clone(a).add(b);
+  const a = new b2Vec2(xx, xy);
+  const b = new b2Vec2(yx, yy);
+  //...
+  return b2Vec2.Clone(a).add(b);
 }
 
 // Better:
 const temp = {
-    a: new b2Vec2(),
-    b: new b2Vec2(),
+  a: new b2Vec2(),
+  b: new b2Vec2(),
 };
 export function doStuffRight(xx: number, xy: number, yx: number, yy: number, out: b2Vec2) {
-    a.Set(xx, xy);
-    b.Set(yx, yy);
-    //...
-    return out.Copy(a).add(b);
+  a.Set(xx, xy);
+  b.Set(yx, yy);
+  //...
+  return out.Copy(a).add(b);
 }
 ```
+
+Examples in this documentation might not reflect the above pattern in order to stay small and understandable.
 
 ## Operators
 
@@ -51,12 +53,12 @@ In C++ you can use operators (+, -, etc.) on classes. There is no equivalent in 
 
 ```ts
 const temp = {
-    sum: new b2Vec2()
+  sum: new b2Vec2(),
 };
 function doStuff(a: b2Vec2, b: b2Vec2) {
-    // b2Vec2 sum = a + b;
-    const sum = sum.Copy(a).add(b);
-    //...
+  // b2Vec2 sum = a + b;
+  const sum = sum.Copy(a).add(b);
+  //...
 }
 ```
 
@@ -78,12 +80,12 @@ JavaScript has no overloads and while TypeScript supports overload method defini
 
 ```ts
 const temp = {
-    sum: new b2Vec2()
+  sum: new b2Vec2(),
 };
 function doStuff(a: b2Vec2, x: number, y: number) {
-    // b2Vec2 sum = a + b2Vec2(x, y);
-    const sum = sum.Copy(a).addXY(x, y);
-    //...
+  // b2Vec2 sum = a + b2Vec2(x, y);
+  const sum = sum.Copy(a).addXY(x, y);
+  //...
 }
 ```
 

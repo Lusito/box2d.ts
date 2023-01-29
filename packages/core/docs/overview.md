@@ -10,6 +10,7 @@ engine begin with the b2 prefix, so that existing code and examples
 from the C++ version are easily ported.
 
 ## Prerequisites
+
 In this manual I'll assume you are familiar with basic physics
 concepts, such as mass, force, torque, and impulses. If not, please
 first consult Google search and Wikipedia.
@@ -36,6 +37,7 @@ should be comfortable with bundling, creating a dev-server, and debugging.
 > Box2D. There are many resources for this on the net.
 
 ## Scope
+
 This manual covers the majority of the Box2D API. However, not every
 aspect is covered. Please look at the testbed included
 with Box2D to learn more.
@@ -46,6 +48,7 @@ Nonetheless, since there is no major work going on with the API,
 it should not change too much.
 
 ## Feedback and Bugs
+
 Please file bugs and feature requests here:
 [@box2d Issues](https://github.com/Lusito/box2d.ts/issues)
 
@@ -58,24 +61,29 @@ There is also a [Discord server](https://discord.gg/NKYgCBP) and a
 if you need general help with Box2D (rather than the TypeScript port).
 
 ## Core Concepts
+
 Box2D works with several fundamental concepts and objects. We briefly
 define these objects here and more details are given later in this
 document.
 
 #### shape
+
 A shape is 2D geometrical object, such as a circle or polygon.
 
 #### rigid body
+
 A chunk of matter that is so strong that the distance between any two
 bits of matter on the chunk is constant. They are hard like a diamond.
 In the following discussion we use body interchangeably with rigid body.
 
 #### fixture
+
 A fixture binds a shape to a body and adds material properties such as
 density, friction, and restitution. A fixture puts a shape into the
 collision system (broad-phase) so that it can collide with other shapes.
 
 #### constraint
+
 A constraint is a physical connection that removes degrees of freedom
 from bodies. A 2D body has 3 degrees of freedom (two translation
 coordinates and one rotation coordinate). If we take a body and pin it
@@ -84,36 +92,43 @@ At this point the body can only rotate about the pin, so the constraint
 has removed 2 degrees of freedom.
 
 #### contact constraint
+
 A special constraint designed to prevent penetration of rigid bodies and
 to simulate friction and restitution. You do not create contact
 constraints; they are created automatically by Box2D.
 
 #### joint
+
 This is a constraint used to hold two or more bodies together. Box2D
 supports several joint types: revolute, prismatic, distance, and more.
 Some joints may have limits and motors.
 
 #### joint limit
+
 A joint limit restricts the range of motion of a joint. For example, the
 human elbow only allows a certain range of angles.
 
 #### joint motor
+
 A joint motor drives the motion of the connected bodies according to the
 joint's degrees of freedom. For example, you can use a motor to drive
 the rotation of an elbow.
 
 #### world
+
 A physics world is a collection of bodies, fixtures, and constraints
 that interact together. Box2D supports the creation of multiple worlds,
 but this is usually not necessary or desirable.
 
 #### solver
+
 The physics world has a solver that is used to advance time and to
 resolve contact and joint constraints. The Box2D solver is a high
 performance iterative solver that operates in order N time, where N is
 the number of constraints.
 
 #### continuous collision
+
 The solver advances bodies in time using discrete time steps. Without
 intervention this can lead to tunneling.
 ![Tunneling Effect](images/tunneling1.svg)
@@ -125,14 +140,16 @@ that moves bodies to their first time of impact and then resolves the
 collision.
 
 ## Modules
+
 Box2D is composed of three modules: Common, Collision, and Dynamics. The
-Common module has code for allocation, math, and settings. The Collision
+Common module has code for augmentation, math, and settings. The Collision
 module defines shapes, a broad-phase, and collision functions/queries.
 Finally the Dynamics module provides the simulation world, bodies,
 fixtures, and joints.
 ![Box2D Modules](images/modules.svg)
 
 ## Units
+
 Box2D works with floating point numbers and tolerances have to be used
 to make Box2D perform well. These tolerances have been tuned to work
 well with meters-kilogram-second (MKS) units. In particular, Box2D has
@@ -145,7 +162,7 @@ Unfortunately this will lead to a poor simulation and possibly weird
 behavior. An object of length 200 pixels would be seen by Box2D as the
 size of a 45 story building.
 
-> **Caution**: 
+> **Caution**:
 > Box2D is tuned for MKS units. Keep the size of moving objects roughly
 > between 0.1 and 10 meters. You'll need to use some scaling system when
 > you render your environment and actors. The Box2D testbed does this by
@@ -161,7 +178,7 @@ Another limitation to consider is overall world size. If your world units
 become larger than 2 kilometers or so, then the lost precision can affect
 stability.
 
-> **Caution**: 
+> **Caution**:
 > Box2D works best with world sizes less than 2 kilometers. Use
 > b2World::ShiftOrigin to support larger worlds.
 
@@ -180,15 +197,15 @@ the magnitude of the angle becomes too large (use `b2Body::SetTransform`).
 
 ## Changing the length units
 
-*TODO:* The following is **not** (yet) **possible** in the TypeScript version:
+_TODO:_ The following is **not** (yet) **possible** in the TypeScript version:
 
 Advanced users may change the length unit modifying `b2_lengthUnitsPerMeter`.
 You can avoid merge conflicts by defining `B2_USER_SETTINGS` and providing
-`b2_user_settings.h`. See the file `b2_settings.h` for details.
+`b2_user_settings.ts`. See the file `b2_settings.ts` for details.
 
 ## Factories and Definitions
 
-*TODO:* The following does **not** apply to the TypeScript version and needs to be rewritten:
+_TODO:_ The following does **not** apply to the TypeScript version and needs to be rewritten:
 
 Fast memory management plays a central role in the design of the Box2D
 API. So when you create a b2Body or a b2Joint, you need to call the

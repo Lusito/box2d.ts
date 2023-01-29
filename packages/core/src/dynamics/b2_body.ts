@@ -442,6 +442,7 @@ export class b2Body {
      * Get the world position of the center of mass.
      */
     public GetWorldCenter(): Readonly<b2Vec2> {
+        // FIXME: Readonly<b2Vec2> does not prevent modification via add
         return this.m_sweep.c;
     }
 

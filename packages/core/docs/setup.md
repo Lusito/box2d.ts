@@ -9,3 +9,9 @@ We aim to stay true to the original API where we can, but sometimes it's not pos
 ```bash
 npm i @box2d/core
 ```
+
+## TypeScript vs JavaScript
+
+A note on the documentation on this page:
+
+All examples are shown in TypeScript, but you can use @box2d with JavaScript as well. Just remove the type information from the examples and you are good to go.

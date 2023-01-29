@@ -751,6 +751,7 @@ export class b2PrismaticJoint extends b2Joint {
         return this.m_maxMotorForce;
     }
 
+    // FIXME: comments missing
     public GetMotorForce(inv_dt: number): number {
         return inv_dt * this.m_motorImpulse;
     }

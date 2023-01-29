@@ -1,6 +1,7 @@
 # Loose Ends
 
 ## User Data
+
 The `b2Fixture`, `b2Body`, and `b2Joint` classes allow you to attach user data
 as a `any`. This is handy when you are examining Box2D data
 structures and you want to determine how they relate to the objects in
@@ -13,7 +14,7 @@ you can get the body. If you have the body, you can get the actor.
 ```ts
 const actor = GameCreateActor();
 const bodyDef: b2BodyDef = {
-    userData: actor,
+  userData: actor,
 };
 actor.body = myWorld.CreateBody(bodyDef);
 ```
@@ -21,10 +22,11 @@ actor.body = myWorld.CreateBody(bodyDef);
 You can also use this to hold an integral value rather than a reference.
 
 Here are some examples of cases where you would need the user data:
--   Applying damage to an actor using a collision result.
--   Playing a scripted event if the player is inside an axis-aligned box.
--   Accessing a game structure when Box2D notifies you that a joint is
-    going to be destroyed.
+
+- Applying damage to an actor using a collision result.
+- Playing a scripted event if the player is inside an axis-aligned box.
+- Accessing a game structure when Box2D notifies you that a joint is
+  going to be destroyed.
 
 Keep in mind that user data is optional and you can put anything in it.
 However, you should be consistent. For example, if you want to store an
@@ -59,7 +61,7 @@ const fixture = body.CreateFixture(fixtureDef);
 
 ## Custom User Data
 
-*TODO:* It would be good, if the user could specify the type of user data for a body, etc.
+_TODO:_ It would be good, if the user could specify the type of user data for a body, etc.
 
 ## Implicit Destruction
 
@@ -133,14 +135,18 @@ myWorld.SetDestructionListener(myDestructionListener);
 ```
 
 ## Pixels and Coordinate Systems
+
 Recall that Box2D uses MKS (meters, kilograms, and seconds) units and
 radians for angles. You may have trouble working with meters because
 your game is expressed in terms of pixels. To deal with this in the
-testbed I have the whole *game* work in meters and just use an OpenGL
+testbed I have the whole _game_ work in meters and just use an OpenGL
 viewport transformation to scale the world into screen space.
 
 ```ts
-const lowerX = -25, upperX = 25, lowerY = -5, upperY = 25;
+const lowerX = -25,
+  upperX = 25,
+  lowerY = -5,
+  upperY = 25;
 yourOrtho2D(lowerX, upperX, lowerY, upperY);
 ```
 
@@ -177,8 +183,10 @@ make sure nothing breaks. You can also try adjusting it to improve
 stability.
 
 ## Debug Drawing
+
 You can implement the b2Draw interface to get detailed drawing of the
 physics world. Here are the available entities:
+
 - shape outlines
 - joint connectivity
 - broad-phase axis-aligned bounding boxes (AABBs)
@@ -195,10 +203,12 @@ contact listener, so it serves as the primary example of how to
 implement debug drawing as well as how to draw contact points.
 
 ## Limitations
+
 Box2D uses several approximations to simulate rigid body physics
 efficiently. This brings some limitations.
 
 Here are the current limitations:
+
 1. Stacking heavy bodies on top of much lighter bodies is not stable. Stability degrades as the mass ratio passes 10:1.
 2. Chains of bodies connected by joints may stretch if a lighter body is supporting a heavier body. For example, a wrecking ball connect to a chain of light weight bodies may not be stable. Stability degrades as the mass ratio passes 10:1.
 3. There is typically around 0.5cm of slop in shape versus shape collision.

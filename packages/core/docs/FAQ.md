@@ -69,7 +69,7 @@ Box2D is only a physics engine. How you draw stuff is up to you.
 
 ### But the Testbed draws stuff
 
-Visualization is very important for debugging collision and physics. I wrote the test bed to help me test Box2D and give you examples of how to use Box2D. The TestBed is not part of the Box2D library. 
+Visualization is very important for debugging collision and physics. I wrote the test bed to help me test Box2D and give you examples of how to use Box2D. The TestBed is not part of the Box2D library.
 
 ### How do I draw shapes?
 
@@ -80,9 +80,9 @@ You can use the @core/debug-draw library for simple debugging on a canvas or use
 
 Box2D uses approximate methods for a few reasons.
 
-* Performance
-* Some differential equations don't have known solutions
-* Some constraints cannot be determined uniquely
+- Performance
+- Some differential equations don't have known solutions
+- Some constraints cannot be determined uniquely
 
 What this means is that constraints are not perfectly rigid and sometimes you will see some bounce even when the restitution is zero.
 Box2D uses Gauss-Seidel to approximately solve constraints.
@@ -123,14 +123,14 @@ So the question of accuracy has been answered: failure.
 
 The only remaining question is how do we make it convenient. On this opinions may vary.
 
-*TODO:* The following does **not** apply to the TypeScript version and needs to be rewritten:
+_TODO:_ The following does **not** apply to the TypeScript version and needs to be rewritten:
 
 `b2Settings` is just that. Settings you can adjust if you know what you are doing.
 
 ## What are the biggest mistakes made by new users?
 
-* Using pixels for length instead of meters.
-* Expecting Box2D to give pixel perfect results.
-* Using b2Polygon to create concave polygons.
-* Not learning TypeScript/JavaScript before using Box2D.
-* Not reading this FAQ. :)
+- Using pixels for length instead of meters.
+- Expecting Box2D to give pixel perfect results.
+- Using b2Polygon to create concave polygons.
+- Not learning TypeScript/JavaScript before using Box2D.
+- Not reading this FAQ. :)
