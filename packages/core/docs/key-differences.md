@@ -99,3 +99,9 @@ In order to be able to split the extension packages from the core package, we ne
 // b2World world(gravity);
 const world = b2World.Create(gravity);
 ```
+
+## User Data
+
+User data in the c++ version is a pointer to an object you specify.
+In the TypeScript Version, it's a record of properties. This helps to keep things type safe.
+See [loose ends](loose-ends.md#user-data) for more details.

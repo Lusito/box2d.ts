@@ -35,8 +35,10 @@ import { Settings } from "../../settings";
 import { AbstractParticleTestWithControls } from "./abstract_particle_test";
 import { baseParticleTypes } from "../../utils/particles/particle_parameter";
 
-interface SparkUserData {
-    spark: boolean;
+declare module "@box2d/core" {
+    export interface b2FixtureUserDataMap {
+        sparky: true;
+    }
 }
 
 class ParticleVFX {
@@ -202,10 +204,11 @@ class Sparky extends AbstractParticleTestWithControls {
             const shape = new b2CircleShape();
             shape.m_p.Set(3 * b2RandomFloat(-1, 1), Sparky.SHAPE_HEIGHT_OFFSET + Sparky.SHAPE_OFFSET * i);
             shape.m_radius = 2;
-            const f = body.CreateFixture({ shape, density: 0.5 });
-            // Tag this as a sparkable body.
-            f.SetUserData({
-                spark: true,
+            body.CreateFixture({
+                shape,
+                density: 0.5,
+                // Tag this as a sparkable body.
+                userData: { sparky: true },
             });
         }
 
@@ -216,9 +219,9 @@ class Sparky extends AbstractParticleTestWithControls {
     public BeginContact(contact: b2Contact) {
         super.BeginContact(contact);
         // Check to see if these are two circles hitting one another.
-        const userA: SparkUserData = contact.GetFixtureA().GetUserData();
-        const userB: SparkUserData = contact.GetFixtureB().GetUserData();
-        if (userA?.spark || userB?.spark) {
+        const userA = contact.GetFixtureA().GetUserData();
+        const userB = contact.GetFixtureB().GetUserData();
+        if (userA.sparky || userB.sparky) {
             const worldManifold = new b2WorldManifold();
             contact.GetWorldManifold(worldManifold);
 

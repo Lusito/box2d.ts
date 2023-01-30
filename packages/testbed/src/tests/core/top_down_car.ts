@@ -42,50 +42,31 @@ const DEGTORAD = 0.0174532925199432957;
 
 type ControlState = TopdownCar["m_controlState"];
 
-//  types of fixture user data
-const FUD_CAR_TIRE = 0;
-const FUD_GROUND_AREA = 1;
-
-/**
- * A class to allow subclassing of different fixture user data
- */
-class FixtureUserData {
-    public m_type: number;
-
-    public constructor(type: number) {
-        this.m_type = type;
-    }
-
-    public getType(): number {
-        return this.m_type;
-    }
-}
-
-/**
- * Class to allow marking a fixture as a car tire
- */
-class CarTireFUD extends FixtureUserData {
-    public constructor() {
-        super(FUD_CAR_TIRE);
-    }
-}
-
 // /**
 //  * class to allow marking a fixture as a ground area
 //  */
-class GroundAreaFUD extends FixtureUserData {
+export class GroundAreaFUD {
     public frictionModifier: number;
 
     public outOfCourse: boolean;
 
     public constructor(fm: number, ooc: boolean) {
-        super(FUD_GROUND_AREA);
         this.frictionModifier = fm;
         this.outOfCourse = ooc;
     }
 }
 
-class TDTire {
+declare module "@box2d/core" {
+    export interface b2BodyUserDataMap {
+        tire: TDTire;
+    }
+    export interface b2FixtureUserDataMap {
+        tire: true;
+        groundArea: GroundAreaFUD;
+    }
+}
+
+export class TDTire {
     public m_groundAreas: GroundAreaFUD[] = [];
 
     public m_body: b2Body;
@@ -103,14 +84,16 @@ class TDTire {
     public constructor(world: b2World) {
         this.m_body = world.CreateBody({
             type: b2BodyType.b2_dynamicBody,
+            userData: { tire: this },
         });
 
         const polygonShape = new b2PolygonShape();
         polygonShape.SetAsBox(0.5, 1.25);
-        const fixture = this.m_body.CreateFixture({ shape: polygonShape, density: 1 }); // shape, density
-        fixture.SetUserData(new CarTireFUD());
-
-        this.m_body.SetUserData(this);
+        this.m_body.CreateFixture({
+            shape: polygonShape,
+            density: 1,
+            userData: { tire: true },
+        });
     }
 
     public setCharacteristics(
@@ -341,15 +324,15 @@ class TopdownCar extends Test {
             const fixtureDef: b2FixtureDef = {
                 shape: polygonShape,
                 isSensor: true,
+                userData: { groundArea: new GroundAreaFUD(0.5, false) },
             };
 
             polygonShape.SetAsBox(9, 7, new b2Vec2(-10, 15), 20 * DEGTORAD);
-            let groundAreaFixture = this.m_groundBody.CreateFixture(fixtureDef);
-            groundAreaFixture.SetUserData(new GroundAreaFUD(0.5, false));
+            this.m_groundBody.CreateFixture(fixtureDef);
 
             polygonShape.SetAsBox(9, 5, new b2Vec2(5, 20), -40 * DEGTORAD);
-            groundAreaFixture = this.m_groundBody.CreateFixture(fixtureDef);
-            groundAreaFixture.SetUserData(new GroundAreaFUD(0.2, false));
+            fixtureDef.userData = { groundArea: new GroundAreaFUD(0.2, false) };
+            this.m_groundBody.CreateFixture(fixtureDef);
         }
 
         // this.m_tire = new TDTire(this.m_world);
@@ -370,16 +353,12 @@ class TopdownCar extends Test {
     public static handleContact(contact: b2Contact, began: boolean): void {
         const a = contact.GetFixtureA();
         const b = contact.GetFixtureB();
-        const fudA: GroundAreaFUD = a.GetUserData();
-        const fudB: GroundAreaFUD = b.GetUserData();
+        const fudA = a.GetUserData();
+        const fudB = b.GetUserData();
 
-        if (!fudA || !fudB) {
-            return;
-        }
-
-        if (fudA.getType() === FUD_CAR_TIRE || fudB.getType() === FUD_GROUND_AREA) {
+        if (fudA.tire || fudB.groundArea) {
             TopdownCar.tire_vs_groundArea(a, b, began);
-        } else if (fudA.getType() === FUD_GROUND_AREA || fudB.getType() === FUD_CAR_TIRE) {
+        } else if (fudA.groundArea || fudB.tire) {
             TopdownCar.tire_vs_groundArea(b, a, began);
         }
     }
@@ -393,12 +372,14 @@ class TopdownCar extends Test {
     }
 
     public static tire_vs_groundArea(tireFixture: b2Fixture, groundAreaFixture: b2Fixture, began: boolean): void {
-        const tire: TDTire = tireFixture.GetBody().GetUserData();
-        const gaFud: GroundAreaFUD = groundAreaFixture.GetUserData();
-        if (began) {
-            tire.addGroundArea(gaFud);
-        } else {
-            tire.removeGroundArea(gaFud);
+        const { tire } = tireFixture.GetBody().GetUserData();
+        const { groundArea } = groundAreaFixture.GetUserData();
+        if (tire && groundArea) {
+            if (began) {
+                tire.addGroundArea(groundArea);
+            } else {
+                tire.removeGroundArea(groundArea);
+            }
         }
     }
 

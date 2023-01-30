@@ -81,7 +81,6 @@ class BoxStack extends Test {
                 const body = this.m_world.CreateBody({
                     type: b2BodyType.b2_dynamicBody,
                     position: { x: xs[j] + x, y: 0.55 + 1.1 * i },
-                    userData: this.m_indices[n],
                 });
 
                 this.m_bodies[n] = body;

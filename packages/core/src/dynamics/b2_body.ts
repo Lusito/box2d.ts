@@ -28,6 +28,7 @@ import { b2JointEdge } from "./b2_joint";
 import { b2Fixture, b2FixtureDef } from "./b2_fixture";
 import type { b2World } from "./b2_world";
 import { b2Assert } from "../common/b2_common";
+import type { b2BodyUserData } from "..";
 
 /**
  * The body type.
@@ -108,7 +109,7 @@ export interface b2BodyDef {
     enabled?: boolean;
 
     /** Use this to store application specific body data. */
-    userData?: any;
+    userData?: b2BodyUserData;
 
     /** Scale the gravity applied to this body. */
     gravityScale?: number;
@@ -212,7 +213,7 @@ export class b2Body {
     public m_sleepTime = 0;
 
     /** @internal */
-    public m_userData: any;
+    public readonly m_userData: b2BodyUserData = {};
 
     /** @internal */
     public constructor(bd: b2BodyDef, world: b2World) {
@@ -255,7 +256,7 @@ export class b2Body {
         this.m_I = 0;
         this.m_invI = 0;
 
-        this.m_userData = bd.userData;
+        if (bd.userData) this.SetUserData(bd.userData);
 
         this.m_fixtureList = null;
         this.m_fixtureCount = 0;
@@ -1132,15 +1133,16 @@ export class b2Body {
     /**
      * Get the user data reference that was provided in the body definition.
      */
-    public GetUserData(): any {
+    public GetUserData(): b2BodyUserData {
         return this.m_userData;
     }
 
     /**
      * Set the user data. Use this to store your application specific data.
+     * This is a merge operation. Only specified keys will be overridden.
      */
-    public SetUserData(data: any): void {
-        this.m_userData = data;
+    public SetUserData(data: b2BodyUserData): void {
+        Object.assign(this.m_userData, data);
     }
 
     /**

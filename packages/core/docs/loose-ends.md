@@ -2,10 +2,9 @@
 
 ## User Data
 
-The `b2Fixture`, `b2Body`, and `b2Joint` classes allow you to attach user data
-as a `any`. This is handy when you are examining Box2D data
-structures and you want to determine how they relate to the objects in
-your game engine.
+The `b2Fixture`, `b2Body`, and `b2Joint` classes allow you to attach user data.
+This is handy when you are examining Box2D data structures and you want to
+determine how they relate to the objects in your game engine.
 
 For example, it is typical to attach an actor reference to the rigid body
 on that actor. This sets up a circular reference. If you have the actor,
@@ -14,12 +13,12 @@ you can get the body. If you have the body, you can get the actor.
 ```ts
 const actor = GameCreateActor();
 const bodyDef: b2BodyDef = {
-  userData: actor,
+  userData: { actor },
 };
 actor.body = myWorld.CreateBody(bodyDef);
 ```
 
-You can also use this to hold an integral value rather than a reference.
+You can also use this to hold an primitive value rather than a reference.
 
 Here are some examples of cases where you would need the user data:
 
@@ -29,39 +28,55 @@ Here are some examples of cases where you would need the user data:
   going to be destroyed.
 
 Keep in mind that user data is optional and you can put anything in it.
-However, you should be consistent. For example, if you want to store an
-actor reference on one body, you should keep an actor reference on all
-bodies. Don't store an actor reference on one body, and a foo reference on
-another body. Casting an actor reference to a foo reference may lead to a
-crash.
-
-User data references are undefined by default.
+User data records are empty by default.
 
 For fixtures you might consider defining a user data structure that lets
 you store game specific information, such as material type, effects
 hooks, sound hooks, etc.
 
 ```ts
-type FixtureUserData = {
-    materialIndex: number;
-    // ...
-};
-
-const myData: FixtureUserData = {
-    materialIndex = 2;
-};
-
 const fixtureDef: b2FixtureDef = {
-    shape: someShape,
-    userData: myData,
+  shape: someShape,
+  userData: {
+    materialIndex: 2,
+  },
 };
 
 const fixture = body.CreateFixture(fixtureDef);
 ```
 
-## Custom User Data
+## User Data Types
 
-_TODO:_ It would be good, if the user could specify the type of user data for a body, etc.
+User data is a Record of references. You can specify the types of user data
+records for bodies, fixtures and joints separately.
+
+```ts
+// box2dconfig.d.ts
+import "@box2d/core";
+
+declare module "@box2d/core" {
+  export interface b2BodyUserDataMap {
+    actor: MyActor;
+  }
+  export interface b2FixtureUserDataMap {
+    materialIndex: number;
+  }
+  export interface b2JointUserDataMap {
+    bar: MyBar;
+  }
+}
+```
+
+Any property you specify in these b2\*UserDataMap interfaces will be optionally available in the respective user data record.
+
+Since specifying user data properties is optional, you'll need to check if it exists when reading the user data:
+
+```ts
+const myActor: MyActor | undefined = myBody.GetUserData().actor;
+if (myActor !== undefined) {
+  // work with the data..
+}
+```
 
 ## Implicit Destruction
 

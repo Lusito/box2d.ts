@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 // DEBUG: import { b2Assert } from "../common/b2_common";
+import type { b2JointUserData } from "..";
 import { b2Draw, debugColors } from "../common/b2_draw";
 import { b2Vec2, XY } from "../common/b2_math";
 import type { b2Body } from "./b2_body";
@@ -80,7 +81,7 @@ export interface b2IJointDef {
     type: b2JointType;
 
     /** Use this to attach application specific data to your joints. */
-    userData?: any;
+    userData: b2JointUserData;
 
     /** The first attached body. */
     bodyA: b2Body;
@@ -100,7 +101,7 @@ export abstract class b2JointDef implements b2IJointDef {
     public readonly type: b2JointType;
 
     /** Use this to attach application specific data to your joints. */
-    public userData: any = null;
+    public readonly userData: b2JointUserData = {};
 
     /** The first attached body. */
     public bodyA!: b2Body;
@@ -199,7 +200,7 @@ export abstract class b2Joint {
     /** @internal protected */
     public m_collideConnected = false;
 
-    protected m_userData: any = null;
+    protected readonly m_userData: b2JointUserData = {};
 
     protected constructor(def: b2IJointDef) {
         // DEBUG: b2Assert(def.bodyA !== def.bodyB);
@@ -212,7 +213,7 @@ export abstract class b2Joint {
 
         this.m_collideConnected = def.collideConnected ?? false;
 
-        this.m_userData = def.userData;
+        this.SetUserData(def.userData);
     }
 
     /**
@@ -266,15 +267,16 @@ export abstract class b2Joint {
     /**
      * Get the user data reference.
      */
-    public GetUserData(): any {
+    public GetUserData(): b2JointUserData {
         return this.m_userData;
     }
 
     /**
-     * Set the user data reference.
+     * Set the user data. Use this to store your application specific data.
+     * This is a merge operation. Only specified keys will be overridden.
      */
-    public SetUserData(data: any): void {
-        this.m_userData = data;
+    public SetUserData(data: b2JointUserData): void {
+        Object.assign(this.m_userData, data);
     }
 
     /**

@@ -29,6 +29,7 @@ import type { b2Body } from "./b2_body";
 import { b2Assert } from "../common/b2_common";
 import { b2_lengthUnitsPerMeter } from "../common/b2_settings";
 import { b2BroadPhase } from "../collision/b2_broad_phase";
+import type { b2FixtureUserData } from "..";
 
 const temp = {
     c1: new b2Vec2(),
@@ -74,7 +75,7 @@ export interface b2FixtureDef {
     shape: b2Shape;
 
     /** Use this to store application specific fixture data. */
-    userData?: any;
+    userData?: b2FixtureUserData;
 
     /** The friction coefficient, usually in the range [0,1]. */
     friction?: number;
@@ -173,13 +174,13 @@ export class b2Fixture {
     /** @internal protected */
     public m_isSensor = false;
 
-    protected m_userData: any = null;
+    protected readonly m_userData: b2FixtureUserData = {};
 
     /** @internal protected */
     public constructor(body: b2Body, def: b2FixtureDef) {
         this.m_body = body;
         this.m_shape = def.shape.Clone();
-        this.m_userData = def.userData;
+        if (def.userData) this.SetUserData(def.userData);
         this.m_friction = def.friction ?? 0.2;
         this.m_restitution = def.restitution ?? 0;
         this.m_restitutionThreshold = def.restitutionThreshold ?? b2_lengthUnitsPerMeter;
@@ -297,15 +298,16 @@ export class b2Fixture {
      * Get the user data that was assigned in the fixture definition. Use this to
      * store your application specific data.
      */
-    public GetUserData(): any {
+    public GetUserData(): b2FixtureUserData {
         return this.m_userData;
     }
 
     /**
      * Set the user data. Use this to store your application specific data.
+     * This is a merge operation. Only specified keys will be overridden.
      */
-    public SetUserData(data: any): void {
-        this.m_userData = data;
+    public SetUserData(data: b2FixtureUserData): void {
+        Object.assign(this.m_userData, data);
     }
 
     /**

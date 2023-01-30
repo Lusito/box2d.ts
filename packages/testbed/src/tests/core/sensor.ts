@@ -33,6 +33,12 @@ import { registerTest, Test } from "../../test";
 import { Settings } from "../../settings";
 import { sliderDef } from "../../ui/controls/Slider";
 
+declare module "@box2d/core" {
+    export interface b2BodyUserDataMap {
+        sensor: number;
+    }
+}
+
 // This shows how to use sensor shapes. Sensors don't have collision, but report overlap events.
 class Sensors extends Test {
     public static readonly e_count = 7;
@@ -84,7 +90,7 @@ class Sensors extends Test {
                 this.m_bodies[i] = this.m_world.CreateBody({
                     type: b2BodyType.b2_dynamicBody,
                     position: { x: -10 + 3 * i, y: 20 },
-                    userData: { index: i },
+                    userData: { sensor: i },
                 });
 
                 this.m_bodies[i].CreateFixture({ shape, density: 1 });
@@ -112,16 +118,16 @@ class Sensors extends Test {
         const fixtureB = contact.GetFixtureB();
 
         if (fixtureA === this.m_sensor) {
-            const userData = fixtureB.GetBody().GetUserData();
-            if (userData) {
-                this.m_touching[userData.index] = true;
+            const { sensor } = fixtureB.GetBody().GetUserData();
+            if (sensor !== undefined) {
+                this.m_touching[sensor] = true;
             }
         }
 
         if (fixtureB === this.m_sensor) {
-            const userData = fixtureA.GetBody().GetUserData();
-            if (userData) {
-                this.m_touching[userData.index] = true;
+            const { sensor } = fixtureA.GetBody().GetUserData();
+            if (sensor !== undefined) {
+                this.m_touching[sensor] = true;
             }
         }
     }
@@ -131,16 +137,16 @@ class Sensors extends Test {
         const fixtureB = contact.GetFixtureB();
 
         if (fixtureA === this.m_sensor) {
-            const userData = fixtureB.GetBody().GetUserData();
-            if (userData) {
-                this.m_touching[userData.index] = false;
+            const { sensor } = fixtureB.GetBody().GetUserData();
+            if (sensor !== undefined) {
+                this.m_touching[sensor] = false;
             }
         }
 
         if (fixtureB === this.m_sensor) {
-            const userData = fixtureA.GetBody().GetUserData();
-            if (userData) {
-                this.m_touching[userData.index] = false;
+            const { sensor } = fixtureA.GetBody().GetUserData();
+            if (sensor !== undefined) {
+                this.m_touching[sensor] = false;
             }
         }
     }

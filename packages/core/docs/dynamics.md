@@ -273,14 +273,16 @@ creation/destruction for streaming worlds to save memory.
 
 ### User Data
 
-User data is a reference. This gives you a hook to link your
-application objects to bodies. You should be consistent to use the same
-object type for all body user data.
+User data is a Record of references. This gives you a hook to link your
+application objects to bodies, fixtures and joints.
+Check [loose ends](loose-ends.md#user-data) for more details.
 
 ```ts
 const bodyDef: b2BodyDef = {
   // ...
-  userData: myActor,
+  userData: {
+    actor: myActor,
+  },
 };
 ```
 
@@ -304,8 +306,8 @@ myWorld.DestroyBody(dynamicBody);
 > know about the body and the body won't be properly initialized.
 
 Box2D does not keep a reference to the body definition or any of the
-data it holds (except user data references). So you can create temporary
-body definitions and reuse the same body definitions.
+data it holds (except references in user data records).
+So you can create temporary body definitions and reuse the same body definitions.
 
 Box2D allows you to avoid destroying bodies by deleting your b2World
 object, which does all the cleanup work for you. However, you should be
@@ -455,7 +457,7 @@ need to access the fixture's user data.
 
 ```ts
 for (let f: b2Fixture | null = b.GetFixtureList(); f; f = f.GetNext()) {
-  const data: MyFixtureData = f.GetUserData();
+  const data: b2FixtureUserData = f.GetUserData();
   // do something with data ...
 }
 ```
@@ -776,7 +778,7 @@ public GetBodyA(): b2Body;
 public GetBodyB(): bn2Body;
 public GetAnchorA<T extends XY>(out: T): T;
 public GetAnchorB<T extends XY>(out: T): T;
-public GetUserData(): any;
+public GetUserData(): b2JointUserData;
 ```
 
 All joints have a reaction force and torque. This the reaction force
@@ -1270,7 +1272,6 @@ bodies.
 ```ts
 const fixtureA: b2Fixture = myContact.GetFixtureA();
 const bodyA: b2Body = fixtureA.GetBody();
-const actorA: MyActor = bodyA.GetUserData();
 ```
 
 You can disable a contact. This only works inside the
@@ -1584,61 +1585,9 @@ for (let b: b2Body | null = myWorld.GetBodyList(); b; b = b.GetNext()) {
 }
 ```
 
-_FIXME:_ unclear, if the following issue applies to ts/js as well or just to C++.
-
-Unfortunately real programs can be more complicated. For example, the
-following code is broken:
-
-```ts
-for (let b: b2Body | null = myWorld.GetBodyList(); b; b = b.GetNext()) {
-  const myActor: GameActor = b.GetUserData();
-  if (myActor.IsDead()) {
-    myWorld.DestroyBody(b); // ERROR: now GetNext returns garbage.
-  }
-}
-```
-
-Everything goes ok until a body is destroyed. Once a body is destroyed,
-its next reference becomes invalid. So the call to `b2Body::GetNext()` will
-return garbage. The solution to this is to copy the next reference before
-destroying the body.
-
-```ts
-let node: b2Body | null = myWorld.GetBodyList();
-while (node) {
-  const b = node;
-  node = node.GetNext();
-
-  const myActor: GameActor = b.GetUserData();
-  if (myActor.IsDead()) {
-    myWorld.DestroyBody(b);
-  }
-}
-```
-
-This safely destroys the current body. However, you may want to call a
-game function that may destroy multiple bodies. In this case you need to
-be very careful. The solution is application specific, but for
-convenience I'll show one method of solving the problem.
-
-```ts
-let node: b2Body | null = myWorld.GetBodyList();
-while (node) {
-  const b = node;
-  node = node.GetNext();
-
-  const myActor: GameActor = b.GetUserData();
-  if (myActor.IsDead()) {
-    const otherBodiesDestroyed: boolean = GameCrazyBodyDestroyer(b);
-    if (otherBodiesDestroyed) {
-      node = myWorld.GetBodyList();
-    }
-  }
-}
-```
-
-Obviously to make this work, GameCrazyBodyDestroyer must be honest about
-what it has destroyed.
+In the C++ version, it would have been problematic to destroy a body during iteration.
+In the TypeScript version, there should be no such issue, since the body is only garbage
+collected when no more references exist.
 
 ### AABB Queries
 

@@ -36,6 +36,12 @@ import { sliderDef } from "../../ui/controls/Slider";
 
 type RayCastMode = "Any" | "Closest" | "Multiple";
 
+declare module "@box2d/core" {
+    export interface b2BodyUserDataMap {
+        rayCastBodyIndex: number;
+    }
+}
+
 // This test demonstrates how to use the world ray-cast feature.
 // NOTE: we are intentionally filtering one of the polygons, therefore
 // the ray will always miss one type of polygon.
@@ -134,25 +140,25 @@ class RayCast extends Test {
             position: { x: b2RandomFloat(-10, 10), y: b2RandomFloat(0, 20) },
             angle: b2RandomFloat(-Math.PI, Math.PI),
             angularDamping: index === 4 ? 0.02 : 0,
+            userData: {
+                rayCastBodyIndex: index,
+            },
         }));
 
         if (index < 4) {
             new_body.CreateFixture({
                 shape: this.m_polygons[index],
                 friction: 0.3,
-                userData: { index },
             });
         } else if (index < 5) {
             new_body.CreateFixture({
                 shape: this.m_circle,
                 friction: 0.3,
-                userData: { index },
             });
         } else {
             new_body.CreateFixture({
                 shape: this.m_edge,
                 friction: 0.3,
-                userData: { index },
             });
         }
 
@@ -258,8 +264,8 @@ class RayCast extends Test {
         const resultPoint = new b2Vec2();
         const resultNormal = new b2Vec2();
         this.m_world.RayCast(point1, point2, (fixture, point, normal, fraction) => {
-            const userData = fixture.GetUserData();
-            if (userData?.index === 0) {
+            const { rayCastBodyIndex } = fixture.GetBody().GetUserData();
+            if (rayCastBodyIndex === 0) {
                 // By returning -1, we instruct the calling code to ignore this fixture
                 // and continue the ray-cast to the next fixture.
                 return -1;
@@ -293,8 +299,8 @@ class RayCast extends Test {
         const resultPoint = new b2Vec2();
         const resultNormal = new b2Vec2();
         this.m_world.RayCast(point1, point2, (fixture, point, normal, _fraction) => {
-            const userData = fixture.GetUserData();
-            if (userData?.index === 0) {
+            const { rayCastBodyIndex } = fixture.GetBody().GetUserData();
+            if (rayCastBodyIndex === 0) {
                 // By returning -1, we instruct the calling code to ignore this fixture
                 // and continue the ray-cast to the next fixture.
                 return -1;
@@ -330,8 +336,8 @@ class RayCast extends Test {
 
         let count = 0;
         this.m_world.RayCast(point1, point2, (fixture, point, normal) => {
-            const userData = fixture.GetUserData();
-            if (userData?.index === 0) {
+            const { rayCastBodyIndex } = fixture.GetBody().GetUserData();
+            if (rayCastBodyIndex === 0) {
                 // By returning -1, we instruct the calling code to ignore this fixture
                 // and continue the ray-cast to the next fixture.
                 return -1;

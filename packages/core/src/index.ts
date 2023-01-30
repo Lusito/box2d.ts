@@ -68,3 +68,15 @@ export * from "./dynamics/b2_weld_joint";
 export * from "./dynamics/b2_wheel_joint";
 
 export * from "./rope/b2_rope";
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface b2BodyUserDataMap {}
+export type b2BodyUserData = Partial<b2BodyUserDataMap>;
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface b2FixtureUserDataMap {}
+export type b2FixtureUserData = Partial<b2FixtureUserDataMap>;
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface b2JointUserDataMap {}
+export type b2JointUserData = Partial<b2JointUserDataMap>;
