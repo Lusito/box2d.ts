@@ -217,8 +217,8 @@ export class b2EdgeShape extends b2Shape {
 
     public SetupDistanceProxy(proxy: b2DistanceProxy, _index: number): void {
         proxy.m_vertices = proxy.m_buffer;
-        proxy.m_vertices[0].Copy(this.m_vertex1);
-        proxy.m_vertices[1].Copy(this.m_vertex2);
+        proxy.m_vertices[0] = this.m_vertex1;
+        proxy.m_vertices[1] = this.m_vertex2;
         proxy.m_count = 2;
         proxy.m_radius = this.m_radius;
     }

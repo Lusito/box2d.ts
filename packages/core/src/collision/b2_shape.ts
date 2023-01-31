@@ -134,7 +134,6 @@ export abstract class b2Shape {
      */
     public abstract ComputeMass(massData: b2MassData, density: number): void;
 
-    // Fixme: check the logic of the implementations. Seems strange
     public abstract SetupDistanceProxy(proxy: b2DistanceProxy, index: number): void;
 
     public abstract Draw(draw: b2Draw, color: b2Color): void;

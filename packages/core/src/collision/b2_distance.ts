@@ -41,8 +41,10 @@ export class b2DistanceProxy {
     public Copy(other: Readonly<b2DistanceProxy>) {
         if (other.m_vertices === other.m_buffer) {
             this.m_vertices = this.m_buffer;
-            this.m_buffer[0].Copy(other.m_buffer[0]);
-            this.m_buffer[1].Copy(other.m_buffer[1]);
+            // eslint-disable-next-line prefer-destructuring
+            this.m_buffer[0] = other.m_buffer[0];
+            // eslint-disable-next-line prefer-destructuring
+            this.m_buffer[1] = other.m_buffer[1];
         } else {
             this.m_vertices = other.m_vertices;
         }

@@ -156,7 +156,7 @@ export class b2CircleShape extends b2Shape {
 
     public SetupDistanceProxy(proxy: b2DistanceProxy, _index: number): void {
         proxy.m_vertices = proxy.m_buffer;
-        proxy.m_vertices[0].Copy(this.m_p);
+        proxy.m_vertices[0] = this.m_p;
         proxy.m_count = 1;
         proxy.m_radius = this.m_radius;
     }
