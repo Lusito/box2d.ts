@@ -288,6 +288,7 @@ export class b2GrowableBuffer<T> {
     }
 }
 
+// FIXME: This is not the tightly packed memory from the C++ version that is expected to be efficient with OpenGL!
 export class b2ParticleSystem_UserOverridableBuffer<T> {
     public m_data: T[] | null = null;
 

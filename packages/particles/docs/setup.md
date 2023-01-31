@@ -11,3 +11,5 @@ npm i @box2d/particles
 ```
 
 This library extends [@box2d/core](../../core/README.md), so make sure to check that out as well.
+
+// TODO: https://github.com/google/liquidfun/tree/master/liquidfun/Box2D/Box2D/Documentation/Programmers-Guide
