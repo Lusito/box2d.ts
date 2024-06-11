@@ -20,5 +20,8 @@ projects:
   - packages/particles
   - packages/debug-draw
 buildOptions:
-  out: docs/docs
+  out: docs
   siteUrl: https://lusito.github.io/box2d.ts
+  static:
+    benchmark: packages/benchmark-web/dist
+    testbed: packages/testbed/dist

@@ -8,7 +8,7 @@ const { copyFile } = require("fs/promises");
 const fileLoader = "file";
 const colorsPath = path.resolve(__dirname, "colors");
 
-const dist = "../../docs/testbed";
+const dist = "./dist";
 
 async function main() {
     const args = process.argv.slice(2);

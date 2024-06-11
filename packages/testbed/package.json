@@ -17,7 +17,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "rimraf ../../docs/testbed && node src/ui/esbuild.js",
+    "build": "rimraf dist && node src/ui/esbuild.js",
     "start": "node src/ui/esbuild.js serve"
   },
   "browserslist": [

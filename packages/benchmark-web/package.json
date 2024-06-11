@@ -17,7 +17,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "rimraf ../../docs/benchmark && node src/esbuild.js",
+    "build": "rimraf dist && node src/esbuild.js",
     "start": "node src/esbuild.js serve"
   },
   "browserslist": [

@@ -3,7 +3,7 @@ const esbuild = require("esbuild");
 const tsPaths = require("esbuild-ts-paths");
 const { copyFile } = require("fs/promises");
 
-const dist = "../../docs/benchmark";
+const dist = "./dist";
 
 async function main() {
     const args = process.argv.slice(2);
