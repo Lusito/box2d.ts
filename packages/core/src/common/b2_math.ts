@@ -316,10 +316,12 @@ export class b2Vec2 implements XY {
         return out;
     }
 
+    /** Perform the dot product on two vectors. */
     public static Dot(a: XY, b: XY) {
         return a.x * b.x + a.y * b.y;
     }
 
+    /** Perform the cross product on two vectors. In 2D this produces a scalar. */
     public static Cross(a: XY, b: XY) {
         return a.x * b.y - a.y * b.x;
     }

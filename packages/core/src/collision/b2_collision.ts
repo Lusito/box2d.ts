@@ -274,6 +274,12 @@ export class b2WorldManifold {
 
     private static Initialize_s_clipPoint = new b2Vec2();
 
+    /**
+     * Evaluate the manifold with supplied transforms. This assumes
+     * modest motion from the original state. This does not change the
+     * point count, impulses, etc. The radii must come from the shapes
+     * that generated the manifold.
+     */
     public Initialize(
         manifold: b2Manifold,
         xfA: b2Transform,
@@ -681,6 +687,7 @@ export class b2AABB {
 
 /**
  * Clipping for contact manifolds.
+ * Sutherland-Hodgman clipping.
  */
 export function b2ClipSegmentToLine(
     vOut: readonly [b2ClipVertex, b2ClipVertex],
@@ -752,14 +759,14 @@ export function b2TestOverlap(
     return output.distance < 10 * b2_epsilon;
 }
 
-/// Convex hull used for polygon collision
+/** Convex hull used for polygon collision */
 export type b2Hull = Array<Readonly<XY>>;
 
 const b2RecurseHull_s_e = new b2Vec2();
 const b2RecurseHull_s_c = new b2Vec2();
 const emptyHull: Readonly<b2Hull> = [];
 
-// quickhull recursion
+/** quickhull recursion */
 function b2RecurseHull(p1: Readonly<XY>, p2: Readonly<XY>, ps: Array<Readonly<XY>>): Readonly<b2Hull> {
     if (ps.length === 0) {
         return emptyHull;

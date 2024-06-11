@@ -25,6 +25,17 @@ import { b2Joint, b2JointDef, b2JointType, b2IJointDef } from "./b2_joint";
 import { b2SolverData } from "./b2_time_step";
 import { b2Body } from "./b2_body";
 
+// Point-to-point constraint
+// Cdot = v2 - v1
+//      = v2 + cross(w2, r2) - v1 - cross(w1, r1)
+// J = [-I -r1_skew I r2_skew ]
+// Identity used:
+// w k % (rx i + ry j) = w * (-ry i + rx j)
+// Angle constraint
+// Cdot = w2 - w1
+// J = [0 0 -1 0 0 1]
+// K = invI1 + invI2
+
 const temp = {
     qA: new b2Rot(),
     qB: new b2Rot(),
@@ -65,6 +76,10 @@ export class b2FrictionJointDef extends b2JointDef implements b2IFrictionJointDe
         super(b2JointType.e_frictionJoint);
     }
 
+    /**
+     * Initialize the bodies, anchors, axis, and reference angle using the world
+     * anchor and world axis.
+     */
     public Initialize(bA: b2Body, bB: b2Body, anchor: b2Vec2): void {
         this.bodyA = bA;
         this.bodyB = bB;
@@ -282,28 +297,34 @@ export class b2FrictionJoint extends b2Joint {
         return inv_dt * this.m_angularImpulse;
     }
 
+    /** The local anchor point relative to bodyA's origin. */
     public GetLocalAnchorA(): Readonly<b2Vec2> {
         return this.m_localAnchorA;
     }
 
+    /** The local anchor point relative to bodyB's origin. */
     public GetLocalAnchorB(): Readonly<b2Vec2> {
         return this.m_localAnchorB;
     }
 
+    /** Set the maximum friction force in N. */
     public SetMaxForce(force: number): void {
         // DEBUG: b2Assert(Number.isFinite(force) && force >= 0);
         this.m_maxForce = force;
     }
 
+    /** Get the maximum friction force in N. */
     public GetMaxForce(): number {
         return this.m_maxForce;
     }
 
+    /** Set the maximum friction torque in N*m. */
     public SetMaxTorque(torque: number): void {
         // DEBUG: b2Assert(Number.isFinite(torque) && torque >= 0);
         this.m_maxTorque = torque;
     }
 
+    /** Get the maximum friction torque in N*m. */
     public GetMaxTorque(): number {
         return this.m_maxTorque;
     }

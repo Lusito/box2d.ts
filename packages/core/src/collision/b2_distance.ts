@@ -64,12 +64,19 @@ export class b2DistanceProxy {
         shape.SetupDistanceProxy(this, index);
     }
 
+    /**
+     * Initialize the proxy using the given shape. The shape
+     * must remain in scope while the proxy is in use.
+     * Initialize the proxy using a vertex cloud and radius. The vertices
+     * must remain in scope while the proxy is in use.
+     */
     public SetVerticesRadius(vertices: b2Vec2[], count: number, radius: number): void {
         this.m_vertices = vertices;
         this.m_count = count;
         this.m_radius = radius;
     }
 
+    /** Get the supporting vertex index in the given direction. */
     public GetSupport(d: b2Vec2): number {
         let bestIndex = 0;
         let bestValue = b2Vec2.Dot(this.m_vertices[0], d);
@@ -84,6 +91,7 @@ export class b2DistanceProxy {
         return bestIndex;
     }
 
+    /** Get the supporting vertex in the given direction. */
     public GetSupportVertex(d: b2Vec2): b2Vec2 {
         let bestIndex = 0;
         let bestValue = b2Vec2.Dot(this.m_vertices[0], d);
@@ -98,10 +106,12 @@ export class b2DistanceProxy {
         return this.m_vertices[bestIndex];
     }
 
+    /** Get the vertex count. */
     public GetVertexCount(): number {
         return this.m_count;
     }
 
+    /** Get a vertex by index. Used by b2Distance. */
     public GetVertex(index: number): b2Vec2 {
         // DEBUG: b2Assert(0 <= index && index < this.m_count);
         return this.m_vertices[index];
@@ -209,6 +219,7 @@ export class b2ShapeCastOutput {
     public iterations = 0;
 }
 
+/** GJK using Voronoi regions (Christer Ericson) and Barycentric coordinates. */
 export const b2Gjk = {
     calls: 0,
     iters: 0,
@@ -420,6 +431,26 @@ class b2Simplex {
         }
     }
 
+    /**
+     * Solve a line segment using barycentric coordinates.
+     * p = a1 * w1 + a2 * w2
+     * a1 + a2 = 1
+     * The vector from the origin to the closest point on the line is
+     * perpendicular to the line.
+     * e12 = w2 - w1
+     * dot(p, e) = 0
+     * a1 * dot(w1, e) + a2 * dot(w2, e) = 0
+     * 2-by-2 linear system
+     * [1      1     ][a1] = [1]
+     * [w1.e12 w2.e12][a2] = [0]
+     * Define
+     * d12_1 =  dot(w2, e12)
+     * d12_2 = -dot(w1, e12)
+     * d12 = d12_1 + d12_2
+     * Solution
+     * a1 = d12_1 / d12
+     * a2 = d12_2 / d12
+     */
     public Solve2(): void {
         const w1 = this.m_v1.w;
         const w2 = this.m_v2.w;
@@ -451,6 +482,13 @@ class b2Simplex {
         this.m_count = 2;
     }
 
+    /**
+     * Possible regions:
+     * - points[2]
+     * - edge points[0]-points[2]
+     * - edge points[1]-points[2]
+     * - inside the triangle
+     */
     public Solve3(): void {
         const w1 = this.m_v1.w;
         const w2 = this.m_v2.w;
@@ -568,6 +606,12 @@ const b2Distance_s_d = new b2Vec2();
 const b2Distance_s_normal = new b2Vec2();
 const b2Distance_s_supportA = new b2Vec2();
 const b2Distance_s_supportB = new b2Vec2();
+
+/**
+ * Compute the closest points between two shapes. Supports any combination of:
+ * b2CircleShape, b2PolygonShape, b2EdgeShape. The simplex cache is input/output.
+ * On the first call set b2SimplexCache.count to zero.
+ */
 export function b2Distance(output: b2DistanceOutput, cache: b2SimplexCache, input: b2DistanceInput): void {
     ++b2Gjk.calls;
 
@@ -710,6 +754,8 @@ const b2ShapeCast_s_pointB = new b2Vec2();
  * GJK-raycast
  * Algorithm by Gino van den Bergen.
  * "Smooth Mesh Contacts with GJK" in Game Physics Pearls. 2010
+ *
+ * @returns true if hit, false if there is no hit or an initial overlap
  */
 export function b2ShapeCast(output: b2ShapeCastOutput, input: b2ShapeCastInput): boolean {
     output.iterations = 0;

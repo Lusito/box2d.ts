@@ -161,7 +161,8 @@ export class b2PolygonShape extends b2Shape {
     }
 
     /**
-     * Create a convex hull from the given array of points.
+     * Create a convex hull from the given array of local points.
+     * The count must be in the range [3, b2_maxPolygonVertices].
      *
      * @warning the points may be re-ordered, even if they form a convex polygon
      * @warning if this fails then the polygon is invalid
@@ -179,6 +180,10 @@ export class b2PolygonShape extends b2Shape {
         return true;
     }
 
+    /**
+     * Create a polygon from a given convex hull (see b2ComputeHull).
+     * @warning the hull must be valid or this will crash or have unexpected behavior
+     */
     public SetHull(hull: Readonly<b2Hull>, count: number): b2PolygonShape {
         b2Assert(count >= 3);
 
@@ -208,7 +213,7 @@ export class b2PolygonShape extends b2Shape {
     }
 
     /**
-     * Build vertices to represent an axis-aligned box or an oriented box.
+     * Build vertices to represent an axis-aligned box centered on the local origin.
      *
      * @param hx The half-width.
      * @param hy The half-height.
@@ -423,6 +428,10 @@ export class b2PolygonShape extends b2Shape {
         massData.I += massData.mass * (b2Vec2.Dot(massData.center, massData.center) - b2Vec2.Dot(center, center));
     }
 
+    /**
+     * Validate convexity. This is a very time consuming operation.
+     * @returns true if valid
+     */
     public Validate(): boolean {
         if (this.m_count < 3 || b2_maxPolygonVertices < this.m_count) {
             return false;

@@ -144,6 +144,7 @@ export class b2BroadPhase<T> {
         this.m_tree.QueryPoint(point, callback);
     }
 
+    /** This is called from b2DynamicTree::Query when we are gathering pairs. */
     private QueryCallback = (proxy: b2TreeNode<T>) => {
         // A proxy cannot form a pair with itself.
         if (proxy.id === this.m_queryProxy.id) {

@@ -26,6 +26,14 @@ import { b2Vec2, b2Mat22, b2Rot, b2Transform, XY } from "../common/b2_math";
 import { b2Joint, b2JointDef, b2JointType, b2IJointDef } from "./b2_joint";
 import { b2SolverData } from "./b2_time_step";
 
+// p = attached point, m = mouse point
+// C = p - m
+// Cdot = v
+//      = v + cross(w, r)
+// J = [I r_skew]
+// Identity used:
+// w k % (rx i + ry j) = w * (-ry i + rx j)
+
 const temp = {
     qB: new b2Rot(),
     lalcB: new b2Vec2(),
@@ -131,6 +139,7 @@ export class b2MouseJoint extends b2Joint {
         this.m_gamma = 0;
     }
 
+    /** Use this to update the target point. */
     public SetTarget(target: XY): void {
         if (!b2Vec2.Equals(target, this.m_targetA)) {
             this.m_bodyB.SetAwake(true);
@@ -142,26 +151,32 @@ export class b2MouseJoint extends b2Joint {
         return this.m_targetA;
     }
 
+    /** Set the maximum force in Newtons. */
     public SetMaxForce(force: number): void {
         this.m_maxForce = force;
     }
 
+    /** Get the maximum force in Newtons. */
     public GetMaxForce() {
         return this.m_maxForce;
     }
 
+    /** Set the linear stiffness in N/m */
     public SetStiffness(stiffness: number): void {
         this.m_stiffness = stiffness;
     }
 
+    /** Get the linear stiffness in N/m */
     public GetStiffness() {
         return this.m_stiffness;
     }
 
+    /** Set linear damping in N*s/m */
     public SetDamping(damping: number) {
         this.m_damping = damping;
     }
 
+    /** Get linear damping in N*s/m */
     public GetDamping() {
         return this.m_damping;
     }

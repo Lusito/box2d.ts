@@ -195,10 +195,15 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
 
     protected m_oldManifold = new b2Manifold(); // TODO: readonly
 
+    /**
+     * Get the contact manifold.
+     * Do not modify the manifold unless you understand the internals of Box2D.
+     */
     public GetManifold() {
         return this.m_manifold;
     }
 
+    /** Get the world manifold. */
     public GetWorldManifold(worldManifold: b2WorldManifold): void {
         const bodyA = this.m_fixtureA.GetBody();
         const bodyB = this.m_fixtureB.GetBody();
@@ -213,38 +218,51 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
         );
     }
 
+    /** Is this contact touching? */
     public IsTouching(): boolean {
         return this.m_touchingFlag;
     }
 
+    /**
+     * Enable/disable this contact. This can be used inside the pre-solve
+     * contact listener. The contact is only disabled for the current
+     * time step (or sub-step in continuous collisions).
+     */
     public SetEnabled(flag: boolean): void {
         this.m_enabledFlag = flag;
     }
 
+    /** Has this contact been disabled? */
     public IsEnabled(): boolean {
         return this.m_enabledFlag;
     }
 
+    /** Get the next contact in the world's contact list. */
     public GetNext(): b2Contact | null {
         return this.m_next;
     }
 
+    /** Get fixture A in this contact. */
     public GetFixtureA(): b2Fixture {
         return this.m_fixtureA;
     }
 
+    /** Get the child primitive index for fixture A. */
     public GetChildIndexA(): number {
         return this.m_indexA;
     }
 
+    /** Get fixture A in this contact. */
     public GetShapeA(): A {
         return this.m_fixtureA.GetShape() as A;
     }
 
+    /** Get fixture B in this contact. */
     public GetFixtureB(): b2Fixture {
         return this.m_fixtureB;
     }
 
+    /** Get the child primitive index for fixture B. */
     public GetChildIndexB(): number {
         return this.m_indexB;
     }
@@ -253,33 +271,52 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
         return this.m_fixtureB.GetShape() as B;
     }
 
+    /** Evaluate this contact with your own manifold and transforms. */
     public abstract Evaluate(manifold: b2Manifold, xfA: b2Transform, xfB: b2Transform): void;
 
-    /** @internal protected */
+    /**
+     * Flag this contact for filtering. Filtering will occur the next time step.
+     *
+     * @internal protected
+     */
     public FlagForFiltering(): void {
         this.m_filterFlag = true;
     }
 
+    /**
+     * Override the default friction mixture.
+     * You can call this in b2ContactListener::PreSolve.
+     * This value persists until set or reset.
+     */
     public SetFriction(friction: number): void {
         this.m_friction = friction;
     }
 
+    /** Get the friction. */
     public GetFriction(): number {
         return this.m_friction;
     }
 
+    /** Reset the friction mixture to the default value. */
     public ResetFriction(): void {
         this.m_friction = b2MixFriction(this.m_fixtureA.m_friction, this.m_fixtureB.m_friction);
     }
 
+    /**
+     * Override the default restitution mixture.
+     * You can call this in b2ContactListener::PreSolve.
+     * The value persists until you set or reset.
+     */
     public SetRestitution(restitution: number): void {
         this.m_restitution = restitution;
     }
 
+    /** Get the restitution. */
     public GetRestitution(): number {
         return this.m_restitution;
     }
 
+    /** Reset the restitution to the default value. */
     public ResetRestitution(): void {
         this.m_restitution = b2MixRestitution(this.m_fixtureA.m_restitution, this.m_fixtureB.m_restitution);
     }
@@ -309,10 +346,12 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
         );
     }
 
+    /** Set the desired tangent speed for a conveyor belt behavior. In meters per second. */
     public SetTangentSpeed(speed: number): void {
         this.m_tangentSpeed = speed;
     }
 
+    /** Get the desired tangent speed. In meters per second. */
     public GetTangentSpeed(): number {
         return this.m_tangentSpeed;
     }
@@ -349,7 +388,12 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
         );
     }
 
-    /** @internal protected */
+    /**
+     * Update the contact manifold and touching status.
+     * Note: do not assume the fixture AABBs are overlapping or are valid.
+     *
+     * @internal protected
+     */
     public Update(listener: b2ContactListener): void {
         const tManifold = this.m_oldManifold;
         this.m_oldManifold = this.m_manifold;

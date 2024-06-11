@@ -663,6 +663,10 @@ export class b2Rope {
         }
     }
 
+    /**
+     * Constraint based implementation of:
+     * P. Volino: Simple Linear Bending Stiffness in Particle Systems
+     */
     private SolveBend_PBD_Height(): void {
         const stiffness = this.m_tuning.bendStiffness;
 
@@ -705,6 +709,7 @@ export class b2Rope {
         }
     }
 
+    /** M. Kelager: A Triangle Bending Constraint Model for PBD */
     private SolveBend_PBD_Triangle(): void {
         const stiffness = this.m_tuning.bendStiffness;
 

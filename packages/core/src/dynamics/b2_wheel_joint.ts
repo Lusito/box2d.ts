@@ -28,6 +28,20 @@ import { b2SolverData } from "./b2_time_step";
 import { b2Body } from "./b2_body";
 import { b2Draw, debugColors } from "../common/b2_draw";
 
+// Linear constraint (point-to-line)
+// d = pB - pA = xB + rB - xA - rA
+// C = dot(ay, d)
+// Cdot = dot(d, cross(wA, ay)) + dot(ay, vB + cross(wB, rB) - vA - cross(wA, rA))
+//      = -dot(ay, vA) - dot(cross(d + rA, ay), wA) + dot(ay, vB) + dot(cross(rB, ay), vB)
+// J = [-ay, -cross(d + rA, ay), ay, cross(rB, ay)]
+// Spring linear constraint
+// C = dot(ax, d)
+// Cdot = = -dot(ax, vA) - dot(cross(d + rA, ax), wA) + dot(ax, vB) + dot(cross(rB, ax), vB)
+// J = [-ax -cross(d+rA, ax) ax cross(rB, ax)]
+// Motor rotational constraint
+// Cdot = wB - wA
+// J = [0 0 -1 0 0 1]
+
 const temp = {
     qA: new b2Rot(),
     qB: new b2Rot(),
@@ -134,6 +148,10 @@ export class b2WheelJointDef extends b2JointDef implements b2IWheelJointDef {
         super(b2JointType.e_wheelJoint);
     }
 
+    /**
+     * Initialize the bodies, anchors, axis, and reference angle using the world
+     * anchor and world axis.
+     */
     public Initialize(bA: b2Body, bB: b2Body, anchor: Readonly<XY>, axis: Readonly<XY>): void {
         this.bodyA = bA;
         this.bodyB = bB;
@@ -251,26 +269,32 @@ export class b2WheelJoint extends b2Joint {
         this.m_damping = def.damping ?? 0;
     }
 
+    /** Get the motor speed, usually in radians per second. */
     public GetMotorSpeed(): number {
         return this.m_motorSpeed;
     }
 
+    /** Set/Get the maximum motor force, usually in N-m. */
     public GetMaxMotorTorque(): number {
         return this.m_maxMotorTorque;
     }
 
+    /** Set spring stiffness */
     public SetStiffness(stiffness: number): void {
         this.m_stiffness = stiffness;
     }
 
+    /** Get spring stiffness */
     public GetStiffness(): number {
         return this.m_stiffness;
     }
 
+    /** Set damping */
     public SetDamping(damping: number): void {
         this.m_damping = damping;
     }
 
+    /** Get damping */
     public GetDamping(): number {
         return this.m_damping;
     }
@@ -633,18 +657,22 @@ export class b2WheelJoint extends b2Joint {
         return inv_dt * this.m_motorImpulse;
     }
 
+    /** The local anchor point relative to bodyA's origin. */
     public GetLocalAnchorA(): Readonly<b2Vec2> {
         return this.m_localAnchorA;
     }
 
+    /** The local anchor point relative to bodyB's origin. */
     public GetLocalAnchorB(): Readonly<b2Vec2> {
         return this.m_localAnchorB;
     }
 
+    /** The local joint axis relative to bodyA. */
     public GetLocalAxisA(): Readonly<b2Vec2> {
         return this.m_localXAxisA;
     }
 
+    /** Get the current joint translation, usually in meters. */
     public GetJointTranslation(): number {
         const bA = this.m_bodyA;
         const bB = this.m_bodyB;
@@ -659,6 +687,7 @@ export class b2WheelJoint extends b2Joint {
         return translation;
     }
 
+    /** Get the current joint linear speed, usually in meters per second. */
     public GetJointLinearSpeed(): number {
         const bA = this.m_bodyA;
         const bB = this.m_bodyB;
@@ -688,20 +717,24 @@ export class b2WheelJoint extends b2Joint {
         return speed;
     }
 
+    /** Get the current joint angle in radians. */
     public GetJointAngle(): number {
         return this.m_bodyB.m_sweep.a - this.m_bodyA.m_sweep.a;
     }
 
+    /** Get the current joint angular speed in radians per second. */
     public GetJointAngularSpeed(): number {
         const wA = this.m_bodyA.m_angularVelocity;
         const wB = this.m_bodyB.m_angularVelocity;
         return wB - wA;
     }
 
+    /** Is the joint motor enabled? */
     public IsMotorEnabled(): boolean {
         return this.m_enableMotor;
     }
 
+    /** Enable/disable the joint motor. */
     public EnableMotor(flag: boolean): boolean {
         if (flag !== this.m_enableMotor) {
             this.m_bodyA.SetAwake(true);
@@ -711,6 +744,7 @@ export class b2WheelJoint extends b2Joint {
         return flag;
     }
 
+    /** Set the motor speed, usually in radians per second. */
     public SetMotorSpeed(speed: number): number {
         if (speed !== this.m_motorSpeed) {
             this.m_bodyA.SetAwake(true);
@@ -720,6 +754,7 @@ export class b2WheelJoint extends b2Joint {
         return speed;
     }
 
+    /** Set the maximum motor force, usually in N-m. */
     public SetMaxMotorTorque(torque: number): void {
         if (torque !== this.m_maxMotorTorque) {
             this.m_bodyA.SetAwake(true);
@@ -728,6 +763,7 @@ export class b2WheelJoint extends b2Joint {
         }
     }
 
+    /** Get the current motor torque given the inverse time step, usually in N-m. */
     public GetMotorTorque(inv_dt: number): number {
         return inv_dt * this.m_motorImpulse;
     }

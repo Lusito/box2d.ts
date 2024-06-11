@@ -27,6 +27,18 @@ import { b2Body } from "./b2_body";
 import { b2Joint, b2JointDef, b2JointType, b2IJointDef } from "./b2_joint";
 import { b2SolverData } from "./b2_time_step";
 
+// Point-to-point constraint
+// C = p2 - p1
+// Cdot = v2 - v1
+//      = v2 + cross(w2, r2) - v1 - cross(w1, r1)
+// J = [-I -r1_skew I r2_skew ]
+// Identity used:
+// w k % (rx i + ry j) = w * (-ry i + rx j)
+// Motor constraint
+// Cdot = w2 - w1
+// J = [0 0 -1 0 0 1]
+// K = invI1 + invI2
+
 const temp = {
     qA: new b2Rot(),
     qB: new b2Rot(),
@@ -111,6 +123,7 @@ export class b2RevoluteJointDef extends b2JointDef implements b2IRevoluteJointDe
         super(b2JointType.e_revoluteJoint);
     }
 
+    /** Initialize the bodies, anchors, and reference angle using a world anchor point. */
     public Initialize(bA: b2Body, bB: b2Body, anchor: XY): void {
         this.bodyA = bA;
         this.bodyB = bB;
@@ -461,40 +474,55 @@ export class b2RevoluteJoint extends b2Joint {
         return this.m_bodyB.GetWorldPoint(this.m_localAnchorB, out);
     }
 
+    /**
+     * Get the reaction force given the inverse time step.
+     * Unit is N.
+     */
     public GetReactionForce<T extends XY>(inv_dt: number, out: T): T {
         out.x = inv_dt * this.m_impulse.x;
         out.y = inv_dt * this.m_impulse.y;
         return out;
     }
 
+    /**
+     * Get the reaction torque due to the joint limit given the inverse time step.
+     * Unit is N*m.
+     */
     public GetReactionTorque(inv_dt: number): number {
         return inv_dt * (this.m_motorImpulse + this.m_lowerImpulse - this.m_upperImpulse);
     }
 
+    /** The local anchor point relative to bodyA's origin. */
     public GetLocalAnchorA(): Readonly<b2Vec2> {
         return this.m_localAnchorA;
     }
 
+    /** The local anchor point relative to bodyB's origin. */
     public GetLocalAnchorB(): Readonly<b2Vec2> {
         return this.m_localAnchorB;
     }
 
+    /** Get the reference angle. */
     public GetReferenceAngle(): number {
         return this.m_referenceAngle;
     }
 
+    /** Get the current joint angle in radians. */
     public GetJointAngle(): number {
         return this.m_bodyB.m_sweep.a - this.m_bodyA.m_sweep.a - this.m_referenceAngle;
     }
 
+    /** Get the current joint angle speed in radians per second. */
     public GetJointSpeed(): number {
         return this.m_bodyB.m_angularVelocity - this.m_bodyA.m_angularVelocity;
     }
 
+    /** Is the joint motor enabled? */
     public IsMotorEnabled(): boolean {
         return this.m_enableMotor;
     }
 
+    /** Enable/disable the joint motor. */
     public EnableMotor(flag: boolean): boolean {
         if (flag !== this.m_enableMotor) {
             this.m_bodyA.SetAwake(true);
@@ -504,14 +532,20 @@ export class b2RevoluteJoint extends b2Joint {
         return flag;
     }
 
+    /**
+     * Get the current motor torque given the inverse time step.
+     * Unit is N*m.
+     */
     public GetMotorTorque(inv_dt: number): number {
         return inv_dt * this.m_motorImpulse;
     }
 
+    /** Get the motor speed in radians per second. */
     public GetMotorSpeed(): number {
         return this.m_motorSpeed;
     }
 
+    /** Set the maximum motor torque, usually in N-m. */
     public SetMaxMotorTorque(torque: number): void {
         if (torque !== this.m_maxMotorTorque) {
             this.m_bodyA.SetAwake(true);
@@ -520,14 +554,17 @@ export class b2RevoluteJoint extends b2Joint {
         }
     }
 
+    /** Get the maximum motor torque, usually in N-m. */
     public GetMaxMotorTorque(): number {
         return this.m_maxMotorTorque;
     }
 
+    /** Is the joint limit enabled?  */
     public IsLimitEnabled(): boolean {
         return this.m_enableLimit;
     }
 
+    /** Enable/disable the joint limit. */
     public EnableLimit(flag: boolean): boolean {
         if (flag !== this.m_enableLimit) {
             this.m_bodyA.SetAwake(true);
@@ -539,14 +576,17 @@ export class b2RevoluteJoint extends b2Joint {
         return flag;
     }
 
+    /** Get the lower joint limit in radians. */
     public GetLowerLimit(): number {
         return this.m_lowerAngle;
     }
 
+    /** Get the upper joint limit in radians. */
     public GetUpperLimit(): number {
         return this.m_upperAngle;
     }
 
+    /** Set the joint limits in radians. */
     public SetLimits(lower: number, upper: number): void {
         if (lower !== this.m_lowerAngle || upper !== this.m_upperAngle) {
             this.m_bodyA.SetAwake(true);
@@ -558,6 +598,7 @@ export class b2RevoluteJoint extends b2Joint {
         }
     }
 
+    /** Set the motor speed in radians per second. */
     public SetMotorSpeed(speed: number): number {
         if (speed !== this.m_motorSpeed) {
             this.m_bodyA.SetAwake(true);

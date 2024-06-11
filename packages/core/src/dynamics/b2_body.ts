@@ -604,7 +604,7 @@ export class b2Body {
     }
 
     /**
-     * Apply an impulse at the center of gravity. This immediately modifies the velocity.
+     * Apply an impulse to the center of mass. This immediately modifies the velocity.
      *
      * @param impulse The world impulse vector, usually in N-seconds or kg-m/s.
      * @param wake Also wake up the body
@@ -1016,7 +1016,7 @@ export class b2Body {
     /**
      * Get the sleeping state of this body.
      *
-     * @returns true if the body is sleeping.
+     * @returns true if the body is awake.
      */
     public IsAwake(): boolean {
         return this.m_awakeFlag;

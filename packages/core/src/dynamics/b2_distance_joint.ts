@@ -27,6 +27,19 @@ import { b2SolverData } from "./b2_time_step";
 import type { b2Body } from "./b2_body";
 import { b2Draw, debugColors } from "../common/b2_draw";
 
+// 1-D constrained system
+// m (v2 - v1) = lambda
+// v2 + (beta/h) * x1 + gamma * lambda = 0, gamma has units of inverse mass.
+// x2 = x1 + h * v2
+// 1-D mass-damper-spring system
+// m (v2 - v1) + h * d * v2 + h * k *
+// C = norm(p2 - p1) - L
+// u = (p2 - p1) / norm(p2 - p1)
+// Cdot = dot(u, v2 + cross(w2, r2) - v1 - cross(w1, r1))
+// J = [-u -cross(r1, u) u cross(r2, u)]
+// K = J * invM * JT
+//   = invMass1 + invI1 * cross(r1, u)^2 + invMass2 + invI2 * cross(r2, u)^2
+
 const temp = {
     worldPointA: new b2Vec2(),
     worldPointB: new b2Vec2(),
@@ -90,6 +103,10 @@ export class b2DistanceJointDef extends b2JointDef implements b2IDistanceJointDe
         super(b2JointType.e_distanceJoint);
     }
 
+    /**
+     * Initialize the bodies, anchors, and rest length using world space anchors.
+     * The minimum and maximum lengths are set to the rest length.
+     */
     public Initialize(b1: b2Body, b2: b2Body, anchor1: XY, anchor2: XY): void {
         this.bodyA = b1;
         this.bodyB = b2;
@@ -181,6 +198,10 @@ export class b2DistanceJoint extends b2Joint {
         return this.m_bodyB.GetWorldPoint(this.m_localAnchorB, out);
     }
 
+    /**
+     * Get the reaction force given the inverse time step.
+     * Unit is N.
+     */
     public GetReactionForce<T extends XY>(inv_dt: number, out: T): T {
         const f = inv_dt * (this.m_impulse + this.m_lowerImpulse - this.m_upperImpulse);
         out.x = f * this.m_u.x;
@@ -188,66 +209,92 @@ export class b2DistanceJoint extends b2Joint {
         return out;
     }
 
+    /**
+     * Get the reaction torque given the inverse time step.
+     * Unit is N*m. This is always zero for a distance joint.
+     */
     public GetReactionTorque(_inv_dt: number): number {
         return 0;
     }
 
+    /** The local anchor point relative to bodyA's origin. */
     public GetLocalAnchorA(): Readonly<b2Vec2> {
         return this.m_localAnchorA;
     }
 
+    /** The local anchor point relative to bodyB's origin. */
     public GetLocalAnchorB(): Readonly<b2Vec2> {
         return this.m_localAnchorB;
     }
 
+    /**
+     * Set the rest length
+     * @returns clamped rest length
+     */
     public SetLength(length: number) {
         this.m_impulse = 0;
         this.m_length = Math.max(b2_linearSlop, length);
         return this.m_length;
     }
 
+    /** Get the rest length */
     public GetLength() {
         return this.m_length;
     }
 
+    /**
+     * Set the minimum length
+     * @returns the clamped minimum length
+     */
     public SetMinLength(minLength: number) {
         this.m_lowerImpulse = 0;
         this.m_minLength = b2Clamp(minLength, b2_linearSlop, this.m_maxLength);
         return this.m_minLength;
     }
 
+    /** Get the minimum length */
     public GetMinLength() {
         return this.m_minLength;
     }
 
+    /**
+     * Set the maximum length
+     * @returns the clamped maximum length
+     */
     public SetMaxLength(maxLength: number) {
         this.m_upperImpulse = 0;
         this.m_maxLength = Math.max(maxLength, this.m_minLength);
         return this.m_maxLength;
     }
 
+    /** Get the maximum length */
     public GetMaxLength() {
         return this.m_maxLength;
     }
 
+    /** Get the current length */
     public GetCurrentLength() {
         const pA = this.m_bodyA.GetWorldPoint(this.m_localAnchorA, temp.worldPointA);
         const pB = this.m_bodyB.GetWorldPoint(this.m_localAnchorB, temp.worldPointB);
         return b2Vec2.Distance(pB, pA);
     }
 
+    /** Set the linear stiffness in N/m */
     public SetStiffness(stiffness: number): void {
         this.m_stiffness = stiffness;
     }
 
+    /** Get the linear stiffness in N/m */
     public GetStiffness() {
         return this.m_stiffness;
     }
 
+    /** Set linear damping in N*s/m */
     public SetDamping(damping: number): void {
         this.m_damping = damping;
     }
 
+    /** Get linear damping in N*s/m */
     public GetDamping() {
         return this.m_damping;
     }

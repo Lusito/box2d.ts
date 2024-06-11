@@ -308,6 +308,15 @@ const b2TimeOfImpact_s_indexA: [number] = [0];
 const b2TimeOfImpact_s_indexB: [number] = [0];
 const b2TimeOfImpact_s_sweepA = new b2Sweep();
 const b2TimeOfImpact_s_sweepB = new b2Sweep();
+
+/**
+ * CCD via the local separating axis method. This seeks progression
+ * by computing the largest time at which separation is maintained.
+ * Compute the upper bound on time before two shapes penetrate. Time is represented as
+ * a fraction between [0,tMax]. This uses a swept separating axis and may miss some intermediate,
+ * again.
+ * Note: use b2Distance to compute the contact point and normal at the time of impact.
+ */
 export function b2TimeOfImpact(output: b2TOIOutput, input: b2TOIInput): void {
     const timer = b2TimeOfImpact_s_timer.Reset();
 

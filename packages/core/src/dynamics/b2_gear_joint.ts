@@ -29,6 +29,23 @@ import { b2RevoluteJoint } from "./b2_revolute_joint";
 import { b2SolverData } from "./b2_time_step";
 import { b2Body } from "./b2_body";
 
+// Gear Joint:
+// C0 = (coordinate1 + ratio * coordinate2)_initial
+// C = (coordinate1 + ratio * coordinate2) - C0 = 0
+// J = [J1 ratio * J2]
+// K = J * invM * JT
+//   = J1 * invM1 * J1T + ratio * ratio * J2 * invM2 * J2T
+// Revolute:
+// coordinate = rotation
+// Cdot = angularVelocity
+// J = [0 0 1]
+// K = J * invM * JT = invI
+// Prismatic:
+// coordinate = dot(p - pg, ug)
+// Cdot = dot(v + cross(w, r), ug)
+// J = [ug cross(r, ug)]
+// K = J * invM * JT = invMass + invI * cross(r, ug)^2
+
 const temp = {
     qA: new b2Rot(),
     qB: new b2Rot(),
@@ -532,18 +549,22 @@ export class b2GearJoint extends b2Joint {
         return inv_dt * this.m_impulse * this.m_JwA;
     }
 
+    /** Get the first joint. */
     public GetJoint1() {
         return this.m_joint1;
     }
 
+    /** Get the second joint. */
     public GetJoint2() {
         return this.m_joint2;
     }
 
+    /** Get the gear ratio. */
     public GetRatio() {
         return this.m_ratio;
     }
 
+    /** Set the gear ratio. */
     public SetRatio(ratio: number): void {
         // DEBUG: b2Assert(Number.isFinite(ratio));
         this.m_ratio = ratio;

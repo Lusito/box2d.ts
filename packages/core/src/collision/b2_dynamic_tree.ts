@@ -88,6 +88,7 @@ export class b2TreeNode<T> {
         return area;
     }
 
+    /** Compute the height of a sub-tree. */
     public ComputeHeight(): number {
         if (this.IsLeaf()) return 0;
 
@@ -132,6 +133,10 @@ export class b2DynamicTree<T> {
 
     private m_freeList: b2TreeNode<T> | null = null;
 
+    /**
+     * Query an AABB for overlapping proxies. The callback class
+     * is called for each proxy that overlaps the supplied AABB.
+     */
     public Query(aabb: b2AABB, callback: (node: b2TreeNode<T>) => boolean): void {
         const stack = temp.stack as Array<b2TreeNode<T> | null>;
         stack.length = 0;
@@ -174,6 +179,15 @@ export class b2DynamicTree<T> {
         }
     }
 
+    /**
+     * Ray-cast against the proxies in the tree. This relies on the callback
+     * to perform a exact ray-cast in the case were the proxy contains a shape.
+     * The callback also performs the any collision filtering. This has performance
+     * roughly equal to k * log(n), where k is the number of collisions and n is the
+     * number of proxies in the tree.
+     * @param input the ray-cast input data. The ray extends from p1 to p1 + maxFraction * (p2 - p1).
+     * @param callback a callback class that is called for each proxy that is hit by the ray.
+     */
     public RayCast(input: b2RayCastInput, callback: (input: b2RayCastInput, node: b2TreeNode<T>) => number): void {
         const { p1, p2 } = input;
         const r = b2Vec2.Subtract(p2, p1, temp.r);
@@ -242,6 +256,7 @@ export class b2DynamicTree<T> {
         }
     }
 
+    /** Allocate a node from the pool. Grow the pool if necessary. */
     private AllocateNode(): b2TreeNode<T> {
         // Expand the node pool as needed.
         if (this.m_freeList === null) {
@@ -258,12 +273,19 @@ export class b2DynamicTree<T> {
         return node;
     }
 
+    /** Return a node to the pool. */
     private FreeNode(node: b2TreeNode<T>): void {
         node.parent = this.m_freeList;
         node.Reset();
         this.m_freeList = node;
     }
 
+    /**
+     * Create a proxy. Provide a tight fitting AABB and a userData pointer.
+     * Create a proxy in the tree as a leaf node. We return the index
+     * of the node instead of a pointer so that we can grow
+     * the node pool.
+     */
     public CreateProxy(aabb: b2AABB, userData: T): b2TreeNode<T> {
         const node = this.AllocateNode();
 
@@ -280,6 +302,7 @@ export class b2DynamicTree<T> {
         return node;
     }
 
+    /** Destroy a proxy. This asserts if the id is invalid. */
     public DestroyProxy(node: b2TreeNode<T>): void {
         // DEBUG: b2Assert(node.IsLeaf());
 
@@ -287,6 +310,11 @@ export class b2DynamicTree<T> {
         this.FreeNode(node);
     }
 
+    /**
+     * Move a proxy with a swepted AABB. If the proxy has moved outside of its fattened AABB,
+     * the function returns immediately.
+     * @return true if the proxy was re-inserted.
+     */
     public MoveProxy(node: b2TreeNode<T>, aabb: b2AABB, displacement: b2Vec2): boolean {
         // DEBUG: b2Assert(node.IsLeaf());
 
@@ -494,6 +522,10 @@ export class b2DynamicTree<T> {
         // this.Validate();
     }
 
+    /**
+     * Perform a left or right rotation if node A is imbalanced.
+     * Returns the new root index.
+     */
     private Balance(A: b2TreeNode<T>): b2TreeNode<T> {
         // DEBUG: b2Assert(A !== null);
 
@@ -601,6 +633,10 @@ export class b2DynamicTree<T> {
         return A;
     }
 
+    /**
+     * Compute the height of the binary tree in O(N) time. Should not be
+     * called often.
+     */
     public GetHeight(): number {
         if (this.m_root === null) {
             return 0;
@@ -609,6 +645,7 @@ export class b2DynamicTree<T> {
         return this.m_root.height;
     }
 
+    /** Get the ratio of the sum of the node areas to the root area. */
     public GetAreaRatio(): number {
         if (this.m_root === null) {
             return 0;
@@ -622,6 +659,10 @@ export class b2DynamicTree<T> {
         return totalArea / rootArea;
     }
 
+    /**
+     * Get the maximum balance of an node in the tree. The balance is the difference
+     * in height of the two children of a node.
+     */
     public GetMaxBalance(): number {
         if (this.m_root === null) {
             return 0;
@@ -629,6 +670,11 @@ export class b2DynamicTree<T> {
         return this.m_root.GetMaxBalance();
     }
 
+    /**
+     * Shift the world origin. Useful for large worlds.
+     * The shift formula is: position -= newOrigin
+     * @param newOrigin the new origin with respect to the old origin
+     */
     public ShiftOrigin(newOrigin: XY): void {
         this.m_root?.ShiftOrigin(newOrigin);
     }

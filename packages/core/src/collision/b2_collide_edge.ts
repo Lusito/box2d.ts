@@ -44,6 +44,11 @@ const b2CollideEdgeAndCircle_s_e2 = new b2Vec2();
 const b2CollideEdgeAndCircle_s_P = new b2Vec2();
 const b2CollideEdgeAndCircle_s_n = new b2Vec2();
 const b2CollideEdgeAndCircle_s_id = new b2ContactID();
+
+/**
+ * Compute contact points for edge versus circle.
+ * This accounts for edge connectivity.
+ */
 export function b2CollideEdgeAndCircle(
     manifold: b2Manifold,
     edgeA: b2EdgeShape,

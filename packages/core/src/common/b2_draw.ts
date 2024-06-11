@@ -190,18 +190,28 @@ export interface b2Draw {
 
     PopTransform(xf: b2Transform): void;
 
+    /** Draw a closed polygon provided in CCW order. */
     DrawPolygon(vertices: ReadonlyArray<Readonly<XY>>, vertexCount: number, color: RGBA): void;
 
+    /** Draw a solid closed polygon provided in CCW order. */
     DrawSolidPolygon(vertices: ReadonlyArray<Readonly<XY>>, vertexCount: number, color: RGBA): void;
 
+    /** Draw a circle. */
     DrawCircle(center: Readonly<XY>, radius: number, color: RGBA): void;
 
+    /** Draw a solid circle. */
     DrawSolidCircle(center: Readonly<XY>, radius: number, axis: Readonly<XY>, color: RGBA): void;
 
+    /** Draw a line segment. */
     DrawSegment(p1: Readonly<XY>, p2: Readonly<XY>, color: RGBA): void;
 
+    /**
+     * Draw a transform. Choose your own length scale.
+     * @param xf a transform.
+     */
     DrawTransform(xf: b2Transform): void;
 
+    /** Draw a point. */
     DrawPoint(p: Readonly<XY>, size: number, color: RGBA): void;
 }
 

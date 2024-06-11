@@ -152,6 +152,7 @@ export type b2QueryCallback = (fixture: b2Fixture) => boolean;
  * @param fixture The fixture hit by the ray
  * @param point The point of initial intersection
  * @param normal The normal vector at the point of intersection
+ * @param fraction The fraction along the ray at the point of intersection
  * @returns -1 to filter, 0 to terminate, fraction to clip the ray for
  * closest hit, 1 to continue
  */

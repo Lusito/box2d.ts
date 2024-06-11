@@ -322,6 +322,7 @@ export class b2ContactSolver {
 
     private static InitializeVelocityConstraints_s_worldManifold = new b2WorldManifold();
 
+    /** Initialize position dependent portions of the velocity constraints. */
     public InitializeVelocityConstraints(): void {
         const xfA = b2ContactSolver.InitializeVelocityConstraints_s_xfA;
         const xfB = b2ContactSolver.InitializeVelocityConstraints_s_xfB;
@@ -805,6 +806,7 @@ export class b2ContactSolver {
 
     private static SolvePositionConstraints_s_P = new b2Vec2();
 
+    /** Sequential solver. */
     public SolvePositionConstraints(): boolean {
         const xfA = b2ContactSolver.SolvePositionConstraints_s_xfA;
         const xfB = b2ContactSolver.SolvePositionConstraints_s_xfB;
@@ -890,6 +892,7 @@ export class b2ContactSolver {
 
     private static SolveTOIPositionConstraints_s_P = new b2Vec2();
 
+    /** Sequential position solver for position constraints. */
     public SolveTOIPositionConstraints(toiIndexA: number, toiIndexB: number): boolean {
         const xfA = b2ContactSolver.SolveTOIPositionConstraints_s_xfA;
         const xfB = b2ContactSolver.SolveTOIPositionConstraints_s_xfB;

@@ -359,7 +359,7 @@ class TopdownCar extends Test {
         // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
         if (fudA.tire || fudB.groundArea) {
             TopdownCar.tire_vs_groundArea(a, b, began);
-        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+            // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
         } else if (fudA.groundArea || fudB.tire) {
             TopdownCar.tire_vs_groundArea(b, a, began);
         }

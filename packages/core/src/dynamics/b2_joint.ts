@@ -280,7 +280,7 @@ export abstract class b2Joint {
     }
 
     /**
-     * Short-cut function to determine if either body is inactive.
+     * Short-cut function to determine if either body is enabled.
      */
     public IsEnabled(): boolean {
         return this.m_bodyA.IsEnabled() && this.m_bodyB.IsEnabled();
@@ -313,6 +313,7 @@ export abstract class b2Joint {
      */
     public abstract SolvePositionConstraints(data: b2SolverData): boolean;
 
+    /** Debug draw this joint */
     public Draw(draw: b2Draw): void {
         const x1 = this.m_bodyA.GetTransform().p;
         const x2 = this.m_bodyB.GetTransform().p;

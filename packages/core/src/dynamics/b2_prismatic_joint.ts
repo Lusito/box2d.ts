@@ -27,6 +27,51 @@ import { b2Body } from "./b2_body";
 import { b2Joint, b2JointDef, b2JointType, b2IJointDef } from "./b2_joint";
 import { b2SolverData } from "./b2_time_step";
 
+// Linear constraint (point-to-line)
+// d = p2 - p1 = x2 + r2 - x1 - r1
+// C = dot(perp, d)
+// Cdot = dot(d, cross(w1, perp)) + dot(perp, v2 + cross(w2, r2) - v1 - cross(w1, r1))
+//      = -dot(perp, v1) - dot(cross(d + r1, perp), w1) + dot(perp, v2) + dot(cross(r2, perp), v2)
+// J = [-perp, -cross(d + r1, perp), perp, cross(r2,perp)]
+//
+// Angular constraint
+// C = a2 - a1 + a_initial
+// Cdot = w2 - w1
+// J = [0 0 -1 0 0 1]
+//
+// K = J * invM * JT
+//
+// J = [-a -s1 a s2]
+//     [0  -1  0  1]
+// a = perp
+// s1 = cross(d + r1, a) = cross(p2 - x1, a)
+// s2 = cross(r2, a) = cross(p2 - x2, a)
+
+// Motor/Limit linear constraint
+// C = dot(ax1, d)
+// Cdot = -dot(ax1, v1) - dot(cross(d + r1, ax1), w1) + dot(ax1, v2) + dot(cross(r2, ax1), v2)
+// J = [-ax1 -cross(d+r1,ax1) ax1 cross(r2,ax1)]
+
+// Predictive limit is applied even when the limit is not active.
+// Prevents a constraint speed that can lead to a constraint error in one time step.
+// Want C2 = C1 + h * Cdot >= 0
+// Or:
+// Cdot + C1/h >= 0
+// I do not apply a negative constraint error because that is handled in position correction.
+// So:
+// Cdot + max(C1, 0)/h >= 0
+
+// Block Solver
+// We develop a block solver that includes the angular and linear constraints. This makes the limit stiffer.
+//
+// The Jacobian has 2 rows:
+// J = [-uT -s1 uT s2] // linear
+//     [0   -1   0  1] // angular
+//
+// u = perp
+// s1 = cross(d + r1, u), s2 = cross(r2, u)
+// a1 = cross(d + r1, v), a2 = cross(r2, v)
+
 const temp = {
     K3: new b2Mat33(),
     K2: new b2Mat22(),
@@ -133,6 +178,10 @@ export class b2PrismaticJointDef extends b2JointDef implements b2IPrismaticJoint
         super(b2JointType.e_prismaticJoint);
     }
 
+    /**
+     * Initialize the bodies, anchors, axis, and reference angle using the world
+     * anchor and unit world axis.
+     */
     public Initialize(bA: b2Body, bB: b2Body, anchor: XY, axis: XY): void {
         this.bodyA = bA;
         this.bodyB = bB;
@@ -142,51 +191,6 @@ export class b2PrismaticJointDef extends b2JointDef implements b2IPrismaticJoint
         this.referenceAngle = this.bodyB.GetAngle() - this.bodyA.GetAngle();
     }
 }
-
-// Linear constraint (point-to-line)
-// d = p2 - p1 = x2 + r2 - x1 - r1
-// C = dot(perp, d)
-// Cdot = dot(d, cross(w1, perp)) + dot(perp, v2 + cross(w2, r2) - v1 - cross(w1, r1))
-//      = -dot(perp, v1) - dot(cross(d + r1, perp), w1) + dot(perp, v2) + dot(cross(r2, perp), v2)
-// J = [-perp, -cross(d + r1, perp), perp, cross(r2,perp)]
-//
-// Angular constraint
-// C = a2 - a1 + a_initial
-// Cdot = w2 - w1
-// J = [0 0 -1 0 0 1]
-//
-// K = J * invM * JT
-//
-// J = [-a -s1 a s2]
-//     [0  -1  0  1]
-// a = perp
-// s1 = cross(d + r1, a) = cross(p2 - x1, a)
-// s2 = cross(r2, a) = cross(p2 - x2, a)
-
-// Motor/Limit linear constraint
-// C = dot(ax1, d)
-// Cdot = -dot(ax1, v1) - dot(cross(d + r1, ax1), w1) + dot(ax1, v2) + dot(cross(r2, ax1), v2)
-// J = [-ax1 -cross(d+r1,ax1) ax1 cross(r2,ax1)]
-
-// Predictive limit is applied even when the limit is not active.
-// Prevents a constraint speed that can lead to a constraint error in one time step.
-// Want C2 = C1 + h * Cdot >= 0
-// Or:
-// Cdot + C1/h >= 0
-// I do not apply a negative constraint error because that is handled in position correction.
-// So:
-// Cdot + max(C1, 0)/h >= 0
-
-// Block Solver
-// We develop a block solver that includes the angular and linear constraints. This makes the limit stiffer.
-//
-// The Jacobian has 2 rows:
-// J = [-uT -s1 uT s2] // linear
-//     [0   -1   0  1] // angular
-//
-// u = perp
-// s1 = cross(d + r1, u), s2 = cross(r2, u)
-// a1 = cross(d + r1, v), a2 = cross(r2, v)
 
 /**
  * A prismatic joint. This joint provides one degree of freedom: translation
@@ -621,22 +625,27 @@ export class b2PrismaticJoint extends b2Joint {
         return inv_dt * this.m_impulse.y;
     }
 
+    /** The local anchor point relative to bodyA's origin. */
     public GetLocalAnchorA(): Readonly<b2Vec2> {
         return this.m_localAnchorA;
     }
 
+    /** The local anchor point relative to bodyB's origin. */
     public GetLocalAnchorB(): Readonly<b2Vec2> {
         return this.m_localAnchorB;
     }
 
+    /** The local joint axis relative to bodyA. */
     public GetLocalAxisA(): Readonly<b2Vec2> {
         return this.m_localXAxisA;
     }
 
+    /** Get the reference angle. */
     public GetReferenceAngle() {
         return this.m_referenceAngle;
     }
 
+    /** Get the current joint translation, usually in meters. */
     public GetJointTranslation(): number {
         const { pA, pB, axis, d } = temp.GetJointTranslation;
         this.m_bodyA.GetWorldPoint(this.m_localAnchorA, pA);
@@ -648,6 +657,7 @@ export class b2PrismaticJoint extends b2Joint {
         return translation;
     }
 
+    /** Get the current joint translation speed, usually in meters per second. */
     public GetJointSpeed(): number {
         const bA = this.m_bodyA;
         const bB = this.m_bodyB;
@@ -678,10 +688,12 @@ export class b2PrismaticJoint extends b2Joint {
         return speed;
     }
 
+    /** Is the joint limit enabled? */
     public IsLimitEnabled() {
         return this.m_enableLimit;
     }
 
+    /** Enable/disable the joint limit. */
     public EnableLimit(flag: boolean): boolean {
         if (flag !== this.m_enableLimit) {
             this.m_bodyA.SetAwake(true);
@@ -693,14 +705,17 @@ export class b2PrismaticJoint extends b2Joint {
         return flag;
     }
 
+    /** Get the lower joint limit, usually in meters. */
     public GetLowerLimit() {
         return this.m_lowerTranslation;
     }
 
+    /** Get the upper joint limit, usually in meters. */
     public GetUpperLimit() {
         return this.m_upperTranslation;
     }
 
+    /** Set the joint limits, usually in meters. */
     public SetLimits(lower: number, upper: number): void {
         // DEBUG: b2Assert(lower <= upper);
         if (lower !== this.m_lowerTranslation || upper !== this.m_upperTranslation) {
@@ -713,10 +728,12 @@ export class b2PrismaticJoint extends b2Joint {
         }
     }
 
+    /** Is the joint motor enabled? */
     public IsMotorEnabled(): boolean {
         return this.m_enableMotor;
     }
 
+    /** Enable/disable the joint motor. */
     public EnableMotor(flag: boolean): boolean {
         if (flag !== this.m_enableMotor) {
             this.m_bodyA.SetAwake(true);
@@ -726,6 +743,7 @@ export class b2PrismaticJoint extends b2Joint {
         return flag;
     }
 
+    /** Set the motor speed, usually in meters per second. */
     public SetMotorSpeed(speed: number): number {
         if (speed !== this.m_motorSpeed) {
             this.m_bodyA.SetAwake(true);
@@ -735,10 +753,12 @@ export class b2PrismaticJoint extends b2Joint {
         return speed;
     }
 
+    /** Get the motor speed, usually in meters per second. */
     public GetMotorSpeed() {
         return this.m_motorSpeed;
     }
 
+    /** Set the maximum motor force, usually in N. */
     public SetMaxMotorForce(force: number): void {
         if (force !== this.m_maxMotorForce) {
             this.m_bodyA.SetAwake(true);
@@ -747,11 +767,12 @@ export class b2PrismaticJoint extends b2Joint {
         }
     }
 
+    /** Get the maximum motor force, usually in N. */
     public GetMaxMotorForce(): number {
         return this.m_maxMotorForce;
     }
 
-    // FIXME: comments missing
+    /** Get the current motor force given the inverse time step, usually in N. */
     public GetMotorForce(inv_dt: number): number {
         return inv_dt * this.m_motorImpulse;
     }

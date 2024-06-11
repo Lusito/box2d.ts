@@ -428,20 +428,19 @@ export class b2World {
         }
     }
 
-    /**
-     * Take a time step. This performs collision detection, integration,
-     * and constraint solution.
-     *
-     * @param timeStep The amount of time to simulate, this should not vary.
-     * @param velocityIterations For the velocity constraint solver.
-     * @param positionIterations For the position constraint solver.
-     */
     private static Step_s_step = b2TimeStep.Create();
 
     private static Step_s_stepTimer = new b2Timer();
 
     private static Step_s_timer = new b2Timer();
 
+    /**
+     * Take a time step. This performs collision detection, integration,
+     * and constraint solution.
+     *
+     * @param dt The amount of time to simulate, this should not vary.
+     * @param iterations Config for the solvers.
+     */
     public Step(dt: number, iterations: b2StepConfig): void {
         const stepTimer = b2World.Step_s_stepTimer.Reset();
 
@@ -884,6 +883,7 @@ export class b2World {
         return this.m_profile;
     }
 
+    /** Find islands, integrate and solve constraints, solve position constraints */
     private Solve(step: b2TimeStep): void {
         this.m_profile.solveInit = 0;
         this.m_profile.solveVelocity = 0;
@@ -1064,7 +1064,10 @@ export class b2World {
 
     private static SolveTOI_s_toi_output = new b2TOIOutput();
 
-    /** @internal */
+    /**
+     * Find TOI contacts and solve them.
+     * @internal
+     */
     public SolveTOI(step: b2TimeStep): void {
         const island = this.m_island;
         island.Clear();

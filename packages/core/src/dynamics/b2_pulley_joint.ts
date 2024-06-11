@@ -28,6 +28,18 @@ import { b2Body } from "./b2_body";
 import { b2Joint, b2JointDef, b2JointType, b2IJointDef } from "./b2_joint";
 import { b2SolverData } from "./b2_time_step";
 
+// Pulley:
+// length1 = norm(p1 - s1)
+// length2 = norm(p2 - s2)
+// C0 = (length1 + ratio * length2)_initial
+// C = C0 - (length1 + ratio * length2)
+// u1 = (p1 - s1) / norm(p1 - s1)
+// u2 = (p2 - s2) / norm(p2 - s2)
+// Cdot = -dot(u1, v1 + cross(w1, r1)) - ratio * dot(u2, v2 + cross(w2, r2))
+// J = -[u1 cross(r1, u1) ratio * u2  ratio * cross(r2, u2)]
+// K = J * invM * JT
+//   = invMass1 + invI1 * cross(r1, u1)^2 + ratio^2 * (invMass2 + invI2 * cross(r2, u2)^2)
+
 export const b2_minPulleyLength = 2;
 
 const temp = {
@@ -91,6 +103,7 @@ export class b2PulleyJointDef extends b2JointDef implements b2IPulleyJointDef {
         this.collideConnected = true;
     }
 
+    /** Initialize the bodies, anchors, lengths, max lengths, and ratio using the world anchors. */
     public Initialize(
         bA: b2Body,
         bB: b2Body,
@@ -385,32 +398,39 @@ export class b2PulleyJoint extends b2Joint {
         return 0;
     }
 
+    /** Get the first ground anchor. */
     public GetGroundAnchorA() {
         return this.m_groundAnchorA;
     }
 
+    /** Get the second ground anchor. */
     public GetGroundAnchorB() {
         return this.m_groundAnchorB;
     }
 
+    /** Get the current length of the segment attached to bodyA. */
     public GetLengthA() {
         return this.m_lengthA;
     }
 
+    /** Get the current length of the segment attached to bodyB. */
     public GetLengthB() {
         return this.m_lengthB;
     }
 
+    /** Get the pulley ratio. */
     public GetRatio() {
         return this.m_ratio;
     }
 
+    /** Get the current length of the segment attached to bodyA. */
     public GetCurrentLengthA() {
         const p = this.m_bodyA.GetWorldPoint(this.m_localAnchorA, temp.p);
         const s = this.m_groundAnchorA;
         return b2Vec2.Distance(p, s);
     }
 
+    /** Get the current length of the segment attached to bodyB. */
     public GetCurrentLengthB() {
         const p = this.m_bodyB.GetWorldPoint(this.m_localAnchorB, temp.p);
         const s = this.m_groundAnchorB;

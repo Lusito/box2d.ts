@@ -26,6 +26,19 @@ import { b2Body } from "./b2_body";
 import { b2Joint, b2JointDef, b2JointType, b2IJointDef } from "./b2_joint";
 import { b2SolverData } from "./b2_time_step";
 
+// Point-to-point constraint
+// C = p2 - p1
+// Cdot = v2 - v1
+//      = v2 + cross(w2, r2) - v1 - cross(w1, r1)
+// J = [-I -r1_skew I r2_skew ]
+// Identity used:
+// w k % (rx i + ry j) = w * (-ry i + rx j)
+// Angle constraint
+// C = angle2 - angle1 - referenceAngle
+// Cdot = w2 - w1
+// J = [0 0 -1 0 0 1]
+// K = invI1 + invI2
+
 const temp = {
     qA: new b2Rot(),
     qB: new b2Rot(),
@@ -82,6 +95,12 @@ export class b2WeldJointDef extends b2JointDef implements b2IWeldJointDef {
         super(b2JointType.e_weldJoint);
     }
 
+    /**
+     * Initialize the bodies, anchors, reference angle, stiffness, and damping.
+     * @param bodyA the first body connected by this joint
+     * @param bodyB the second body connected by this joint
+     * @param anchor the point of connection in world coordinates
+     */
     public Initialize(bA: b2Body, bB: b2Body, anchor: Readonly<XY>): void {
         this.bodyA = bA;
         this.bodyB = bB;
@@ -407,30 +426,37 @@ export class b2WeldJoint extends b2Joint {
         return inv_dt * this.m_impulse.z;
     }
 
+    /** The local anchor point relative to bodyA's origin. */
     public GetLocalAnchorA(): Readonly<b2Vec2> {
         return this.m_localAnchorA;
     }
 
+    /** The local anchor point relative to bodyB's origin. */
     public GetLocalAnchorB(): Readonly<b2Vec2> {
         return this.m_localAnchorB;
     }
 
+    /** Get the reference angle. */
     public GetReferenceAngle(): number {
         return this.m_referenceAngle;
     }
 
+    /** Set stiffness in N*m */
     public SetStiffness(stiffness: number): void {
         this.m_stiffness = stiffness;
     }
 
+    /** Get stiffness in N*m */
     public GetStiffness(): number {
         return this.m_stiffness;
     }
 
+    /** Set damping in N*m*s */
     public SetDamping(damping: number) {
         this.m_damping = damping;
     }
 
+    /** Get damping in N*m*s */
     public GetDamping() {
         return this.m_damping;
     }

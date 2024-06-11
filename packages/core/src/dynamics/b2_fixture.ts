@@ -277,7 +277,7 @@ export class b2Fixture {
     }
 
     /**
-     * Get the parent body of this fixture. This is NULL if the fixture is not attached.
+     * Get the parent body of this fixture.
      *
      * @returns The parent body.
      */
@@ -386,6 +386,15 @@ export class b2Fixture {
         this.m_restitution = restitution;
     }
 
+    /** Get the restitution velocity threshold. */
+    public GetRestitutionThreshold(): number {
+        return this.m_restitutionThreshold;
+    }
+
+    /**
+     * Set the restitution threshold. This will _not_ change the restitution threshold of
+     * existing contacts.
+     */
     public SetRestitutionThreshold(threshold: number): void {
         this.m_restitutionThreshold = threshold;
     }

@@ -85,6 +85,7 @@ export class b2MotorJointDef extends b2JointDef implements b2IMotorJointDef {
         super(b2JointType.e_motorJoint);
     }
 
+    /** Initialize the bodies and offsets using the current transforms. */
     public Initialize(bodyA: b2Body, bodyB: b2Body): void {
         this.bodyA = bodyA;
         this.bodyB = bodyB;
@@ -180,6 +181,7 @@ export class b2MotorJoint extends b2Joint {
         return inv_dt * this.m_angularImpulse;
     }
 
+    /** Set the target linear offset, in frame A, in meters. */
     public SetLinearOffset(linearOffset: b2Vec2): void {
         if (!b2Vec2.Equals(linearOffset, this.m_linearOffset)) {
             this.m_bodyA.SetAwake(true);
@@ -188,10 +190,12 @@ export class b2MotorJoint extends b2Joint {
         }
     }
 
+    /** Get the target linear offset, in frame A, in meters. */
     public GetLinearOffset() {
         return this.m_linearOffset;
     }
 
+    /** Set the target angular offset, in radians. */
     public SetAngularOffset(angularOffset: number): void {
         if (angularOffset !== this.m_angularOffset) {
             this.m_bodyA.SetAwake(true);
@@ -200,32 +204,39 @@ export class b2MotorJoint extends b2Joint {
         }
     }
 
+    /** Get the target angular offset, in radians. */
     public GetAngularOffset() {
         return this.m_angularOffset;
     }
 
+    /** Set the maximum friction force in N. */
     public SetMaxForce(force: number): void {
         // DEBUG: b2Assert(Number.isFinite(force) && force >= 0);
         this.m_maxForce = force;
     }
 
+    /** Get the maximum friction force in N. */
     public GetMaxForce() {
         return this.m_maxForce;
     }
 
+    /** Set the maximum friction torque in N*m. */
     public SetMaxTorque(torque: number): void {
         // DEBUG: b2Assert(Number.isFinite(torque) && torque >= 0);
         this.m_maxTorque = torque;
     }
 
+    /** Get the maximum friction torque in N*m. */
     public GetMaxTorque() {
         return this.m_maxTorque;
     }
 
+    /** Get the position correction factor in the range [0,1]. */
     public GetCorrectionFactor() {
         return this.m_correctionFactor;
     }
 
+    /** Set the position correction factor in the range [0,1]. */
     public SetCorrectionFactor(factor: number) {
         // DEBUG: b2Assert(Number.isFinite(factor) && factor >= 0 && factor <= 1);
         this.m_correctionFactor = factor;
