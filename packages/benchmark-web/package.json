@@ -32,7 +32,7 @@
     "planck-js": "^0.3.31"
   },
   "devDependencies": {
-    "esbuild": "^0.17.4",
+    "esbuild": "^0.21.5",
     "esbuild-ts-paths": "^1.1.3"
   }
 }

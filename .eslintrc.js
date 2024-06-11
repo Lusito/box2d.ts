@@ -18,8 +18,10 @@ module.exports = {
         "no-bitwise": "off",
         "no-multi-assign": "off",
         "import/no-unresolved": "off",
+        "no-empty-function": "off",
         "@typescript-eslint/no-empty-function": "off",
         "@typescript-eslint/no-useless-constructor": "error",
+        "@typescript-eslint/parameter-properties": "off",
         "@typescript-eslint/explicit-member-accessibility": "error",
         // Fixme: These are nice for finding errors, but ugly to handle userData with.
         // "@typescript-eslint/no-unsafe-call": "error",

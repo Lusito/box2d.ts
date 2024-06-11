@@ -616,7 +616,7 @@ export class b2ParticleSystem {
 
     public m_needsUpdateAllParticleFlags = false;
 
-    public m_allGroupFlags: b2ParticleGroupFlag = 0;
+    public m_allGroupFlags = 0;
 
     public m_needsUpdateAllGroupFlags = false;
 
@@ -1220,7 +1220,7 @@ export class b2ParticleSystem {
     /**
      * Get all existing particle group flags.
      */
-    public GetAllGroupFlags(): b2ParticleGroupFlag {
+    public GetAllGroupFlags(): number {
         return this.m_allGroupFlags;
     }
 
@@ -4652,7 +4652,7 @@ export class b2ParticleSystem {
         buffer.userSuppliedCapacity = data.length;
     }
 
-    public SetGroupFlags(group: b2ParticleGroup, newFlags: b2ParticleGroupFlag): void {
+    public SetGroupFlags(group: b2ParticleGroup, newFlags: number): void {
         const oldFlags = group.m_groupFlags;
         if ((oldFlags ^ newFlags) & b2ParticleGroupFlag.b2_solidParticleGroup) {
             // If the b2_solidParticleGroup flag changed schedule depth update.

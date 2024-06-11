@@ -14,8 +14,8 @@
     "start": "npm run fetch && npm run convert:cpp && npm run convert:ts"
   },
   "dependencies": {
-    "@types/node": "^18.11.18",
-    "got": "^12.5.3",
-    "ts-node": "^10.9.1"
+    "@types/node": "^20.14.2",
+    "got": "^14.4.1",
+    "ts-node": "^10.9.2"
   }
 }

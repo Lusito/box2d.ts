@@ -48,7 +48,7 @@ export enum b2ParticleGroupFlag {
 
 export interface b2IParticleGroupDef {
     flags?: b2ParticleFlag;
-    groupFlags?: b2ParticleGroupFlag;
+    groupFlags?: number;
     position?: XY;
     angle?: number;
     linearVelocity?: XY;
@@ -69,7 +69,7 @@ export interface b2IParticleGroupDef {
 export class b2ParticleGroupDef implements b2IParticleGroupDef {
     public flags: b2ParticleFlag = 0;
 
-    public groupFlags: b2ParticleGroupFlag = 0;
+    public groupFlags = 0;
 
     public readonly position = new b2Vec2();
 
@@ -109,7 +109,7 @@ export class b2ParticleGroup {
 
     public m_lastIndex = 0;
 
-    public m_groupFlags: b2ParticleGroupFlag = 0;
+    public m_groupFlags = 0;
 
     public m_strength = 1;
 
@@ -166,7 +166,7 @@ export class b2ParticleGroup {
         return flags;
     }
 
-    public GetGroupFlags(): b2ParticleGroupFlag {
+    public GetGroupFlags(): number {
         return this.m_groupFlags;
     }
 
