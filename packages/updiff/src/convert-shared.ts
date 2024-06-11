@@ -207,6 +207,7 @@ export function writeModule(output: string, name: string, module: ModuleType) {
         for (const methodName of Object.keys(classEntry.methods).sort()) {
             const lines: string[] = [];
             const method = classEntry.methods[methodName];
+            lines.push(method.comment);
             lines.push(`${methodName} (${method.params})`);
             method.code && lines.push(`${method.code}`);
             lines.push("\n");
@@ -218,6 +219,7 @@ export function writeModule(output: string, name: string, module: ModuleType) {
         for (const functionName of Object.keys(module.functions).sort()) {
             const lines: string[] = [];
             const func = module.functions[functionName];
+            lines.push(func.comment);
             lines.push(`${functionName} (${func.params})`);
             func.code && lines.push(func.code);
             lines.push("\n");

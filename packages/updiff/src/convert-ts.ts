@@ -38,6 +38,7 @@ const attributeRegex = /^(public |private |protected |readonly |static )*\s*(.*)
 const attributeSuffixRegex = /^;/;
 const importRegex = /^import (?:type )?{/;
 const classRegex = /^(?:export )?(?:abstract )?(class|interface)\s+([a-z0-9_]+)/i;
+const declareModuleRegex = /^declare module "[^"]*"/i;
 const enumRegex = /^(?:export )?enum(\s+[a-z0-9_]+)?/i;
 const functionRegex = /(?:export )?\s*([a-z0-9_]+)\s*\((.*)\)/i;
 const methodRegexDef = /^(public |private |protected )?(?:abstract )?\s*([a-z0-9_]+)\s*\((.*)\): .*;/i;
@@ -102,7 +103,7 @@ function parseFunction(
     modifier: string,
 ) {
     const func = createFunction(classEntry, name, false);
-    if (comment) func.comment = comment;
+    if (comment) func.comment = func.comment ? `${func.comment}\n${comment}` : comment;
     if (params) func.params = cleanParams(params);
     if (modifier) func.modifier = modifier;
     func.code = sanitizeBody(body);
@@ -211,6 +212,8 @@ function parseFile(file: string, module: ModuleType) {
                 comment: comments.join("\n"),
             });
             comments.length = 0;
+        } else if(declareModuleRegex.test(lineTrimmed)) {
+            parseBodyLines(lines, line);
         } else if (enumRegex.test(lineTrimmed)) {
             const [enumLine, enumBody] = parseBody(lines, line);
             const [, enumName] = enumRegex.exec(enumLine.trim())!;

@@ -1,4 +1,4 @@
-export type b2Settings = {
+export interface b2Settings {
     /**
      * You can use this to change the length scale used by your game.
      * For example for inches you could use 39.4.
@@ -10,7 +10,7 @@ export type b2Settings = {
      * this too much because b2BlockAllocator has a maximum object size.
      */
     maxPolygonVertices: number;
-};
+}
 
 const defaultSettings: b2Settings = {
     lengthUnitsPerMeter: 1,

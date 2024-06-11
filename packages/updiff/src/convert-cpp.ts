@@ -76,7 +76,7 @@ function parseFunction(
     modifier: string,
 ) {
     const func = createFunction(classEntry, name, true);
-    if (comment) func.comment = comment;
+    if (comment) func.comment = func.comment ? `${func.comment}\n${comment}` : comment;
     if (params) func.params = cleanParams(params);
     if (modifier) func.modifier = modifier;
     func.code = sanitizeBody(body);
@@ -185,12 +185,14 @@ function parseFile(file: string, module: ModuleType) {
         }
         const [lineTrimmed, lineComment] = lineTrimmedEarly.split("//");
 
-        if (lineComment) comments.push(`//${lineComment.trimRight()}`);
+        if (lineComment) {
+            if (lineComment === " SOFTWARE.") comments.length = 0;
+            else comments.push(`//${lineComment.trimRight()}`);
+        }
         if (
             !lineTrimmed ||
             ignoreLinesRegex.test(lineTrimmed) ||
             classDefRegex.test(lineTrimmed) ||
-            functionDefRegex.test(lineTrimmed) ||
             plainDefineRegex.test(lineTrimmed)
         ) {
             if (lineTrimmed) comments.length = 0;
@@ -236,12 +238,25 @@ function parseFile(file: string, module: ModuleType) {
                 code: sanitizeBody(funcBody),
             };
             comments.length = 0;
+        } else if (functionDefRegex.test(lineTrimmed)) {
+            const [, funcName, funcParams] = functionDefRegex.exec(lineTrimmed)!;
+            module.functions[funcName] = {
+                comment: comments.join("\n"),
+                modifier: "",
+                name: funcName,
+                params: cleanParams(funcParams),
+                code: "",
+            };
+            comments.length = 0;
         } else if (functionRegex.test(lineTrimmed)) {
             const funcLine = parseParams(lines, line).join("");
             const [, funcBody] = parseBody(lines, "");
             const [, funcName, funcParams] = functionRegex.exec(funcLine)!;
+            const func = module.functions[funcName];
+            let comment = comments.join("\n");
+            if (func?.comment) comment += `\n${func.comment}`;
             module.functions[funcName] = {
-                comment: comments.join("\n"),
+                comment,
                 modifier: "",
                 name: funcName,
                 params: cleanParams(funcParams),
