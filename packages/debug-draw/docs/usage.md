@@ -7,17 +7,16 @@ In order to draw debug graphics, you'll need a canvas element in your HTML. Make
 ```ts
 // Somewhere at the start, find the element and create a new DebugDraw instance:
 function initDebugDraw() {
-    const canvas = document.querySelector("#debug-canvas") as HTMLCanvasElement | null;
-    if (!canvas) throw new Error("Could not find debug canvas!");
+  const canvas = document.querySelector("#debug-canvas") as HTMLCanvasElement | null;
+  if (!canvas) throw new Error("Could not find debug canvas!");
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("Could not create 2d context for debug-draw");
-    return new DebugDraw(ctx);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Could not create 2d context for debug-draw");
+  return new DebugDraw(ctx);
 }
 ```
 
 ## Prepare Drawing
-
 
 ```ts
 import { DebugDraw } from "@box2d/debug-draw";
@@ -27,18 +26,18 @@ import { DrawControllers } from "@box2d/controllers";
 
 // After you ran your world.Step(), draw the world like this:
 function drawDebug(draw: DebugDraw, center: XY, zoom: number, aabb?: b2AABB) {
-    draw.Prepare(center.x, center.y, zoom, true);
+  draw.Prepare(center.x, center.y, zoom, true);
 
-    // Draw whatever you want here:
-    DrawShapes(draw, this.m_world, aabb);
-    DrawParticleSystems(draw, this.m_world);
-    DrawJoints(draw, this.m_world);
-    DrawAABBs(draw, this.m_world, aabb);
-    DrawPairs(draw, this.m_world);
-    DrawCenterOfMasses(draw, this.m_world);
-    DrawControllers(draw, this.m_world);
+  // Draw whatever you want here:
+  DrawShapes(draw, this.m_world, aabb);
+  DrawParticleSystems(draw, this.m_world);
+  DrawJoints(draw, this.m_world);
+  DrawAABBs(draw, this.m_world, aabb);
+  DrawPairs(draw, this.m_world);
+  DrawCenterOfMasses(draw, this.m_world);
+  DrawControllers(draw, this.m_world);
 
-    draw.Finish();
+  draw.Finish();
 }
 ```
 

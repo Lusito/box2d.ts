@@ -88,6 +88,7 @@ function std_sort<T>(
 
     for (;;) {
         /* outer loop */
+        // eslint-disable-next-line for-direction
         for (; left + 1 < len; len++) {
             /* sort left to len-1 */
             const pivot = array[left + Math.floor(Math.random() * (len - left))]; /* pick random pivot */

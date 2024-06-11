@@ -1,12 +1,12 @@
 # FAQ
 
-## What is Box2D?
+## What Is Box2D?
 
 Box2D is a feature rich 2D rigid body physics engine, written in C++ by Erin Catto. It has been used in many games, including Crayon Physics Deluxe, winner of the 2008 Independant Game Festival Grand Prize.
 
 Box2D uses the [MIT license](https://en.wikipedia.org/wiki/MIT_License) license and can be used free of charge.
 
-## What is @box2d?
+## What Is @box2d?
 
 @box2d is a full-blown ecosystem for box2d for the JavaScript/TypeScript world. It can be used both in the browser and in node.js.
 
@@ -14,7 +14,7 @@ It includes more libraries to enable light rendering, liquid simulation and more
 
 @box2d/core represents the original Box2D part.
 
-## Who makes it?
+## Who Makes It?
 
 Erin Catto is the driving force behind Box2D, with various others supporting the ports. Box2D is an open source project, and accepts community feedback.
 
@@ -24,7 +24,7 @@ but was due to the fact, that other libraries, which have been ported to TypeScr
 
 Check out each package for their license to see what is being used. @box2d/core for example uses the original MIT license from Box2D.
 
-## How do I get help?
+## How Do I Get Help?
 
 You should read the documentation and the rest of this FAQ first. Also, you should study the examples included in the source distribution. Then you can visit the [subreddit](https://www.reddit.com/r/box2d/) to ask any remaining questions.
 
@@ -32,7 +32,7 @@ Please to not PM or email Erin Catto for support. It is best to ask questions in
 
 ## Documentation
 
-### Why isn't feature foo documented?
+### Why Isn't Feature Foo Documented?
 
 If you grab the latest code from the git master branch you will likely find features that are not documented in the manual. New features are added to the manual after they are mature and a new point release is imminent. However, all major features added to Box2D are accompanied by example code in the testbed to test the feature and show the intended usage.
 
@@ -48,30 +48,30 @@ You should have a basic knowledge of rigid bodies, force, torque, and impulses. 
 
 ## API
 
-### What units does Box2D use?
+### What Units Does Box2D Use?
 
 Box2D is tuned for meters-kilograms-seconds (MKS). Your moving objects should be between 0.1 - 10 meters. Do not use pixels as units! You will get a jittery simulation.
 
-### How do I convert pixels to meters?
+### How Do I Convert Pixels to Meters?
 
 Suppose you have a sprite for a character that is 100x100 pixels. You decide to use a scaling factor that is 0.01. This will make the character physics box 1m x 1m. So go make a physics box that is 1x1. Now suppose the character starts out at pixel coordinate (345,679). So position the physics box at (3.45,6.79). Now simulate the physics world. Suppose the character physics box moves to (2.31,4.98), so move your character sprite to pixel coordinates (231,498).
 Now the only tricky part is choosing a scaling factor. This really depends on your game. You should try to get your moving objects in the range 0.1 - 10 meters, with 1 meter being the sweet spot.
 
-### Can I use @box2d with just JavaScript
+### Can I Use @box2d With Just JavaScript
 
 Like most npm packages written in TypeScript, @box2d is transpiled to JavaScript + types, so you can use it with JavaScript. You will get a better experience with TypeScript though.
 
 ## Rendering
 
-### What are Box2D's rendering capabilities?
+### What Are Box2D's Rendering Capabilities?
 
 Box2D is only a physics engine. How you draw stuff is up to you.
 
-### But the Testbed draws stuff
+### But The Testbed Draws Stuff?
 
 Visualization is very important for debugging collision and physics. I wrote the test bed to help me test Box2D and give you examples of how to use Box2D. The TestBed is not part of the Box2D library.
 
-### How do I draw shapes?
+### How Do I Draw Shapes?
 
 Drawing shapes is not supported and shape internal data is likely to change. Instead you should implement the `b2Draw` interface.
 You can use the @core/debug-draw library for simple debugging on a canvas or use it as a reference for your own renderer.
@@ -105,17 +105,17 @@ Box2D does not have any support for coordinate frame wrapping. You would likely 
 
 ## Determinism
 
-### Is Box2D deterministic?
+### Is Box2D Deterministic?
 
 For the same input, and same browser, @box2d will reproduce any simulation. Box2D does not use any random numbers nor base any computation on random events (such as timers, etc).
 
 However, people often want more stringent determinism. People often want to know if Box2D can produce identical results on different browsers and on different platforms. The answer is no. The reason for this answer has to do with how floating point math is implemented in many compilers and processors. I recommend reading this article if you are curious: http://www.yosefk.com/blog/consistency-how-to-defeat-the-purpose-of-ieee-floating-point.html
 
-### But I really want determinism
+### But I Really Want Determinism
 
 This naturally leads to the question of fixed-point math. Box2D does not support fixed-point math. In the past Box2D was ported to the NDS in fixed-point and apparently it worked okay. Fixed-point math is slower and more tedious to develop, so I have chosen not to use fixed-point for the development of Box2D.
 
-## Why is the restitution/friction mixing inaccurate?
+## Why Is The Restitution/Friction Mixing Inaccurate?
 
 A physically correct restitution value must be measured in experiments. But as soon as you change the geometry from the experiment then the value is wrong. Next, adding simultaneous collision makes the answer worse. We've been down this road before.
 
@@ -125,7 +125,7 @@ The only remaining question is how do we make it convenient. On this opinions ma
 
 `b2Settings` is just that. Settings you can adjust if you know what you are doing. See [Settings](common.md#settings) for more details.
 
-## What are the biggest mistakes made by new users?
+## What Are The Biggest Mistakes Made By New Users?
 
 - Using pixels for length instead of meters.
 - Expecting Box2D to give pixel perfect results.

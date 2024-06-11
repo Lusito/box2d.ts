@@ -13,7 +13,12 @@ rayHandler.useCustomViewport(x, y, width, height);
 For example if you use a viewport:
 
 ```ts
-rayHandler.useCustomViewport(viewport.getScreenX(), viewport.getScreenY(), viewport.getScreenWidth(), viewport.getScreenHeight());
+rayHandler.useCustomViewport(
+  viewport.getScreenX(),
+  viewport.getScreenY(),
+  viewport.getScreenWidth(),
+  viewport.getScreenHeight(),
+);
 ```
 
 Where the x, y, width and height are the values of your custom viewport.

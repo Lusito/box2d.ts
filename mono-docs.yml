@@ -1,5 +1,5 @@
-siteName: '@box2d'
-title: ''
+siteName: "@box2d"
+title: ""
 description: A full-blown ecosystem for box2d for the JavaScript/TypeScript world
 footer:
   # - Zlib/Libpng License | https://github.com/Lusito/react-nano/blob/master/LICENSE

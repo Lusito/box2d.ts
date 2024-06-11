@@ -8,7 +8,7 @@ Try it here: https://lusito.github.io/box2d.ts/
 
 Based on [bench2d](https://github.com/joelgwebber/bench2d) by joelgwebber
 
-## Example output using node.js v12.16.3
+## Example Output Using Node.js V12.16.3
 
 | Name           | avg ms/frame | 5th %ile | 95th %ile | Ratio |
 | -------------- | ------------ | -------- | --------- | ----- |
@@ -19,7 +19,7 @@ Based on [bench2d](https://github.com/joelgwebber/bench2d) by joelgwebber
 | @flyover/box2d | 18.33        | 16       | 21        | 6.68  |
 | planck.js      | 23.39        | 19       | 28        | 8.52  |
 
-## Example output using Firefox 81
+## Example Output Using Firefox 81
 
 | Name           | avg ms/frame | 5th %ile | 95th %ile | Ratio |
 | -------------- | ------------ | -------- | --------- | ----- |
@@ -30,7 +30,7 @@ Based on [bench2d](https://github.com/joelgwebber/bench2d) by joelgwebber
 | @flyover/box2d | 25.89        | 38       | 23        | 1.89  |
 | planck.js      | 111.90       | 64       | 40        | 8.17  |
 
-## Example output using Chrome 86
+## Example Output Using Chrome 86
 
 | Name           | avg ms/frame | 5th %ile | 95th %ile | Ratio |
 | -------------- | ------------ | -------- | --------- | ----- |

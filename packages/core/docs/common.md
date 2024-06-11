@@ -19,8 +19,8 @@ In order to adjust the above settings, you'll need to create a new file in your 
 import { configure } from "@box2d/core/config";
 
 configure({
-    lengthUnitsPerMeter: 2, // default 1
-    maxPolygonVertices: 10, // default 8
+  lengthUnitsPerMeter: 2, // default 1
+  maxPolygonVertices: 10, // default 8
 });
 ```
 
@@ -34,8 +34,8 @@ import { b2_lengthUnitsPerMeter, b2_maxPolygonVertices } from "@box2d/core";
 
 // The following should show your changes from above:
 console.log({
-    b2_lengthUnitsPerMeter,
-    b2_maxPolygonVertices,
+  b2_lengthUnitsPerMeter,
+  b2_maxPolygonVertices,
 });
 ```
 

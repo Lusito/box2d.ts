@@ -28,7 +28,7 @@ Bodies have position and velocity. You can apply forces, torques, and
 impulses to bodies. Bodies can be static, kinematic, or dynamic. Here
 are the body type definitions:
 
-#### b2_staticBody
+#### `b2_staticBody`
 
 A static body does not move under simulation and behaves as if it has
 infinite mass. Internally, Box2D stores zero for the mass and the
@@ -36,7 +36,7 @@ inverse mass. Static bodies can be moved manually by the user. A static
 body has zero velocity. Static bodies do not collide with other static
 or kinematic bodies.
 
-#### b2_kinematicBody
+#### `b2_kinematicBody`
 
 A kinematic body moves under simulation according to its velocity.
 Kinematic bodies do not respond to forces. They can be moved manually by
@@ -45,7 +45,7 @@ velocity. A kinematic body behaves as if it has infinite mass, however,
 Box2D stores zero for the mass and the inverse mass. Kinematic bodies do
 not collide with other kinematic or static bodies.
 
-#### b2_dynamicBody
+#### `b2_dynamicBody`
 
 A dynamic body is fully simulated. They can be moved manually by the
 user, but normally they move according to forces. A dynamic body can
@@ -1178,42 +1178,42 @@ circle-circle collision.
 
 Here is some terminology associated with contacts.
 
-##### contact point
+##### Contact Point
 
 A contact point is a point where two shapes touch. Box2D approximates
 contact with a small number of points.
 
-##### contact normal
+##### Contact Normal
 
 A contact normal is a unit vector that points from one shape to another.
 By convention, the normal points from fixtureA to fixtureB.
 
-##### contact separation
+##### Contact Separation
 
 Separation is the opposite of penetration. Separation is negative when
 shapes overlap. It is possible that future versions of Box2D will create
 contact points with positive separation, so you may want to check the
 sign when contact points are reported.
 
-##### contact manifold
+##### Contact Manifold
 
 Contact between two convex polygons may generate up to 2 contact points.
 Both of these points use the same normal, so they are grouped into a
 contact manifold, which is an approximation of a continuous region of
 contact.
 
-##### normal impulse
+##### Normal Impulse
 
 The normal force is the force applied at a contact point to prevent the
 shapes from penetrating. For convenience, Box2D works with impulses. The
 normal impulse is just the normal force multiplied by the time step.
 
-##### tangent impulse
+##### Tangent Impulse
 
 The tangent force is generated at a contact point to simulate friction.
 For convenience, this is stored as an impulse.
 
-##### contact ids
+##### Contact Ids
 
 Box2D tries to re-use the contact force results from a time step as the
 initial guess for the next time step. Box2D uses contact ids to match

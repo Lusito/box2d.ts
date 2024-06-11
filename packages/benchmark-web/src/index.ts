@@ -47,7 +47,7 @@ const testRows = prepareTests(tests).map((test) => {
     };
 });
 
-type TestResultAndRow = TestResult & { testRow: typeof testRows[0] };
+type TestResultAndRow = TestResult & { testRow: (typeof testRows)[0] };
 
 export async function runAllTestsAsync() {
     ratioHead.textContent = "";

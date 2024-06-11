@@ -221,6 +221,7 @@ class Sparky extends AbstractParticleTestWithControls {
         // Check to see if these are two circles hitting one another.
         const userA = contact.GetFixtureA().GetUserData();
         const userB = contact.GetFixtureB().GetUserData();
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
         if (userA.sparky || userB.sparky) {
             const worldManifold = new b2WorldManifold();
             contact.GetWorldManifold(worldManifold);

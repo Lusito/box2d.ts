@@ -53,7 +53,10 @@ const viewportHeight = 33;
 class Marble {
     public light!: Light;
 
-    public constructor(public readonly sprite: Sprite, public readonly body: b2Body) {}
+    public constructor(
+        public readonly sprite: Sprite,
+        public readonly body: b2Body,
+    ) {}
 
     public render() {
         const pos = this.body.GetPosition();

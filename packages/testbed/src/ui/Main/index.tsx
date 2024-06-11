@@ -87,7 +87,9 @@ const TestMain = ({ entry: { name, TestClass }, setTestControlGroups }: TestComp
                 }
             };
             const init = () => {
-                const setTest = (test: TestEntry) => router.history.push(getTestLink(test));
+                const setTest = (test: TestEntry) => {
+                    router.history.push(getTestLink(test));
+                };
                 manager.init(
                     glCanvas,
                     debugCanvas,

@@ -438,7 +438,7 @@ through the b2World class for ray casts and region queries. If you plan
 to instantiate your own dynamic tree, you can learn how to use it by
 looking at how Box2D uses it.
 
-## Broad-phase
+## Broad-Phase
 
 Collision processing in a physics step can be divided into narrow-phase
 and broad-phase. In the narrow-phase we compute contact points between

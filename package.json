@@ -1,57 +1,57 @@
 {
-    "private": true,
-    "workspaces": [
-        "packages/core",
-        "packages/controllers",
-        "packages/debug-draw",
-        "packages/particles",
-        "packages/lights",
-        "packages/testbed",
-        "packages/benchmark",
-        "packages/benchmark-web",
-        "packages/updiff"
-    ],
-    "scripts": {
-        "bench": "npm start -w @box2d/benchmark",
-        "bench:web": "npm start -w @box2d/benchmark-web",
-        "build": "npm run build --workspaces --if-present",
-        "build:libs": "npm run build -w @box2d/core -w @box2d/controllers -w @box2d/particles -w @box2d/lights -w @box2d/debug-draw -w @box2d/benchmark",
-        "build:testbed": "npm run build -w @box2d/testbed",
-        "credit": "all-contributors add",
-        "docs:build": "npm run docs:build:base -- build",
-        "docs:build:base": "rimraf docs/docs && mono-docs .",
-        "docs:dev": "nodemon --ignore \"docs\" --ignore node_modules --ignore dist -e ts,tsx,md,scss,png,webp --exec \"npm run docs:build:base -- serve\"",
-        "lint": "mono-lint",
-        "lint:fix": "mono-lint --fix",
-        "release": "mono-release",
-        "start": "npm start -w @box2d/testbed",
-        "updiff": "npm start -w @box2d/updiff",
-        "updiff:cpp": "npm run convert:cpp -w @box2d/updiff",
-        "updiff:ts": "npm run convert:ts -w @box2d/updiff"
+  "private": true,
+  "workspaces": [
+    "packages/core",
+    "packages/controllers",
+    "packages/debug-draw",
+    "packages/particles",
+    "packages/lights",
+    "packages/testbed",
+    "packages/benchmark",
+    "packages/benchmark-web",
+    "packages/updiff"
+  ],
+  "scripts": {
+    "bench": "npm start -w @box2d/benchmark",
+    "bench:web": "npm start -w @box2d/benchmark-web",
+    "build": "npm run build --workspaces --if-present",
+    "build:libs": "npm run build -w @box2d/core -w @box2d/controllers -w @box2d/particles -w @box2d/lights -w @box2d/debug-draw -w @box2d/benchmark",
+    "build:testbed": "npm run build -w @box2d/testbed",
+    "credit": "all-contributors add",
+    "docs:build": "npm run docs:build:base -- build",
+    "docs:build:base": "rimraf docs/docs && mono-docs .",
+    "docs:dev": "nodemon --ignore \"docs\" --ignore node_modules --ignore dist -e ts,tsx,md,scss,png,webp --exec \"npm run docs:build:base -- serve\"",
+    "lint": "mono-lint",
+    "lint:fix": "mono-lint --fix",
+    "release": "mono-release",
+    "start": "npm start -w @box2d/testbed",
+    "updiff": "npm start -w @box2d/updiff",
+    "updiff:cpp": "npm run convert:cpp -w @box2d/updiff",
+    "updiff:ts": "npm run convert:ts -w @box2d/updiff"
+  },
+  "devDependencies": {
+    "@lusito/eslint-config-react": "^3.1.3",
+    "@lusito/mono": "^0.19.3",
+    "@lusito/mono-docs": "^0.19.0",
+    "@lusito/prettier-config": "^3.1.0",
+    "@lusito/stylelint-config": "^3.0.0",
+    "@types/rimraf": "^4.0.5",
+    "all-contributors-cli": "^6.26.1",
+    "nodemon": "^3.1.3",
+    "rimraf": "^5.0.7",
+    "sort-package-json": "^2.10.0",
+    "typescript": "^5.4.5"
+  },
+  "monoLint": {
+    "lintMarkdownLinks": {
+      "warnOnlyPatterns": [
+        "^https:\\/\\/lusito\\.github\\.io\\/box2d.ts\\/"
+      ]
     },
-    "devDependencies": {
-        "@lusito/eslint-config-react": "^3.1.3",
-        "@lusito/mono": "^0.19.3",
-        "@lusito/mono-docs": "^0.19.0",
-        "@lusito/prettier-config": "^3.1.0",
-        "@lusito/stylelint-config": "^3.0.0",
-        "@types/rimraf": "^4.0.5",
-        "all-contributors-cli": "^6.26.1",
-        "nodemon": "^3.1.3",
-        "rimraf": "^5.0.7",
-        "sort-package-json": "^2.10.0",
-        "typescript": "^5.4.5"
-    },
-    "monoLint": {
-      "lintMarkdownLinks": {
-        "warnOnlyPatterns": [
-          "^https:\\/\\/lusito\\.github\\.io\\/box2d.ts\\/"
-        ]
-      },
-      "lintMarkdownTitles": {
-        "ignorePatterns": [
-          "@box2d[/a-z0-9-]*"
-        ]
-      }
+    "lintMarkdownTitles": {
+      "ignorePatterns": [
+        "@box2d[/a-z0-9-]*"
+      ]
     }
+  }
 }

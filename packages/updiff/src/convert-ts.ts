@@ -212,7 +212,7 @@ function parseFile(file: string, module: ModuleType) {
                 comment: comments.join("\n"),
             });
             comments.length = 0;
-        } else if(declareModuleRegex.test(lineTrimmed)) {
+        } else if (declareModuleRegex.test(lineTrimmed)) {
             parseBodyLines(lines, line);
         } else if (enumRegex.test(lineTrimmed)) {
             const [enumLine, enumBody] = parseBody(lines, line);

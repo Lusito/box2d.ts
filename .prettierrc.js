@@ -6,8 +6,8 @@ module.exports = {
         {
             files: ["*.json", ".*rc", "*.md", "*.yml", ".yaml"],
             options: {
-                tabWidth: 2
-            }
-        }
-    ]
+                tabWidth: 2,
+            },
+        },
+    ],
 };
