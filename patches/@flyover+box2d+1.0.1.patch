@@ -1,0 +1,53 @@
+diff --git a/node_modules/@flyover/box2d/Box2D/Particle/b2ParticleGroup.ts b/node_modules/@flyover/box2d/Box2D/Particle/b2ParticleGroup.ts
+index 6131270..fd3674a 100644
+--- a/node_modules/@flyover/box2d/Box2D/Particle/b2ParticleGroup.ts
++++ b/node_modules/@flyover/box2d/Box2D/Particle/b2ParticleGroup.ts
+@@ -42,7 +42,7 @@ export enum b2ParticleGroupFlag {
+ 
+ export interface b2IParticleGroupDef {
+   flags?: b2ParticleFlag;
+-  groupFlags?: b2ParticleGroupFlag;
++  groupFlags?: number;
+   position?: XY;
+   angle?: number;
+   linearVelocity?: XY;
+@@ -62,7 +62,7 @@ export interface b2IParticleGroupDef {
+ 
+ export class b2ParticleGroupDef implements b2IParticleGroupDef {
+   public flags: b2ParticleFlag = 0;
+-  public groupFlags: b2ParticleGroupFlag = 0;
++  public groupFlags = 0;
+   public readonly position: b2Vec2 = new b2Vec2();
+   public angle: number = 0.0;
+   public readonly linearVelocity: b2Vec2 = new b2Vec2();
+@@ -85,7 +85,7 @@ export class b2ParticleGroup {
+   public readonly m_system: b2ParticleSystem;
+   public m_firstIndex: number = 0;
+   public m_lastIndex: number = 0;
+-  public m_groupFlags: b2ParticleGroupFlag = 0;
++  public m_groupFlags = 0;
+   public m_strength: number = 1.0;
+   public m_prev: b2ParticleGroup | null = null;
+   public m_next: b2ParticleGroup | null = null;
+diff --git a/node_modules/@flyover/box2d/Box2D/Particle/b2ParticleSystem.ts b/node_modules/@flyover/box2d/Box2D/Particle/b2ParticleSystem.ts
+index 02e2928..130ae42 100644
+--- a/node_modules/@flyover/box2d/Box2D/Particle/b2ParticleSystem.ts
++++ b/node_modules/@flyover/box2d/Box2D/Particle/b2ParticleSystem.ts
+@@ -550,7 +550,7 @@ export class b2ParticleSystem {
+   public m_timestamp: number = 0;
+   public m_allParticleFlags: b2ParticleFlag = 0;
+   public m_needsUpdateAllParticleFlags: boolean = false;
+-  public m_allGroupFlags: b2ParticleGroupFlag = 0;
++  public m_allGroupFlags = 0;
+   public m_needsUpdateAllGroupFlags: boolean = false;
+   public m_hasForce: boolean = false;
+   public m_iterationIndex: number = 0;
+@@ -4421,7 +4421,7 @@ export class b2ParticleSystem {
+     buffer.userSuppliedCapacity = data.length;
+   }
+ 
+-  public SetGroupFlags(group: b2ParticleGroup, newFlags: b2ParticleGroupFlag): void {
++  public SetGroupFlags(group: b2ParticleGroup, newFlags: number): void {
+     const oldFlags = group.m_groupFlags;
+     if ((oldFlags ^ newFlags) & b2ParticleGroupFlag.b2_solidParticleGroup) {
+       // If the b2_solidParticleGroup flag changed schedule depth update.
