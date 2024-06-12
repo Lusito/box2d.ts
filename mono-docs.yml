@@ -24,4 +24,4 @@ buildOptions:
   siteUrl: https://lusito.github.io/box2d.ts
   static:
     benchmark: apps/benchmark-web/dist
-    testbed: packages/testbed/dist
+    testbed: apps/testbed/dist

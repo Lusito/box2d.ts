@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "jsx": "react",
+    "baseUrl": ".",
+    "paths": {
+      "@box2d/core/*": ["../../packages/core/src/*"],
+      "@box2d/controllers/*": ["../../packages/controllers/src/*"],
+      "@box2d/debug-draw/*": ["../../packages/debug-draw/src/*"],
+      "@box2d/lights/*": ["../../packages/lights/src/*"],
+      "@box2d/particles/*": ["../../packages/particles/src/*"]
+    }
+  },
+  "include": ["src"]
+}

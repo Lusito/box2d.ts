@@ -1,6 +1,6 @@
 # Setup
 
-There doesn't seem to be any official documentation for controllers on the original homepage. Make sure to check out [the examples](https://github.com/Lusito/box2d.ts/tree/master/packages/testbed/src/tests/controllers) instead.
+There doesn't seem to be any official documentation for controllers on the original homepage. Make sure to check out [the examples](https://github.com/Lusito/box2d.ts/tree/master/apps/testbed/src/tests/controllers) instead.
 
 We aim to stay true to the original API where we can, but sometimes it's not possible. We'll cover the differences in upcoming tutorials.
 

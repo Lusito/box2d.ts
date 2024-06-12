@@ -6,8 +6,8 @@
     "packages/debug-draw",
     "packages/particles",
     "packages/lights",
-    "packages/testbed",
     "packages/benchmark",
+    "apps/testbed",
     "apps/benchmark-web",
     "packages/updiff"
   ],

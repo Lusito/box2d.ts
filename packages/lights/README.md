@@ -25,7 +25,7 @@ This library offer easy way to add soft dynamic 2d lights to your physic based g
 
 ## Usage
 
-TODO (see the [testbed](https://github.com/Lusito/box2d.ts/tree/master/packages/testbed/src/tests/lights) for simple examples)
+TODO (see the [testbed](https://github.com/Lusito/box2d.ts/tree/master/apps/testbed/src/tests/lights) for simple examples)
 
 ## The @box2d Ecosystem
 
