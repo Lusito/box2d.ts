@@ -21,9 +21,9 @@
     "docs:build": "npm run docs:build:base -- build",
     "docs:build:base": "rimraf docs && mono-docs .",
     "docs:dev": "nodemon --ignore docs --ignore node_modules --ignore dist -e ts,tsx,md,scss,png,webp --exec \"npm run docs:build:base -- serve\"",
+    "postinstall": "patch-package",
     "lint": "mono-lint",
     "lint:fix": "mono-lint --fix",
-    "postinstall": "patch-package",
     "release": "mono-release",
     "start": "npm start -w @box2d/testbed",
     "updiff": "npm start -w @box2d/updiff",
@@ -50,7 +50,8 @@
   "monoLint": {
     "lintMarkdownLinks": {
       "warnOnlyPatterns": [
-        "^https:\\/\\/lusito\\.github\\.io\\/box2d.ts\\/"
+        "^https:\\/\\/lusito\\.github\\.io\\/box2d.ts\\/",
+        "^https:\\/\\/github\\.com\\/Lusito\\/box2d\\.ts\\/"
       ]
     },
     "lintMarkdownTitles": {

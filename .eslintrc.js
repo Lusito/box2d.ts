@@ -4,7 +4,7 @@ module.exports = {
     extends: ["@lusito/eslint-config-react"],
     ignorePatterns: ".eslintrc.js",
     parserOptions: {
-        project: "./packages/*/tsconfig.json",
+        project: true,
         tsconfigRootDir: ".",
     },
     rules: {
