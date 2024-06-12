@@ -8,7 +8,7 @@
     "packages/lights",
     "packages/testbed",
     "packages/benchmark",
-    "packages/benchmark-web",
+    "apps/benchmark-web",
     "packages/updiff"
   ],
   "scripts": {
