@@ -3,10 +3,6 @@ const utils = require("@lusito/eslint-config/utils");
 module.exports = {
     extends: ["@lusito/eslint-config-react"],
     ignorePatterns: ".eslintrc.js",
-    parserOptions: {
-        project: true,
-        tsconfigRootDir: ".",
-    },
     rules: {
         ...utils.getA11yOffRules(), // just for now
         "selector-id-pattern": "off",

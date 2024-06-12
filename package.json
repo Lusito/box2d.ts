@@ -31,9 +31,9 @@
     "updiff:ts": "npm run convert:ts -w @box2d/updiff"
   },
   "devDependencies": {
-    "@lusito/eslint-config-react": "^3.1.3",
+    "@lusito/eslint-config-react": "^3.2.0",
     "@lusito/mono": "^0.19.3",
-    "@lusito/mono-docs": "^0.19.0",
+    "@lusito/mono-docs": "^0.19.2",
     "@lusito/prettier-config": "^3.1.0",
     "@lusito/stylelint-config": "^3.0.0",
     "@types/rimraf": "^4.0.5",

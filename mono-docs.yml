@@ -11,8 +11,8 @@ links:
   - Demos | /testbed/
   - Github | https://github.com/lusito/box2d.ts
 adjustPaths:
-  - ^\/packages\/([^/]+)(\/docs)?/([^/]+\.html)$|/$1/$3
-  - ^\/packages\/([^/]+)(\/docs)?/([^/]+/)?$|/$1/$3
+  - ^\/packages\/([^/]+)(\/docs)?/([^/]+\.html)(#.+)?$|/$1/$3$4
+  - ^\/packages\/([^/]+)(\/docs)?/([^/]+/)?(#.+)?$|/$1/$3$4
 projects:
   - packages/core
   - packages/controllers
