@@ -9,7 +9,7 @@
     "packages/benchmark",
     "apps/testbed",
     "apps/benchmark-web",
-    "packages/updiff"
+    "apps/updiff"
   ],
   "scripts": {
     "bench": "npm start -w @box2d/benchmark",

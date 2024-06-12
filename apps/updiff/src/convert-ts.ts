@@ -267,5 +267,5 @@ function convert(input: string, output: string) {
     }
 }
 
-convert("../core/src", "dist/ts-mod");
+convert("../../packages/core/src", "dist/ts-mod");
 convert("../testbed/src/tests/core", "dist/ts-tesbed-mod");
