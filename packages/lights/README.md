@@ -23,9 +23,11 @@ A [TypeScript](https://github.com/Microsoft/TypeScript) port of Kalle Hameleinen
 
 This library offer easy way to add soft dynamic 2d lights to your physic based game.
 
-## Usage
+## How to Use
 
-TODO (see the [testbed](https://github.com/Lusito/box2d.ts/tree/master/apps/testbed/src/tests/lights) for simple examples)
+Check out the [documentation](https://lusito.github.io/box2d.ts/lights/setup.html)
+
+Also checkout the [testbed](https://github.com/Lusito/box2d.ts/tree/master/apps/testbed/src/tests/lights) for simple examples.
 
 ## The @box2d Ecosystem
 

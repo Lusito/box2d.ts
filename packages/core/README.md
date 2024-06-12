@@ -5,6 +5,10 @@ Box2D is a 2D physics engine for games.
 @box2d/core is a TypeScript port of Erin Cattos [Box2D](https://github.com/erincatto/box2d).
 This is a fork of [box2d.ts](https://github.com/flyover/box2d.ts) from Isaac Burns (flyover) who did a huge job initially porting Box2D and [LiquidFun](https://github.com/google/liquidfun) to TypeScript.
 
+## How to Use
+
+Check out the [documentation](https://lusito.github.io/box2d.ts/core/setup.html)
+
 ## The @box2d Ecosystem
 
 @box2d is a full-blown ecosystem for box2d for the JavaScript/TypeScript world. It can be used both in the browser and in node.js

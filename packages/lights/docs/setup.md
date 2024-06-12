@@ -1,4 +1,4 @@
-# Lights
+# Setup
 
 This is a TypeScript port of [Box2D Lights](https://github.com/libgdx/box2dlights) from LibGDX.
 

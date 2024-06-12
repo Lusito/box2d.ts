@@ -5,6 +5,10 @@ Particles for @box2d/core
 @box2d/particles is a TypeScript port of Googles [LiquidFun](https://github.com/google/liquidfun) particles.
 This is a fork of [box2d.ts](https://github.com/flyover/box2d.ts) from Isaac Burns (flyover) who did a huge job initially porting Box2D and [LiquidFun](https://github.com/google/liquidfun) to TypeScript.
 
+## How to Use
+
+Check out the [documentation](https://lusito.github.io/box2d.ts/particles/setup.html)
+
 ## The @box2d Ecosystem
 
 @box2d is a full-blown ecosystem for box2d for the JavaScript/TypeScript world. It can be used both in the browser and in node.js
