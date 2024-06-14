@@ -4,7 +4,8 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "@box2d/core/*": ["../../packages/core/src/*"]
+      "@box2d/core": ["../../packages/core/src"],
+      "@box2d/benchmark": ["../../packages/benchmark/src"]
     }
   },
   "include": ["src"]

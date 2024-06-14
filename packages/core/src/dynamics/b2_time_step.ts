@@ -70,6 +70,8 @@ export class b2TimeStep {
 
     public dtRatio = 0; // dt * inv_dt0
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- needs to be here so that @box2d/particles doesn't fail.
+    // @ts-ignore
     public config: b2StepConfig = {
         velocityIterations: 0,
         positionIterations: 0,
