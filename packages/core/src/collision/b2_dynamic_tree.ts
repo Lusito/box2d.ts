@@ -23,6 +23,7 @@
 // DEBUG: import { b2Assert } from "../common/b2_common";
 import { b2Assert, b2Verify, b2_aabbExtension, b2_aabbMultiplier } from "../common/b2_common";
 import { b2Vec2, XY } from "../common/b2_math";
+import { b2Readonly } from "../common/b2_readonly";
 import { b2AABB, b2RayCastInput } from "./b2_collision";
 
 const temp = {
@@ -315,7 +316,7 @@ export class b2DynamicTree<T> {
      * the function returns immediately.
      * @return true if the proxy was re-inserted.
      */
-    public MoveProxy(node: b2TreeNode<T>, aabb: b2AABB, displacement: b2Vec2): boolean {
+    public MoveProxy(node: b2TreeNode<T>, aabb: b2AABB, displacement: b2Readonly<b2Vec2>): boolean {
         // DEBUG: b2Assert(node.IsLeaf());
 
         // Extend AABB

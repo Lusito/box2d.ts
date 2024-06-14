@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { XY, RGBA, b2Shape, b2Vec2, b2Color, b2Transform, b2Assert } from "@box2d/core";
+import { XY, RGBA, b2Shape, b2Vec2, b2Color, b2Transform, b2Assert, b2Readonly } from "@box2d/core";
 
 import { b2ParticleFlag } from "./b2_particle";
 import type { b2ParticleSystem } from "./b2_particle_system";
@@ -93,7 +93,7 @@ export class b2ParticleGroupDef implements b2IParticleGroupDef {
 
     public particleCount = 0;
 
-    public positionData?: b2Vec2[];
+    public positionData?: Array<b2Readonly<b2Vec2>>;
 
     public lifetime = 0;
 
@@ -186,12 +186,12 @@ export class b2ParticleGroup {
         return this.m_inertia;
     }
 
-    public GetCenter(): Readonly<b2Vec2> {
+    public GetCenter(): b2Readonly<b2Vec2> {
         this.UpdateStatistics();
         return this.m_center;
     }
 
-    public GetLinearVelocity(): Readonly<b2Vec2> {
+    public GetLinearVelocity(): b2Readonly<b2Vec2> {
         this.UpdateStatistics();
         return this.m_linearVelocity;
     }
@@ -201,11 +201,11 @@ export class b2ParticleGroup {
         return this.m_angularVelocity;
     }
 
-    public GetTransform(): Readonly<b2Transform> {
+    public GetTransform(): b2Readonly<b2Transform> {
         return this.m_transform;
     }
 
-    public GetPosition(): Readonly<b2Vec2> {
+    public GetPosition(): b2Readonly<b2Vec2> {
         return this.m_transform.p;
     }
 

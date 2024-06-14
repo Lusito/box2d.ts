@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Vec2, b2_maxFloat } from "@box2d/core";
+import { b2Readonly, b2Vec2, b2_maxFloat } from "@box2d/core";
 
 import { b2StackQueue } from "./b2_stack_queue";
 
@@ -49,7 +49,7 @@ export class b2VoronoiDiagram {
      * @param tag A tag used to identify the generator in callback functions.
      * @param necessary Whether to callback for nodes associated with the generator.
      */
-    public AddGenerator(center: b2Vec2, tag: number, necessary: boolean): void {
+    public AddGenerator(center: b2Readonly<b2Vec2>, tag: number, necessary: boolean): void {
         // DEBUG: b2Assert(this.m_generatorCount < this.m_generatorCapacity);
         const g = this.m_generatorBuffer[this.m_generatorCount++];
         g.center.Copy(center);

@@ -52,6 +52,7 @@ import {
     b2QueryCallback,
     b2RayCastCallback,
 } from "./b2_world_callbacks";
+import { b2Readonly } from "../common/b2_readonly";
 
 /**
  * The world class manages all physics entities, dynamic simulation,
@@ -565,7 +566,7 @@ export class b2World {
 
     private static QueryFixtureShape_s_aabb = new b2AABB();
 
-    public QueryFixtureShape(shape: b2Shape, index: number, transform: b2Transform, callback: b2QueryCallback): void {
+    public QueryFixtureShape(shape: b2Shape, index: number, transform: b2Readonly<b2Transform>, callback: b2QueryCallback): void {
         const aabb = b2World.QueryFixtureShape_s_aabb;
         shape.ComputeAABB(aabb, transform, index);
         this.m_contactManager.m_broadPhase.Query(aabb, (proxy) => {
@@ -587,7 +588,7 @@ export class b2World {
     public QueryAllFixtureShape(
         shape: b2Shape,
         index: number,
-        transform: b2Transform,
+        transform: b2Readonly<b2Transform>,
         out: b2Fixture[] = [],
     ): b2Fixture[] {
         this.QueryFixtureShape(shape, index, transform, (fixture) => {
@@ -821,7 +822,7 @@ export class b2World {
     /**
      * Get the global gravity vector.
      */
-    public GetGravity(): Readonly<b2Vec2> {
+    public GetGravity(): b2Readonly<b2Vec2> {
         return this.m_gravity;
     }
 

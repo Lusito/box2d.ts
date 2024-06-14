@@ -27,6 +27,7 @@ import { b2Body } from "./b2_body";
 import { b2Fixture } from "./b2_fixture";
 import { b2Shape } from "../collision/b2_shape";
 import type { b2ContactListener } from "./b2_world_callbacks";
+import { b2Readonly } from "../common/b2_readonly";
 
 /**
  * Friction mixing law. The idea is to allow either fixture to drive the friction to zero.
@@ -272,7 +273,7 @@ export abstract class b2Contact<A extends b2Shape = b2Shape, B extends b2Shape =
     }
 
     /** Evaluate this contact with your own manifold and transforms. */
-    public abstract Evaluate(manifold: b2Manifold, xfA: b2Transform, xfB: b2Transform): void;
+    public abstract Evaluate(manifold: b2Manifold, xfA: b2Readonly<b2Transform>, xfB: b2Readonly<b2Transform>): void;
 
     /**
      * Flag this contact for filtering. Filtering will occur the next time step.

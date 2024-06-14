@@ -28,6 +28,7 @@ import { b2DistanceProxy } from "./b2_distance";
 import { b2MassData, b2Shape, b2ShapeType } from "./b2_shape";
 import { b2EdgeShape } from "./b2_edge_shape";
 import { b2Color, b2Draw } from "../common/b2_draw";
+import { b2Readonly } from "../common/b2_readonly";
 
 /**
  * A chain shape is a free form sequence of line segments.
@@ -162,7 +163,7 @@ export class b2ChainShape extends b2Shape {
      *
      * @see b2Shape::TestPoint
      */
-    public TestPoint(_xf: b2Transform, _p: XY): boolean {
+    public TestPoint(_xf: b2Readonly<b2Transform>, _p: XY): boolean {
         return false;
     }
 
@@ -171,7 +172,7 @@ export class b2ChainShape extends b2Shape {
     /**
      * Implement b2Shape.
      */
-    public RayCast(output: b2RayCastOutput, input: b2RayCastInput, xf: b2Transform, childIndex: number): boolean {
+    public RayCast(output: b2RayCastOutput, input: b2RayCastInput, xf: b2Readonly<b2Transform>, childIndex: number): boolean {
         // DEBUG: b2Assert(childIndex < this.m_vertices.length);
 
         const edgeShape = b2ChainShape.RayCast_s_edgeShape;
@@ -199,7 +200,7 @@ export class b2ChainShape extends b2Shape {
     /**
      * @see b2Shape::ComputeAABB
      */
-    public ComputeAABB(aabb: b2AABB, xf: b2Transform, childIndex: number): void {
+    public ComputeAABB(aabb: b2AABB, xf: b2Readonly<b2Transform>, childIndex: number): void {
         // DEBUG: b2Assert(childIndex < this.m_vertices.length);
 
         const i1 = childIndex;

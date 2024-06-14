@@ -24,6 +24,7 @@
 import { b2Assert, b2MakeArray, b2_polygonRadius } from "../common/b2_common";
 import { b2Color, b2Draw } from "../common/b2_draw";
 import { b2Vec2, b2Rot, b2Transform, XY } from "../common/b2_math";
+import { b2Readonly } from "../common/b2_readonly";
 import { b2_maxPolygonVertices } from "../common/b2_settings";
 import { b2AABB, b2ComputeHull, b2Hull, b2RayCastInput, b2RayCastOutput, b2ValidateHull } from "./b2_collision";
 import { b2DistanceProxy } from "./b2_distance";
@@ -68,7 +69,7 @@ const temp = {
     },
 };
 
-function ComputeCentroid(vs: b2Vec2[], count: number, out: b2Vec2): b2Vec2 {
+function ComputeCentroid(vs: Array<b2Readonly<b2Vec2>>, count: number, out: b2Vec2): b2Vec2 {
     // DEBUG: b2Assert(count >= 3);
 
     const c = out;
@@ -255,7 +256,7 @@ export class b2PolygonShape extends b2Shape {
     /**
      * @see b2Shape::TestPoint
      */
-    public TestPoint(xf: b2Transform, p: XY): boolean {
+    public TestPoint(xf: b2Readonly<b2Transform>, p: XY): boolean {
         const pLocal = b2Transform.TransposeMultiplyVec2(xf, p, temp.TestPoint.pLocal);
 
         for (let i = 0; i < this.m_count; ++i) {
@@ -274,7 +275,12 @@ export class b2PolygonShape extends b2Shape {
      * @note because the polygon is solid, rays that start inside do not hit because the normal is
      * not defined.
      */
-    public RayCast(output: b2RayCastOutput, input: b2RayCastInput, xf: b2Transform, _childIndex: number): boolean {
+    public RayCast(
+        output: b2RayCastOutput,
+        input: b2RayCastInput,
+        xf: b2Readonly<b2Transform>,
+        _childIndex: number,
+    ): boolean {
         // Put the ray into the polygon's frame of reference.
         const p1 = b2Transform.TransposeMultiplyVec2(xf, input.p1, temp.RayCast.p1);
         const p2 = b2Transform.TransposeMultiplyVec2(xf, input.p2, temp.RayCast.p2);
@@ -334,7 +340,7 @@ export class b2PolygonShape extends b2Shape {
     /**
      * @see b2Shape::ComputeAABB
      */
-    public ComputeAABB(aabb: b2AABB, xf: b2Transform, _childIndex: number): void {
+    public ComputeAABB(aabb: b2AABB, xf: b2Readonly<b2Transform>, _childIndex: number): void {
         const lower = b2Transform.MultiplyVec2(xf, this.m_vertices[0], aabb.lowerBound);
         const upper = aabb.upperBound.Copy(lower);
 

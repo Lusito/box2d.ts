@@ -354,7 +354,7 @@ The body's mass data is available through the following functions:
 // on b2Body:
 public GetMass(): number;
 public GetInertia(): number;
-public GetLocalCenter(): Readonly<b2Vec2>;
+public GetLocalCenter(): b2Readonly<b2Vec2>;
 public GetMassData(data: b2MassData): b2MassData;
 ```
 
@@ -390,8 +390,8 @@ simulate movement.
 // on b2Body:
 public SetTransformVec(position: XY, angle: number): void;
 public SetTransformXY(x: number, y: number, angle: number): void
-public GetTransform(): Readonly<b2Transform>;
-public GetPosition(): Readonly<b2Vec2>;
+public GetTransform(): b2Readonly<b2Transform>;
+public GetPosition(): b2Readonly<b2Vec2>;
 public GetAngle(): number;
 ```
 
@@ -403,8 +403,8 @@ body that is square. The body origin might be a corner of the square,
 while the center of mass is located at the center of the square.
 
 ```ts
-public GetWorldCenter(): Readonly<b2Vec2>;
-public GetLocalCenter(): Readonly<b2Vec2>;
+public GetWorldCenter(): b2Readonly<b2Vec2>;
+public GetLocalCenter(): b2Readonly<b2Vec2>;
 ```
 
 You can access the linear and angular velocity. The linear velocity is
@@ -1653,8 +1653,8 @@ class MyRayCastCallback {
 
   public callback: b2RayCastCallback = (
     fixture: b2Fixture,
-    point: b2Vec2,
-    normal: b2Vec2,
+    point: b2Readonly<b2Vec2>,
+    normal: b2Readonly<b2Vec2>,
     fraction: number,
   ): number => {
     this.fixture = fixture;

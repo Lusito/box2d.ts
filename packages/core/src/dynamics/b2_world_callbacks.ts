@@ -26,6 +26,7 @@ import { b2Manifold } from "../collision/b2_collision";
 import { b2Contact } from "./b2_contact";
 import { b2Joint } from "./b2_joint";
 import { b2Fixture } from "./b2_fixture";
+import { b2Readonly } from "../common/b2_readonly";
 
 /**
  * Joints and fixtures are destroyed when their associated
@@ -156,4 +157,4 @@ export type b2QueryCallback = (fixture: b2Fixture) => boolean;
  * @returns -1 to filter, 0 to terminate, fraction to clip the ray for
  * closest hit, 1 to continue
  */
-export type b2RayCastCallback = (fixture: b2Fixture, point: b2Vec2, normal: b2Vec2, fraction: number) => number;
+export type b2RayCastCallback = (fixture: b2Fixture, point: b2Readonly<b2Vec2>, normal: b2Readonly<b2Vec2>, fraction: number) => number;

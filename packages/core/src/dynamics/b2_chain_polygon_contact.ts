@@ -27,12 +27,13 @@ import { b2ChainShape } from "../collision/b2_chain_shape";
 import { b2EdgeShape } from "../collision/b2_edge_shape";
 import { b2PolygonShape } from "../collision/b2_polygon_shape";
 import { b2Contact } from "./b2_contact";
+import { b2Readonly } from "../common/b2_readonly";
 
 /** @internal */
 export class b2ChainAndPolygonContact extends b2Contact<b2ChainShape, b2PolygonShape> {
     private static Evaluate_s_edge = new b2EdgeShape();
 
-    public Evaluate(manifold: b2Manifold, xfA: b2Transform, xfB: b2Transform): void {
+    public Evaluate(manifold: b2Manifold, xfA: b2Readonly<b2Transform>, xfB: b2Readonly<b2Transform>): void {
         const edge = b2ChainAndPolygonContact.Evaluate_s_edge;
         this.GetShapeA().GetChildEdge(edge, this.m_indexA);
         b2CollideEdgeAndPolygon(manifold, edge, xfA, this.GetShapeB(), xfB);

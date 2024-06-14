@@ -24,6 +24,7 @@
 import { b2_epsilon } from "../common/b2_common";
 import { b2Color, b2Draw } from "../common/b2_draw";
 import { b2Vec2, b2Transform, XY } from "../common/b2_math";
+import { b2Readonly } from "../common/b2_readonly";
 import { b2AABB, b2RayCastInput, b2RayCastOutput } from "./b2_collision";
 import { b2DistanceProxy } from "./b2_distance";
 import { b2MassData, b2Shape, b2ShapeType } from "./b2_shape";
@@ -75,7 +76,7 @@ export class b2CircleShape extends b2Shape {
     /**
      * Implement b2Shape.
      */
-    public TestPoint(transform: b2Transform, p: XY): boolean {
+    public TestPoint(transform: b2Readonly<b2Transform>, p: XY): boolean {
         const center = b2Transform.MultiplyVec2(transform, this.m_p, b2CircleShape.TestPoint_s_center);
         const d = b2Vec2.Subtract(p, center, b2CircleShape.TestPoint_s_d);
         return b2Vec2.Dot(d, d) <= this.m_radius ** 2;
@@ -99,7 +100,7 @@ export class b2CircleShape extends b2Shape {
     public RayCast(
         output: b2RayCastOutput,
         input: b2RayCastInput,
-        transform: b2Transform,
+        transform: b2Readonly<b2Transform>,
         _childIndex: number,
     ): boolean {
         const position = b2Transform.MultiplyVec2(transform, this.m_p, b2CircleShape.RayCast_s_position);
@@ -136,7 +137,7 @@ export class b2CircleShape extends b2Shape {
     /**
      * @see b2Shape::ComputeAABB
      */
-    public ComputeAABB(aabb: b2AABB, transform: b2Transform, _childIndex: number): void {
+    public ComputeAABB(aabb: b2AABB, transform: b2Readonly<b2Transform>, _childIndex: number): void {
         const p = b2Transform.MultiplyVec2(transform, this.m_p, b2CircleShape.ComputeAABB_s_p);
         aabb.lowerBound.Set(p.x - this.m_radius, p.y - this.m_radius);
         aabb.upperBound.Set(p.x + this.m_radius, p.y + this.m_radius);

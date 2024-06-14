@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 // DEBUG: import { b2Assert } from "./b2_common";
+import type { b2Readonly } from "./b2_readonly";
 import { b2_epsilon, b2_epsilon_sq } from "./b2_common";
 
 export const b2_pi_over_180 = Math.PI / 180;
@@ -81,11 +82,11 @@ export interface XY {
  * A 2D column vector.
  */
 export class b2Vec2 implements XY {
-    public static readonly ZERO: Readonly<XY> = new b2Vec2();
+    public static readonly ZERO: b2Readonly<b2Vec2> = new b2Vec2();
 
-    public static readonly UNITX: Readonly<XY> = new b2Vec2(1, 0);
+    public static readonly UNITX: b2Readonly<b2Vec2> = new b2Vec2(1, 0);
 
-    public static readonly UNITY: Readonly<XY> = new b2Vec2(0, 1);
+    public static readonly UNITY: b2Readonly<b2Vec2> = new b2Vec2(0, 1);
 
     public static readonly s_t0 = new b2Vec2();
 
@@ -126,7 +127,7 @@ export class b2Vec2 implements XY {
         return this;
     }
 
-    public Copy(other: XY) {
+    public Copy(other: Readonly<XY>) {
         this.x = other.x;
         this.y = other.y;
         return this;
@@ -135,7 +136,7 @@ export class b2Vec2 implements XY {
     /**
      * Add a vector to this vector.
      */
-    public Add(v: XY) {
+    public Add(v: Readonly<XY>) {
         this.x += v.x;
         this.y += v.y;
         return this;
@@ -153,7 +154,7 @@ export class b2Vec2 implements XY {
     /**
      * Subtract a vector from this vector.
      */
-    public Subtract(v: XY) {
+    public Subtract(v: Readonly<XY>) {
         this.x -= v.x;
         this.y -= v.y;
         return this;
@@ -177,13 +178,13 @@ export class b2Vec2 implements XY {
         return this;
     }
 
-    public AddScaled(s: number, v: XY) {
+    public AddScaled(s: number, v: Readonly<XY>) {
         this.x += s * v.x;
         this.y += s * v.y;
         return this;
     }
 
-    public SubtractScaled(s: number, v: XY) {
+    public SubtractScaled(s: number, v: Readonly<XY>) {
         this.x -= s * v.x;
         this.y -= s * v.y;
         return this;
@@ -192,14 +193,14 @@ export class b2Vec2 implements XY {
     /**
      * Perform the dot product on two vectors.
      */
-    public Dot(v: XY) {
+    public Dot(v: Readonly<XY>) {
         return this.x * v.x + this.y * v.y;
     }
 
     /**
      * Perform the cross product on two vectors. In 2D this produces a scalar.
      */
-    public Cross(v: XY) {
+    public Cross(v: Readonly<XY>) {
         return this.x * v.y - this.y * v.x;
     }
 
@@ -288,25 +289,25 @@ export class b2Vec2 implements XY {
         return this;
     }
 
-    public static Min<T extends XY>(a: XY, b: XY, out: T) {
+    public static Min<T extends XY>(a: Readonly<XY>, b: Readonly<XY>, out: T) {
         out.x = Math.min(a.x, b.x);
         out.y = Math.min(a.y, b.y);
         return out;
     }
 
-    public static Max<T extends XY>(a: XY, b: XY, out: T) {
+    public static Max<T extends XY>(a: Readonly<XY>, b: Readonly<XY>, out: T) {
         out.x = Math.max(a.x, b.x);
         out.y = Math.max(a.y, b.y);
         return out;
     }
 
-    public static Clamp<T extends XY>(v: XY, lo: XY, hi: XY, out: T) {
+    public static Clamp<T extends XY>(v: Readonly<XY>, lo: Readonly<XY>, hi: Readonly<XY>, out: T) {
         out.x = b2Clamp(v.x, lo.x, hi.x);
         out.y = b2Clamp(v.y, lo.y, hi.y);
         return out;
     }
 
-    public static Rotate<T extends XY>(v: XY, radians: number, out: T) {
+    public static Rotate<T extends XY>(v: Readonly<XY>, radians: number, out: T) {
         const v_x = v.x;
         const v_y = v.y;
         const c = Math.cos(radians);
@@ -317,12 +318,12 @@ export class b2Vec2 implements XY {
     }
 
     /** Perform the dot product on two vectors. */
-    public static Dot(a: XY, b: XY) {
+    public static Dot(a: Readonly<XY>, b: Readonly<XY>) {
         return a.x * b.x + a.y * b.y;
     }
 
     /** Perform the cross product on two vectors. In 2D this produces a scalar. */
-    public static Cross(a: XY, b: XY) {
+    public static Cross(a: Readonly<XY>, b: Readonly<XY>) {
         return a.x * b.y - a.y * b.x;
     }
 
@@ -330,14 +331,14 @@ export class b2Vec2 implements XY {
      * Perform the cross product on a vector and a scalar. In 2D this produces
      * a vector.
      */
-    public static CrossVec2Scalar<T extends XY>(v: XY, s: number, out: T) {
+    public static CrossVec2Scalar<T extends XY>(v: Readonly<XY>, s: number, out: T) {
         const v_x = v.x;
         out.x = s * v.y;
         out.y = -s * v_x;
         return out;
     }
 
-    public static CrossVec2One<T extends XY>(v: XY, out: T) {
+    public static CrossVec2One<T extends XY>(v: Readonly<XY>, out: T) {
         const v_x = v.x;
         out.x = v.y;
         out.y = -v_x;
@@ -348,14 +349,14 @@ export class b2Vec2 implements XY {
      * Perform the cross product on a scalar and a vector. In 2D this produces
      * a vector.
      */
-    public static CrossScalarVec2<T extends XY>(s: number, v: XY, out: T) {
+    public static CrossScalarVec2<T extends XY>(s: number, v: Readonly<XY>, out: T) {
         const v_x = v.x;
         out.x = -s * v.y;
         out.y = s * v_x;
         return out;
     }
 
-    public static CrossOneVec2<T extends XY>(v: XY, out: T) {
+    public static CrossOneVec2<T extends XY>(v: Readonly<XY>, out: T) {
         const v_x = v.x;
         out.x = -v.y;
         out.y = v_x;
@@ -365,7 +366,7 @@ export class b2Vec2 implements XY {
     /**
      * Add two vectors component-wise.
      */
-    public static Add<T extends XY>(a: XY, b: XY, out: T) {
+    public static Add<T extends XY>(a: Readonly<XY>, b: Readonly<XY>, out: T) {
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         return out;
@@ -432,13 +433,13 @@ export class b2Vec2 implements XY {
     /**
      * Negate a vector.
      */
-    public static Negate<T extends XY>(v: XY, out: T) {
+    public static Negate<T extends XY>(v: Readonly<XY>, out: T) {
         out.x = -v.x;
         out.y = -v.y;
         return out;
     }
 
-    public static Normalize<T extends XY>(v: XY, out: T) {
+    public static Normalize<T extends XY>(v: Readonly<XY>, out: T) {
         const length_sq = v.x ** 2 + v.y ** 2;
         if (length_sq >= b2_epsilon_sq) {
             const inv_length = 1 / Math.sqrt(length_sq);
@@ -454,7 +455,7 @@ export class b2Vec2 implements XY {
     /**
      * Skew a vector such that dot(skew_vec, other) == cross(vec, other)
      */
-    public static Skew<T extends XY>(v: XY, out: T) {
+    public static Skew<T extends XY>(v: Readonly<XY>, out: T) {
         const { x } = v;
         out.x = -v.y;
         out.y = x;
@@ -470,7 +471,7 @@ export interface XYZ extends XY {
  * A 2D column vector with 3 elements.
  */
 export class b2Vec3 implements XYZ {
-    public static readonly ZERO: Readonly<XYZ> = new b2Vec3(0, 0, 0);
+    public static readonly ZERO: b2Readonly<b2Vec3> = new b2Vec3(0, 0, 0);
 
     public static readonly s_t0 = new b2Vec3();
 
@@ -510,7 +511,7 @@ export class b2Vec3 implements XYZ {
         return this;
     }
 
-    public Copy(other: XYZ) {
+    public Copy(other: Readonly<XYZ>) {
         this.x = other.x;
         this.y = other.y;
         this.z = other.z;
@@ -530,7 +531,7 @@ export class b2Vec3 implements XYZ {
     /**
      * Add a vector to this vector.
      */
-    public Add(v: XYZ) {
+    public Add(v: Readonly<XYZ>) {
         this.x += v.x;
         this.y += v.y;
         this.z += v.z;
@@ -550,7 +551,7 @@ export class b2Vec3 implements XYZ {
     /**
      * Subtract a vector from this vector.
      */
-    public Subtract(v: XYZ) {
+    public Subtract(v: Readonly<XYZ>) {
         this.x -= v.x;
         this.y -= v.y;
         this.z -= v.z;
@@ -580,14 +581,14 @@ export class b2Vec3 implements XYZ {
     /**
      * Perform the dot product on two vectors.
      */
-    public static Dot(a: XYZ, b: XYZ): number {
+    public static Dot(a: Readonly<XYZ>, b: Readonly<XYZ>): number {
         return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
     /**
      * Perform the cross product on two vectors.
      */
-    public static Cross<T extends XYZ>(a: XYZ, b: XYZ, out: T) {
+    public static Cross<T extends XYZ>(a: Readonly<XYZ>, b: Readonly<XYZ>, out: T) {
         const a_x = a.x;
         const a_y = a.y;
         const a_z = a.z;
@@ -605,7 +606,7 @@ export class b2Vec3 implements XYZ {
  * A 2-by-2 matrix. Stored in column-major order.
  */
 export class b2Mat22 {
-    public static readonly IDENTITY: Readonly<b2Mat22> = new b2Mat22();
+    public static readonly IDENTITY: b2Readonly<b2Mat22> = new b2Mat22();
 
     public readonly ex = new b2Vec2(1, 0);
 
@@ -618,7 +619,7 @@ export class b2Mat22 {
     /**
      * Construct a matrix using columns.
      */
-    public static FromColumns(c1: XY, c2: XY) {
+    public static FromColumns(c1: Readonly<XY>, c2: Readonly<XY>) {
         return new b2Mat22().SetColumns(c1, c2);
     }
 
@@ -645,7 +646,7 @@ export class b2Mat22 {
     /**
      * Initialize this matrix using columns.
      */
-    public SetColumns(c1: XY, c2: XY) {
+    public SetColumns(c1: Readonly<XY>, c2: Readonly<XY>) {
         this.ex.Copy(c1);
         this.ey.Copy(c2);
         return this;
@@ -659,7 +660,7 @@ export class b2Mat22 {
         return this;
     }
 
-    public Copy(other: b2Mat22) {
+    public Copy(other: b2Readonly<b2Mat22>) {
         this.ex.Copy(other.ex);
         this.ey.Copy(other.ey);
         return this;
@@ -716,13 +717,13 @@ export class b2Mat22 {
         return this;
     }
 
-    public Add(M: b2Mat22) {
+    public Add(M: b2Readonly<b2Mat22>) {
         this.ex.Add(M.ex);
         this.ey.Add(M.ey);
         return this;
     }
 
-    public Subtract(M: b2Mat22) {
+    public Subtract(M: b2Readonly<b2Mat22>) {
         this.ex.Subtract(M.ex);
         this.ey.Subtract(M.ey);
         return this;
@@ -756,7 +757,7 @@ export class b2Mat22 {
      * Multiply a matrix times a vector. If a rotation matrix is provided,
      * then this transforms the vector from one frame to another.
      */
-    public static MultiplyVec2<T extends XY>(M: b2Mat22, v: XY, out: T) {
+    public static MultiplyVec2<T extends XY>(M: b2Readonly<b2Mat22>, v: Readonly<XY>, out: T) {
         const v_x = v.x;
         const v_y = v.y;
         out.x = M.ex.x * v_x + M.ey.x * v_y;
@@ -768,7 +769,7 @@ export class b2Mat22 {
      * Multiply a matrix transpose times a vector. If a rotation matrix is provided,
      * then this transforms the vector from one frame to another (inverse transform).
      */
-    public static TransposeMultiplyVec2<T extends XY>(M: b2Mat22, v: XY, out: T) {
+    public static TransposeMultiplyVec2<T extends XY>(M: b2Readonly<b2Mat22>, v: Readonly<XY>, out: T) {
         const v_x = v.x;
         const v_y = v.y;
         out.x = M.ex.x * v_x + M.ex.y * v_y;
@@ -776,7 +777,7 @@ export class b2Mat22 {
         return out;
     }
 
-    public static Add(A: b2Mat22, B: b2Mat22, out: b2Mat22) {
+    public static Add(A: b2Readonly<b2Mat22>, B: b2Readonly<b2Mat22>, out: b2Mat22) {
         out.ex.x = A.ex.x + B.ex.x;
         out.ex.y = A.ex.y + B.ex.y;
         out.ey.x = A.ey.x + B.ey.x;
@@ -785,7 +786,7 @@ export class b2Mat22 {
     }
 
     /** A * B */
-    public static Multiply(A: b2Mat22, B: b2Mat22, out: b2Mat22) {
+    public static Multiply(A: b2Readonly<b2Mat22>, B: b2Readonly<b2Mat22>, out: b2Mat22) {
         const A_ex_x = A.ex.x;
         const A_ex_y = A.ex.y;
         const A_ey_x = A.ey.x;
@@ -802,7 +803,7 @@ export class b2Mat22 {
     }
 
     /** A^T * B */
-    public static TransposeMultiply(A: b2Mat22, B: b2Mat22, out: b2Mat22) {
+    public static TransposeMultiply(A: b2Readonly<b2Mat22>, B: b2Readonly<b2Mat22>, out: b2Mat22) {
         const A_ex_x = A.ex.x;
         const A_ex_y = A.ex.y;
         const A_ey_x = A.ey.x;
@@ -823,7 +824,7 @@ export class b2Mat22 {
  * A 3-by-3 matrix. Stored in column-major order.
  */
 export class b2Mat33 {
-    public static readonly IDENTITY: Readonly<b2Mat33> = new b2Mat33();
+    public static readonly IDENTITY: b2Readonly<b2Mat33> = new b2Mat33();
 
     public readonly ex = new b2Vec3(1, 0, 0);
 
@@ -838,14 +839,14 @@ export class b2Mat33 {
     /**
      * Set this matrix using columns.
      */
-    public SetColumns(c1: XYZ, c2: XYZ, c3: XYZ) {
+    public SetColumns(c1: Readonly<XYZ>, c2: Readonly<XYZ>, c3: Readonly<XYZ>) {
         this.ex.Copy(c1);
         this.ey.Copy(c2);
         this.ez.Copy(c3);
         return this;
     }
 
-    public Copy(other: b2Mat33) {
+    public Copy(other: b2Readonly<b2Mat33>) {
         this.ex.Copy(other.ex);
         this.ey.Copy(other.ey);
         this.ez.Copy(other.ez);
@@ -869,7 +870,7 @@ export class b2Mat33 {
         return this;
     }
 
-    public Add(M: b2Mat33) {
+    public Add(M: b2Readonly<b2Mat33>) {
         this.ex.Add(M.ex);
         this.ey.Add(M.ey);
         this.ez.Add(M.ez);
@@ -977,7 +978,7 @@ export class b2Mat33 {
     /**
      * Multiply a matrix times a vector.
      */
-    public static MultiplyVec3<T extends XYZ>(A: b2Mat33, v: XYZ, out: T) {
+    public static MultiplyVec3<T extends XYZ>(A: b2Readonly<b2Mat33>, v: Readonly<XYZ>, out: T) {
         const { x, y, z } = v;
         out.x = A.ex.x * x + A.ey.x * y + A.ez.x * z;
         out.y = A.ex.y * x + A.ey.y * y + A.ez.y * z;
@@ -988,7 +989,7 @@ export class b2Mat33 {
     /**
      * Multiply a matrix times a vector.
      */
-    public static MultiplyVec2<T extends XY>(A: b2Mat33, v: XY, out: T) {
+    public static MultiplyVec2<T extends XY>(A: b2Readonly<b2Mat33>, v: Readonly<XY>, out: T) {
         const { x, y } = v;
         out.x = A.ex.x * x + A.ey.x * y;
         out.y = A.ex.y * x + A.ey.y * y;
@@ -1000,7 +1001,7 @@ export class b2Mat33 {
  * Rotation
  */
 export class b2Rot {
-    public static readonly IDENTITY: Readonly<b2Rot> = new b2Rot();
+    public static readonly IDENTITY: b2Readonly<b2Rot> = new b2Rot();
 
     /** Sine */
     public s = 0;
@@ -1022,7 +1023,7 @@ export class b2Rot {
         return new b2Rot().Copy(this);
     }
 
-    public Copy(other: b2Rot) {
+    public Copy(other: b2Readonly<b2Rot>) {
         this.s = other.s;
         this.c = other.c;
         return this;
@@ -1074,7 +1075,7 @@ export class b2Rot {
     /**
      * Multiply two rotations: q * r
      */
-    public static Multiply(q: b2Rot, r: b2Rot, out: b2Rot) {
+    public static Multiply(q: b2Readonly<b2Rot>, r: b2Readonly<b2Rot>, out: b2Rot) {
         // [qc -qs] * [rc -rs] = [qc*rc-qs*rs -qc*rs-qs*rc]
         // [qs  qc]   [rs  rc]   [qs*rc+qc*rs -qs*rs+qc*rc]
         // s = qs * rc + qc * rs
@@ -1089,7 +1090,7 @@ export class b2Rot {
     /**
      * Transpose multiply two rotations: qT * r
      */
-    public static TransposeMultiply(q: b2Rot, r: b2Rot, out: b2Rot) {
+    public static TransposeMultiply(q: b2Readonly<b2Rot>, r: b2Readonly<b2Rot>, out: b2Rot) {
         // [ qc qs] * [rc -rs] = [qc*rc+qs*rs -qc*rs+qs*rc]
         // [-qs qc]   [rs  rc]   [-qs*rc+qc*rs qs*rs+qc*rc]
         // s = qc * rs - qs * rc
@@ -1104,7 +1105,7 @@ export class b2Rot {
     /**
      * Rotate a vector
      */
-    public static MultiplyVec2<T extends XY>(q: b2Rot, v: XY, out: T) {
+    public static MultiplyVec2<T extends XY>(q: b2Readonly<b2Rot>, v: Readonly<XY>, out: T) {
         const v_x = v.x;
         const v_y = v.y;
         out.x = q.c * v_x - q.s * v_y;
@@ -1115,7 +1116,7 @@ export class b2Rot {
     /**
      * Inverse rotate a vector
      */
-    public static TransposeMultiplyVec2<T extends XY>(q: b2Rot, v: XY, out: T) {
+    public static TransposeMultiplyVec2<T extends XY>(q: b2Readonly<b2Rot>, v: Readonly<XY>, out: T) {
         const v_x = v.x;
         const v_y = v.y;
         out.x = q.c * v_x + q.s * v_y;
@@ -1129,7 +1130,7 @@ export class b2Rot {
  * the position and orientation of rigid frames.
  */
 export class b2Transform {
-    public static readonly IDENTITY: Readonly<b2Transform> = new b2Transform();
+    public static readonly IDENTITY: b2Readonly<b2Transform> = new b2Transform();
 
     public readonly p = new b2Vec2();
 
@@ -1139,7 +1140,7 @@ export class b2Transform {
         return new b2Transform().Copy(this);
     }
 
-    public Copy(other: b2Transform) {
+    public Copy(other: b2Readonly<b2Transform>) {
         this.p.Copy(other.p);
         this.q.Copy(other.q);
         return this;
@@ -1157,7 +1158,7 @@ export class b2Transform {
     /**
      * Set this based on the position and rotation.
      */
-    public SetPositionRotation(position: XY, q: Readonly<b2Rot>) {
+    public SetPositionRotation(position: Readonly<XY>, q: b2Readonly<b2Rot>) {
         this.p.Copy(position);
         this.q.Copy(q);
         return this;
@@ -1166,13 +1167,13 @@ export class b2Transform {
     /**
      * Set this based on the position and angle.
      */
-    public SetPositionAngle(pos: XY, a: number) {
+    public SetPositionAngle(pos: Readonly<XY>, a: number) {
         this.p.Copy(pos);
         this.q.Set(a);
         return this;
     }
 
-    public SetPosition(position: XY) {
+    public SetPosition(position: Readonly<XY>) {
         this.p.Copy(position);
         return this;
     }
@@ -1182,7 +1183,7 @@ export class b2Transform {
         return this;
     }
 
-    public SetRotation(rotation: Readonly<b2Rot>) {
+    public SetRotation(rotation: b2Readonly<b2Rot>) {
         this.q.Copy(rotation);
         return this;
     }
@@ -1192,11 +1193,11 @@ export class b2Transform {
         return this;
     }
 
-    public GetPosition(): Readonly<b2Vec2> {
+    public GetPosition(): b2Readonly<b2Vec2> {
         return this.p;
     }
 
-    public GetRotation(): Readonly<b2Rot> {
+    public GetRotation(): b2Readonly<b2Rot> {
         return this.q;
     }
 
@@ -1204,7 +1205,7 @@ export class b2Transform {
         return this.q.GetAngle();
     }
 
-    public static MultiplyVec2<T extends XY>(T: b2Transform, v: Readonly<XY>, out: T) {
+    public static MultiplyVec2<T extends XY>(T: b2Readonly<b2Transform>, v: Readonly<XY>, out: T) {
         const v_x = v.x;
         const v_y = v.y;
         out.x = T.q.c * v_x - T.q.s * v_y + T.p.x;
@@ -1212,7 +1213,7 @@ export class b2Transform {
         return out;
     }
 
-    public static TransposeMultiplyVec2<T extends XY>(T: b2Transform, v: Readonly<XY>, out: T) {
+    public static TransposeMultiplyVec2<T extends XY>(T: b2Readonly<b2Transform>, v: Readonly<XY>, out: T) {
         const px = v.x - T.p.x;
         const py = v.y - T.p.y;
         out.x = T.q.c * px + T.q.s * py;
@@ -1224,7 +1225,7 @@ export class b2Transform {
      * v2 = A.q.Rot(B.q.Rot(v1) + B.p) + A.p
      *    = (A.q * B.q).Rot(v1) + A.q.Rot(B.p) + A.p
      */
-    public static Multiply(A: b2Transform, B: b2Transform, out: b2Transform) {
+    public static Multiply(A: b2Readonly<b2Transform>, B: b2Readonly<b2Transform>, out: b2Transform) {
         b2Rot.Multiply(A.q, B.q, out.q);
         b2Rot.MultiplyVec2(A.q, B.p, out.p).Add(A.p);
         return out;
@@ -1234,7 +1235,7 @@ export class b2Transform {
      * v2 = A.q' * (B.q * v1 + B.p - A.p)
      *    = A.q' * B.q * v1 + A.q' * (B.p - A.p)
      */
-    public static TransposeMultiply(A: b2Transform, B: b2Transform, out: b2Transform) {
+    public static TransposeMultiply(A: b2Readonly<b2Transform>, B: b2Readonly<b2Transform>, out: b2Transform) {
         b2Rot.TransposeMultiply(A.q, B.q, out.q);
         b2Rot.TransposeMultiplyVec2(A.q, b2Vec2.Subtract(B.p, A.p, out.p), out.p);
         return out;

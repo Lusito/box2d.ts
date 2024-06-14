@@ -35,6 +35,7 @@ import { b2CircleShape } from "./b2_circle_shape";
 import { b2PolygonShape } from "./b2_polygon_shape";
 import { b2EdgeShape } from "./b2_edge_shape";
 import { b2_maxPolygonVertices } from "../common/b2_settings";
+import { b2Readonly } from "../common/b2_readonly";
 
 const b2CollideEdgeAndCircle_s_Q = new b2Vec2();
 const b2CollideEdgeAndCircle_s_e = new b2Vec2();
@@ -52,9 +53,9 @@ const b2CollideEdgeAndCircle_s_id = new b2ContactID();
 export function b2CollideEdgeAndCircle(
     manifold: b2Manifold,
     edgeA: b2EdgeShape,
-    xfA: b2Transform,
+    xfA: b2Readonly<b2Transform>,
     circleB: b2CircleShape,
-    xfB: b2Transform,
+    xfB: b2Readonly<b2Transform>,
 ): void {
     manifold.pointCount = 0;
 
@@ -232,8 +233,8 @@ const b2ComputeEdgeSeparation_s_axis = new b2EPAxis();
 const b2ComputeEdgeSeparation_s_axes = [new b2Vec2(), new b2Vec2()] as const;
 function b2ComputeEdgeSeparation(
     polygonB: Readonly<b2TempPolygon>,
-    v1: Readonly<b2Vec2>,
-    normal1: Readonly<b2Vec2>,
+    v1: b2Readonly<b2Vec2>,
+    normal1: b2Readonly<b2Vec2>,
 ): b2EPAxis {
     const axis = b2ComputeEdgeSeparation_s_axis;
     axis.type = b2EPAxisType.e_edgeA;
@@ -271,8 +272,8 @@ const b2ComputePolygonSeparation_s_axis = new b2EPAxis();
 const b2ComputePolygonSeparation_s_n = new b2Vec2();
 function b2ComputePolygonSeparation(
     polygonB: Readonly<b2TempPolygon>,
-    v1: Readonly<b2Vec2>,
-    v2: Readonly<b2Vec2>,
+    v1: b2Readonly<b2Vec2>,
+    v2: b2Readonly<b2Vec2>,
 ): b2EPAxis {
     const axis = b2ComputePolygonSeparation_s_axis;
     axis.type = b2EPAxisType.e_unknown;
@@ -314,9 +315,9 @@ const b2CollideEdgeAndPolygon_s_clipPoints2 = [new b2ClipVertex(), new b2ClipVer
 export function b2CollideEdgeAndPolygon(
     manifold: b2Manifold,
     edgeA: b2EdgeShape,
-    xfA: b2Transform,
+    xfA: b2Readonly<b2Transform>,
     polygonB: b2PolygonShape,
-    xfB: b2Transform,
+    xfB: b2Readonly<b2Transform>,
 ): void {
     manifold.pointCount = 0;
 

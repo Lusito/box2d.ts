@@ -29,6 +29,7 @@ import { b2Fixture, b2FixtureDef } from "./b2_fixture";
 import type { b2World } from "./b2_world";
 import { b2Assert } from "../common/b2_common";
 import type { b2BodyUserData } from "..";
+import { b2Readonly } from "../common/b2_readonly";
 
 /**
  * The body type.
@@ -404,7 +405,7 @@ export class b2Body {
         this.m_world.m_newContacts = true;
     }
 
-    public SetTransform(xf: b2Transform): void {
+    public SetTransform(xf: b2Readonly<b2Transform>): void {
         this.SetTransformVec(xf.p, xf.GetAngle());
     }
 
@@ -413,7 +414,7 @@ export class b2Body {
      *
      * @returns The world transform of the body's origin.
      */
-    public GetTransform(): Readonly<b2Transform> {
+    public GetTransform(): b2Readonly<b2Transform> {
         return this.m_xf;
     }
 
@@ -422,7 +423,7 @@ export class b2Body {
      *
      * @returns The world position of the body's origin.
      */
-    public GetPosition(): Readonly<b2Vec2> {
+    public GetPosition(): b2Readonly<b2Vec2> {
         return this.m_xf.p;
     }
 
@@ -442,15 +443,14 @@ export class b2Body {
     /**
      * Get the world position of the center of mass.
      */
-    public GetWorldCenter(): Readonly<b2Vec2> {
-        // FIXME: Readonly<b2Vec2> does not prevent modification via add
+    public GetWorldCenter(): b2Readonly<b2Vec2> {
         return this.m_sweep.c;
     }
 
     /**
      * Get the local position of the center of mass.
      */
-    public GetLocalCenter(): Readonly<b2Vec2> {
+    public GetLocalCenter(): b2Readonly<b2Vec2> {
         return this.m_sweep.localCenter;
     }
 
@@ -476,7 +476,7 @@ export class b2Body {
      *
      * @returns The linear velocity of the center of mass.
      */
-    public GetLinearVelocity(): Readonly<b2Vec2> {
+    public GetLinearVelocity(): b2Readonly<b2Vec2> {
         return this.m_linearVelocity;
     }
 

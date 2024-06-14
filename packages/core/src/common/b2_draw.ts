@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 import { b2Transform, XY } from "./b2_math";
+import { b2Readonly } from "./b2_readonly";
 
 export interface RGB {
     r: number;
@@ -186,9 +187,9 @@ export class b2Color implements RGBA {
  * entities in your game.
  */
 export interface b2Draw {
-    PushTransform(xf: b2Transform): void;
+    PushTransform(xf: b2Readonly<b2Transform>): void;
 
-    PopTransform(xf: b2Transform): void;
+    PopTransform(xf: b2Readonly<b2Transform>): void;
 
     /** Draw a closed polygon provided in CCW order. */
     DrawPolygon(vertices: ReadonlyArray<Readonly<XY>>, vertexCount: number, color: RGBA): void;
@@ -209,7 +210,7 @@ export interface b2Draw {
      * Draw a transform. Choose your own length scale.
      * @param xf a transform.
      */
-    DrawTransform(xf: b2Transform): void;
+    DrawTransform(xf: b2Readonly<b2Transform>): void;
 
     /** Draw a point. */
     DrawPoint(p: Readonly<XY>, size: number, color: RGBA): void;

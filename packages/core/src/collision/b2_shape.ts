@@ -23,6 +23,7 @@
 // DEBUG: import { b2Assert } from "../common/b2_common";
 import { b2Color, b2Draw } from "../common/b2_draw";
 import { b2Vec2, b2Transform, XY } from "../common/b2_math";
+import { b2Readonly } from "../common/b2_readonly";
 import { b2AABB, b2RayCastInput, b2RayCastOutput } from "./b2_collision";
 import { b2DistanceProxy } from "./b2_distance";
 
@@ -99,7 +100,7 @@ export abstract class b2Shape {
      * @param xf The shape world transform.
      * @param p A point in world coordinates.
      */
-    public abstract TestPoint(xf: b2Transform, p: XY): boolean;
+    public abstract TestPoint(xf: b2Readonly<b2Transform>, p: XY): boolean;
 
     /**
      * Cast a ray against a child shape.
@@ -112,7 +113,7 @@ export abstract class b2Shape {
     public abstract RayCast(
         output: b2RayCastOutput,
         input: b2RayCastInput,
-        transform: b2Transform,
+        transform: b2Readonly<b2Transform>,
         childIndex: number,
     ): boolean;
 
@@ -123,7 +124,7 @@ export abstract class b2Shape {
      * @param xf The world transform of the shape.
      * @param childIndex The child shape
      */
-    public abstract ComputeAABB(aabb: b2AABB, xf: b2Transform, childIndex: number): void;
+    public abstract ComputeAABB(aabb: b2AABB, xf: b2Readonly<b2Transform>, childIndex: number): void;
 
     /**
      * Compute the mass properties of this shape using its dimensions and density.

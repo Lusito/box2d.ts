@@ -33,6 +33,7 @@ import { b2Clamp, b2Vec2, b2Mat22, b2Rot, b2Transform } from "../common/b2_math"
 import { b2WorldManifold, b2ManifoldType } from "../collision/b2_collision";
 import { b2Contact } from "./b2_contact";
 import { b2TimeStep, b2Position, b2Velocity } from "./b2_time_step";
+import { b2Readonly } from "../common/b2_readonly";
 
 let g_blockSolve = true;
 
@@ -157,7 +158,7 @@ class b2PositionSolverManifold {
 
     private static Initialize_s_clipPoint = new b2Vec2();
 
-    public Initialize(pc: b2ContactPositionConstraint, xfA: b2Transform, xfB: b2Transform, index: number): void {
+    public Initialize(pc: b2ContactPositionConstraint, xfA: b2Readonly<b2Transform>, xfB: b2Readonly<b2Transform>, index: number): void {
         const pointA = b2PositionSolverManifold.Initialize_s_pointA;
         const pointB = b2PositionSolverManifold.Initialize_s_pointB;
         const planePoint = b2PositionSolverManifold.Initialize_s_planePoint;

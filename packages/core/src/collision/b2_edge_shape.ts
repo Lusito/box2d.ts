@@ -24,6 +24,7 @@
 import { b2_polygonRadius } from "../common/b2_common";
 import { b2Color, b2Draw } from "../common/b2_draw";
 import { b2Vec2, b2Rot, b2Transform, XY } from "../common/b2_math";
+import { b2Readonly } from "../common/b2_readonly";
 import { b2AABB, b2RayCastInput, b2RayCastOutput } from "./b2_collision";
 import { b2DistanceProxy } from "./b2_distance";
 import { b2MassData, b2Shape, b2ShapeType } from "./b2_shape";
@@ -107,7 +108,7 @@ export class b2EdgeShape extends b2Shape {
     /**
      * @see b2Shape::TestPoint
      */
-    public TestPoint(_xf: b2Transform, _p: XY): boolean {
+    public TestPoint(_xf: b2Readonly<b2Transform>, _p: XY): boolean {
         return false;
     }
 
@@ -131,7 +132,7 @@ export class b2EdgeShape extends b2Shape {
      * p1 + t * d = v1 + s * e
      * s * e - t * d = p1 - v1
      */
-    public RayCast(output: b2RayCastOutput, input: b2RayCastInput, xf: b2Transform, _childIndex: number): boolean {
+    public RayCast(output: b2RayCastOutput, input: b2RayCastInput, xf: b2Readonly<b2Transform>, _childIndex: number): boolean {
         // Put the ray into the edge's frame of reference.
         const p1 = b2Transform.TransposeMultiplyVec2(xf, input.p1, b2EdgeShape.RayCast_s_p1);
         const p2 = b2Transform.TransposeMultiplyVec2(xf, input.p2, b2EdgeShape.RayCast_s_p2);
@@ -194,7 +195,7 @@ export class b2EdgeShape extends b2Shape {
     /**
      * @see b2Shape::ComputeAABB
      */
-    public ComputeAABB(aabb: b2AABB, xf: b2Transform, _childIndex: number): void {
+    public ComputeAABB(aabb: b2AABB, xf: b2Readonly<b2Transform>, _childIndex: number): void {
         const v1 = b2Transform.MultiplyVec2(xf, this.m_vertex1, b2EdgeShape.ComputeAABB_s_v1);
         const v2 = b2Transform.MultiplyVec2(xf, this.m_vertex2, b2EdgeShape.ComputeAABB_s_v2);
 

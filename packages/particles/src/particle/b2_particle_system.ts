@@ -41,6 +41,7 @@ import {
     b2MassData,
     b2DistanceProxy,
     b2Assert,
+    b2Readonly,
 } from "@box2d/core";
 
 // DEBUG: import { b2Assert, b2_maxParticleIndex } from "../common/b2_settings";
@@ -64,7 +65,12 @@ import {
 } from "./b2_fixture_particle_query_callbacks";
 
 export type b2ParticleQueryCallback = (index: number) => boolean;
-export type b2ParticleRayCastCallback = (index: number, point: b2Vec2, normal: b2Vec2, fraction: number) => number;
+export type b2ParticleRayCastCallback = (
+    index: number,
+    point: b2Readonly<b2Vec2>,
+    normal: b2Readonly<b2Vec2>,
+    fraction: number,
+) => number;
 
 function std_iter_swap<T>(array: T[], a: number, b: number): void {
     const tmp = array[a];
@@ -327,7 +333,7 @@ export class b2ParticleContact {
         this.weight = w;
     }
 
-    public SetNormal(n: b2Vec2): void {
+    public SetNormal(n: b2Readonly<b2Vec2>): void {
         this.normal.Copy(n);
     }
 
@@ -347,7 +353,7 @@ export class b2ParticleContact {
         return this.weight;
     }
 
-    public GetNormal(): b2Vec2 {
+    public GetNormal(): b2Readonly<b2Vec2> {
         return this.normal;
     }
 
@@ -1019,7 +1025,11 @@ export class b2ParticleSystem {
      *      world b2DestructionListener for each particle
      *      destroyed.
      */
-    public DestroyParticlesInShape(shape: b2Shape, xf: b2Transform, callDestructionListener = false): number {
+    public DestroyParticlesInShape(
+        shape: b2Shape,
+        xf: b2Readonly<b2Transform>,
+        callDestructionListener = false,
+    ): number {
         const s_aabb = b2ParticleSystem.DestroyParticlesInShape_s_aabb;
         b2Assert(!this.m_world.IsLocked());
 
@@ -1349,7 +1359,7 @@ export class b2ParticleSystem {
      *
      * @returns The pointer to the head of the particle positions array.
      */
-    public GetPositionBuffer(): b2Vec2[] {
+    public GetPositionBuffer(): Array<b2Readonly<b2Vec2>> {
         return this.m_positionBuffer.data;
     }
 
@@ -1360,7 +1370,7 @@ export class b2ParticleSystem {
      *
      * @returns The pointer to the head of the particle velocities array.
      */
-    public GetVelocityBuffer(): b2Vec2[] {
+    public GetVelocityBuffer(): Array<b2Readonly<b2Vec2>> {
         return this.m_velocityBuffer.data;
     }
 
@@ -1470,11 +1480,11 @@ export class b2ParticleSystem {
         this.SetUserOverridableBuffer(this.m_flagsBuffer, buffer);
     }
 
-    public SetPositionBuffer(buffer: b2Vec2[]): void {
+    public SetPositionBuffer(buffer: Array<b2Readonly<b2Vec2>>): void {
         this.SetUserOverridableBuffer(this.m_positionBuffer, buffer);
     }
 
-    public SetVelocityBuffer(buffer: b2Vec2[]): void {
+    public SetVelocityBuffer(buffer: Array<b2Readonly<b2Vec2>>): void {
         this.SetUserOverridableBuffer(this.m_velocityBuffer, buffer);
     }
 
@@ -1906,7 +1916,7 @@ export class b2ParticleSystem {
      */
     public QueryShapeAABB(
         shape: b2Shape,
-        xf: b2Transform,
+        xf: b2Readonly<b2Transform>,
         childIndex: number,
         callback: b2ParticleQueryCallback,
     ): void {
@@ -2258,7 +2268,7 @@ export class b2ParticleSystem {
         }
     }
 
-    public CreateParticleForGroup(groupDef: b2IParticleGroupDef, xf: b2Transform, p: XY): void {
+    public CreateParticleForGroup(groupDef: b2IParticleGroupDef, xf: b2Readonly<b2Transform>, p: XY): void {
         const particleDef = new b2ParticleDef();
         particleDef.flags = groupDef.flags ?? 0;
         b2Transform.MultiplyVec2(xf, p, particleDef.position);
@@ -2277,7 +2287,11 @@ export class b2ParticleSystem {
         this.CreateParticle(particleDef);
     }
 
-    public CreateParticlesStrokeShapeForGroup(shape: b2Shape, groupDef: b2IParticleGroupDef, xf: b2Transform): void {
+    public CreateParticlesStrokeShapeForGroup(
+        shape: b2Shape,
+        groupDef: b2IParticleGroupDef,
+        xf: b2Readonly<b2Transform>,
+    ): void {
         const s_edge = b2ParticleSystem.CreateParticlesStrokeShapeForGroup_s_edge;
         const s_d = b2ParticleSystem.CreateParticlesStrokeShapeForGroup_s_d;
         const s_p = b2ParticleSystem.CreateParticlesStrokeShapeForGroup_s_p;
@@ -2314,7 +2328,11 @@ export class b2ParticleSystem {
 
     public static readonly CreateParticlesStrokeShapeForGroup_s_p = new b2Vec2();
 
-    public CreateParticlesFillShapeForGroup(shape: b2Shape, groupDef: b2IParticleGroupDef, xf: b2Transform): void {
+    public CreateParticlesFillShapeForGroup(
+        shape: b2Shape,
+        groupDef: b2IParticleGroupDef,
+        xf: b2Readonly<b2Transform>,
+    ): void {
         const s_aabb = b2ParticleSystem.CreateParticlesFillShapeForGroup_s_aabb;
         const s_p = b2ParticleSystem.CreateParticlesFillShapeForGroup_s_p;
         let stride = groupDef.stride ?? 0;
@@ -2339,7 +2357,11 @@ export class b2ParticleSystem {
 
     public static readonly CreateParticlesFillShapeForGroup_s_p = new b2Vec2();
 
-    public CreateParticlesWithShapeForGroup(shape: b2Shape, groupDef: b2IParticleGroupDef, xf: b2Transform): void {
+    public CreateParticlesWithShapeForGroup(
+        shape: b2Shape,
+        groupDef: b2IParticleGroupDef,
+        xf: b2Readonly<b2Transform>,
+    ): void {
         switch (shape.GetType()) {
             case b2ShapeType.e_edge:
             case b2ShapeType.e_chain:
@@ -2359,7 +2381,7 @@ export class b2ParticleSystem {
         shapes: b2Shape[],
         shapeCount: number,
         groupDef: b2IParticleGroupDef,
-        xf: b2Transform,
+        xf: b2Readonly<b2Transform>,
     ): void {
         const compositeShape = new b2ParticleSystem_CompositeShape(shapes, shapeCount);
         this.CreateParticlesFillShapeForGroup(compositeShape, groupDef, xf);
@@ -4860,7 +4882,12 @@ export class b2ParticleSystem {
         return group !== null && (group.m_groupFlags & b2ParticleGroupFlag.b2_rigidParticleGroup) !== 0;
     }
 
-    public GetLinearVelocity(group: b2ParticleGroup | null, particleIndex: number, point: b2Vec2, out: b2Vec2): b2Vec2 {
+    public GetLinearVelocity(
+        group: b2ParticleGroup | null,
+        particleIndex: number,
+        point: b2Readonly<b2Vec2>,
+        out: b2Vec2,
+    ): b2Readonly<b2Vec2> {
         if (group && this.IsRigidGroup(group)) {
             return group.GetLinearVelocityFromWorldPoint(point, out);
         }
@@ -4873,9 +4900,9 @@ export class b2ParticleSystem {
         tangentDistance: number[],
         mass: number,
         inertia: number,
-        center: b2Vec2,
-        point: b2Vec2,
-        normal: b2Vec2,
+        center: b2Readonly<b2Vec2>,
+        point: b2Readonly<b2Vec2>,
+        normal: b2Readonly<b2Vec2>,
     ): void {
         invMass[0] = mass > 0 ? 1 / mass : 0;
         invInertia[0] = inertia > 0 ? 1 / inertia : 0;
@@ -4889,8 +4916,8 @@ export class b2ParticleSystem {
         isRigidGroup: boolean,
         group: b2ParticleGroup | null,
         particleIndex: number,
-        point: b2Vec2,
-        normal: b2Vec2,
+        point: b2Readonly<b2Vec2>,
+        normal: b2Readonly<b2Vec2>,
     ): void {
         if (group && isRigidGroup) {
             this.InitDampingParameter(
@@ -4943,7 +4970,7 @@ export class b2ParticleSystem {
         group: b2ParticleGroup | null,
         particleIndex: number,
         impulse: number,
-        normal: b2Vec2,
+        normal: b2Readonly<b2Vec2>,
     ): void {
         if (group && isRigidGroup) {
             group.m_linearVelocity.AddScaled(impulse * invMass, normal);
@@ -5203,7 +5230,7 @@ export class b2ParticleSystem_CompositeShape extends b2Shape {
     /**
      * @see b2Shape::TestPoint
      */
-    public TestPoint(xf: b2Transform, p: XY): boolean {
+    public TestPoint(xf: b2Readonly<b2Transform>, p: XY): boolean {
         for (let i = 0; i < this.m_shapeCount; i++) {
             if (this.m_shapes[i].TestPoint(xf, p)) {
                 return true;
@@ -5215,7 +5242,12 @@ export class b2ParticleSystem_CompositeShape extends b2Shape {
     /**
      * Implement b2Shape.
      */
-    public RayCast(_output: b2RayCastOutput, _input: b2RayCastInput, _xf: b2Transform, _childIndex: number): boolean {
+    public RayCast(
+        _output: b2RayCastOutput,
+        _input: b2RayCastInput,
+        _xf: b2Readonly<b2Transform>,
+        _childIndex: number,
+    ): boolean {
         // DEBUG: b2Assert(false);
         return false;
     }
@@ -5223,7 +5255,7 @@ export class b2ParticleSystem_CompositeShape extends b2Shape {
     /**
      * @see b2Shape::ComputeAABB
      */
-    public ComputeAABB(aabb: b2AABB, xf: b2Transform, _childIndex: number): void {
+    public ComputeAABB(aabb: b2AABB, xf: b2Readonly<b2Transform>, _childIndex: number): void {
         const s_subaabb = new b2AABB();
         aabb.lowerBound.x = +b2_maxFloat;
         aabb.lowerBound.y = +b2_maxFloat;

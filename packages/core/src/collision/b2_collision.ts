@@ -36,6 +36,7 @@ import { b2Vec2, b2Rot, b2Transform, XY } from "../common/b2_math";
 import type { b2Shape } from "./b2_shape";
 import { b2Distance, b2DistanceInput, b2DistanceOutput, b2SimplexCache } from "./b2_distance";
 import { b2_maxPolygonVertices } from "../common/b2_settings";
+import { b2Readonly } from "../common/b2_readonly";
 
 export enum b2ContactFeatureType {
     e_vertex = 0,
@@ -282,9 +283,9 @@ export class b2WorldManifold {
      */
     public Initialize(
         manifold: b2Manifold,
-        xfA: b2Transform,
+        xfA: b2Readonly<b2Transform>,
         radiusA: number,
-        xfB: b2Transform,
+        xfB: b2Readonly<b2Transform>,
         radiusB: number,
     ): void {
         if (manifold.pointCount === 0) {
@@ -692,7 +693,7 @@ export class b2AABB {
 export function b2ClipSegmentToLine(
     vOut: readonly [b2ClipVertex, b2ClipVertex],
     [vIn0, vIn1]: readonly [b2ClipVertex, b2ClipVertex],
-    normal: b2Vec2,
+    normal: b2Readonly<b2Vec2>,
     offset: number,
     vertexIndexA: number,
 ): number {
@@ -739,8 +740,8 @@ export function b2TestOverlap(
     indexA: number,
     shapeB: b2Shape,
     indexB: number,
-    xfA: b2Transform,
-    xfB: b2Transform,
+    xfA: b2Readonly<b2Transform>,
+    xfB: b2Readonly<b2Transform>,
 ): boolean {
     const input = b2TestOverlap_s_input.Reset();
     input.proxyA.SetShape(shapeA, indexA);

@@ -27,6 +27,7 @@ import { b2TreeNode } from "../collision/b2_dynamic_tree";
 import { b2Shape, b2ShapeType, b2MassData } from "../collision/b2_shape";
 import type { b2Body } from "./b2_body";
 import { b2Assert } from "../common/b2_common";
+import { b2Readonly } from "../common/b2_readonly";
 import { b2_lengthUnitsPerMeter } from "../common/b2_settings";
 import { b2BroadPhase } from "../collision/b2_broad_phase";
 import type { b2FixtureUserData } from "..";
@@ -117,7 +118,7 @@ export class b2FixtureProxy {
     public constructor(
         fixture: b2Fixture,
         broadPhase: b2BroadPhase<b2FixtureProxy>,
-        xf: b2Transform,
+        xf: b2Readonly<b2Transform>,
         childIndex: number,
     ) {
         this.fixture = fixture;
@@ -414,7 +415,7 @@ export class b2Fixture {
      *
      * @internal protected
      */
-    public CreateProxies(broadPhase: b2BroadPhase<b2FixtureProxy>, xf: b2Transform): void {
+    public CreateProxies(broadPhase: b2BroadPhase<b2FixtureProxy>, xf: b2Readonly<b2Transform>): void {
         b2Assert(this.m_proxies.length === 0);
         // Create proxies in the broad-phase.
         this.m_proxies.length = this.m_shape.GetChildCount();
@@ -433,7 +434,7 @@ export class b2Fixture {
     }
 
     /** @internal protected */
-    public Synchronize(broadPhase: b2BroadPhase<b2FixtureProxy>, transform1: b2Transform, transform2: b2Transform) {
+    public Synchronize(broadPhase: b2BroadPhase<b2FixtureProxy>, transform1: b2Readonly<b2Transform>, transform2: b2Readonly<b2Transform>) {
         const { c1, c2 } = temp;
         const displacement = Synchronize_s_displacement;
         for (const proxy of this.m_proxies) {

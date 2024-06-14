@@ -22,6 +22,7 @@
 
 import { b2_linearSlop, b2_maxFloat, b2_maxManifoldPoints } from "../common/b2_common";
 import { b2Vec2, b2Transform, b2Rot } from "../common/b2_math";
+import { b2Readonly } from "../common/b2_readonly";
 import { b2ContactFeatureType, b2Manifold, b2ManifoldType, b2ClipVertex, b2ClipSegmentToLine } from "./b2_collision";
 import { b2PolygonShape } from "./b2_polygon_shape";
 
@@ -33,9 +34,9 @@ const b2FindMaxSeparation_s_v1 = new b2Vec2();
 function b2FindMaxSeparation(
     edgeIndex: [number],
     poly1: b2PolygonShape,
-    xf1: b2Transform,
+    xf1: b2Readonly<b2Transform>,
     poly2: b2PolygonShape,
-    xf2: b2Transform,
+    xf2: b2Readonly<b2Transform>,
 ) {
     const count1 = poly1.m_count;
     const count2 = poly2.m_count;
@@ -76,10 +77,10 @@ const b2FindIncidentEdge_s_normal1 = new b2Vec2();
 function b2FindIncidentEdge(
     c: readonly [b2ClipVertex, b2ClipVertex],
     poly1: b2PolygonShape,
-    xf1: b2Transform,
+    xf1: b2Readonly<b2Transform>,
     edge1: number,
     poly2: b2PolygonShape,
-    xf2: b2Transform,
+    xf2: b2Readonly<b2Transform>,
 ): void {
     const normals1 = poly1.m_normals;
 
@@ -154,9 +155,9 @@ const b2CollidePolygons_s_v12 = new b2Vec2();
 export function b2CollidePolygons(
     manifold: b2Manifold,
     polyA: b2PolygonShape,
-    xfA: b2Transform,
+    xfA: b2Readonly<b2Transform>,
     polyB: b2PolygonShape,
-    xfB: b2Transform,
+    xfB: b2Readonly<b2Transform>,
 ): void {
     manifold.pointCount = 0;
     const totalRadius = polyA.m_radius + polyB.m_radius;
@@ -175,8 +176,8 @@ export function b2CollidePolygons(
 
     let poly1: b2PolygonShape; // reference polygon
     let poly2: b2PolygonShape; // incident polygon
-    let xf1: b2Transform;
-    let xf2: b2Transform;
+    let xf1: b2Readonly<b2Transform>;
+    let xf2: b2Readonly<b2Transform>;
     let edge1: number; // reference edge
     let flip: number;
     const k_tol = 0.1 * b2_linearSlop;

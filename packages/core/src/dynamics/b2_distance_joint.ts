@@ -26,6 +26,7 @@ import { b2Joint, b2JointDef, b2JointType, b2IJointDef } from "./b2_joint";
 import { b2SolverData } from "./b2_time_step";
 import type { b2Body } from "./b2_body";
 import { b2Draw, debugColors } from "../common/b2_draw";
+import { b2Readonly } from "../common/b2_readonly";
 
 // 1-D constrained system
 // m (v2 - v1) = lambda
@@ -218,12 +219,12 @@ export class b2DistanceJoint extends b2Joint {
     }
 
     /** The local anchor point relative to bodyA's origin. */
-    public GetLocalAnchorA(): Readonly<b2Vec2> {
+    public GetLocalAnchorA(): b2Readonly<b2Vec2> {
         return this.m_localAnchorA;
     }
 
     /** The local anchor point relative to bodyB's origin. */
-    public GetLocalAnchorB(): Readonly<b2Vec2> {
+    public GetLocalAnchorB(): b2Readonly<b2Vec2> {
         return this.m_localAnchorB;
     }
 

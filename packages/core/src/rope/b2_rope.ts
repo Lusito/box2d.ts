@@ -23,6 +23,7 @@
 import { b2Assert, b2MakeArray, b2MakeNumberArray } from "../common/b2_common";
 import { b2Color, b2Draw, debugColors } from "../common/b2_draw";
 import { b2Vec2, XY } from "../common/b2_math";
+import { b2Readonly } from "../common/b2_readonly";
 
 const temp = {
     J1: new b2Vec2(),
@@ -342,7 +343,7 @@ export class b2Rope {
         }
     }
 
-    public Step(dt: number, iterations: number, position: Readonly<b2Vec2>): void {
+    public Step(dt: number, iterations: number, position: b2Readonly<b2Vec2>): void {
         if (dt === 0) {
             return;
         }
@@ -408,7 +409,7 @@ export class b2Rope {
         }
     }
 
-    public Reset(position: Readonly<b2Vec2>): void {
+    public Reset(position: b2Readonly<b2Vec2>): void {
         this.m_position.Copy(position);
 
         for (let i = 0; i < this.m_count; ++i) {

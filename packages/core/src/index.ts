@@ -27,6 +27,7 @@ export * from "./common/b2_draw";
 export * from "./common/b2_draw_helper";
 export * from "./common/b2_timer";
 export * from "./common/b2_augment";
+export * from "./common/b2_readonly";
 
 export * from "./collision/b2_collision";
 export * from "./collision/b2_distance";

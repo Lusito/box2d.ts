@@ -24,6 +24,7 @@ import { b2Clamp, b2Vec2, b2Mat22, b2Rot, XY } from "../common/b2_math";
 import { b2Joint, b2JointDef, b2JointType, b2IJointDef } from "./b2_joint";
 import { b2SolverData } from "./b2_time_step";
 import { b2Body } from "./b2_body";
+import { b2Readonly } from "../common/b2_readonly";
 
 // Point-to-point constraint
 // Cdot = v2 - v1
@@ -80,7 +81,7 @@ export class b2FrictionJointDef extends b2JointDef implements b2IFrictionJointDe
      * Initialize the bodies, anchors, axis, and reference angle using the world
      * anchor and world axis.
      */
-    public Initialize(bA: b2Body, bB: b2Body, anchor: b2Vec2): void {
+    public Initialize(bA: b2Body, bB: b2Body, anchor: b2Readonly<b2Vec2>): void {
         this.bodyA = bA;
         this.bodyB = bB;
         this.bodyA.GetLocalPoint(anchor, this.localAnchorA);
@@ -298,12 +299,12 @@ export class b2FrictionJoint extends b2Joint {
     }
 
     /** The local anchor point relative to bodyA's origin. */
-    public GetLocalAnchorA(): Readonly<b2Vec2> {
+    public GetLocalAnchorA(): b2Readonly<b2Vec2> {
         return this.m_localAnchorA;
     }
 
     /** The local anchor point relative to bodyB's origin. */
-    public GetLocalAnchorB(): Readonly<b2Vec2> {
+    public GetLocalAnchorB(): b2Readonly<b2Vec2> {
         return this.m_localAnchorB;
     }
 

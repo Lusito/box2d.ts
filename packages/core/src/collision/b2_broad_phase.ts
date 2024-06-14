@@ -22,6 +22,7 @@
 
 import { b2Verify } from "../common/b2_common";
 import { b2Vec2, XY } from "../common/b2_math";
+import { b2Readonly } from "../common/b2_readonly";
 import { b2AABB, b2RayCastInput } from "./b2_collision";
 import { b2TreeNode, b2DynamicTree } from "./b2_dynamic_tree";
 
@@ -71,7 +72,7 @@ export class b2BroadPhase<T> {
      * Call MoveProxy as many times as you like, then when you are done
      * call UpdatePairs to finalized the proxy pairs (for your time step).
      */
-    public MoveProxy(proxy: b2TreeNode<T>, aabb: b2AABB, displacement: b2Vec2): void {
+    public MoveProxy(proxy: b2TreeNode<T>, aabb: b2AABB, displacement: b2Readonly<b2Vec2>): void {
         const buffer = this.m_tree.MoveProxy(proxy, aabb, displacement);
         if (buffer) {
             this.BufferMove(proxy);

@@ -25,15 +25,16 @@ import { b2Vec2, b2Transform } from "../common/b2_math";
 import { b2Manifold, b2ManifoldType } from "./b2_collision";
 import { b2CircleShape } from "./b2_circle_shape";
 import { b2PolygonShape } from "./b2_polygon_shape";
+import { b2Readonly } from "../common/b2_readonly";
 
 const b2CollideCircles_s_pA = new b2Vec2();
 const b2CollideCircles_s_pB = new b2Vec2();
 export function b2CollideCircles(
     manifold: b2Manifold,
     circleA: b2CircleShape,
-    xfA: b2Transform,
+    xfA: b2Readonly<b2Transform>,
     circleB: b2CircleShape,
-    xfB: b2Transform,
+    xfB: b2Readonly<b2Transform>,
 ): void {
     manifold.pointCount = 0;
 
@@ -61,9 +62,9 @@ const b2CollidePolygonAndCircle_s_faceCenter = new b2Vec2();
 export function b2CollidePolygonAndCircle(
     manifold: b2Manifold,
     polygonA: b2PolygonShape,
-    xfA: b2Transform,
+    xfA: b2Readonly<b2Transform>,
     circleB: b2CircleShape,
-    xfB: b2Transform,
+    xfB: b2Readonly<b2Transform>,
 ): void {
     manifold.pointCount = 0;
 

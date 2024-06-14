@@ -55,7 +55,7 @@ In C++ you can use operators (+, -, etc.) on classes. There is no equivalent in 
 const temp = {
   sum: new b2Vec2(),
 };
-function doStuff(a: b2Vec2, b: b2Vec2) {
+function doStuff(a: b2Readonly<b2Vec2>, b: b2Readonly<b2Vec2>) {
   // b2Vec2 sum = a + b;
   const sum = sum.Copy(a).add(b);
   //...
@@ -82,14 +82,14 @@ JavaScript has no overloads and while TypeScript supports overload method defini
 const temp = {
   sum: new b2Vec2(),
 };
-function doStuff(a: b2Vec2, x: number, y: number) {
+function doStuff(a: b2Readonly<b2Vec2>, x: number, y: number) {
   // b2Vec2 sum = a + b2Vec2(x, y);
   const sum = sum.Copy(a).addXY(x, y);
   //...
 }
 ```
 
-Notice how `add(v)` accepts one parameter of type `b2Vec2`, while `addXY(x, y)` accepts two parameters of type `number`.
+Notice how `add(v)` accepts one parameter of type `b2Readonly<b2Vec2>`, while `addXY(x, y)` accepts two parameters of type `number`.
 
 ## Factory Functions vs Constructors
 

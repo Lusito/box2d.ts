@@ -16,7 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-import { b2Vec2, b2Draw, b2Transform, b2Color, b2AABB, RGBA, XY, b2Clamp } from "@box2d/core";
+import { b2Vec2, b2Draw, b2Transform, b2Color, b2AABB, RGBA, XY, b2Clamp, b2Readonly } from "@box2d/core";
 
 const COLOR_STRING_WORLD = new b2Color(0.5, 0.9, 0.5);
 
@@ -53,13 +53,13 @@ export class DebugDraw implements b2Draw {
         this.ctx.restore();
     }
 
-    public PushTransform(xf: b2Transform): void {
+    public PushTransform(xf: b2Readonly<b2Transform>): void {
         this.ctx.save();
         this.ctx.translate(xf.p.x, xf.p.y);
         this.ctx.rotate(xf.q.GetAngle());
     }
 
-    public PopTransform(_xf: b2Transform): void {
+    public PopTransform(_xf: b2Readonly<b2Transform>): void {
         this.ctx.restore();
     }
 
@@ -144,7 +144,7 @@ export class DebugDraw implements b2Draw {
         this.ctx.stroke();
     }
 
-    public DrawTransform(xf: b2Transform): void {
+    public DrawTransform(xf: b2Readonly<b2Transform>): void {
         this.PushTransform(xf);
 
         this.ctx.beginPath();

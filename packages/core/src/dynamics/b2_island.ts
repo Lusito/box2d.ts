@@ -40,6 +40,7 @@ import { b2Joint } from "./b2_joint";
 import { b2Body, b2BodyType } from "./b2_body";
 import { b2TimeStep, b2Profile, b2SolverData, b2Position, b2Velocity } from "./b2_time_step";
 import { b2ContactImpulse, b2ContactListener } from "./b2_world_callbacks";
+import { b2Readonly } from "../common/b2_readonly";
 
 /*
 Position Correction Notes
@@ -240,7 +241,7 @@ export class b2Island {
 
     private static s_translation = new b2Vec2();
 
-    public Solve(profile: b2Profile, step: b2TimeStep, gravity: b2Vec2, allowSleep: boolean): void {
+    public Solve(profile: b2Profile, step: b2TimeStep, gravity: b2Readonly<b2Vec2>, allowSleep: boolean): void {
         const timer = b2Island.s_timer.Reset();
 
         const h = step.dt;

@@ -27,12 +27,13 @@ import {
     b2_maxFloat,
     b2Rot,
     b2CircleShape,
+    b2Readonly,
 } from "@box2d/core";
 
 type ComputeDistanceFn<T extends b2Shape> = (
     shape: T,
-    xf: b2Transform,
-    p: b2Vec2,
+    xf: b2Readonly<b2Transform>,
+    p: b2Readonly<b2Vec2>,
     normal: b2Vec2,
     childIndex: number,
 ) => number;
@@ -110,7 +111,7 @@ const implementations: Array<ComputeDistanceFn<any>> = [
     },
 ];
 
-export const computeDistance = (shape: b2Shape, xf: b2Transform, p: b2Vec2, normal: b2Vec2, childIndex: number) => {
+export const computeDistance = (shape: b2Shape, xf: b2Readonly<b2Transform>, p: b2Readonly<b2Vec2>, normal: b2Vec2, childIndex: number) => {
     const fn = implementations[shape.GetType()];
     return fn ? fn(shape, xf, p, normal, childIndex) : 0;
 };

@@ -23,6 +23,7 @@
 // DEBUG: import { b2Assert } from "../common/b2_common";
 import { b2_epsilon, b2_epsilon_sq, b2_polygonRadius, b2_linearSlop, b2MakeArray } from "../common/b2_common";
 import { b2Vec2, b2Rot, b2Transform } from "../common/b2_math";
+import { b2Readonly } from "../common/b2_readonly";
 import type { b2Shape } from "./b2_shape";
 
 /**
@@ -77,7 +78,7 @@ export class b2DistanceProxy {
     }
 
     /** Get the supporting vertex index in the given direction. */
-    public GetSupport(d: b2Vec2): number {
+    public GetSupport(d: b2Readonly<b2Vec2>): number {
         let bestIndex = 0;
         let bestValue = b2Vec2.Dot(this.m_vertices[0], d);
         for (let i = 1; i < this.m_count; ++i) {
@@ -92,7 +93,7 @@ export class b2DistanceProxy {
     }
 
     /** Get the supporting vertex in the given direction. */
-    public GetSupportVertex(d: b2Vec2): b2Vec2 {
+    public GetSupportVertex(d: b2Readonly<b2Vec2>): b2Readonly<b2Vec2> {
         let bestIndex = 0;
         let bestValue = b2Vec2.Dot(this.m_vertices[0], d);
         for (let i = 1; i < this.m_count; ++i) {
@@ -112,7 +113,7 @@ export class b2DistanceProxy {
     }
 
     /** Get a vertex by index. Used by b2Distance. */
-    public GetVertex(index: number): b2Vec2 {
+    public GetVertex(index: number): b2Readonly<b2Vec2> {
         // DEBUG: b2Assert(0 <= index && index < this.m_count);
         return this.m_vertices[index];
     }
@@ -273,9 +274,9 @@ class b2Simplex {
     public ReadCache(
         cache: b2SimplexCache,
         proxyA: b2DistanceProxy,
-        transformA: b2Transform,
+        transformA: b2Readonly<b2Transform>,
         proxyB: b2DistanceProxy,
-        transformB: b2Transform,
+        transformB: b2Readonly<b2Transform>,
     ): void {
         // DEBUG: b2Assert(cache.count <= 3);
 
