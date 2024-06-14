@@ -1,6 +1,6 @@
 # Common Module
 
-The Common module contains settings, memory management, and vector math.
+The Common module contains settings, helpers, and vector math.
 
 ## Settings
 

@@ -653,8 +653,8 @@ list:
 
 Sometimes you might need to change collision filtering after a fixture
 has already been created. You can get and set the b2Filter class on
-an existing fixture using b2Fixture::GetFilterData and
-b2Fixture::SetFilterData. Note that changing the filter data will not
+an existing fixture using `b2Fixture::GetFilterData` and
+`b2Fixture::SetFilterData`. Note that changing the filter data will not
 add or remove contacts until the next time step (see the World class).
 
 ### Sensors
@@ -1341,7 +1341,7 @@ class MyContactListener extends b2ContactListener {
 > The example below shows one way of doing this.
 
 At run-time you can create an instance of the listener and register it
-with b2World::SetContactListener.
+with `b2World::SetContactListener`.
 
 #### Begin Contact Event
 
@@ -1359,7 +1359,7 @@ this event can occur outside the time step.
 This is called after collision detection, but before collision
 resolution. This gives you a chance to disable the contact based on the
 current configuration. For example, you can implement a one-sided
-platform using this callback and calling b2Contact::SetEnabled(false).
+platform using this callback and calling `b2Contact::SetEnabled(false)`.
 The contact will be re-enabled each time through collision processing,
 so you will need to disable the contact every time-step. The pre-solve
 event may be fired multiple times per time step per contact due to
@@ -1497,7 +1497,7 @@ public ShouldCollide(fixtureA: b2Fixture, fixtureB: b2Fixture): boolean {
 ```
 
 At run-time you can create an instance of your contact filter and
-register it with b2World::SetContactFilter.
+register it with `b2World::SetContactFilter`.
 
 ```ts
 const filter = new MyContactFilter();

@@ -55,8 +55,7 @@ import {
 
 /**
  * The world class manages all physics entities, dynamic simulation,
- * and asynchronous queries. The world also contains efficient memory
- * management facilities.
+ * and asynchronous queries.
  */
 export class b2World {
     /** @internal */

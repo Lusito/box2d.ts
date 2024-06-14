@@ -180,10 +180,10 @@ stability.
 
 > **Caution**:
 > Box2D works best with world sizes less than 2 kilometers. Use
-> b2World::ShiftOrigin to support larger worlds.
+> `b2World::ShiftOrigin` to support larger worlds.
 
 If you need to have a larger game world, consider using
-b2World::ShiftOrigin to keep the world origin close to your player. I recommend
+`b2World::ShiftOrigin` to keep the world origin close to your player. I recommend
 to use grid lines along with some hysteresis for triggering calls to ShiftOrigin.
 This call should be made infrequently because it is has CPU cost. You may
 need to store a physics offset when translating between game units and Box2D units.
@@ -201,8 +201,6 @@ Advanced users may [change the length unit](common.md#settings).
 
 ## Factories and Definitions
 
-_TODO:_ The following does **not** apply to the TypeScript version and needs to be rewritten:
-
 Fast memory management plays a central role in the design of the Box2D
 API. So when you create a b2Body or a b2Joint, you need to call the
 factory functions on b2World. You should never try to allocate these
@@ -210,16 +208,34 @@ types in another manner.
 
 There are creation functions:
 
-```cpp
-b2Body* b2World::CreateBody(const b2BodyDef* def)
-b2Joint* b2World::CreateJoint(const b2JointDef* def)
+```ts
+export class b2World {
+    // ...
+    public CreateBody(def: b2BodyDef = {}): b2Body;
+    // ...
+    // CreateJoint has a couple of overloads:
+    public CreateJoint(def: b2IAreaJointDef): b2AreaJoint;
+    public CreateJoint(def: b2IDistanceJointDef): b2DistanceJoint;
+    public CreateJoint(def: b2IFrictionJointDef): b2FrictionJoint;
+    public CreateJoint(def: b2IGearJointDef): b2GearJoint;
+    public CreateJoint(def: b2IMotorJointDef): b2MotorJoint;
+    public CreateJoint(def: b2IMouseJointDef): b2MouseJoint;
+    public CreateJoint(def: b2IPrismaticJointDef): b2PrismaticJoint;
+    public CreateJoint(def: b2IPulleyJointDef): b2PulleyJoint;
+    public CreateJoint(def: b2IRevoluteJointDef): b2RevoluteJoint;
+    public CreateJoint(def: b2IWeldJointDef): b2WeldJoint;
+    public CreateJoint(def: b2IWheelJointDef): b2WheelJoint;
+    // ...
 ```
 
 And there are corresponding destruction functions:
 
-```cpp
-void b2World::DestroyBody(b2Body* body)
-void b2World::DestroyJoint(b2Joint* joint)
+```ts
+export class b2World {
+    // ...
+    public DestroyBody(b: b2Body): void;
+    public DestroyJoint(j: b2Joint): void;
+    // ...
 ```
 
 When you create a body or joint, you need to provide a definition. These
@@ -231,17 +247,13 @@ reduce the number of accessors.
 Since fixtures (shapes) must be parented to a body, they are created and
 destroyed using a factory method on b2Body:
 
-```cpp
-b2Fixture* b2Body::CreateFixture(const b2FixtureDef* def)
-void b2Body::DestroyFixture(b2Fixture* fixture)
+```ts
+export class b2Body {
+    // ...
+    public CreateFixture(def: b2FixtureDef): b2Fixture;
+    public DestroyFixture(fixture: b2Fixture): void;
+    // ...
 ```
 
-There is also shortcut to create a fixture directly from the shape and
-density.
-
-```cpp
-b2Fixture* b2Body::CreateFixture(const b2Shape* shape, float density)
-```
-
-Factories do not retain references to the definitions. So you can create
-definitions on the stack and keep them in temporary resources.
+Factories do not retain references to the definitions. So you can reuse
+them for other further `Create*` calls.

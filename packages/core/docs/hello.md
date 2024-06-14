@@ -10,7 +10,7 @@ This is a good example of how to get up and running with Box2D.
 ## Creating a World
 
 Every Box2D program begins with the creation of a b2World object.
-b2World is the physics hub that manages memory, objects, and simulation.
+b2World is the physics hub that manages objects and simulation.
 
 It is easy to create a Box2D world. First, we define the gravity vector.
 
@@ -212,7 +212,7 @@ multiple passes over the constraints within a single time step.
 
 We are now ready to begin the simulation loop. In your game the
 simulation loop can be merged with your game loop. In each pass through
-your game loop you call b2World::Step. Just one call is usually enough,
+your game loop you call `b2World::Step`. Just one call is usually enough,
 depending on your frame rate and your physics time step.
 
 The Hello World program was designed to be simple, so it has no
