@@ -434,7 +434,11 @@ export class b2Fixture {
     }
 
     /** @internal protected */
-    public Synchronize(broadPhase: b2BroadPhase<b2FixtureProxy>, transform1: b2Readonly<b2Transform>, transform2: b2Readonly<b2Transform>) {
+    public Synchronize(
+        broadPhase: b2BroadPhase<b2FixtureProxy>,
+        transform1: b2Readonly<b2Transform>,
+        transform2: b2Readonly<b2Transform>,
+    ) {
         const { c1, c2 } = temp;
         const displacement = Synchronize_s_displacement;
         for (const proxy of this.m_proxies) {

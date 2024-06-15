@@ -158,7 +158,12 @@ class b2PositionSolverManifold {
 
     private static Initialize_s_clipPoint = new b2Vec2();
 
-    public Initialize(pc: b2ContactPositionConstraint, xfA: b2Readonly<b2Transform>, xfB: b2Readonly<b2Transform>, index: number): void {
+    public Initialize(
+        pc: b2ContactPositionConstraint,
+        xfA: b2Readonly<b2Transform>,
+        xfB: b2Readonly<b2Transform>,
+        index: number,
+    ): void {
         const pointA = b2PositionSolverManifold.Initialize_s_pointA;
         const pointB = b2PositionSolverManifold.Initialize_s_pointB;
         const planePoint = b2PositionSolverManifold.Initialize_s_planePoint;

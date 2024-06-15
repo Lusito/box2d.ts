@@ -157,4 +157,9 @@ export type b2QueryCallback = (fixture: b2Fixture) => boolean;
  * @returns -1 to filter, 0 to terminate, fraction to clip the ray for
  * closest hit, 1 to continue
  */
-export type b2RayCastCallback = (fixture: b2Fixture, point: b2Readonly<b2Vec2>, normal: b2Readonly<b2Vec2>, fraction: number) => number;
+export type b2RayCastCallback = (
+    fixture: b2Fixture,
+    point: b2Readonly<b2Vec2>,
+    normal: b2Readonly<b2Vec2>,
+    fraction: number,
+) => number;

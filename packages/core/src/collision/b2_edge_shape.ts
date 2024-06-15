@@ -132,7 +132,12 @@ export class b2EdgeShape extends b2Shape {
      * p1 + t * d = v1 + s * e
      * s * e - t * d = p1 - v1
      */
-    public RayCast(output: b2RayCastOutput, input: b2RayCastInput, xf: b2Readonly<b2Transform>, _childIndex: number): boolean {
+    public RayCast(
+        output: b2RayCastOutput,
+        input: b2RayCastInput,
+        xf: b2Readonly<b2Transform>,
+        _childIndex: number,
+    ): boolean {
         // Put the ray into the edge's frame of reference.
         const p1 = b2Transform.TransposeMultiplyVec2(xf, input.p1, b2EdgeShape.RayCast_s_p1);
         const p2 = b2Transform.TransposeMultiplyVec2(xf, input.p2, b2EdgeShape.RayCast_s_p2);

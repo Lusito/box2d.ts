@@ -566,7 +566,12 @@ export class b2World {
 
     private static QueryFixtureShape_s_aabb = new b2AABB();
 
-    public QueryFixtureShape(shape: b2Shape, index: number, transform: b2Readonly<b2Transform>, callback: b2QueryCallback): void {
+    public QueryFixtureShape(
+        shape: b2Shape,
+        index: number,
+        transform: b2Readonly<b2Transform>,
+        callback: b2QueryCallback,
+    ): void {
         const aabb = b2World.QueryFixtureShape_s_aabb;
         shape.ComputeAABB(aabb, transform, index);
         this.m_contactManager.m_broadPhase.Query(aabb, (proxy) => {

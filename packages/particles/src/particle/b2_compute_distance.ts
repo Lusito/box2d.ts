@@ -111,7 +111,13 @@ const implementations: Array<ComputeDistanceFn<any>> = [
     },
 ];
 
-export const computeDistance = (shape: b2Shape, xf: b2Readonly<b2Transform>, p: b2Readonly<b2Vec2>, normal: b2Vec2, childIndex: number) => {
+export const computeDistance = (
+    shape: b2Shape,
+    xf: b2Readonly<b2Transform>,
+    p: b2Readonly<b2Vec2>,
+    normal: b2Vec2,
+    childIndex: number,
+) => {
     const fn = implementations[shape.GetType()];
     return fn ? fn(shape, xf, p, normal, childIndex) : 0;
 };

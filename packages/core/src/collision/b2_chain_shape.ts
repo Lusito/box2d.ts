@@ -172,7 +172,12 @@ export class b2ChainShape extends b2Shape {
     /**
      * Implement b2Shape.
      */
-    public RayCast(output: b2RayCastOutput, input: b2RayCastInput, xf: b2Readonly<b2Transform>, childIndex: number): boolean {
+    public RayCast(
+        output: b2RayCastOutput,
+        input: b2RayCastInput,
+        xf: b2Readonly<b2Transform>,
+        childIndex: number,
+    ): boolean {
         // DEBUG: b2Assert(childIndex < this.m_vertices.length);
 
         const edgeShape = b2ChainShape.RayCast_s_edgeShape;
