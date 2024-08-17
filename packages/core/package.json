@@ -1,6 +1,6 @@
 {
   "name": "@box2d/core",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "A TypeScript port of Box2D",
   "keywords": [
     "box2d",

@@ -24,8 +24,8 @@
     "> 5%"
   ],
   "dependencies": {
-    "@box2d/benchmark": "^0.10.0",
-    "@box2d/core": "^0.10.0",
+    "@box2d/benchmark": "^0.11.0",
+    "@box2d/core": "^0.11.0",
     "@flyover/box2d": "^1.0.1",
     "box2d.js": "^1.0.4",
     "box2dweb": "^2.1.0-b",

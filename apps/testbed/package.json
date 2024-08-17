@@ -24,11 +24,11 @@
     "> 5%"
   ],
   "dependencies": {
-    "@box2d/controllers": "^0.10.0",
-    "@box2d/core": "^0.10.0",
-    "@box2d/debug-draw": "^0.10.0",
-    "@box2d/lights": "^0.10.0",
-    "@box2d/particles": "^0.10.0",
+    "@box2d/controllers": "^0.11.0",
+    "@box2d/core": "^0.11.0",
+    "@box2d/debug-draw": "^0.11.0",
+    "@box2d/lights": "^0.11.0",
+    "@box2d/particles": "^0.11.0",
     "@react-nano/router": "^0.15.0",
     "@types/randomcolor": "^0.5.9",
     "@types/react": "^18.3.3",

@@ -1,6 +1,6 @@
 {
   "name": "@box2d/lights",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "A TypeScript port of Box2DLights",
   "keywords": [
     "box2d",

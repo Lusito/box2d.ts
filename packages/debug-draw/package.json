@@ -1,6 +1,6 @@
 {
   "name": "@box2d/debug-draw",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Debug drawing helper for @box2d",
   "keywords": [
     "box2d",
@@ -31,6 +31,6 @@
     "> 5%"
   ],
   "dependencies": {
-    "@box2d/core": "^0.10.0"
+    "@box2d/core": "^0.11.0"
   }
 }
