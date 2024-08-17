@@ -7,8 +7,8 @@ footer:
 keywords:
   - react
 links:
-  - Benchmarks | /benchmark/
-  - Demos | /testbed/
+  - Benchmarks | https://lusito.github.io/box2d.ts/benchmark/
+  - Demos | https://lusito.github.io/box2d.ts/testbed/
   - Github | https://github.com/lusito/box2d.ts
 adjustPaths:
   - ^\/packages\/([^/]+)(\/docs)?/([^/]+\.html)(#.+)?$|/$1/$3$4
