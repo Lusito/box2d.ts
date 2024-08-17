@@ -57,7 +57,7 @@ detail. A testbed example that reproduces the problem is ideal. You can
 read about the testbed later in this document.
 
 There is also a [Discord server](https://discord.gg/NKYgCBP) and a
-[subreddit](https://reddit.com/r/box2d) for the C++ version of Box2D
+[subreddit](https://www.reddit.com/r/box2d/) for the C++ version of Box2D
 if you need general help with Box2D (rather than the TypeScript port).
 
 ## Core Concepts
