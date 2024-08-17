@@ -19,8 +19,8 @@
     "build:testbed": "npm run build -w @box2d/testbed",
     "credit": "all-contributors add",
     "docs:build": "npm run docs:build:base -- build",
-    "docs:build:base": "rimraf docs && mono-docs .",
-    "docs:dev": "nodemon --ignore docs --ignore node_modules --ignore dist -e ts,tsx,md,scss,png,webp --exec \"npm run docs:build:base -- serve\"",
+    "docs:build:base": "rimraf docs-dist && mono-docs .",
+    "docs:dev": "nodemon --exec \"npm run docs:build:base -- serve\"",
     "postinstall": "patch-package",
     "lint": "mono-lint",
     "lint:fix": "mono-lint --fix",
@@ -29,6 +29,14 @@
     "updiff": "npm start -w @box2d/updiff",
     "updiff:cpp": "npm run convert:cpp -w @box2d/updiff",
     "updiff:ts": "npm run convert:ts -w @box2d/updiff"
+  },
+  "nodemonConfig": {
+    "ext": "ts,tsx,md,scss,png,webp",
+    "ignore": [
+      "docs-dist/*",
+      "dist/*",
+      "node_modules/*"
+    ]
   },
   "devDependencies": {
     "@lusito/eslint-config-react": "^3.2.0",

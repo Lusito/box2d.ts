@@ -20,7 +20,7 @@ projects:
   - packages/particles
   - packages/debug-draw
 buildOptions:
-  out: docs
+  out: docs-dist
   siteUrl: https://lusito.github.io/box2d.ts
   static:
     benchmark: apps/benchmark-web/dist

@@ -12,6 +12,7 @@ Work in Progress of a full Box2D ecosystem for the web.
 
 - This project is kept in sync with the original Box2D project (using a special tool to easily compare differences to upstream)!
 - You only need to install what you actually want. Don't need particles or 2D lights? Then just install the core.
+- Check out the [demos](https://lusito.github.io/box2d.ts/testbed/) and the [benchmarks](https://lusito.github.io/box2d.ts/benchmark/)
 
 ## Included Libraries:
 
