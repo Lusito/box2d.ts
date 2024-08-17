@@ -60,7 +60,8 @@
     "lintMarkdownLinks": {
       "warnOnlyPatterns": [
         "^https:\\/\\/lusito\\.github\\.io\\/box2d.ts\\/",
-        "^https:\\/\\/github\\.com\\/Lusito\\/box2d\\.ts\\/"
+        "^https:\\/\\/github\\.com\\/Lusito\\/box2d\\.ts\\/",
+        "^https:\\/\\/www\\.reddit\\.com\\/"
       ]
     },
     "lintMarkdownTitles": {
