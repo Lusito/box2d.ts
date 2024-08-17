@@ -12,9 +12,9 @@ jobs:
       - name: Install
         run: npm ci
       - name: Build Testbed
-        run: npm run docs:build:testbed
+        run: npm run build:testbed
       - name: Build Benchmark
-        run: npm run docs:build:benchmark
+        run: npm run build:benchmark
       - name: Build Docs
         run: npm run docs:build
       - name: Deploy
