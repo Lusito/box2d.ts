@@ -11,6 +11,10 @@ jobs:
       - uses: volta-cli/action@v4
       - name: Install
         run: npm ci
+      - name: Build Testbed
+        run: npm run docs:build:testbed
+      - name: Build Benchmark
+        run: npm run docs:build:benchmark
       - name: Build Docs
         run: npm run docs:build
       - name: Deploy
