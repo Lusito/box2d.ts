@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+    <url><loc>https://lusito.github.io/box2d.ts/</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/all.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/core/</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/core/faq.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/core/collision.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/core/common.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/core/dynamics.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/core/hello.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/core/key-differences.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/core/overview.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/core/loose-ends.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/core/references.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/core/setup.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/core/testbed.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/controllers/</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/controllers/setup.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/lights/</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/lights/custom-viewport.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/lights/getting-started.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/lights/glossary.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/lights/setup.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/lights/performance-tuning.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/particles/</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/particles/setup.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/debug-draw/</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/debug-draw/usage.html</loc></url>
+    <url><loc>https://lusito.github.io/box2d.ts/debug-draw/setup.html</loc></url>
+</urlset>

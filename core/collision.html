@@ -1,0 +1,419 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="apple-touch-icon" sizes="180x180" href="https://lusito.github.io/box2d.ts/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="https://lusito.github.io/box2d.ts/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="https://lusito.github.io/box2d.ts/assets/favicon-16x16.png"><link rel="shortcut icon" href="https://lusito.github.io/box2d.ts/assets/favicon.ico"><base href="/"><title>Collision Module (core) - @box2d</title><meta name="description" content="A TypeScript port of Box2D"><meta name="keywords" content="box2d, physics, 2d, collision, game, TypeScript"><meta property="og:site_name" content="@box2d"><meta property="og:title" content="Collision Module (core)"><meta property="og:description" content="A TypeScript port of Box2D"><meta property="og:locale" content="en_US"><meta property="og:url" content="https://lusito.github.io/box2d.ts/core/collision.html"><script src="https://lusito.github.io/box2d.ts/assets/custom-elements.js" defer="defer"></script><style>:root{--color-dark: black;--color-dark-contrast: whitesmoke;--color-dark-link: #74c0f7;--color-dark-link-visited: #b5b5b5;--color-button-link: #0a6aae;--color-button-link-visited: #b5b5b5;--color-main: whitesmoke;--color-main-contrast: black;--color-main-link: #063e66;--color-main-link-visited: #545454;--color-highlight: #063e66;--color-highlight-contrast: whitesmoke;--color-focus: rgba(6, 62, 102, 0.6);--color-focus-contrast: whitesmoke;--color-disabled: #545454;--color-disabled-contrast: whitesmoke;--color-overlay: rgba(0, 0, 0, 0.5);--color-synopsis-border: #063e66}@media(prefers-color-scheme: dark){:root{--color-main: #292929;--color-main-contrast: whitesmoke;--color-main-link: #74c0f7;--color-main-link-visited: #b5b5b5;--color-synopsis-border: #074d7e}}@font-face{font-family:"Source Sans Pro";font-style:normal;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-cyrillic-ext-400-normal-4ba425fa.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-400-normal-56cfd2ea.woff") format("woff");unicode-range:U+0460-052F,U+1C80-1C88,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F}@font-face{font-family:"Source Sans Pro";font-style:normal;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-cyrillic-400-normal-0acd59e1.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-400-normal-56cfd2ea.woff") format("woff");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}@font-face{font-family:"Source Sans Pro";font-style:normal;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-greek-ext-400-normal-f2a19d8c.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-400-normal-56cfd2ea.woff") format("woff");unicode-range:U+1F00-1FFF}@font-face{font-family:"Source Sans Pro";font-style:normal;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-greek-400-normal-9755c83c.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-400-normal-56cfd2ea.woff") format("woff");unicode-range:U+0370-03FF}@font-face{font-family:"Source Sans Pro";font-style:normal;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-vietnamese-400-normal-6e0839c2.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-400-normal-56cfd2ea.woff") format("woff");unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+1EA0-1EF9,U+20AB}@font-face{font-family:"Source Sans Pro";font-style:normal;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-latin-ext-400-normal-ee519845.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-400-normal-56cfd2ea.woff") format("woff");unicode-range:U+0100-024F,U+0259,U+1E00-1EFF,U+2020,U+20A0-20AB,U+20AD-20CF,U+2113,U+2C60-2C7F,U+A720-A7FF}@font-face{font-family:"Source Sans Pro";font-style:normal;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-latin-400-normal-c124c88c.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-400-normal-56cfd2ea.woff") format("woff");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:"Source Sans Pro";font-style:italic;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-cyrillic-ext-400-italic-acb92e25.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-400-italic-dd55fba2.woff") format("woff");unicode-range:U+0460-052F,U+1C80-1C88,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F}@font-face{font-family:"Source Sans Pro";font-style:italic;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-cyrillic-400-italic-b7674ffe.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-400-italic-dd55fba2.woff") format("woff");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}@font-face{font-family:"Source Sans Pro";font-style:italic;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-greek-ext-400-italic-b7674ffe.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-400-italic-dd55fba2.woff") format("woff");unicode-range:U+1F00-1FFF}@font-face{font-family:"Source Sans Pro";font-style:italic;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-greek-400-italic-13d60ab4.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-400-italic-dd55fba2.woff") format("woff");unicode-range:U+0370-03FF}@font-face{font-family:"Source Sans Pro";font-style:italic;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-vietnamese-400-italic-159bc2e7.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-400-italic-dd55fba2.woff") format("woff");unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+1EA0-1EF9,U+20AB}@font-face{font-family:"Source Sans Pro";font-style:italic;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-latin-ext-400-italic-96c42fbd.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-400-italic-dd55fba2.woff") format("woff");unicode-range:U+0100-024F,U+0259,U+1E00-1EFF,U+2020,U+20A0-20AB,U+20AD-20CF,U+2113,U+2C60-2C7F,U+A720-A7FF}@font-face{font-family:"Source Sans Pro";font-style:italic;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-latin-400-italic-e286a9ef.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-400-italic-dd55fba2.woff") format("woff");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:"Source Sans Pro";font-style:normal;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-cyrillic-ext-600-normal-e7585b10.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-600-normal-536c5248.woff") format("woff");unicode-range:U+0460-052F,U+1C80-1C88,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F}@font-face{font-family:"Source Sans Pro";font-style:normal;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-cyrillic-600-normal-150e4d03.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-600-normal-536c5248.woff") format("woff");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}@font-face{font-family:"Source Sans Pro";font-style:normal;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-greek-ext-600-normal-e33e69b0.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-600-normal-536c5248.woff") format("woff");unicode-range:U+1F00-1FFF}@font-face{font-family:"Source Sans Pro";font-style:normal;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-greek-600-normal-4f2d0efc.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-600-normal-536c5248.woff") format("woff");unicode-range:U+0370-03FF}@font-face{font-family:"Source Sans Pro";font-style:normal;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-vietnamese-600-normal-e9468c8f.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-600-normal-536c5248.woff") format("woff");unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+1EA0-1EF9,U+20AB}@font-face{font-family:"Source Sans Pro";font-style:normal;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-latin-ext-600-normal-51fc350b.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-600-normal-536c5248.woff") format("woff");unicode-range:U+0100-024F,U+0259,U+1E00-1EFF,U+2020,U+20A0-20AB,U+20AD-20CF,U+2113,U+2C60-2C7F,U+A720-A7FF}@font-face{font-family:"Source Sans Pro";font-style:normal;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-latin-600-normal-bc9a16cd.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-600-normal-536c5248.woff") format("woff");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:"Source Sans Pro";font-style:italic;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-cyrillic-ext-600-italic-4f31dca1.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-600-italic-a5c1962b.woff") format("woff");unicode-range:U+0460-052F,U+1C80-1C88,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F}@font-face{font-family:"Source Sans Pro";font-style:italic;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-cyrillic-600-italic-2c3b3edd.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-600-italic-a5c1962b.woff") format("woff");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}@font-face{font-family:"Source Sans Pro";font-style:italic;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-greek-ext-600-italic-2c3b3edd.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-600-italic-a5c1962b.woff") format("woff");unicode-range:U+1F00-1FFF}@font-face{font-family:"Source Sans Pro";font-style:italic;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-greek-600-italic-0e73f070.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-600-italic-a5c1962b.woff") format("woff");unicode-range:U+0370-03FF}@font-face{font-family:"Source Sans Pro";font-style:italic;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-vietnamese-600-italic-54708a38.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-600-italic-a5c1962b.woff") format("woff");unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+1EA0-1EF9,U+20AB}@font-face{font-family:"Source Sans Pro";font-style:italic;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-latin-ext-600-italic-199af038.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-600-italic-a5c1962b.woff") format("woff");unicode-range:U+0100-024F,U+0259,U+1E00-1EFF,U+2020,U+20A0-20AB,U+20AD-20CF,U+2113,U+2C60-2C7F,U+A720-A7FF}@font-face{font-family:"Source Sans Pro";font-style:italic;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-latin-600-italic-49ff96b2.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-sans-pro-all-600-italic-a5c1962b.woff") format("woff");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:"Source Code Pro";font-style:normal;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-cyrillic-ext-400-normal-82671b2d.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-400-normal-b1e02d3f.woff") format("woff");unicode-range:U+0460-052F,U+1C80-1C88,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F}@font-face{font-family:"Source Code Pro";font-style:normal;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-cyrillic-400-normal-96444050.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-400-normal-b1e02d3f.woff") format("woff");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}@font-face{font-family:"Source Code Pro";font-style:normal;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-greek-ext-400-normal-3b8acbb4.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-400-normal-b1e02d3f.woff") format("woff");unicode-range:U+1F00-1FFF}@font-face{font-family:"Source Code Pro";font-style:normal;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-greek-400-normal-03b0faf3.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-400-normal-b1e02d3f.woff") format("woff");unicode-range:U+0370-03FF}@font-face{font-family:"Source Code Pro";font-style:normal;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-vietnamese-400-normal-4c93cdd7.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-400-normal-b1e02d3f.woff") format("woff");unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+1EA0-1EF9,U+20AB}@font-face{font-family:"Source Code Pro";font-style:normal;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-latin-ext-400-normal-77f76588.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-400-normal-b1e02d3f.woff") format("woff");unicode-range:U+0100-024F,U+0259,U+1E00-1EFF,U+2020,U+20A0-20AB,U+20AD-20CF,U+2113,U+2C60-2C7F,U+A720-A7FF}@font-face{font-family:"Source Code Pro";font-style:normal;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-latin-400-normal-d055168e.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-400-normal-b1e02d3f.woff") format("woff");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:"Source Code Pro";font-style:italic;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-cyrillic-ext-400-italic-0ccaf105.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-400-italic-34fc5d36.woff") format("woff");unicode-range:U+0460-052F,U+1C80-1C88,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F}@font-face{font-family:"Source Code Pro";font-style:italic;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-cyrillic-400-italic-eb229527.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-400-italic-34fc5d36.woff") format("woff");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}@font-face{font-family:"Source Code Pro";font-style:italic;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-greek-ext-400-italic-01dceeab.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-400-italic-34fc5d36.woff") format("woff");unicode-range:U+1F00-1FFF}@font-face{font-family:"Source Code Pro";font-style:italic;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-greek-400-italic-a1f050cc.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-400-italic-34fc5d36.woff") format("woff");unicode-range:U+0370-03FF}@font-face{font-family:"Source Code Pro";font-style:italic;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-vietnamese-400-italic-4e7d86ad.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-400-italic-34fc5d36.woff") format("woff");unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+1EA0-1EF9,U+20AB}@font-face{font-family:"Source Code Pro";font-style:italic;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-latin-ext-400-italic-3f83fcb8.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-400-italic-34fc5d36.woff") format("woff");unicode-range:U+0100-024F,U+0259,U+1E00-1EFF,U+2020,U+20A0-20AB,U+20AD-20CF,U+2113,U+2C60-2C7F,U+A720-A7FF}@font-face{font-family:"Source Code Pro";font-style:italic;font-display:swap;font-weight:400;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-latin-400-italic-254da20d.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-400-italic-34fc5d36.woff") format("woff");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:"Source Code Pro";font-style:normal;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-cyrillic-ext-600-normal-7287ba13.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-600-normal-cf98c7a1.woff") format("woff");unicode-range:U+0460-052F,U+1C80-1C88,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F}@font-face{font-family:"Source Code Pro";font-style:normal;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-cyrillic-600-normal-34008a2b.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-600-normal-cf98c7a1.woff") format("woff");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}@font-face{font-family:"Source Code Pro";font-style:normal;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-greek-ext-600-normal-353c4729.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-600-normal-cf98c7a1.woff") format("woff");unicode-range:U+1F00-1FFF}@font-face{font-family:"Source Code Pro";font-style:normal;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-greek-600-normal-d42e49b4.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-600-normal-cf98c7a1.woff") format("woff");unicode-range:U+0370-03FF}@font-face{font-family:"Source Code Pro";font-style:normal;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-vietnamese-600-normal-928aa37f.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-600-normal-cf98c7a1.woff") format("woff");unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+1EA0-1EF9,U+20AB}@font-face{font-family:"Source Code Pro";font-style:normal;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-latin-ext-600-normal-e43c5275.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-600-normal-cf98c7a1.woff") format("woff");unicode-range:U+0100-024F,U+0259,U+1E00-1EFF,U+2020,U+20A0-20AB,U+20AD-20CF,U+2113,U+2C60-2C7F,U+A720-A7FF}@font-face{font-family:"Source Code Pro";font-style:normal;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-latin-600-normal-b53bffb6.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-600-normal-cf98c7a1.woff") format("woff");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}@font-face{font-family:"Source Code Pro";font-style:italic;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-cyrillic-ext-600-italic-92ba833e.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-600-italic-ffd124b4.woff") format("woff");unicode-range:U+0460-052F,U+1C80-1C88,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F}@font-face{font-family:"Source Code Pro";font-style:italic;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-cyrillic-600-italic-5f039c8d.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-600-italic-ffd124b4.woff") format("woff");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}@font-face{font-family:"Source Code Pro";font-style:italic;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-greek-ext-600-italic-a8f91fc8.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-600-italic-ffd124b4.woff") format("woff");unicode-range:U+1F00-1FFF}@font-face{font-family:"Source Code Pro";font-style:italic;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-greek-600-italic-6020e1e8.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-600-italic-ffd124b4.woff") format("woff");unicode-range:U+0370-03FF}@font-face{font-family:"Source Code Pro";font-style:italic;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-vietnamese-600-italic-9152968f.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-600-italic-ffd124b4.woff") format("woff");unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+1EA0-1EF9,U+20AB}@font-face{font-family:"Source Code Pro";font-style:italic;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-latin-ext-600-italic-a1d09387.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-600-italic-ffd124b4.woff") format("woff");unicode-range:U+0100-024F,U+0259,U+1E00-1EFF,U+2020,U+20A0-20AB,U+20AD-20CF,U+2113,U+2C60-2C7F,U+A720-A7FF}@font-face{font-family:"Source Code Pro";font-style:italic;font-display:swap;font-weight:600;src:url("https://lusito.github.io/box2d.ts/assets/source-code-pro-latin-600-italic-c9dc7c45.woff2") format("woff2"),url("https://lusito.github.io/box2d.ts/assets/source-code-pro-all-600-italic-ffd124b4.woff") format("woff");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;font:inherit;font-size:100%;vertical-align:baseline}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1.5}blockquote,q{quotes:none}blockquote::before,blockquote::after,q::before,q::after{content:"";content:none}strong,b{font-weight:bold}em,i{font-style:italic}p,figure{margin:1em 0}figcaption{font-style:italic}blockquote{border-left:.5em solid var(--color-disabled);padding:.5em 1em;quotes:"“" "”" "‘" "’"}blockquote::before{color:var(--color-disabled);content:open-quote;font-size:4em;line-height:.1em;margin-right:.25em;vertical-align:-0.4em}sub{vertical-align:sub;font-size:smaller}sup{vertical-align:super;font-size:smaller}ul,ol{overflow:hidden;padding-left:2.5em;list-style:none}ul{list-style-type:disc}ol{list-style-type:decimal}ul ul,ol ul{list-style-type:circle}h1,h2,h3,h4,h5,h6{margin:2em 0 1.25em 0}h1{font-size:2em}h2{font-size:1.5em}h3,h4,h5,h6{font-weight:bold}h3{font-size:1.3em}h4{font-size:1em}h5{font-size:.8em}h6{font-size:.7em}table{border-collapse:collapse;border-spacing:0;width:100%}table th{font-weight:bold;background:var(--color-dark);color:var(--color-dark-contrast)}table th,table td{border:1px solid var(--color-dark);padding:.25em .5em}html,body{height:100%;overflow:hidden}body{background:var(--color-main);color:var(--color-main-contrast);font-family:"Source Sans Pro",Arial,Helvetica,sans-serif;font-size:1.125rem}a{text-decoration:underline;color:var(--color-main-link)}a:visited{color:var(--color-main-link-visited)}input:focus,select:focus,a:focus{box-shadow:0 0 0 3px var(--color-focus);outline:1px solid var(--color-focus-contrast)}</style><style>.mainwrapper_3OKMPL{position:absolute;inset:2.5rem 0 0 0;transition:all .5s ease;box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden auto}.mainwrapper_3OKMPL>main{flex-grow:1}@media(min-width: 60em){.mainwrapper_3OKMPL{left:20rem}header+.mainwrapper_3OKMPL{left:0}}</style><style>.header_32lbbd{font-family:"Source Sans Pro",Arial,Helvetica,sans-serif;font-weight:bold;background:var(--color-dark);padding:0 .5rem;line-height:2.5rem;flex-shrink:0;position:relative;display:flex;transition:all .5s ease;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;justify-content:space-between}.header_32lbbd.with-side-bar_32lbbd{padding-left:2.5rem}@media(min-width: 60em){.header_32lbbd.with-side-bar_32lbbd{padding-left:.5rem}}.header_32lbbd .left_32lbbd>a,.header_32lbbd .links_32lbbd>a{color:var(--color-dark-contrast);text-decoration:none}.header_32lbbd .left_32lbbd{font-size:1.5rem;margin-left:.5rem}.header_32lbbd .right_32lbbd{display:flex;flex-direction:row;font-size:1rem}.header_32lbbd .right_32lbbd>.links_32lbbd{display:none}.header_32lbbd .right_32lbbd>.links_32lbbd>*+*::before{content:" - "}@media(min-width: 60em){.header_32lbbd .right_32lbbd>.links_32lbbd{margin-right:.5rem;display:block}}</style><style>.side-bar-overlay_2oLCk{background:rgba(0,0,0,0);transition:right 0s .5s linear,background-color .5s ease-in-out;position:fixed;inset:0 100vw 0 0;z-index:199}.side-bar_2oLCk{position:absolute;top:0;bottom:0;left:-20rem;width:20rem;z-index:200;transition:all .5s ease;background:var(--color-main);box-sizing:border-box;border-right:.25rem solid var(--color-dark)}.side-bar_2oLCk .trigger_2oLCk{position:absolute;top:0;right:-2.5rem;width:2rem;height:2.5rem;background:var(--color-dark);transition:all .5s ease;padding:.25rem;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-evenly}.side-bar_2oLCk .trigger_2oLCk>div{height:.25rem;background:var(--color-dark-contrast);box-sizing:border-box}.side-bar_2oLCk:hover,.side-bar_2oLCk:focus-within{left:0}.side-bar_2oLCk:hover+.side-bar-overlay_2oLCk,.side-bar_2oLCk:focus-within+.side-bar-overlay_2oLCk{background:var(--color-overlay);right:0;transition:right 0s linear,background-color .5s ease-in-out}@media(min-width: 60em){.side-bar_2oLCk{top:2.5rem;left:0}.side-bar_2oLCk:hover+.side-bar-overlay_2oLCk,.side-bar_2oLCk:focus-within+.side-bar-overlay_2oLCk{background:rgba(0,0,0,0);right:100vw;transition:right 0s .5s linear,background-color .5s ease-in-out}.side-bar_2oLCk .trigger_2oLCk{display:none}}.content_2oLCk{max-height:100%;overflow-y:auto}.content_2oLCk>.links_2oLCk{border-bottom:1px solid #000}.content_2oLCk>.links_2oLCk>a{padding:.5rem .75rem .5rem 1rem;display:block}.content_2oLCk>.links_2oLCk>a:hover,.content_2oLCk>.links_2oLCk>a:focus{display:block;background:var(--color-highlight);color:var(--color-highlight-contrast);outline:none;box-shadow:none;text-decoration:none}@media(min-width: 60em){.content_2oLCk>.links_2oLCk{display:none}}</style><style>:root{--color-dark: black;--color-dark-contrast: whitesmoke;--color-dark-link: #74c0f7;--color-dark-link-visited: #b5b5b5;--color-button-link: #0a6aae;--color-button-link-visited: #b5b5b5;--color-main: whitesmoke;--color-main-contrast: black;--color-main-link: #063e66;--color-main-link-visited: #545454;--color-highlight: #063e66;--color-highlight-contrast: whitesmoke;--color-focus: rgba(6, 62, 102, 0.6);--color-focus-contrast: whitesmoke;--color-disabled: #545454;--color-disabled-contrast: whitesmoke;--color-overlay: rgba(0, 0, 0, 0.5);--color-synopsis-border: #063e66}@media(prefers-color-scheme: dark){:root{--color-main: #292929;--color-main-contrast: whitesmoke;--color-main-link: #74c0f7;--color-main-link-visited: #b5b5b5;--color-synopsis-border: #074d7e}}.banner_4moMA5{position:relative;text-align:center;padding:2rem 0;background:radial-gradient(ellipse at center, #063e66 0%, #02121e 100%);color:var(--color-highlight-contrast);text-shadow:0 0 1em var(--color-dark);justify-content:center;display:flex;flex-direction:row;word-break:break-word;margin-top:0}.banner_4moMA5>*{z-index:2;margin:0;max-width:50rem;width:100%;text-align:left;padding:0 1rem;box-sizing:border-box}@media(min-width: 50em){.banner_4moMA5>*{padding:0 2rem;max-width:50rem}}.banner_4moMA5::before{content:"";position:absolute;inset:0 0 0 0;background-repeat:no-repeat;background-size:cover;background-position:top center;background-attachment:fixed;background-image:url("https://lusito.github.io/box2d.ts/assets/background-f13db739.svg");pointer-events:none}</style><style>.container_3bsacv{margin:2rem auto;padding:0 1rem;box-sizing:border-box}.container_3bsacv>*{flex-grow:1}@media(min-width: 50em){.container_3bsacv{padding:0 2rem;max-width:50rem}}</style><style>.footer_1ydRsP{background:var(--color-dark);color:var(--color-dark-contrast);text-align:center;padding:.5rem;display:flex;flex-direction:column}.footer_1ydRsP a{color:var(--color-dark-link)}.footer_1ydRsP a:visited{color:var(--color-dark-link-visited)}@media(min-width: 50em){.footer_1ydRsP{display:block}.footer_1ydRsP>*+*::before{content:" - "}}</style><style>.search-container_2FB2WB{display:flex}.search-button_2FB2WB{width:2.5rem;height:2.5rem;padding:0;background-color:rgba(0,0,0,0);background-image:url("https://lusito.github.io/box2d.ts/assets/search-fac9a8b9.svg");background-size:1.5rem;background-repeat:no-repeat;background-position:center;border:none;cursor:pointer}.search-field-wrapper_2FB2WB{display:flex;flex-direction:row;line-height:2rem}.search-field-wrapper_2FB2WB>span{padding:.25rem .75rem;background:var(--color-dark);color:var(--color-dark-contrast)}.search-field-wrapper_2FB2WB>input.search-field_2FB2WB{flex-grow:1;padding:.25rem .75rem;border:1px solid var(--color-dark);background:#fff;color:#000}.search-overlay_2FB2WB{display:none;position:fixed;inset:2.5rem 0 0 0;padding:1rem;background:var(--color-main);color:var(--color-main-contrast);z-index:3;overflow:auto;box-shadow:-0.5rem 0px .75rem 0px var(--color-overlay)}@media(min-width: 60em){.search-overlay_2FB2WB{left:auto;width:30rem;border-left:.25rem solid var(--color-dark)}}.search-overlay_2FB2WB.search-overlay-visible_2FB2WB{display:block}.search-overlay_2FB2WB>h2{border-bottom:1px solid var(--color-main-contrast)}.search-overlay_2FB2WB li{line-height:normal;padding:.25rem 0}.search-overlay_2FB2WB li>a{padding:.25rem}.search-overlay_2FB2WB li>a:hover,.search-overlay_2FB2WB li>a:focus{background:var(--color-highlight);color:var(--color-highlight-contrast);outline:none;box-shadow:none;text-decoration:none}.search-items_2FB2WB{list-style:inherit}</style><style>.side-bar-menu_2PNEaA,.side-bar-menu_2PNEaA ul{font-family:"Source Sans Pro",Arial,Helvetica,sans-serif;width:100%;list-style-type:none;padding:0;margin:0}.side-bar-menu_2PNEaA{padding:1rem 0}.side-bar-menu_2PNEaA li{display:list-item;font-size:1.25rem}.side-bar-menu_2PNEaA li:not(.nested_2PNEaA){font-weight:bold}.side-bar-menu_2PNEaA li>a{display:block;padding:.75rem;text-decoration:none;border-left:.25em solid rgba(0,0,0,0)}.side-bar-menu_2PNEaA li>a:not(:hover,:focus){color:var(--color-main-contrast)}.side-bar-menu_2PNEaA li>a:hover,.side-bar-menu_2PNEaA li>a:focus{display:block;background:var(--color-highlight);color:var(--color-highlight-contrast);outline:none;box-shadow:none;text-decoration:none}.side-bar-menu_2PNEaA li.project-selector_2PNEaA{padding:.5rem .75rem;border-left:.25em solid rgba(0,0,0,0)}.side-bar-menu_2PNEaA li.project-selector_2PNEaA>select{display:block;width:100%;overflow:hidden;text-overflow:ellipsis}.side-bar-menu_2PNEaA li.selected_2PNEaA>a{border-color:var(--color-highlight)}.side-bar-menu_2PNEaA li.nested_2PNEaA>a{padding:.25rem .5rem;padding-left:1.5rem;font-size:1rem}</style><style>.markdown-content_LJDte{word-break:break-word}.markdown-content_LJDte h1{display:none}.markdown-content_LJDte h2{border-bottom:1px solid var(--color-main-contrast)}.markdown-content_LJDte figure{width:100%;table-layout:fixed}.markdown-content_LJDte img.large-image_LJDte{width:calc(100% + 2rem);height:auto;margin:0 -1rem}@media(min-width: 50em){.markdown-content_LJDte img.large-image_LJDte{width:auto;max-width:100%;margin:0}}.markdown-content_LJDte h1 code,.markdown-content_LJDte h2 code,.markdown-content_LJDte h3 code,.markdown-content_LJDte h4 code,.markdown-content_LJDte h5 code,.markdown-content_LJDte h6 code{font-family:"Source Code Pro",Consolas,Monaco,monospace;border:1px solid #dcdcdc;border-radius:.25rem;padding:0 .25em}.markdown-content_LJDte p code,.markdown-content_LJDte ul code,.markdown-content_LJDte ol code{font-family:"Source Code Pro",Consolas,Monaco,monospace;background:#dcdcdc;color:#1e1e1e;border-radius:.25rem;padding:0 .25em}.markdown-content_LJDte pre{position:relative}.markdown-content_LJDte pre>code{border-radius:0;margin:1rem -1rem;font-family:"Source Code Pro",Consolas,Monaco,monospace}@media(min-width: 50em){.markdown-content_LJDte pre>code{border-radius:.5rem;margin:1rem 0}}.markdown-content_LJDte pre code-copy-button:not(.enhanced-copy-button_LJDte){display:none}.markdown-content_LJDte pre code-copy-button.enhanced-copy-button_LJDte{position:absolute;top:1rem;right:1rem;width:2rem;height:2rem;background:var(--color-dark-contrast);border-radius:.5rem;cursor:pointer;opacity:0;transition:opacity .4s ease-in-out}.markdown-content_LJDte pre code-copy-button.enhanced-copy-button_LJDte:active{filter:brightness(0.75)}.markdown-content_LJDte pre code-copy-button.enhanced-copy-button_LJDte:focus{outline:none;box-shadow:0 0 0 3px var(--color-dark-link)}.markdown-content_LJDte pre code-copy-button.enhanced-copy-button_LJDte::before,.markdown-content_LJDte pre code-copy-button.enhanced-copy-button_LJDte::after{content:"";background:var(--color-dark-contrast);border:1px solid var(--color-dark);box-shadow:0 0 1px 2px var(--color-dark-contrast);width:35%;height:35%;border-radius:20%;position:absolute}.markdown-content_LJDte pre code-copy-button.enhanced-copy-button_LJDte::before{bottom:20%;left:20%}.markdown-content_LJDte pre code-copy-button.enhanced-copy-button_LJDte::after{top:20%;right:20%}.markdown-content_LJDte pre:hover code-copy-button,.markdown-content_LJDte pre:focus-within code-copy-button{opacity:1}</style><style>pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5px}.hljs{background:#1e1e1e;color:#dcdcdc}.hljs-keyword,.hljs-literal,.hljs-symbol,.hljs-name{color:#569cd6}.hljs-link{color:#569cd6;text-decoration:underline}.hljs-built_in,.hljs-type{color:#4ec9b0}.hljs-number,.hljs-class{color:#b8d7a3}.hljs-string,.hljs-meta .hljs-string{color:#d69d85}.hljs-regexp,.hljs-template-tag{color:#9a5334}.hljs-subst,.hljs-function,.hljs-title,.hljs-params,.hljs-formula{color:#dcdcdc}.hljs-comment,.hljs-quote{color:#57a64a;font-style:italic}.hljs-doctag{color:#608b4e}.hljs-meta,.hljs-meta .hljs-keyword,.hljs-tag{color:#9b9b9b}.hljs-variable,.hljs-template-variable{color:#bd63c5}.hljs-attr,.hljs-attribute{color:#9cdcfe}.hljs-section{color:gold}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:bold}.hljs-bullet,.hljs-selector-tag,.hljs-selector-id,.hljs-selector-class,.hljs-selector-attr,.hljs-selector-pseudo{color:#d7ba7d}.hljs-addition{background-color:#144212;display:inline-block;width:100%}.hljs-deletion{background-color:#600;display:inline-block;width:100%}</style></head><body><header class="header_32lbbd with-side-bar_32lbbd"><div class="left_32lbbd"><a href="https://lusito.github.io/box2d.ts/index.html">@box2d</a></div><div class="right_32lbbd"><search-container class="search-container_2FB2WB" searchbutton="search-button_2FB2WB" searchfield="search-field_2FB2WB" searchdata="https://lusito.github.io/box2d.ts/search-data.json" searchitems="search-items_2FB2WB" overlay="search-overlay_2FB2WB" overlayvisible="search-overlay-visible_2FB2WB"><button class="search-button_2FB2WB" title="Search" aria-label="Search"></button><div class="search-overlay_2FB2WB"><label class="search-field-wrapper_2FB2WB"><span>Search: </span><input type="search" autofocus="autofocus" class="search-field_2FB2WB"></label><h2>Search results:</h2><ul class="search-items_2FB2WB"></ul></div></search-container><div class="links_32lbbd"><a href="/benchmark/">Benchmarks</a><a href="/testbed/">Demos</a><a href="https://github.com/lusito/box2d.ts" rel="noopener nofollow" target="_blank">Github</a></div></div></header><div class="side-bar_2oLCk scatman-container"><div class="content_2oLCk"><div class="links_2oLCk"><a href="/benchmark/">Benchmarks</a><a href="/testbed/">Demos</a><a href="https://github.com/lusito/box2d.ts" rel="noopener nofollow" target="_blank">Github</a></div><nav role="navigation" aria-label="Main Menu"><ul class="side-bar-menu_2PNEaA"><li class="project-selector_2PNEaA"><select autocomplete="off" is="link-select"><option value="https://lusito.github.io/box2d.ts/core/index.html" selected="selected">Project: core</option><option value="https://lusito.github.io/box2d.ts/controllers/index.html">Project: controllers</option><option value="https://lusito.github.io/box2d.ts/lights/index.html">Project: lights</option><option value="https://lusito.github.io/box2d.ts/particles/index.html">Project: particles</option><option value="https://lusito.github.io/box2d.ts/debug-draw/index.html">Project: debug-draw</option></select></li><li><a href="https://lusito.github.io/box2d.ts/core/index.html">Readme</a></li><li><a href="https://lusito.github.io/box2d.ts/core/setup.html">Setup</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/setup.html#install-with-npm">Install With NPM</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/setup.html#typescript-vs-javascript">TypeScript vs JavaScript</a></li><li><a href="https://lusito.github.io/box2d.ts/core/key-differences.html">Key Differences to C++</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/key-differences.html#no-class-instances-on-the-stack">No Class Instances on the Stack</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/key-differences.html#garbage-collector-considerations">Garbage Collector Considerations</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/key-differences.html#operators">Operators</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/key-differences.html#math-operations">Math Operations</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/key-differences.html#vec2-vs-xy">Vec2 vs XY</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/key-differences.html#overloads">Overloads</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/key-differences.html#factory-functions-vs-constructors">Factory Functions vs Constructors</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/key-differences.html#user-data">User Data</a></li><li><a href="https://lusito.github.io/box2d.ts/core/overview.html">Overview</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/overview.html#prerequisites">Prerequisites</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/overview.html#scope">Scope</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/overview.html#feedback-and-bugs">Feedback and Bugs</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/overview.html#core-concepts">Core Concepts</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/overview.html#modules">Modules</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/overview.html#units">Units</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/overview.html#changing-the-length-units">Changing The Length Units</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/overview.html#factories-and-definitions">Factories and Definitions</a></li><li><a href="https://lusito.github.io/box2d.ts/core/hello.html">Hello Box2D</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/hello.html#creating-a-world">Creating a World</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/hello.html#creating-a-ground-box">Creating a Ground Box</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/hello.html#creating-a-dynamic-body">Creating a Dynamic Body</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/hello.html#simulating-the-world">Simulating the World</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/hello.html#cleanup">Cleanup</a></li><li><a href="https://lusito.github.io/box2d.ts/core/testbed.html">Testbed</a></li><li><a href="https://lusito.github.io/box2d.ts/core/common.html">Common Module</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/common.html#settings">Settings</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/common.html#version">Version</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/common.html#math">Math</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/common.html#readonly-types">Readonly Types</a></li><li class="selected_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/collision.html" aria-label="Current page, Collision Module" aria-current="page">Collision Module</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/collision.html#shapes">Shapes</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/collision.html#geometric-queries">Geometric Queries</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/collision.html#pairwise-functions">Pairwise Functions</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/collision.html#dynamic-tree">Dynamic Tree</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/collision.html#broad-phase">Broad-Phase</a></li><li><a href="https://lusito.github.io/box2d.ts/core/dynamics.html">Dynamics Module</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/dynamics.html#bodies">Bodies</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/dynamics.html#fixtures">Fixtures</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/dynamics.html#joints">Joints</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/dynamics.html#contacts">Contacts</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/dynamics.html#world">World</a></li><li><a href="https://lusito.github.io/box2d.ts/core/loose-ends.html">Loose Ends</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/loose-ends.html#user-data">User Data</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/loose-ends.html#user-data-types">User Data Types</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/loose-ends.html#implicit-destruction">Implicit Destruction</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/loose-ends.html#pixels-and-coordinate-systems">Pixels and Coordinate Systems</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/loose-ends.html#debug-drawing">Debug Drawing</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/loose-ends.html#limitations">Limitations</a></li><li><a href="https://lusito.github.io/box2d.ts/core/references.html">References</a></li><li><a href="https://lusito.github.io/box2d.ts/core/faq.html">FAQ</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/faq.html#what-is-box2d">What Is Box2D?</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/faq.html#what-is-box2d">What Is @box2d?</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/faq.html#who-makes-it">Who Makes It?</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/faq.html#how-do-i-get-help">How Do I Get Help?</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/faq.html#documentation">Documentation</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/faq.html#prerequisites">Prerequisites</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/faq.html#api">API</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/faq.html#rendering">Rendering</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/faq.html#accuracy">Accuracy</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/faq.html#making-games">Making Games</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/faq.html#determinism">Determinism</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/faq.html#why-is-the-restitutionfriction-mixing-inaccurate">Why Is The Restitution/Friction Mixing Inaccurate?</a></li><li class="nested_2PNEaA"><a href="https://lusito.github.io/box2d.ts/core/faq.html#what-are-the-biggest-mistakes-made-by-new-users">What Are The Biggest Mistakes Made By New Users?</a></li></ul></nav></div><div class="trigger_2oLCk"><div></div><div></div><div></div></div></div><div class="side-bar-overlay_2oLCk"></div><div class="mainwrapper_3OKMPL scatman-container scatman-scroll-area"><main><div class="banner_4moMA5"><h1>Collision Module</h1></div><article><div class="container_3bsacv"><div class="markdown-content_LJDte"><h1>Collision Module</h1>
+<p>The Collision module contains shapes and functions that operate on them.
+The module also contains a dynamic tree and broad-phase to acceleration
+collision processing of large systems.</p>
+<p>The collision module is designed to be usable outside of the dynamic
+system. For example, you can use the dynamic tree for other aspects of
+your game besides physics.</p>
+<p>However, the main purpose of Box2D is to provide a rigid body physics
+engine, so the using the collision module by itself may feel limited for
+some applications. Likewise, I will not make a strong effort to document
+it or polish the APIs.</p>
+<h2 id="shapes">Shapes</h2>
+<p>Shapes describe collision geometry and may be used independently of
+physics simulation. At a minimum, you should understand how to create
+shapes that can be later attached to rigid bodies.</p>
+<p>Box2D shapes implement the b2Shape base class. The base class defines
+functions to:</p>
+<ul>
+<li>Test a point for overlap with the shape.</li>
+<li>Perform a ray cast against the shape.</li>
+<li>Compute the shape's AABB.</li>
+<li>Compute the mass properties of the shape.</li>
+</ul>
+<p>In addition, each shape has a type member and a radius. The radius even
+applies to polygons, as discussed below.</p>
+<p>Keep in mind that a shape does not know about bodies and stand apart
+from the dynamics system. Shapes are stored in a compact form that is
+optimized for size and performance. As such, shapes are not easily moved
+around. You have to manually set the shape vertex positions to move a
+shape. However, when a shape is attached to a body using a fixture, the
+shapes move rigidly with the host body. In summary:</p>
+<ul>
+<li>When a shape is <strong>not</strong> attached to a body, you can view it's vertices as being expressed in world-space.</li>
+<li>When a shape is attached to a body, you can view it's vertices as being expressed in local coordinates.</li>
+</ul>
+<h3>Circle Shapes</h3>
+<p>Circle shapes have a position and radius. Circles are solid. You cannot
+make a hollow circle using the circle shape.</p>
+<pre><code class="hljs"><span class="hljs-keyword">const</span> circle = <span class="hljs-keyword">new</span> <span class="hljs-title function_">b2CircleShape</span>();
+<span class="hljs-keyword">const</span> radius = <span class="hljs-number">0.5</span>;
+circle.<span class="hljs-title class_">Set</span>({ <span class="hljs-attr">x</span>: <span class="hljs-number">2</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">3</span> }, radius);
+</code><code-copy-button role="button" code="const circle = new b2CircleShape();
+const radius = 0.5;
+circle.Set({ x: 2, y: 3 }, radius);" title="Copy the code snippet to the clipboard" aria-label="Copy the code snippet to the clipboard" enhancedclass="enhanced-copy-button_LJDte"></code-copy-button></pre>
+<h3>Polygon Shapes</h3>
+<p>Polygon shapes are solid convex polygons. A polygon is convex when all
+line segments connecting two points in the interior do not cross any
+edge of the polygon. Polygons are solid and never hollow. A polygon must
+have 3 or more vertices.</p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/convex_concave-035b878d.gif" alt="Convex and Concave Polygons"></p>
+<p>Polygons vertices are stored with a counter clockwise winding (CCW). We
+must be careful because the notion of CCW is with respect to a
+right-handed coordinate system with the z-axis pointing out of the
+plane. This might turn out to be clockwise on your screen, depending on
+your coordinate system conventions.</p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/winding-d9851075.svg" alt="Polygon Winding Order"></p>
+<p>The polygon members are public, but you should use initialization
+functions to create a polygon. The initialization functions create
+normal vectors and perform validation.</p>
+<p>You can create a polygon shape by passing in a vertex array. The maximal
+size of the array is controlled by <code>b2_maxPolygonVertices</code> which has a
+default value of 8. This is sufficient to describe most convex polygons.</p>
+<p>The <code>b2PolygonShape::Set</code> function automatically computes the convex hull
+and establishes the proper winding order. This function is fast when the
+number of vertices is low. If you increase <code>b2_maxPolygonVertices</code>, then
+the convex hull computation might become slow. Also note that the convex
+hull function may eliminate and/or re-order the points you provide.
+Vertices that are closer than <code>b2_linearSlop</code> may be merged.</p>
+<pre><code class="hljs"><span class="hljs-comment">// This defines a triangle in CCW order.</span>
+<span class="hljs-keyword">const</span> <span class="hljs-attr">vertices</span>: <span class="hljs-variable constant_">XY</span>[] = [
+  { <span class="hljs-attr">x</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0</span> },
+  { <span class="hljs-attr">x</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0</span> },
+  { <span class="hljs-attr">x</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">1</span> },
+];
+
+<span class="hljs-keyword">const</span> polygon = <span class="hljs-keyword">new</span> <span class="hljs-title function_">b2PolygonShape</span>();
+polygon.<span class="hljs-title class_">Set</span>(vertices, vertices.<span class="hljs-property">length</span>);
+</code><code-copy-button role="button" code="// This defines a triangle in CCW order.
+const vertices: XY[] = [
+  { x: 0, y: 0 },
+  { x: 1, y: 0 },
+  { x: 0, y: 1 },
+];
+
+const polygon = new b2PolygonShape();
+polygon.Set(vertices, vertices.length);" title="Copy the code snippet to the clipboard" aria-label="Copy the code snippet to the clipboard" enhancedclass="enhanced-copy-button_LJDte"></code-copy-button></pre>
+<p>The polygon shape has a convenience function to create boxes.</p>
+<pre><code class="hljs"><span class="hljs-comment">// on b2PolygonShape</span>
+<span class="hljs-keyword">public</span> <span class="hljs-title class_">SetAsBox</span>(<span class="hljs-attr">hx</span>: <span class="hljs-built_in">number</span>, <span class="hljs-attr">hy</span>: <span class="hljs-built_in">number</span>, center?: <span class="hljs-variable constant_">XY</span>, angle = <span class="hljs-number">0</span>): b2PolygonShape;
+</code><code-copy-button role="button" code="// on b2PolygonShape
+public SetAsBox(hx: number, hy: number, center?: XY, angle = 0): b2PolygonShape;" title="Copy the code snippet to the clipboard" aria-label="Copy the code snippet to the clipboard" enhancedclass="enhanced-copy-button_LJDte"></code-copy-button></pre>
+<p>Polygons inherit a radius from b2Shape. The radius creates a skin around
+the polygon. The skin is used in stacking scenarios to keep polygons
+slightly separated. This allows continuous collision to work against the
+core polygon.</p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/skinned_polygon-660905e9.svg" alt="Polygon Skin"></p>
+<p>The polygon skin helps prevent tunneling by keeping the polygons
+separated. This results in small gaps between the shapes. Your visual
+representation can be larger than the polygon to hide any gaps.</p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/skin_collision-3805a5f6.svg" alt="Skin Collision"></p>
+<p>Note that polygon skin is only provided to help with continuous collision.
+The purpose is not to simulate rounded polygons.</p>
+<h3>Edge Shapes</h3>
+<p>Edge shapes are line segments. These are provided to assist in making a
+free-form static environment for your game. A major limitation of edge
+shapes is that they can collide with circles and polygons but not with
+themselves. The collision algorithms used by Box2D require that at least
+one of two colliding shapes have volume. Edge shapes have no volume, so
+edge-edge collision is not possible.</p>
+<pre><code class="hljs"><span class="hljs-comment">// This an edge shape.</span>
+<span class="hljs-keyword">const</span> <span class="hljs-attr">v1</span>: <span class="hljs-variable constant_">XY</span> = { <span class="hljs-attr">x</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0</span> };
+<span class="hljs-keyword">const</span> <span class="hljs-attr">v2</span>: <span class="hljs-variable constant_">XY</span> = { <span class="hljs-attr">x</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0</span> };
+
+<span class="hljs-keyword">const</span> edge = <span class="hljs-keyword">new</span> <span class="hljs-title function_">b2EdgeShape</span>();
+edge.<span class="hljs-title class_">SetTwoSided</span>(v1, v2);
+</code><code-copy-button role="button" code="// This an edge shape.
+const v1: XY = { x: 0, y: 0 };
+const v2: XY = { x: 1, y: 0 };
+
+const edge = new b2EdgeShape();
+edge.SetTwoSided(v1, v2);" title="Copy the code snippet to the clipboard" aria-label="Copy the code snippet to the clipboard" enhancedclass="enhanced-copy-button_LJDte"></code-copy-button></pre>
+<p>In many cases a game environment is constructed by connecting several
+edge shapes end-to-end. This can give rise to an unexpected artifact
+when a polygon slides along the chain of edges. In the figure below we
+see a box colliding with an internal vertex. These <em>ghost</em> collisions
+are caused when the polygon collides with an internal vertex generating
+an internal collision normal.</p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/ghost_collision-b2226877.svg" alt="Ghost Collision"></p>
+<p>If edge1 did not exist this collision would seem fine. With edge1
+present, the internal collision seems like a bug. But normally when
+Box2D collides two shapes, it views them in isolation.</p>
+<p>Fortunately, the edge shape provides a mechanism for eliminating ghost
+collisions by storing the adjacent <em>ghost</em> vertices. Box2D uses these
+ghost vertices to prevent internal collisions.</p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/ghost_vertices-84783cad.svg" alt="Ghost Vertices"></p>
+<p>The Box2D algorithm for dealing with ghost collisions only supports
+one-sided collision. The front face is to the right when looking from the first
+vertex towards the second vertex. This matches the CCW winding order
+used by polygons.</p>
+<pre><code class="hljs"><span class="hljs-comment">// This is an edge shape with ghost vertices.</span>
+<span class="hljs-keyword">const</span> <span class="hljs-attr">v0</span>: <span class="hljs-variable constant_">XY</span> = { <span class="hljs-attr">x</span>: <span class="hljs-number">1.7</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0</span> };
+<span class="hljs-keyword">const</span> <span class="hljs-attr">v1</span>: <span class="hljs-variable constant_">XY</span> = { <span class="hljs-attr">x</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0.25</span> };
+<span class="hljs-keyword">const</span> <span class="hljs-attr">v2</span>: <span class="hljs-variable constant_">XY</span> = { <span class="hljs-attr">x</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0</span> };
+<span class="hljs-keyword">const</span> <span class="hljs-attr">v3</span>: <span class="hljs-variable constant_">XY</span> = { <span class="hljs-attr">x</span>: -<span class="hljs-number">1.7</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0.4</span> };
+
+<span class="hljs-keyword">const</span> edge = <span class="hljs-keyword">new</span> <span class="hljs-title function_">b2EdgeShape</span>();
+edge.<span class="hljs-title class_">SetOneSided</span>(v0, v1, v2, v3);
+</code><code-copy-button role="button" code="// This is an edge shape with ghost vertices.
+const v0: XY = { x: 1.7, y: 0 };
+const v1: XY = { x: 1, y: 0.25 };
+const v2: XY = { x: 0, y: 0 };
+const v3: XY = { x: -1.7, y: 0.4 };
+
+const edge = new b2EdgeShape();
+edge.SetOneSided(v0, v1, v2, v3);" title="Copy the code snippet to the clipboard" aria-label="Copy the code snippet to the clipboard" enhancedclass="enhanced-copy-button_LJDte"></code-copy-button></pre>
+<p>In general stitching edges together this way is a bit wasteful and
+tedious. This brings us to chain shapes.</p>
+<h3>Chain Shapes</h3>
+<p>The chain shape provides an efficient way to connect many edges together
+to construct your static game worlds. Chain shapes automatically
+eliminate ghost collisions and provide one-sided collision. The collision is
+one-sided to eliminate ghost collisions.</p>
+<p>If you don't care about ghost collisions, you can just create a bunch of
+two-sided edge shapes. The efficiency is similar.</p>
+<p>The simplest way to use chain shapes is to create loops. Simply provide an
+array of vertices.</p>
+<pre><code class="hljs"><span class="hljs-keyword">const</span> <span class="hljs-attr">vs</span>: <span class="hljs-variable constant_">XY</span>[] = [
+  { <span class="hljs-attr">x</span>: <span class="hljs-number">1.7</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0</span> },
+  { <span class="hljs-attr">x</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0.25</span> },
+  { <span class="hljs-attr">x</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0</span> },
+  { <span class="hljs-attr">x</span>: -<span class="hljs-number">1.7</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0.4</span> },
+];
+
+<span class="hljs-keyword">const</span> chain = <span class="hljs-keyword">new</span> <span class="hljs-title function_">b2ChainShape</span>();
+chain.<span class="hljs-title class_">CreateLoop</span>(vs, vs.<span class="hljs-property">length</span>);
+</code><code-copy-button role="button" code="const vs: XY[] = [
+  { x: 1.7, y: 0 },
+  { x: 1, y: 0.25 },
+  { x: 0, y: 0 },
+  { x: -1.7, y: 0.4 },
+];
+
+const chain = new b2ChainShape();
+chain.CreateLoop(vs, vs.length);" title="Copy the code snippet to the clipboard" aria-label="Copy the code snippet to the clipboard" enhancedclass="enhanced-copy-button_LJDte"></code-copy-button></pre>
+<p>The edge normal depends on the winding order. A counter-clockwise winding order orients the normal outwards and a clockwise winding order orients the normal inwards.</p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/chain_loop_outwards-79310c81.svg" alt="Chain Shape Outwards Loop"></p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/chain_loop_inwards-3f15ebb3.svg" alt="Chain Shape Inwards Loop"></p>
+<p>You may have a scrolling game world and would like to connect several chains together.
+You can connect chains together using ghost vertices, like we did with b2EdgeShape.</p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/chain_shape-f255a035.svg" alt="Chain Shape"></p>
+<pre><code class="hljs"><span class="hljs-comment">// on b2ChainShape</span>
+<span class="hljs-keyword">public</span> <span class="hljs-title class_">CreateChain</span>(
+        <span class="hljs-attr">vertices</span>: <span class="hljs-variable constant_">XY</span>[],
+        <span class="hljs-attr">count</span>: <span class="hljs-built_in">number</span>,
+        <span class="hljs-attr">prevVertex</span>: <span class="hljs-title class_">Readonly</span>&lt;<span class="hljs-variable constant_">XY</span>&gt;,
+        <span class="hljs-attr">nextVertex</span>: <span class="hljs-title class_">Readonly</span>&lt;<span class="hljs-variable constant_">XY</span>&gt;,
+    ): b2ChainShape {
+</code><code-copy-button role="button" code="// on b2ChainShape
+public CreateChain(
+        vertices: XY[],
+        count: number,
+        prevVertex: Readonly&lt;XY&gt;,
+        nextVertex: Readonly&lt;XY&gt;,
+    ): b2ChainShape {" title="Copy the code snippet to the clipboard" aria-label="Copy the code snippet to the clipboard" enhancedclass="enhanced-copy-button_LJDte"></code-copy-button></pre>
+<p>Self-intersection of chain shapes is not supported. It might work, it
+might not. The code that prevents ghost collisions assumes there are no
+self-intersections of the chain. Also, very close vertices can cause
+problems. Make sure all your edges are longer than b2_linearSlop (5mm).</p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/self_intersect-1c1d6faf.svg" alt="Self Intersection is Bad"></p>
+<p>Each edge in the chain is treated as a child shape and can be accessed
+by index. When a chain shape is connected to a body, each edge gets its
+own bounding box in the broad-phase collision tree.</p>
+<pre><code class="hljs"><span class="hljs-comment">// Visit each child edge.</span>
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; chain.<span class="hljs-title class_">GetChildCount</span>(); ++i) {
+    <span class="hljs-keyword">const</span> edge = <span class="hljs-keyword">new</span> <span class="hljs-title function_">b2EdgeShape</span>();
+    chain.<span class="hljs-title class_">GetChildEdge</span>(edge, i);
+
+    ...
+}
+</code><code-copy-button role="button" code="// Visit each child edge.
+for (let i = 0; i &lt; chain.GetChildCount(); ++i) {
+    const edge = new b2EdgeShape();
+    chain.GetChildEdge(edge, i);
+
+    ...
+}" title="Copy the code snippet to the clipboard" aria-label="Copy the code snippet to the clipboard" enhancedclass="enhanced-copy-button_LJDte"></code-copy-button></pre>
+<h2 id="geometric-queries">Geometric Queries</h2>
+<p>You can perform a couple geometric queries on a single shape.</p>
+<h3>Shape Point Test</h3>
+<p>You can test a point for overlap with a shape. You provide a transform
+for the shape and a world point.</p>
+<pre><code class="hljs"><span class="hljs-keyword">const</span> transform = <span class="hljs-keyword">new</span> <span class="hljs-title function_">b2Transform</span>();
+transform.<span class="hljs-title class_">SetIdentity</span>();
+<span class="hljs-keyword">const</span> <span class="hljs-attr">point</span>: <span class="hljs-variable constant_">XY</span> = { <span class="hljs-attr">x</span>: <span class="hljs-number">5</span>, <span class="hljs-number">2</span> };
+
+<span class="hljs-keyword">const</span> hit = shape.<span class="hljs-title class_">TestPoint</span>(transform, point);
+</code><code-copy-button role="button" code="const transform = new b2Transform();
+transform.SetIdentity();
+const point: XY = { x: 5, 2 };
+
+const hit = shape.TestPoint(transform, point);" title="Copy the code snippet to the clipboard" aria-label="Copy the code snippet to the clipboard" enhancedclass="enhanced-copy-button_LJDte"></code-copy-button></pre>
+<p>Edge and chain shapes always return false, even if the chain is a loop.</p>
+<h3>Shape Ray Cast</h3>
+<p>You can cast a ray at a shape to get the point of first intersection and normal vector. A child index is included for chain shapes because the ray cast will only check a single edge at a time.</p>
+<blockquote>
+<p><strong>Caution</strong>:
+No hit will register if the ray starts inside a convex shape like a circle or polygon. This is consistent with Box2D treating convex shapes as solid.</p>
+</blockquote>
+<pre><code class="hljs"><span class="hljs-keyword">const</span> transform = <span class="hljs-keyword">new</span> <span class="hljs-title function_">b2Transfrom</span>();
+transform.<span class="hljs-title class_">SetIdentity</span>();
+
+<span class="hljs-keyword">const</span> input = <span class="hljs-keyword">new</span> <span class="hljs-title function_">b2RayCastInput</span>();
+input.<span class="hljs-property">p1</span>.<span class="hljs-title class_">Set</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>);
+input.<span class="hljs-property">p2</span>.<span class="hljs-title class_">Set</span>(<span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
+input.<span class="hljs-property">maxFraction</span> = <span class="hljs-number">1</span>;
+<span class="hljs-keyword">const</span> childIndex = <span class="hljs-number">0</span>;
+
+<span class="hljs-keyword">const</span> output = <span class="hljs-keyword">new</span> <span class="hljs-title function_">b2RayCastOutput</span>();
+<span class="hljs-keyword">const</span> hit = shape.<span class="hljs-title class_">RayCast</span>(output, input, transform, childIndex);
+
+<span class="hljs-keyword">if</span> (hit) {
+    <span class="hljs-keyword">const</span> hitPoint = input.<span class="hljs-property">p1</span>.<span class="hljs-title class_">Clone</span>().<span class="hljs-title class_">AddScaled</span>(output.<span class="hljs-property">fraction</span>, <span class="hljs-title class_">Math</span>.<span class="hljs-title class_">Subtract</span>(input.<span class="hljs-property">p2</span>, input.<span class="hljs-property">p1</span>, <span class="hljs-keyword">new</span> <span class="hljs-title function_">b2Vec2</span>()));
+    <span class="hljs-comment">// Keep in mind, that the above line might be bad for garbage collection. Avoid Clone() and new b2Vec2() for code that runs often!</span>
+    ...
+}
+</code><code-copy-button role="button" code="const transform = new b2Transfrom();
+transform.SetIdentity();
+
+const input = new b2RayCastInput();
+input.p1.Set(0, 0);
+input.p2.Set(1, 0);
+input.maxFraction = 1;
+const childIndex = 0;
+
+const output = new b2RayCastOutput();
+const hit = shape.RayCast(output, input, transform, childIndex);
+
+if (hit) {
+    const hitPoint = input.p1.Clone().AddScaled(output.fraction, Math.Subtract(input.p2, input.p1, new b2Vec2()));
+    // Keep in mind, that the above line might be bad for garbage collection. Avoid Clone() and new b2Vec2() for code that runs often!
+    ...
+}" title="Copy the code snippet to the clipboard" aria-label="Copy the code snippet to the clipboard" enhancedclass="enhanced-copy-button_LJDte"></code-copy-button></pre>
+<h2 id="pairwise-functions">Pairwise Functions</h2>
+<p>The Collision module contains functions that take a pair of shapes and compute some results. These include:</p>
+<ul>
+<li>Overlap</li>
+<li>Contact manifolds</li>
+<li>Distance</li>
+<li>Time of impact</li>
+</ul>
+<h3>Overlap</h3>
+<p>You can test two shapes for overlap using this function:</p>
+<pre><code class="hljs"><span class="hljs-keyword">const</span> <span class="hljs-attr">xfA</span>: b2Transform = ..., <span class="hljs-attr">xfB</span>: b2Transform = ...;
+<span class="hljs-keyword">const</span> overlap = <span class="hljs-title function_">b2TestOverlap</span>(shapeA, indexA, shapeB, indexB, xfA, xfB);
+</code><code-copy-button role="button" code="const xfA: b2Transform = ..., xfB: b2Transform = ...;
+const overlap = b2TestOverlap(shapeA, indexA, shapeB, indexB, xfA, xfB);" title="Copy the code snippet to the clipboard" aria-label="Copy the code snippet to the clipboard" enhancedclass="enhanced-copy-button_LJDte"></code-copy-button></pre>
+<p>Again you must provide child indices to for the case of chain shapes.</p>
+<h3>Contact Manifolds</h3>
+<p>Box2D has functions to compute contact points for overlapping shapes. If
+we consider circle-circle or circle-polygon, we can only get one contact
+point and normal. In the case of polygon-polygon we can get two points.
+These points share the same normal vector so Box2D groups them into a
+manifold class. The contact solver takes advantage of this to
+improve stacking stability.</p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/manifolds-30e1e399.svg" alt="Contact Manifold"></p>
+<p>Normally you don't need to compute contact manifolds directly, however
+you will likely use the results produced in the simulation.</p>
+<p>The b2Manifold class holds a normal vector and up to two contact
+points. The normal and points are held in local coordinates. As a
+convenience for the contact solver, each point stores the normal and
+tangential (friction) impulses.</p>
+<p>The data stored in b2Manifold is optimized for internal use. If you need
+this data, it is usually best to use the b2WorldManifold class to
+generate the world coordinates of the contact normal and points. You
+need to provide a b2Manifold and the shape transforms and radii.</p>
+<pre><code class="hljs"><span class="hljs-keyword">const</span> worldManifold = <span class="hljs-keyword">new</span> <span class="hljs-title function_">b2WorldManifold</span>();
+worldManifold.<span class="hljs-title class_">Initialize</span>(manifold, transformA, shapeA.<span class="hljs-property">m_radius</span>,
+transformB, shapeB.<span class="hljs-property">m_radius</span>);
+
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; manifold.<span class="hljs-property">pointCount</span>; ++i) {
+    <span class="hljs-keyword">const</span> point = worldManifold.<span class="hljs-property">points</span>[i];
+    ...
+}
+</code><code-copy-button role="button" code="const worldManifold = new b2WorldManifold();
+worldManifold.Initialize(manifold, transformA, shapeA.m_radius,
+transformB, shapeB.m_radius);
+
+for (let i = 0; i &lt; manifold.pointCount; ++i) {
+    const point = worldManifold.points[i];
+    ...
+}" title="Copy the code snippet to the clipboard" aria-label="Copy the code snippet to the clipboard" enhancedclass="enhanced-copy-button_LJDte"></code-copy-button></pre>
+<p>Notice that the world manifold uses the point count from the original
+manifold.</p>
+<p>During simulation shapes may move and the manifolds may change. Points
+may be added or removed. You can detect this using b2GetPointStates.</p>
+<pre><code class="hljs"><span class="hljs-keyword">const</span> <span class="hljs-attr">state1</span>: b2PointState[] = [];
+<span class="hljs-keyword">const</span> <span class="hljs-attr">state2</span>: b2PointState[] = [];
+<span class="hljs-title function_">b2GetPointStates</span>(state1, state2, manifold1, manifold2);
+
+<span class="hljs-keyword">if</span> (state1[<span class="hljs-number">0</span>] === b2_removeState) {
+  <span class="hljs-comment">// process event</span>
+}
+</code><code-copy-button role="button" code="const state1: b2PointState[] = [];
+const state2: b2PointState[] = [];
+b2GetPointStates(state1, state2, manifold1, manifold2);
+
+if (state1[0] === b2_removeState) {
+  // process event
+}" title="Copy the code snippet to the clipboard" aria-label="Copy the code snippet to the clipboard" enhancedclass="enhanced-copy-button_LJDte"></code-copy-button></pre>
+<h3>Distance</h3>
+<p>The <code>b2Distance</code> function can be used to compute the distance between two
+shapes. The distance function needs both shapes to be converted into a
+b2DistanceProxy. There is also some caching used to warm start the
+distance function for repeated calls.</p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/distance-8b1643fa.svg" alt="Distance Function"></p>
+<h3>Time of Impact</h3>
+<p>If two shapes are moving fast, they may <em>tunnel</em> through each other in a
+single time step.</p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/tunneling2-1cc8c306.svg" alt="Tunneling"></p>
+<p>The <code>b2TimeOfImpact</code> function is used to determine the time when two
+moving shapes collide. This is called the <em>time of impact</em> (TOI). The
+main purpose of <code>b2TimeOfImpact</code> is for tunnel prevention. In particular,
+it is designed to prevent moving objects from tunneling outside of
+static level geometry.</p>
+<p>This function accounts for rotation and translation of both shapes,
+however if the rotations are large enough, then the function may miss a
+collision. However the function will still report a non-overlapped time
+and will capture all translational collisions.</p>
+<p>The time of impact function identities an initial separating axis and
+ensures the shapes do not cross on that axis. This might miss collisions
+that are clear at the final positions. While this approach may miss some
+collisions, it is very fast and adequate for tunnel prevention.</p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/captured_toi-650a1ac6.svg" alt="Captured Collision"></p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/missed_toi-3e9fab28.svg" alt="Missed Collision"></p>
+<p>It is difficult to put a restriction on the rotation magnitude. There
+may be cases where collisions are missed for small rotations. Normally,
+these missed rotational collisions should not harm game play. They tend
+to be glancing collisions.</p>
+<p>The function requires two shapes (converted to b2DistanceProxy) and two
+b2Sweep instances. The sweep class defines the initial and final
+transforms of the shapes.</p>
+<p>You can use fixed rotations to perform a <em>shape cast</em>. In this case, the
+time of impact function will not miss any collisions.</p>
+<h2 id="dynamic-tree">Dynamic Tree</h2>
+<p>The b2DynamicTree class is used by Box2D to organize large numbers of
+shapes efficiently. The class does not know about shapes. Instead it
+operates on axis-aligned bounding boxes (AABBs) with user data pointers.</p>
+<p>The dynamic tree is a hierarchical AABB tree. Each internal node in the
+tree has two children. A leaf node is a single user AABB. The tree uses
+rotations to keep the tree balanced, even in the case of degenerate
+input.</p>
+<p>The tree structure allows for efficient ray casts and region queries.
+For example, you may have hundreds of shapes in your scene. You could
+perform a ray cast against the scene in a brute force manner by ray
+casting each shape. This would be inefficient because it does not take
+advantage of shapes being spread out. Instead, you can maintain a
+dynamic tree and perform ray casts against the tree. This traverses the
+ray through the tree skipping large numbers of shapes.</p>
+<p>A region query uses the tree to find all leaf AABBs that overlap a query
+AABB. This is faster than a brute force approach because many shapes can
+be skipped.</p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/raycast-add7df34.svg" alt="Raycast"></p>
+<p><img src="https://lusito.github.io/box2d.ts/assets/overlap_test-2434e6de.svg" alt="Overlap Test"></p>
+<p>Normally you will not use the dynamic tree directly. Rather you will go
+through the b2World class for ray casts and region queries. If you plan
+to instantiate your own dynamic tree, you can learn how to use it by
+looking at how Box2D uses it.</p>
+<h2 id="broad-phase">Broad-Phase</h2>
+<p>Collision processing in a physics step can be divided into narrow-phase
+and broad-phase. In the narrow-phase we compute contact points between
+pairs of shapes. Imagine we have N shapes. Using brute force, we would
+need to perform the narrow-phase for N*N/2 pairs.</p>
+<p>The b2BroadPhase class reduces this load by using a dynamic tree for
+pair management. This greatly reduces the number of narrow-phase calls.</p>
+<p>Normally you do not interact with the broad-phase directly. Instead,
+Box2D creates and manages a broad-phase internally. Also, b2BroadPhase
+is designed with Box2D's simulation loop in mind, so it is likely not
+suited for other use cases.</p>
+</div></div></article></main><footer class="footer_1ydRsP"><span>Copyright © 2022 Santo Pfingsten</span></footer></div></body></html>
