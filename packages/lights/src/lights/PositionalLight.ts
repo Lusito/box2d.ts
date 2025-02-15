@@ -67,7 +67,7 @@ export abstract class PositionalLight extends Light {
         this.setMesh();
     }
 
-    public getSoftShadowVertexCount() {
+    public override getSoftShadowVertexCount() {
         return this.vertexNum * 2;
     }
 
@@ -127,7 +127,7 @@ export abstract class PositionalLight extends Light {
         if (this.staticLight) this.dirty = true;
     }
 
-    public getPosition() {
+    public override getPosition() {
         return this.tmpPosition.copy(this.start);
     }
 
@@ -159,7 +159,7 @@ export abstract class PositionalLight extends Light {
         if (this.staticLight) this.dirty = true;
     }
 
-    public contains(x: number, y: number) {
+    public override contains(x: number, y: number) {
         // fast fail
         const x_d = this.start.x - x;
         const y_d = this.start.y - y;
@@ -182,7 +182,7 @@ export abstract class PositionalLight extends Light {
         return oddNodes;
     }
 
-    protected setRayNum(rays: number, updateMesh = true) {
+    protected override setRayNum(rays: number, updateMesh = true) {
         super.setRayNum(rays, updateMesh);
 
         this.sin = makeNumberArray(rays);

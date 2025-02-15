@@ -524,7 +524,7 @@ export class b2DistanceJoint extends b2Joint {
         return Math.abs(C) < b2_linearSlop;
     }
 
-    public Draw(draw: b2Draw): void {
+    public override Draw(draw: b2Draw): void {
         const { pA, pB, axis, pRest } = temp.Draw;
         const xfA = this.m_bodyA.GetTransform();
         const xfB = this.m_bodyB.GetTransform();

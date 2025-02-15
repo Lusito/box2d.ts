@@ -1,29 +1,29 @@
 .section {
     border: none;
     padding: 0;
-    margin: 0 0 $spacing-md 0;
+    margin: 0 0 vars.$spacing-md 0;
 
     > legend {
         font-weight: bold;
         display: block;
         width: 100%;
-        padding: 0 $spacing-md;
-        margin: 0 -#{$spacing-md};
+        padding: 0 vars.$spacing-md;
+        margin: 0 -#{vars.$spacing-md};
         position: relative;
         cursor: pointer;
-        font-size: $font-size-lg;
+        font-size: vars.$font-size-lg;
 
         &:hover {
-            background: $color-frame-bg-hovered;
+            background: vars.$color-frame-bg-hovered;
         }
 
         &::after {
             content: "▼";
-            font-size: $font-size-sm;
+            font-size: vars.$font-size-sm;
             position: absolute;
             top: 0;
-            right: $spacing-md;
-            width: $spacing-lg;
+            right: vars.$spacing-md;
+            width: vars.$spacing-lg;
             height: 100%;
             display: flex;
             align-items: center;
@@ -35,34 +35,34 @@
         }
 
         &.active-legend {
-            background: $color-frame-bg;
+            background: vars.$color-frame-bg;
         }
     }
 
     > div {
-        padding: $spacing-md 0 0 0;
+        padding: vars.$spacing-md 0 0 0;
 
         &.section-content-hidden {
             display: none;
         }
 
         > a {
-            font-size: $font-size-md;
+            font-size: vars.$font-size-md;
             display: block;
-            color: $color-text;
+            color: vars.$color-text;
             text-decoration: none;
-            padding: 0 $spacing-md;
+            padding: 0 vars.$spacing-md;
 
             &.active-link {
-                background: $color-frame-bg;
+                background: vars.$color-frame-bg;
             }
 
             &:hover {
-                background: $color-frame-bg-hovered;
+                background: vars.$color-frame-bg-hovered;
             }
 
             &:active {
-                background: $color-frame-bg-active;
+                background: vars.$color-frame-bg-active;
             }
         }
     }

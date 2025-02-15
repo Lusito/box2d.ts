@@ -291,11 +291,11 @@ export class b2MouseJoint extends b2Joint {
         return 0;
     }
 
-    public ShiftOrigin(newOrigin: XY) {
+    public override ShiftOrigin(newOrigin: XY) {
         this.m_targetA.Subtract(newOrigin);
     }
 
-    public Draw(draw: b2Draw): void {
+    public override Draw(draw: b2Draw): void {
         const p1 = this.GetAnchorA(temp.pA);
         const p2 = this.GetAnchorB(temp.pB);
         draw.DrawPoint(p1, 4, debugColors.joint7);

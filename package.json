@@ -40,21 +40,21 @@
     ]
   },
   "devDependencies": {
-    "@lusito/eslint-config-react": "^3.2.0",
-    "@lusito/mono": "^0.19.3",
-    "@lusito/mono-docs": "^0.19.2",
-    "@lusito/prettier-config": "^3.1.0",
-    "@lusito/stylelint-config": "^3.0.0",
-    "@types/rimraf": "^4.0.5",
+    "@lusito/eslint-config-react": "^4.0.0",
+    "@lusito/mono": "^0.20.0",
+    "@lusito/mono-docs": "^0.20.0",
+    "@lusito/prettier-config": "^3.2.0",
+    "@lusito/stylelint-config": "^4.0.0",
+    "@lusito/tsconfig": "^1.0.5",
     "all-contributors-cli": "^6.26.1",
-    "nodemon": "^3.1.3",
+    "nodemon": "^3.1.9",
     "patch-package": "^8.0.0",
-    "rimraf": "^4.4.1",
-    "sort-package-json": "^2.10.0",
-    "typescript": "^5.4.5"
+    "rimraf": "^6.0.1",
+    "sort-package-json": "^2.14.0",
+    "typescript": "^5.7.3"
   },
   "volta": {
-    "node": "22.3.0"
+    "node": "23.8.0"
   },
   "monoLint": {
     "lintMarkdownLinks": {

@@ -58,6 +58,7 @@ export interface b2ReadonlyTypes {
     b2Sweep: [b2Sweep, "a0" | "a" | "alpha" | "Clone" | "GetTransform", { localCenter: b2Vec2; c0: b2Vec2; c: b2Vec2 }];
 }
 
+// updiff-ignore-start
 type GetFromTypes<T> = {
     [TKey in keyof b2ReadonlyTypes as b2ReadonlyTypes[TKey] extends [T, any, any]
         ? "result"
@@ -75,3 +76,5 @@ export type b2Readonly<T> = T extends (...args: any[]) => any
     : GetFromTypes<T> extends { result: [infer TProperties extends keyof T, infer TManual] }
       ? Readonly<TManual & { [TKey in TProperties]: b2Readonly<T[TKey]> }>
       : Readonly<T>;
+
+// updiff-ignore-end

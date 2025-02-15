@@ -36,7 +36,7 @@ import { Test, registerTest } from "../../test";
 import { Settings } from "../../settings";
 import { HotKey, hotKeyState } from "../../utils/hotkeys";
 
-// eslint-disable-next-line @typescript-eslint/no-loss-of-precision
+// eslint-disable-next-line no-loss-of-precision
 const DEGTORAD = 0.0174532925199432957;
 // const RADTODEG = 57.295779513082320876;
 
@@ -341,7 +341,7 @@ class TopdownCar extends Test {
         this.m_car = new TDCar(this.m_world);
     }
 
-    public getHotkeys(): HotKey[] {
+    public override getHotkeys(): HotKey[] {
         return [
             hotKeyState("a", "Turn Left", this.m_controlState, "left"),
             hotKeyState("d", "Turn Right", this.m_controlState, "right"),
@@ -365,11 +365,11 @@ class TopdownCar extends Test {
         }
     }
 
-    public BeginContact(contact: b2Contact): void {
+    public override BeginContact(contact: b2Contact): void {
         TopdownCar.handleContact(contact, true);
     }
 
-    public EndContact(contact: b2Contact): void {
+    public override EndContact(contact: b2Contact): void {
         TopdownCar.handleContact(contact, false);
     }
 
@@ -385,7 +385,7 @@ class TopdownCar extends Test {
         }
     }
 
-    public Step(settings: Settings, timeStep: number): void {
+    public override Step(settings: Settings, timeStep: number): void {
         /* this.m_tire.updateFriction();
     this.m_tire.updateDrive(this.m_controlState);
     this.m_tire.updateTurn(this.m_controlState); */

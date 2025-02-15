@@ -6,10 +6,10 @@
 .select--wrapper {
     position: relative;
     display: inline-block;
-    margin-right: $spacing-md;
+    margin-right: vars.$spacing-md;
 
     &::before {
-        width: $spacing-lg;
+        width: vars.$spacing-lg;
         display: flex;
         content: "▼";
         position: absolute;
@@ -17,36 +17,36 @@
         top: 0;
         bottom: 0;
         pointer-events: none;
-        color: $color-text;
+        color: vars.$color-text;
         justify-content: center;
         align-items: center;
     }
 }
 
 .select--input {
-    font-size: $font-size-sm;
+    font-size: vars.$font-size-sm;
     -moz-appearance: none;
     -webkit-appearance: none;
     appearance: none;
     border: none;
     border-radius: 0;
-    height: $size-control;
-    background: $color-frame-bg;
-    color: $color-text;
+    height: vars.$size-control;
+    background: vars.$color-frame-bg;
+    color: vars.$color-text;
     outline: none;
-    padding-right: $spacing-lg;
-    width: $size-wide-control;
+    padding-right: vars.$spacing-lg;
+    width: vars.$size-wide-control;
     cursor: pointer;
 
     &:hover {
-        background: $color-frame-bg-hovered;
+        background: vars.$color-frame-bg-hovered;
     }
 
     &:active {
-        background: $color-frame-bg-active;
+        background: vars.$color-frame-bg-active;
     }
 
     option {
-        color: $color-text;
+        color: vars.$color-text;
     }
 }

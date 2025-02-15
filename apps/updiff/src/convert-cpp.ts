@@ -95,7 +95,7 @@ function parseClass(line: string, lines: string[], module: ModuleType, comment: 
     const comments: string[] = [];
     while (classLines.length) {
         const classLine = readLine(classLines);
-        const classLineTrimmedEarly = classLine.replace(templateRegex, "").trimLeft();
+        const classLineTrimmedEarly = classLine.replace(templateRegex, "").trimStart();
         if (classLineTrimmedEarly.startsWith("/*")) {
             comments.push(classLine);
             if (!classLine.includes("*/")) {
@@ -105,7 +105,7 @@ function parseClass(line: string, lines: string[], module: ModuleType, comment: 
         }
         const [classLineTrimmed, classLineComment] = classLineTrimmedEarly.split("//");
 
-        if (classLineComment) comments.push(`//${classLineComment.trimRight()}`);
+        if (classLineComment) comments.push(`//${classLineComment.trimEnd()}`);
         if (!classLineTrimmed || ignoreLinesRegex.test(classLineTrimmed)) {
             if (classLineTrimmed) comments.length = 0;
             continue;
@@ -175,7 +175,7 @@ function parseFile(file: string, module: ModuleType) {
     const comments: string[] = [];
     while (lines.length) {
         const line = readLine(lines);
-        const lineTrimmedEarly = line.replace(templateRegex, "").trimLeft();
+        const lineTrimmedEarly = line.replace(templateRegex, "").trimStart();
         if (lineTrimmedEarly.startsWith("/*")) {
             comments.push(line);
             if (!line.includes("*/")) {
@@ -187,7 +187,7 @@ function parseFile(file: string, module: ModuleType) {
 
         if (lineComment) {
             if (lineComment === " SOFTWARE.") comments.length = 0;
-            else comments.push(`//${lineComment.trimRight()}`);
+            else comments.push(`//${lineComment.trimEnd()}`);
         }
         if (
             !lineTrimmed ||

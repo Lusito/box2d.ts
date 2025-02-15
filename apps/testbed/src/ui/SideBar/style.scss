@@ -1,12 +1,12 @@
 .sidebar {
-    font-size: $font-size-sm;
+    font-size: vars.$font-size-sm;
     position: absolute;
     display: flex;
     flex-direction: column;
-    top: $spacing-md;
-    max-height: calc(100% - #{$spacing-lg});
-    right: $spacing-md;
-    width: $size-sidebar;
+    top: vars.$spacing-md;
+    max-height: calc(100% - #{vars.$spacing-lg});
+    right: vars.$spacing-md;
+    width: vars.$size-sidebar;
 }
 
 .sidebar--tabs {
@@ -14,11 +14,11 @@
     display: flex;
     justify-content: right;
     flex-direction: row;
-    font-size: $font-size-md;
+    font-size: vars.$font-size-md;
 
     > div {
-        padding: $spacing-sm $spacing-md;
-        background: $color-border;
+        padding: vars.$spacing-sm vars.$spacing-md;
+        background: vars.$color-border;
         border: 1px solid transparent;
         border-bottom: none;
         margin-bottom: -1px;
@@ -26,20 +26,20 @@
         cursor: pointer;
 
         &.active-tab {
-            border-color: $color-border;
-            background: $color-window-bg;
+            border-color: vars.$color-border;
+            background: vars.$color-window-bg;
         }
 
         &:hover {
-            background: $color-frame-bg-hovered;
+            background: vars.$color-frame-bg-hovered;
         }
     }
 }
 
 .tab-content {
-    background: $color-window-bg;
-    border: 1px solid $color-border;
-    padding: $spacing-md;
+    background: vars.$color-window-bg;
+    border: 1px solid vars.$color-border;
+    padding: vars.$spacing-md;
     overflow: auto;
 
     &.tab-content-hidden {
@@ -49,7 +49,7 @@
 
 .sidebar--buttons {
     flex-grow: 1;
-    background: $color-window-bg;
+    background: vars.$color-window-bg;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;

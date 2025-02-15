@@ -1,5 +1,3 @@
-import React from "react";
-
 import "./style.scss";
 
 export function radioDef(name: string, options: string[], initialValue: string, update: (value: string) => void) {

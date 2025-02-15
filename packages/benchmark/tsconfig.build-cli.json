@@ -2,10 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "noImplicitOverride": false,
-    "outDir": "dist",
-    "paths": {
-      "@box2d/core": ["../core/src"]
-    }
+    "outDir": "dist-cli"
   },
   "include": ["src"]
 }

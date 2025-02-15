@@ -126,7 +126,7 @@ function parseClass(line: string, lines: string[], module: ModuleType, comment: 
     const comments: string[] = [];
     while (classLines.length) {
         const classLine = readLine(classLines).replace(templateRegex, "");
-        const classLineTrimmedEarly = classLine.trimLeft();
+        const classLineTrimmedEarly = classLine.trimStart();
         if (classLineTrimmedEarly.startsWith("/*")) {
             comments.push(classLine);
             if (!classLine.includes("*/")) {
@@ -136,7 +136,7 @@ function parseClass(line: string, lines: string[], module: ModuleType, comment: 
         }
         const [classLineTrimmed, classLineComment] = classLineTrimmedEarly.split("//");
 
-        if (classLineComment) comments.push(`//${classLineComment.trimRight()}`);
+        if (classLineComment) comments.push(`//${classLineComment.trimEnd()}`);
         if (
             !classLineTrimmed.trim() ||
             ignoreLinesRegex.test(classLineTrimmed) ||
@@ -181,7 +181,18 @@ function parseFile(file: string, module: ModuleType) {
     const comments: string[] = [];
     while (lines.length) {
         const line = readLine(lines).replace(templateRegex, "");
-        const lineTrimmedEarly = line.trimLeft();
+        const lineTrimmedEarly = line.trimStart();
+
+        if (lineTrimmedEarly.startsWith("// updiff-ignore-start")) {
+            comments.length = 0;
+            // eslint-disable-next-line no-constant-condition
+            while (true) {
+                const newLine = lines.shift();
+                if (newLine === undefined) break;
+                if (newLine.startsWith("// updiff-ignore-end")) break;
+            }
+            continue;
+        }
         if (lineTrimmedEarly.startsWith("/*")) {
             comments.push(line);
             if (!line.includes("*/")) {
@@ -191,7 +202,7 @@ function parseFile(file: string, module: ModuleType) {
         }
         const [lineTrimmed, lineComment] = lineTrimmedEarly.split("//");
 
-        if (lineComment) comments.push(`//${lineComment.trimRight()}`);
+        if (lineComment) comments.push(`//${lineComment.trimEnd()}`);
         if (!lineTrimmed.trim() || ignoreLinesRegex.test(lineTrimmed)) {
             if (lineTrimmed.trim()) comments.length = 0;
             continue;

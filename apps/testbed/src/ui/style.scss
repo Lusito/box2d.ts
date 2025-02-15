@@ -6,7 +6,7 @@ body,
     margin: 0;
     padding: 0;
     font-family: "Open Sans", Verdana, sans-serif;
-    color: $color-text;
+    color: vars.$color-text;
 }
 
 .container {
@@ -42,7 +42,7 @@ main {
         pointer-events: none;
         bottom: 0;
         right: 0;
-        padding: $spacing-md;
+        padding: vars.$spacing-md;
     }
 }
 
@@ -54,7 +54,7 @@ main {
 
 #title_overlay {
     text-align: center;
-    margin-right: #{$size-sidebar + $spacing-lg};
+    margin-right: #{vars.$size-sidebar + vars.$spacing-lg};
 }
 
 #right_overlay,
@@ -64,7 +64,7 @@ main {
     }
 
     td {
-        padding: 0 0 0 $spacing-lg;
+        padding: 0 0 0 vars.$spacing-lg;
     }
 
     td:empty::after {
@@ -75,7 +75,7 @@ main {
 #right_overlay {
     > table {
         float: right;
-        margin-right: #{$size-sidebar + $spacing-lg};
+        margin-right: #{vars.$size-sidebar + vars.$spacing-lg};
     }
 
     th,

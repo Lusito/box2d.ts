@@ -162,7 +162,7 @@ export class DirectionalLight extends Light {
         drawPolygon(vertices, vertices.length, Light.DebugColor);
     }
 
-    public contains(x: number, y: number) {
+    public override contains(x: number, y: number) {
         let oddNodes = false;
         let x2 = (this.mx[this.rayNum] = this.start[0].x);
         let y2 = (this.my[this.rayNum] = this.start[0].y);
@@ -218,12 +218,12 @@ export class DirectionalLight extends Light {
     public setDistance(_dist: number) {}
 
     /** Not applicable for this light type */
-    public setIgnoreAttachedBody(_flag: boolean) {}
+    public override setIgnoreAttachedBody(_flag: boolean) {}
 
     /** Not applicable for this light type
      * <p>Always return {@code false}
      */
-    public getIgnoreAttachedBody() {
+    public override getIgnoreAttachedBody() {
         return false;
     }
 

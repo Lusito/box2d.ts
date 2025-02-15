@@ -438,12 +438,12 @@ export class b2PulleyJoint extends b2Joint {
         return b2Vec2.Distance(p, s);
     }
 
-    public ShiftOrigin(newOrigin: b2Readonly<b2Vec2>) {
+    public override ShiftOrigin(newOrigin: b2Readonly<b2Vec2>) {
         this.m_groundAnchorA.Subtract(newOrigin);
         this.m_groundAnchorB.Subtract(newOrigin);
     }
 
-    public Draw(draw: b2Draw): void {
+    public override Draw(draw: b2Draw): void {
         const p1 = this.GetAnchorA(temp.pA);
         const p2 = this.GetAnchorB(temp.pB);
         const s1 = this.GetGroundAnchorA();

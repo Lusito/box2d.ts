@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import fs from "fs";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import rimraf from "rimraf";
+import { rimrafSync } from "rimraf";
 
 const incompleteLine = /[,(]\s*$/;
 
@@ -135,18 +135,18 @@ export function parseBodyLines(lines: string[], line: string) {
 
 export function parseParams(lines: string[], line: string) {
     const [linePrefix, bodyLines] = parseParamLines(lines, line);
-    return [linePrefix.trimLeft(), bodyLines.join("\n")];
+    return [linePrefix.trimStart(), bodyLines.join("\n")];
 }
 
 export function parseBody(lines: string[], line: string) {
     const [linePrefix, bodyLines] = parseBodyLines(lines, line);
-    return [linePrefix.trimLeft(), bodyLines.join("\n")];
+    return [linePrefix.trimStart(), bodyLines.join("\n")];
 }
 
 export function readLine(lines: string[]) {
     let line = lines.shift()!;
-    while (incompleteLine.test(line.trimRight()) && lines.length) {
-        line += ` ${lines.shift()!.trimLeft()}`;
+    while (incompleteLine.test(line.trimEnd()) && lines.length) {
+        line += ` ${lines.shift()!.trimStart()}`;
     }
     return line;
 }
@@ -246,6 +246,6 @@ export function writeModule(output: string, name: string, module: ModuleType) {
 }
 
 export function cleanupDir(path: string) {
-    if (fs.existsSync(path)) rimraf.sync(path);
+    if (fs.existsSync(path)) rimrafSync(path);
     fs.mkdirSync(path);
 }

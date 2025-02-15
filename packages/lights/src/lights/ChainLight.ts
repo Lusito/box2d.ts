@@ -198,7 +198,7 @@ export class ChainLight extends Light {
         if (this.staticLight) this.dirty = true;
     }
 
-    public contains(x: number, y: number) {
+    public override contains(x: number, y: number) {
         // fast fail
         if (!this.chainLightBounds.contains(x, y)) return false;
         // actual check

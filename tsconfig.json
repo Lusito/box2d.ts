@@ -1,17 +1,9 @@
 {
+  "extends": ["@lusito/tsconfig/base", "@lusito/tsconfig/es2018"],
   "compilerOptions": {
-    "target": "ES2018",
     "module": "CommonJS",
-    "declaration": true,
     "lib": ["ES2018", "DOM"],
-    "strict": true,
-    "noUnusedLocals": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "declarationMap": true,
-    "esModuleInterop": true,
-    "moduleResolution": "node"
+    "declarationMap": true
   }
 }

@@ -1,19 +1,19 @@
 .button {
     display: block;
     width: 100%;
-    font-size: $font-size-sm;
+    font-size: vars.$font-size-sm;
     border: none;
-    color: $color-text;
-    background: $color-button;
-    padding: $spacing-sm $spacing-md;
-    margin-bottom: $spacing-md;
+    color: vars.$color-text;
+    background: vars.$color-button;
+    padding: vars.$spacing-sm vars.$spacing-md;
+    margin-bottom: vars.$spacing-md;
 
     &:hover {
-        background: $color-button-hovered;
+        background: vars.$color-button-hovered;
         cursor: pointer;
     }
 
     &:active {
-        background: $color-button-active;
+        background: vars.$color-button-active;
     }
 }

@@ -609,7 +609,7 @@ export class b2RevoluteJoint extends b2Joint {
         return speed;
     }
 
-    public Draw(draw: b2Draw): void {
+    public override Draw(draw: b2Draw): void {
         const { p2, r, pA, pB } = temp;
         const xfA = this.m_bodyA.GetTransform();
         const xfB = this.m_bodyB.GetTransform();

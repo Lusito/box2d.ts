@@ -1,5 +1,3 @@
-import React from "react";
-
 import "./style.scss";
 
 export function checkboxDef(name: string, initialValue: boolean, update: (value: boolean) => void) {

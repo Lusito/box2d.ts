@@ -819,7 +819,7 @@ export class b2WheelJoint extends b2Joint {
         }
     }
 
-    public Draw(draw: b2Draw): void {
+    public override Draw(draw: b2Draw): void {
         const { p1, p2, pA, pB, axis } = temp.Draw;
         const xfA = this.m_bodyA.GetTransform();
         const xfB = this.m_bodyB.GetTransform();

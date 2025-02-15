@@ -1,5 +1,3 @@
-import React from "react";
-
 import { TestControl } from "../../testControls";
 import { Checkbox } from "../controls/Checkbox";
 import { Radio } from "../controls/Radio";

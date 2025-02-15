@@ -1,8 +1,7 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": ["../../tsconfig.json", "@lusito/tsconfig/react"],
   "compilerOptions": {
     "noEmit": true,
-    "jsx": "react",
     "baseUrl": ".",
     "paths": {
       "@box2d/core": ["../../packages/core/src"],

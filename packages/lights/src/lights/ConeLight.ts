@@ -49,7 +49,7 @@ export class ConeLight extends PositionalLight {
         this.setConeDegree(coneDegree);
     }
 
-    public update() {
+    public override update() {
         this.updateBody();
         if (this.dirty) this.setEndPoints();
 

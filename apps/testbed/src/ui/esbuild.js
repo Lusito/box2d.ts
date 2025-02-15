@@ -6,7 +6,7 @@ const path = require("path");
 const { copyFile } = require("fs/promises");
 
 const fileLoader = "file";
-const colorsPath = path.resolve(__dirname, "colors");
+const varsPath = path.resolve(__dirname, "vars");
 
 const dist = "./dist";
 
@@ -19,7 +19,7 @@ async function main() {
             tsPaths(),
             sassPlugin({
                 precompile(source, pathname, isRoot) {
-                    return isRoot ? `@import "${colorsPath}";\n${source}` : source;
+                    return isRoot ? `@use "${varsPath}";\n${source}` : source;
                 },
             }),
         ],

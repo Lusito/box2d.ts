@@ -5193,14 +5193,14 @@ export class b2ParticleSystem_JoinParticleGroupsFilter extends b2ParticleSystem_
     /**
      * An additional condition for creating a pair.
      */
-    public ShouldCreatePair(a: number, b: number): boolean {
+    public override ShouldCreatePair(a: number, b: number): boolean {
         return (a < this.m_threshold && this.m_threshold <= b) || (b < this.m_threshold && this.m_threshold <= a);
     }
 
     /**
      * An additional condition for creating a triad.
      */
-    public ShouldCreateTriad(a: number, b: number, c: number): boolean {
+    public override ShouldCreateTriad(a: number, b: number, c: number): boolean {
         return (
             (a < this.m_threshold || b < this.m_threshold || c < this.m_threshold) &&
             (this.m_threshold <= a || this.m_threshold <= b || this.m_threshold <= c)
@@ -5294,7 +5294,7 @@ export class b2ParticleSystem_ReactiveFilter extends b2ParticleSystem_Connection
         this.m_flagsBuffer = flagsBuffer;
     }
 
-    public IsNecessary(index: number): boolean {
+    public override IsNecessary(index: number): boolean {
         return (this.m_flagsBuffer.data[index] & b2ParticleFlag.b2_reactiveParticle) !== 0;
     }
 }

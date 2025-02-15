@@ -778,7 +778,7 @@ export class b2PrismaticJoint extends b2Joint {
         return inv_dt * this.m_motorImpulse;
     }
 
-    public Draw(draw: b2Draw): void {
+    public override Draw(draw: b2Draw): void {
         const { p1, p2, pA, pB, axis } = temp.Draw;
         const xfA = this.m_bodyA.GetTransform();
         const xfB = this.m_bodyB.GetTransform();

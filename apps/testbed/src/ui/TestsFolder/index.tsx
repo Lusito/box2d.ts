@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "@react-nano/router";
 
 import { getTestLink } from "../../utils/reactUtils";

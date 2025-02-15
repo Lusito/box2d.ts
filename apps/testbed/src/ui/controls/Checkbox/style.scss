@@ -1,11 +1,11 @@
 .checkbox {
     display: block;
-    margin: $spacing-md 0;
+    margin: vars.$spacing-md 0;
     cursor: pointer;
 }
 
 .checkbox--input {
-    margin-right: $spacing-md;
+    margin-right: vars.$spacing-md;
     display: none;
     width: 0;
     height: 0;
@@ -16,13 +16,13 @@
         align-items: center;
 
         &::before {
-            font-size: $size-control;
-            color: $color-check-mark;
-            width: $size-control;
-            height: $size-control;
-            margin-right: $spacing-md;
+            font-size: vars.$size-control;
+            color: vars.$color-check-mark;
+            width: vars.$size-control;
+            height: vars.$size-control;
+            margin-right: vars.$spacing-md;
             content: "";
-            background: $color-frame-bg;
+            background: vars.$color-frame-bg;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -35,9 +35,9 @@
 }
 
 .checkbox:hover span::before {
-    background: $color-frame-bg-hovered;
+    background: vars.$color-frame-bg-hovered;
 }
 
 .checkbox--input:active span::before {
-    background: $color-frame-bg-active;
+    background: vars.$color-frame-bg-active;
 }

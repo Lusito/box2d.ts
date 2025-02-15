@@ -6,23 +6,23 @@
 .slider--input {
     display: flex;
     position: relative;
-    margin-right: $spacing-md;
-    width: $size-wide-control;
+    margin-right: vars.$spacing-md;
+    width: vars.$size-wide-control;
 
     input[type="range"] {
         -webkit-appearance: none;
         margin: 0;
         width: 100%;
-        height: $size-control;
-        background: $color-frame-bg;
+        height: vars.$size-control;
+        background: vars.$color-frame-bg;
         cursor: pointer;
 
         &:hover {
-            background: $color-frame-bg-hovered;
+            background: vars.$color-frame-bg-hovered;
         }
 
         &:active {
-            background: $color-frame-bg-active;
+            background: vars.$color-frame-bg-active;
         }
 
         &::-webkit-slider-runnable-track {
@@ -30,30 +30,30 @@
         }
 
         &::-webkit-slider-thumb {
-            height: $size-control;
-            width: $size-control;
-            background: $color-slider-grab;
+            height: vars.$size-control;
+            width: vars.$size-control;
+            background: vars.$color-slider-grab;
             -webkit-appearance: none;
         }
 
         &::-moz-range-thumb {
             border: none;
-            height: $size-control;
-            width: $size-control;
+            height: vars.$size-control;
+            width: vars.$size-control;
             border-radius: 0;
-            background: $color-slider-grab;
+            background: vars.$color-slider-grab;
         }
 
         &:focus {
             outline: none;
-            background: $color-frame-bg-active;
+            background: vars.$color-frame-bg-active;
 
             &::-webkit-slider-thumb {
-                background: $color-slider-grab-active;
+                background: vars.$color-slider-grab-active;
             }
 
             &::-moz-range-thumb {
-                background: $color-slider-grab-active;
+                background: vars.$color-slider-grab-active;
             }
         }
     }
@@ -65,6 +65,6 @@
         align-items: center;
         justify-content: center;
         pointer-events: none;
-        line-height: $size-control;
+        line-height: vars.$size-control;
     }
 }

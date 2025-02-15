@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import { useReducer } from "react";
 import { createRoot } from "react-dom/client";
 import "typeface-open-sans";
 import { Router } from "@react-nano/router";

@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import { useRouter } from "@react-nano/router";
 
 import { useManager } from "../../manager";

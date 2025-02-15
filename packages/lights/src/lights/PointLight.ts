@@ -33,7 +33,7 @@ export class PointLight extends PositionalLight {
         super(rayHandler, rays, color, distance, x, y, 0);
     }
 
-    public update() {
+    public override update() {
         this.updateBody();
         if (this.dirty) this.setEndPoints();
 
