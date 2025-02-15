@@ -216,7 +216,10 @@ export class b2BroadPhase<T> {
     }
 
     private UnBufferMove(proxy: b2TreeNode<T>): void {
-        const i = this.m_moveBuffer.indexOf(proxy);
-        this.m_moveBuffer[i] = null;
-    }
+        for (let i = 0; i < this.m_moveCount; ++i) {
+          if (this.m_moveBuffer[i] === proxy) {
+            this.m_moveBuffer[i] = null;
+          }
+        }
+      }
 }
